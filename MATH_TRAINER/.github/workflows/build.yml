@@ -1,0 +1,66 @@
+name: Build macOS DMG
+
+on:
+  push:
+    paths:
+      - 'MATH_TRAINER/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        working-directory: MATH_TRAINER
+        run: swift build -c release
+
+      - name: Create app bundle
+        working-directory: MATH_TRAINER
+        shell: bash
+        run: |
+          set -e
+          rm -rf "MathTrainer.app" "MathTrainer.dmg"
+          mkdir -p "MathTrainer.app/Contents/MacOS"
+          mkdir -p "MathTrainer.app/Contents/Resources"
+          cp ".build/release/MathTrainer" "MathTrainer.app/Contents/MacOS/MathTrainer"
+          chmod +x "MathTrainer.app/Contents/MacOS/MathTrainer"
+
+          cat > "MathTrainer.app/Contents/Info.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleDisplayName</key>
+            <string>Математика</string>
+            <key>CFBundleExecutable</key>
+            <string>MathTrainer</string>
+            <key>CFBundleIdentifier</key>
+            <string>ru.rustam.mathtrainer</string>
+            <key>CFBundleName</key>
+            <string>Математика</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0</string>
+            <key>CFBundleVersion</key>
+            <string>1</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>13.0</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+
+          codesign --force --deep --sign - "MathTrainer.app"
+          hdiutil create -volname "Математика" -srcfolder "MathTrainer.app" -ov -format UDZO "MathTrainer.dmg"
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: MathTrainer-macOS
+          path: MATH_TRAINER/MathTrainer.dmg
+          if-no-files-found: error
