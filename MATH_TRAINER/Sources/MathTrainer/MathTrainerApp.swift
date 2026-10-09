@@ -85,7 +85,7 @@ final class StatsStore: ObservableObject {
                 stats.celebratedStreaks.append(stats.currentStreak)
                 celebrations.append("streak:\(stats.currentStreak)")
             }
-            for milestone in [50, 100] where stats.diamonds >= milestone
+            for milestone in [20, 50] where stats.diamonds >= milestone
                 && !stats.celebratedDiamondMilestones.contains(milestone) {
                 stats.celebratedDiamondMilestones.append(milestone)
                 celebrations.append("diamonds:\(milestone)")
@@ -142,10 +142,15 @@ struct ContentView: View {
     @State private var state: AnswerState = .neutral
     @State private var celebration: String?
     @State private var showCelebration = false
+    @State private var showBunny = false
     @State private var celebrationTokens: [CelebrationToken] = []
     @FocusState private var answerFocused: Bool
 
     enum AnswerState { case neutral, correct, incorrect }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
 
     private var answerColor: Color {
         switch state {
@@ -178,6 +183,12 @@ struct ContentView: View {
                 celebrationOverlay
                     .transition(.opacity)
                     .zIndex(10)
+            }
+
+            if showBunny {
+                bunnyOverlay
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .zIndex(9)
             }
         }
         .frame(minWidth: 760, minHeight: 560)
@@ -261,9 +272,14 @@ struct ContentView: View {
                         .font(.system(size: 21, weight: .bold))
                         .foregroundStyle(.white)
                 }
-                Text("Математика")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color(red: 0.28, green: 0.20, blue: 0.36))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Математика")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.28, green: 0.20, blue: 0.36))
+                    Text("Версия \(appVersion)")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
             }
             Spacer()
             HStack(spacing: 18) {
@@ -317,10 +333,10 @@ struct ContentView: View {
                     .foregroundStyle(Color(red: 0.28, green: 0.20, blue: 0.36))
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
-                    statCard(title: "Правильные", value: "\(store.stats.correct)", symbol: "checkmark.circle.fill", color: Color(red: 0.16, green: 0.65, blue: 0.40))
-                    statCard(title: "Ошибки", value: "\(store.stats.incorrect)", symbol: "xmark.circle.fill", color: Color(red: 0.86, green: 0.25, blue: 0.38))
-                    statCard(title: "Точность", value: "\(store.stats.accuracy)%", symbol: "target", color: Color(red: 0.58, green: 0.30, blue: 0.69))
-                    statCard(title: "Всего заданий", value: "\(store.stats.total)", symbol: "list.number", color: Color(red: 0.58, green: 0.30, blue: 0.69))
+                    statCard(title: "Всего ответов", value: "\(store.stats.total)", symbol: "list.number", color: Color(red: 0.58, green: 0.30, blue: 0.69))
+                    statCard(title: "Верных ответов", value: "\(store.stats.correct)", symbol: "checkmark.circle.fill", color: Color(red: 0.16, green: 0.65, blue: 0.40))
+                    statCard(title: "Неверных ответов", value: "\(store.stats.incorrect)", symbol: "xmark.circle.fill", color: Color(red: 0.86, green: 0.25, blue: 0.38))
+                    statCard(title: "Процент верных", value: "\(store.stats.accuracy)%", symbol: "target", color: Color(red: 0.58, green: 0.30, blue: 0.69))
                     statCard(title: "Алмазы", value: "💎 \(store.stats.diamonds)", symbol: "sparkle", color: Color(red: 0.76, green: 0.28, blue: 0.56))
                     statCard(title: "Лучшая серия", value: "\(store.stats.bestStreak)", symbol: "flame.fill", color: Color(red: 0.90, green: 0.48, blue: 0.24))
                 }
@@ -330,8 +346,8 @@ struct ContentView: View {
                         .font(.system(size: 23, weight: .bold, design: .rounded))
                         .foregroundStyle(Color(red: 0.35, green: 0.22, blue: 0.43))
                     rewardRow(emoji: "🔥", title: "Серия правильных ответов", detail: "Награда каждые 5 подряд", progress: store.stats.currentStreak % 5, goal: 5)
-                    rewardRow(emoji: "🎉", title: "50 алмазов", detail: "Цветной салют и мягкие игрушки", progress: min(store.stats.diamonds, 50), goal: 50)
-                    rewardRow(emoji: "🦋", title: "100 алмазов", detail: "Летающие птички и бабочки", progress: min(store.stats.diamonds, 100), goal: 100)
+                    rewardRow(emoji: "🎉", title: "20 алмазов", detail: "Цветной салют и мягкие игрушки", progress: min(store.stats.diamonds, 20), goal: 20)
+                    rewardRow(emoji: "🦋", title: "50 алмазов", detail: "Летающие птички и бабочки", progress: min(store.stats.diamonds, 50), goal: 50)
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
@@ -415,6 +431,14 @@ struct ContentView: View {
         } else {
             state = .incorrect
             answer = ""
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.68)) {
+                showBunny = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                withAnimation(.easeOut(duration: 0.3)) {
+                    showBunny = false
+                }
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 if state == .incorrect {
                     state = .neutral
@@ -422,6 +446,39 @@ struct ContentView: View {
                 }
             }
         }
+    }
+
+    private var bunnyOverlay: some View {
+        HStack(spacing: 0) {
+            VStack(spacing: 0) {
+                Text("🐰")
+                    .font(.system(size: 96))
+                Text("😱")
+                    .font(.system(size: 39))
+                    .offset(y: -12)
+                Text("Ой!")
+                    .font(.system(size: 17, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color(red: 0.64, green: 0.24, blue: 0.55))
+                    .offset(y: -8)
+            }
+            .frame(width: 142, height: 230)
+            .background(
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(LinearGradient(
+                        colors: [Color.white.opacity(0.98), Color(red: 1.0, green: 0.87, blue: 0.94)],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    ))
+                    .shadow(color: Color.pink.opacity(0.25), radius: 16, x: 4, y: 6)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 28)
+                    .stroke(Color(red: 0.80, green: 0.56, blue: 0.90).opacity(0.75), lineWidth: 2)
+            )
+            Spacer(minLength: 0)
+        }
+        .padding(.leading, -75)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .allowsHitTesting(false)
     }
 
     private func nextProblem() {
@@ -435,7 +492,7 @@ struct ContentView: View {
         celebration = reward
         celebrationTokens = (0..<28).map { _ in
             CelebrationToken(
-                emoji: reward.hasSuffix("50") ? ["🧸", "🪅", "🎈", "🧸", "🎉"].randomElement()! : ["🐦", "🦋", "🐤", "🦋", "🐦"].randomElement()!,
+                emoji: reward == "diamonds:20" ? ["🧸", "🪅", "🎈", "🧸", "🎉", "🪁"].randomElement()! : ["🐦", "🦋", "🐤", "🦋", "🐦"].randomElement()!,
                 x: Double.random(in: 0.05...0.95),
                 y: Double.random(in: 0.08...0.85),
                 delay: Double.random(in: 0...0.8)
@@ -450,7 +507,7 @@ struct ContentView: View {
     private var celebrationOverlay: some View {
         ZStack {
             Color(red: 0.32, green: 0.16, blue: 0.42).opacity(0.30).ignoresSafeArea()
-            if celebration == "diamonds:50" {
+            if celebration == "diamonds:20" {
                 ForEach(celebrationTokens.indices, id: \.self) { index in
                     let token = celebrationTokens[index]
                     Text(token.emoji)
@@ -459,7 +516,7 @@ struct ContentView: View {
                         .offset(y: showCelebration ? 0 : -100)
                         .animation(.easeOut(duration: 1.7).delay(token.delay), value: showCelebration)
                 }
-            } else if celebration == "diamonds:100" {
+            } else if celebration == "diamonds:50" {
                 ForEach(celebrationTokens.indices, id: \.self) { index in
                     let token = celebrationTokens[index]
                     Text(token.emoji)
@@ -487,8 +544,8 @@ struct ContentView: View {
 
     private var celebrationTitle: String {
         switch celebration {
-        case "diamonds:50": return "🎉 50 алмазов!"
-        case "diamonds:100": return "🦋 100 алмазов!"
+        case "diamonds:20": return "🎉 20 алмазов!"
+        case "diamonds:50": return "🦋 50 алмазов!"
         default:
             if let value = celebration?.split(separator: ":").last { return "🔥 \(value) подряд!" }
             return "Молодец!"
@@ -497,8 +554,8 @@ struct ContentView: View {
 
     private var celebrationSubtitle: String {
         switch celebration {
-        case "diamonds:50": return "Салют и целая компания мягких игрушек!"
-        case "diamonds:100": return "Смотри, птички и бабочки летают!"
+        case "diamonds:20": return "Салют из разноцветных игрушек!"
+        case "diamonds:50": return "Смотри, птички и бабочки летают!"
         default: return "Невероятная серия правильных ответов!"
         }
     }
