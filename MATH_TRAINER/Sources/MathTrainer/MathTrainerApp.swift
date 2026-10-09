@@ -451,7 +451,8 @@ struct ContentView: View {
         ZStack {
             Color(red: 0.32, green: 0.16, blue: 0.42).opacity(0.30).ignoresSafeArea()
             if celebration == "diamonds:50" {
-                ForEach(Array(celebrationTokens.enumerated()), id: \.offset) { _, token in
+                ForEach(celebrationTokens.indices, id: \.self) { index in
+                    let token = celebrationTokens[index]
                     Text(token.emoji)
                         .font(.system(size: 25 + CGFloat(token.delay * 16)))
                         .position(x: CGFloat(token.x * 900), y: CGFloat(token.y * 600))
@@ -459,7 +460,8 @@ struct ContentView: View {
                         .animation(.easeOut(duration: 1.7).delay(token.delay), value: showCelebration)
                 }
             } else if celebration == "diamonds:100" {
-                ForEach(Array(celebrationTokens.enumerated()), id: \.offset) { _, token in
+                ForEach(celebrationTokens.indices, id: \.self) { index in
+                    let token = celebrationTokens[index]
                     Text(token.emoji)
                         .font(.system(size: 25 + CGFloat(token.delay * 14)))
                         .position(x: CGFloat(token.x * 900), y: CGFloat(token.y * 600))
