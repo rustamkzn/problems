@@ -462,7 +462,7 @@ struct ContentView: View {
                 ForEach(Array(celebrationTokens.enumerated()), id: \.offset) { _, token in
                     Text(token.emoji)
                         .font(.system(size: 25 + CGFloat(token.delay * 14)))
-                        .position(x: token.x * 900, y: token.y * 600)
+                        .position(x: CGFloat(token.x * 900), y: CGFloat(token.y * 600))
                         .offset(x: showCelebration ? (token.x < 0.5 ? 180 : -180) : 0, y: showCelebration ? -130 : 80)
                         .animation(.easeInOut(duration: 2.8).repeatCount(1, autoreverses: true).delay(token.delay), value: showCelebration)
                 }
