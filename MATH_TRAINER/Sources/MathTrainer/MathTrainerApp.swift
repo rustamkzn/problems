@@ -276,9 +276,12 @@ struct ContentView: View {
                     Text("Математика")
                         .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundStyle(Color(red: 0.28, green: 0.20, blue: 0.36))
-                    Text("Версия \(appVersion)")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(.secondary)
+                    Text("ВЕРСИЯ \(appVersion)")
+                        .font(.system(size: 12, weight: .heavy, design: .rounded))
+                        .foregroundStyle(Color(red: 0.49, green: 0.25, blue: 0.63))
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4)
+                        .background(Color.white.opacity(0.72), in: Capsule())
                 }
             }
             Spacer()
