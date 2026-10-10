@@ -96,6 +96,28 @@ struct ProblemGenerator {
         }
     }
 
+    static func tip(for subject: StudySubject, problem: Problem) -> String {
+        let hints: [String]
+        switch subject {
+        case .math:
+            if problem.text.contains("сантиметр") || problem.text.contains("дм") { hints = ["1 дм = 10 см.", "При переводе дм в см умножай на 10."] }
+            else if problem.text.contains("грамм") { hints = ["1 кг = 1000 г.", "Чтобы получить граммы, умножь килограммы на 1000."] }
+            else if problem.text.contains("центнер") || problem.text.contains(" ц?") { hints = ["1 центнер = 100 кг.", "Центнеры переводи в килограммы умножением на 100."] }
+            else if problem.text.contains("сутках") || problem.text.contains("часов") { hints = ["В сутках 24 часа.", "Чтобы получить часы, умножь сутки на 24."] }
+            else if problem.text.contains("недел") { hints = ["В неделе 7 дней.", "Недели переводи в дни умножением на 7."] }
+            else if problem.text.contains("месяц") { hints = ["В году 12 месяцев.", "Годы переводи в месяцы умножением на 12."] }
+            else if problem.text.contains("десят") || problem.text.contains("единиц") { hints = ["Один десяток — это 10 единиц.", "Десятки стоят левее единиц."] }
+            else if problem.isComparison { hints = ["Сначала сравни десятки.", "Знак > раскрывается к большему числу."] }
+            else { hints = ["Проверь ответ обратным действием.", "Сначала умножение и деление, затем сложение и вычитание.", "Не торопись — проверь каждый шаг.", "Внимательно посмотри на знак действия."] }
+        case .world: hints = ["Свяжи вопрос с тем, что наблюдаешь в природе.", "Вспомни факты об окружающем мире.", "Прочитай условие ещё раз.", "Попробуй исключить неверные варианты."]
+        case .russian: hints = ["Подумай о значении слова.", "Вспомни правило и проверь написание.", "Попробуй произнести слово по слогам.", "Подбери похожее по смыслу слово."]
+        case .english: hints = ["Вспомни перевод слова в контексте.", "Произнеси слово вслух.", "Подумай, где встречал это слово.", "Проверь написание букв."]
+        case .tatar: hints = ["Вспомни перевод татарского слова.", "Произнеси слово вслух.", "Вспомни, как это говорят дома.", "Повтори слово и его значение."]
+        case .art: hints = ["Портрет изображает человека, пейзаж — природу.", "Натюрморт изображает предметы или цветы.", "Граффити часто состоит из ярких букв и рисунков.", "Обрати внимание на главный объект."]
+        }
+        return hints.randomElement() ?? "Внимательно прочитай условие и проверь ответ."
+    }
+
     fileprivate static func next(for subject: StudySubject) -> Problem {
         guard subject != .math else { return next() }
         let questions: [(String, String)]
@@ -119,7 +141,9 @@ struct ProblemGenerator {
             ]
             let target = artForms.randomElement() ?? artForms[0]
             let choices = artForms.shuffled().map { form in ArtChoice(title: form.0, symbol: form.1, caption: form.2) }
-            return Problem(text: "Найди: \(target.0.lowercased())", answer: target.0, isArtChoice: true, artChoices: choices)
+            let settings = ["в городской галерее", "на выставке", "в альбоме художника", "на стене творческой студии", "среди работ школьников", "в музее", "в журнале", "на конкурсе", "в мастерской", "на открытке"]
+            let verbs = ["Найди", "Выбери", "Определи", "Укажи"]
+            return Problem(text: "\(verbs.randomElement()!) \(target.0.lowercased()) \(settings.randomElement()!)", answer: target.0, isArtChoice: true, artChoices: choices)
         }
         let question = questions.randomElement() ?? ("Попробуй ещё раз", "")
         return Problem(text: question.0, answer: question.1)
@@ -422,6 +446,7 @@ struct ContentView: View {
     @State private var answer = ""
     @State private var selected: AppSection = .task
     @State private var answerState: AnswerState = .neutral
+    @State private var currentTip = "Внимательно прочитай условие и проверь ответ."
     @State private var showBunny = false
     @State private var celebration: String?
     @State private var showCelebration = false
@@ -571,6 +596,7 @@ struct ContentView: View {
                             answerState = .neutral
                             answer = ""
                             problem = ProblemGenerator.next(for: subject)
+                            currentTip = ProblemGenerator.tip(for: subject, problem: problem)
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
                         } label: { Label(subject.rawValue, systemImage: subject.icon) }
                     }
@@ -583,8 +609,9 @@ struct ContentView: View {
                     }
                     .foregroundStyle(palette.purple).padding(.horizontal, 10).padding(.vertical, 10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 11))
-                    .overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.line, lineWidth: 1.2))
+                    .background(palette.palePink.opacity(0.72), in: RoundedRectangle(cornerRadius: 11))
+                    .overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.purple, lineWidth: 2))
+                    .shadow(color: palette.purple.opacity(0.14), radius: 3, x: 0, y: 1)
                     .contentShape(RoundedRectangle(cornerRadius: 11))
                 }.menuStyle(.borderlessButton)
             }
@@ -966,7 +993,7 @@ struct ContentView: View {
                 Text("Маленькая подсказка")
                     .font(.system(size: 13, weight: .heavy, design: .rounded))
                     .foregroundStyle(palette.ink)
-                Text("Сначала реши сложение, потом вычитание.")
+                Text(currentTip)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundStyle(palette.muted)
             }
@@ -1611,6 +1638,7 @@ struct ContentView: View {
 
     private func nextProblem() {
         problem = ProblemGenerator.next(for: selectedSubject)
+        currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
         answer = ""
         answerState = .neutral
         answerFocused = true
