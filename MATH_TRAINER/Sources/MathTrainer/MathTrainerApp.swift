@@ -245,7 +245,10 @@ struct ProblemGenerator {
                 ("Фантастический рисунок", "moon.stars.fill", "Придуманные существа и волшебные места")
             ]
             let target = artForms.randomElement() ?? artForms[0]
-            let choices = artForms.shuffled().map { form in ArtChoice(title: form.0, symbol: form.1, caption: form.2) }
+            // Показываем ровно четыре варианта: правильный ответ и три случайных отвлекающих.
+            let distractors = artForms.filter { $0.0 != target.0 }.shuffled().prefix(3)
+            let selectedForms = ([target] + Array(distractors)).shuffled()
+            let choices = selectedForms.map { form in ArtChoice(title: form.0, symbol: form.1, caption: form.2) }
             let settings = ["в городской галерее", "на выставке", "в альбоме художника", "на стене творческой студии", "среди работ школьников", "в музее", "в журнале", "на конкурсе", "в мастерской", "на открытке", "в художественном каталоге", "на школьной выставке", "в доме культуры", "в арт-пространстве", "в творческом блокноте", "на афише", "в подборке иллюстраций", "в коллекции музея", "на уроке искусства", "в студии дизайна", "на фестивале", "в галерее современного искусства", "на странице альбома", "в выставочном зале", "в подборке работ", "на творческом занятии", "в книге об искусстве", "на плакате", "в мастер-классе", "на тематической экспозиции"]
             let verbs = ["Найди", "Выбери", "Определи", "Укажи", "Отметь", "Покажи", "Распознай", "Найди среди вариантов", "Выбери подходящий тип —", "Определи жанр:", "Какой это жанр —", "Найди изображение типа", "Укажи вид работы:", "Выбери жанр", "Распознай вид искусства:"]
             return Problem(text: "\(verbs.randomElement()!) \(target.0.lowercased()) \(settings.randomElement()!)", answer: target.0, isArtChoice: true, artChoices: choices)
@@ -592,8 +595,9 @@ struct ContentView: View {
             ReleaseNote(version: appVersion, date: appReleaseDate, title: "Задания для второго класса и новые игрушки", changes: [
                 "В химии убраны задания на порядковые номера элементов: остаётся распознавание названия и химического символа.",
                 "В окружающем мире появились простые вопросы о природе, животных, теле человека и быте с четырьмя вариантами ответа.",
-                "В рисовании расширен набор до 30 художественных направлений и видов работ; варианты ответов перемешиваются.",
-                "В магазине видны названия и изображения закрытых игрушек: собачек, кошечек, единорогов, фей, принцесс и смешариков.",
+                "В рисовании теперь ровно четыре варианта ответа: правильный и три случайных.",
+                "В магазине закрытые призы скрыты за одинаковыми коробочками; название и вид открываются только после получения.",
+                "Повторное получение или покупка уже собранной игрушки заблокированы.",
                 "Таблица умножения теперь встречается примерно в каждом третьем математическом задании."
             ]),
             ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Математика и выбор предмета", changes: ["Добавлены задания на десятки и единицы, длину, массу и время.", "Переключатель предметов вынесен в левую колонку."]),
@@ -1467,10 +1471,16 @@ struct ContentView: View {
                 }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Коллекционные игрушки", icon: "sparkles")
+                    Text("\(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }.count) из \(Collectible.all.count) игрушек открыто")
+                        .font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        ForEach(Collectible.all) { item in collectibleCard(item) }
+                        ForEach(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }) { item in collectibleCard(item) }
                     }
-                    Text("Игрушки можно находить случайно или покупать за алмазы.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    if !Collectible.all.contains(where: { allOwnedCollectibleIDs.contains($0.id) }) {
+                        Text("Пока нет открытых игрушек. Решай задания или загляни в магазин за секретным призом.")
+                            .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .fixedSize(horizontal: false, vertical: true).padding(.vertical, 5)
+                    }
                 }.padding(18).cardStyle(palette)
             }.padding(25)
         }.scrollIndicators(.hidden)
@@ -1497,30 +1507,37 @@ struct ContentView: View {
                         Text("\(store.stats.diamonds) алмазов").font(.system(size: 23, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     }
                     Spacer()
-                    Text("\(Collectible.all.count) игрушек").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                    Text("\(Collectible.all.filter { !allOwnedCollectibleIDs.contains($0.id) }.count) секретных призов осталось")
+                        .font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
                 }.padding(17).cardStyle(palette)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
-                    ForEach(Collectible.all) { item in shopItemCard(item) }
+                    ForEach(Collectible.all.filter { !allOwnedCollectibleIDs.contains($0.id) }) { item in shopItemCard(item) }
                 }
-                Text("Цены случайные при первом запуске и сохраняются на этом Mac.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                if Collectible.all.allSatisfy({ allOwnedCollectibleIDs.contains($0.id) }) {
+                    Text("Поздравляем! Все игрушки собраны 🎉")
+                        .font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
+                        .frame(maxWidth: .infinity).padding(22)
+                }
+                Text("Закрытые призы спрятаны. Название и игрушка откроются после покупки. Цены сохраняются на этом Mac.")
+                    .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
             }.padding(25)
         }.scrollIndicators(.hidden)
     }
     private func shopItemCard(_ item: Collectible) -> some View {
-        let owned = shopOwnedIDs.contains(item.id)
+        let owned = allOwnedCollectibleIDs.contains(item.id)
         let price = shopPrices[item.id] ?? 20
         return VStack(alignment: .leading, spacing: 9) {
             ZStack(alignment: .topTrailing) {
                 RoundedRectangle(cornerRadius: 17).fill(LinearGradient(colors: owned ? [palette.pink, palette.lilac] : [palette.line.opacity(0.5), palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing))
-                Text(item.emoji).font(.system(size: 43)).saturation(owned ? 1 : 0.45).opacity(owned ? 1 : 0.72)
+                Text(owned ? item.emoji : "🎁").font(.system(size: 43)).saturation(owned ? 1 : 0.45).opacity(owned ? 1 : 0.72)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 if !owned {
                     Image(systemName: "lock.fill").font(.system(size: 11, weight: .black)).foregroundStyle(.white)
                         .padding(7).background(palette.purple, in: Circle()).padding(6)
                 }
             }.frame(height: 83)
-            Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1)
-            Text(owned ? "Уже куплена · \(item.detail)" : item.detail).font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
+            Text(owned ? item.title : "Секретный приз").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1)
+            Text(owned ? "Уже открыта · \(item.detail)" : "Открой коробочку, чтобы узнать игрушку").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
             if owned {
                 Label("Открыта!", systemImage: "checkmark.seal.fill").font(.system(size: 11, weight: .heavy, design: .rounded)).foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
             } else {
@@ -1557,6 +1574,7 @@ struct ContentView: View {
     }
 
     private func buyCollectible(_ item: Collectible) {
+        // Не выдаём и не продаём коллекционную игрушку второй раз.
         guard !allOwnedCollectibleIDs.contains(item.id) else { return }
         let price = shopPrices[item.id] ?? 25
         guard store.spendDiamonds(price) else { return }
