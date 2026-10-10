@@ -60,7 +60,7 @@ struct ProblemGenerator {
         }
     }
 
-    static func next(for subject: StudySubject) -> Problem {
+    fileprivate static func next(for subject: StudySubject) -> Problem {
         guard subject != .math else { return next() }
         let questions: [(String, String)]
         switch subject {
