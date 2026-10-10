@@ -56,8 +56,31 @@ struct ProblemGenerator {
             let a = Int.random(in: 10...100)
             let b = Int.random(in: 10...100)
             let sign = a > b ? ">" : (a < b ? "<" : "=")
-            return Problem(text: "Сравни числа:\n\(a)  ?  \(b)", answer: sign, isComparison: true)
+            return Problem(text: "Сравни: \(a)  ?  \(b)", answer: sign, isComparison: true)
         }
+    }
+
+    static func next(for subject: StudySubject) -> Problem {
+        guard subject != .math else { return next() }
+        let questions: [(String, String)]
+        switch subject {
+        case .math:
+            return next()
+        case .world:
+            questions = [("Сколько дней в неделе?", "7"), ("Какое животное даёт молоко?", "корова"), ("Какое время года после весны?", "лето"), ("Сколько лап у паука?", "8"), ("На какой планете мы живём?", "земля")]
+        case .russian:
+            questions = [("Антоним слова «день»?", "ночь"), ("Сколько слогов в слове «мама»?", "2"), ("Первый звук в слове «дом»?", "д"), ("Как правильно: жи или жЫ?", "жи"), ("Синоним слова «смелый»?", "храбрый")]
+        case .english:
+            questions = [("Переведи cat", "кот"), ("Переведи dog", "собака"), ("Переведи sun", "солнце"), ("Как по-английски «привет»?", "hello"), ("Переведи book", "книга")]
+        case .tatar:
+            questions = [("«Әни» по-русски?", "мама"), ("«Әти» по-русски?", "папа"), ("«Исәнме» по-русски?", "здравствуй"), ("«Рәхмәт» по-русски?", "спасибо"), ("«Су» по-русски?", "вода")]
+        case .art:
+            questions = [("Жёлтый + синий = ?", "зелёный"), ("Красный + жёлтый = ?", "оранжевый"), ("Какой цвет у травы?", "зелёный"), ("Цвет неба в ясный день?", "голубой"), ("Рисунок красками — это?", "живопись")]
+        case .keyboard:
+            questions = [("Какая буква после А?", "б"), ("Какая буква перед В?", "б"), ("Сколько букв в слове «кот»?", "3"), ("Какая буква после Б?", "в"), ("Первая буква слова «мама»?", "м")]
+        }
+        let question = questions.randomElement() ?? ("Попробуй ещё раз", "")
+        return Problem(text: question.0, answer: question.1)
     }
 }
 
@@ -310,7 +333,14 @@ private struct Collectible: Identifiable {
             ("tiger", "Тигрёнок", "🐯"), ("lion", "Львёнок", "🦁"),
             ("monkey", "Обезьянка", "🐵"), ("giraffe", "Жираф", "🦒"),
             ("elephant", "Слонёнок", "🐘"), ("parrot", "Попугай", "🦜"),
-            ("duck", "Утёнок", "🦆"), ("snail", "Улитка", "🐌")
+            ("duck", "Утёнок", "🦆"), ("snail", "Улитка", "🐌"),
+            ("pony", "Пони", "🐴"), ("rainbow-pony", "Радужный пони", "🦄"),
+            ("princess", "Принцесса", "👸"), ("fairy", "Фея", "🧚"),
+            ("smiley", "Смайлик", "😊"), ("heart-smiley", "Смайлик-сердечко", "🥰"),
+            ("krosh", "Крош", "🐰"), ("nyusha", "Нюша", "🐷"),
+            ("barash", "Бараш", "🐑"), ("pin", "Пин", "🐧"),
+            ("losyash", "Лосяш", "🫎"), ("kar-karych", "Кар-Карыч", "🐦"),
+            ("princess-pony", "Принцесса пони", "🦄"), ("mermaid", "Русалочка", "🧜")
         ]
         let collections: [(id: String, name: String, detail: String)] = [
             ("bronze", "Бронзовый", "Тёплая бронзовая коллекция"),
@@ -387,7 +417,7 @@ struct ContentView: View {
                 "Исправлено: заяц появляется внутри карточки задания, а не между колонками.",
                 "Устранено: голубые линии и стандартное оформление поля ответа.",
                 "Добавлено: 10 цветовых тем и раздел «Клавиатура» (пока без уроков).",
-                "Магазин расширен до 162 игрушек: 12 прежних предметов и 150 новых вариантов.",
+                "В магазин добавлены пони, единороги, принцессы, смайлики и мультяшные персонажи.",
                 "Первая игрушка стоит 25 алмазов; цена следующей случайно растёт на 20 или 25 алмазов и сохраняется.",
                 "Добавлены уровни, бронзовая, серебряная и золотая медали и новые достижения.",
                 "Исправлено отображение даты занятия: DD.MM.YYYY с явным контрастным цветом текста.",
@@ -407,6 +437,9 @@ struct ContentView: View {
             ReleaseNote(version: "1.0.8", date: "09.10.2026", title: "Статистика", changes: [
                 "Добавлена статистика правильных и неправильных ответов.",
                 "Добавлена история результатов по дням и начисление алмазов."
+            ]),
+            ReleaseNote(version: "1.0.7", date: "09.10.2026", title: "Базовые задания", changes: [
+                "Сохранена история раннего выпуска: базовые математические задания и первоначальный экран тренировки."
             ])
         ]
     }
@@ -469,10 +502,8 @@ struct ContentView: View {
                                 selected = .task
                                 answerState = .neutral
                                 answer = ""
-                                if subject == .math {
-                                    problem = ProblemGenerator.next()
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
-                                }
+                                problem = ProblemGenerator.next(for: subject)
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
                             } label: { Label(subject.rawValue, systemImage: subject.icon) }
                         }
                     } label: {
@@ -550,7 +581,7 @@ struct ContentView: View {
     private var mainContent: some View {
         switch selected {
         case .task:
-            if selectedSubject == .math { taskDashboard } else { subjectComingSoon }
+            taskDashboard
         case .statistics: statisticsPage
         case .days: daysPage
         case .rewards: rewardsPage
@@ -665,11 +696,13 @@ struct ContentView: View {
             Spacer(minLength: 24)
 
             Text(problem.text)
-                .font(.system(size: 62, weight: .heavy, design: .rounded))
+                .font(.system(size: selectedSubject == .math ? 62 : 38, weight: .heavy, design: .rounded))
                 .foregroundStyle(palette.ink)
+                .multilineTextAlignment(.center)
                 .contentTransition(.numericText())
                 .minimumScaleFactor(0.42)
-                .lineLimit(1)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 12)
 
             Spacer(minLength: 34)
@@ -690,9 +723,11 @@ struct ContentView: View {
                         if problem.isComparison {
                             let filtered = String(newValue.filter { ["<", ">", "="].contains(String($0)) }.prefix(1))
                             if filtered != newValue { answer = filtered }
-                        } else {
+                        } else if selectedSubject == .math {
                             let filtered = String(newValue.filter(\.isNumber).prefix(3))
                             if filtered != newValue { answer = filtered }
+                        } else if newValue.count > 24 {
+                            answer = String(newValue.prefix(24))
                         }
                     }
 
@@ -1117,9 +1152,9 @@ struct ContentView: View {
         return VStack(alignment: .leading, spacing: 9) {
             ZStack {
                 RoundedRectangle(cornerRadius: 17).fill(LinearGradient(colors: owned ? [palette.pink, palette.lilac] : [palette.line.opacity(0.5), palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing))
-                Text(owned ? item.emoji : "🔒").font(.system(size: 43)).saturation(owned ? 1 : 0).opacity(owned ? 1 : 0.55)
+                Text(item.emoji).font(.system(size: 43)).saturation(owned ? 1 : 0.12).opacity(owned ? 1 : 0.48).blur(radius: owned ? 0 : 0.25)
             }.frame(height: 83)
-            Text(owned ? item.title : "Секретная игрушка").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1)
+            Text(owned ? item.title : "???").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(owned ? palette.ink : palette.muted).lineLimit(1)
             Text(owned ? item.detail : "Открой за алмазы").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
             if owned {
                 Label("Открыта!", systemImage: "checkmark.seal.fill").font(.system(size: 11, weight: .heavy, design: .rounded)).foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
@@ -1425,7 +1460,8 @@ struct ContentView: View {
 
     private func checkAnswer() {
         guard !answer.isEmpty, answerState != .correct else { return }
-        let isCorrect = answer.trimmingCharacters(in: .whitespacesAndNewlines) == problem.answer
+        let normalizedAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let isCorrect = normalizedAnswer == problem.answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let rewards = store.record(correct: isCorrect)
         let newAchievements = unlockEligibleAchievements()
 
@@ -1458,7 +1494,7 @@ struct ContentView: View {
     }
 
     private func nextProblem() {
-        problem = ProblemGenerator.next()
+        problem = ProblemGenerator.next(for: selectedSubject)
         answer = ""
         answerState = .neutral
         answerFocused = true
