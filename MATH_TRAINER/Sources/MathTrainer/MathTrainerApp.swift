@@ -258,7 +258,6 @@ private enum StudySubject: String, CaseIterable, Identifiable {
     case english = "Английский язык"
     case tatar = "Татарский язык"
     case art = "Рисование"
-    case keyboard = "Клавиатура"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -268,7 +267,6 @@ private enum StudySubject: String, CaseIterable, Identifiable {
         case .english: "globe"
         case .tatar: "textformat"
         case .art: "paintpalette.fill"
-        case .keyboard: "keyboard"
         }
     }
 }
@@ -480,13 +478,14 @@ struct ContentView: View {
 
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 17).fill(LinearGradient(colors: [palette.purple, Color(red: 0.85, green: 0.43, blue: 0.74)], startPoint: .topLeading, endPoint: .bottomTrailing))
                     Image(systemName: "brain.head.profile").font(.system(size: 27, weight: .heavy)).foregroundStyle(.white)
-                }.frame(width: 52, height: 52)
-                VStack(alignment: .leading, spacing: 5) {
+                }.frame(width: 48, height: 48)
+                VStack(alignment: .leading, spacing: 6) {
                     Text("Тренировка мозга").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).minimumScaleFactor(0.78)
+                    Text("СЕЙЧАС ВЫБРАН ПРЕДМЕТ").font(.system(size: 8, weight: .heavy, design: .rounded)).tracking(0.35).foregroundStyle(palette.muted)
                     Menu {
                         ForEach(StudySubject.allCases) { subject in
                             Button {
@@ -499,14 +498,21 @@ struct ContentView: View {
                             } label: { Label(subject.rawValue, systemImage: subject.icon) }
                         }
                     } label: {
-                        HStack(spacing: 5) {
-                            Text(selectedSubject.rawValue).font(.system(size: 12, weight: .heavy, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
+                        HStack(spacing: 7) {
+                            Image(systemName: selectedSubject.icon).font(.system(size: 11, weight: .heavy))
+                            Text(selectedSubject.rawValue).font(.system(size: 11, weight: .heavy, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
+                            Spacer(minLength: 1)
                             Image(systemName: "chevron.down").font(.system(size: 9, weight: .heavy))
-                        }.foregroundStyle(palette.purple).contentShape(Rectangle())
+                        }
+                        .foregroundStyle(palette.purple).padding(.horizontal, 9).padding(.vertical, 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(palette.line, lineWidth: 1))
+                        .contentShape(RoundedRectangle(cornerRadius: 10))
                     }.menuStyle(.borderlessButton)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 14).padding(.top, 25).padding(.bottom, 27)
+            .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 21)
 
             VStack(spacing: 8) {
                 ForEach(AppSection.allCases) { section in
@@ -619,17 +625,14 @@ struct ContentView: View {
         case .english: "🔤"
         case .tatar: "🌿"
         case .art: "🎨"
-        case .keyboard: "⌨️"
         }
     }
 
     private var taskDashboard: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(spacing: 11) {
-                subjectSwitcher
                 topBar
-                quizCard
-                    .frame(maxWidth: .infinity, minHeight: 430)
+                quizCard.frame(maxWidth: .infinity, minHeight: 430)
                 dailyPreview
                 tipBar
             }
@@ -638,217 +641,6 @@ struct ContentView: View {
         }
         .padding(15)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private var subjectSwitcher: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 7) {
-                Image(systemName: "books.vertical.fill").font(.system(size: 14, weight: .heavy)).foregroundStyle(palette.purple)
-                Text("УЧЕБНЫЙ ПРЕДМЕТ").font(.system(size: 11, weight: .heavy, design: .rounded)).tracking(0.5).foregroundStyle(palette.muted)
-                Spacer()
-                Text("Выбери предмет").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-            }
-            Menu {
-                ForEach(StudySubject.allCases) { subject in
-                    Button {
-                        selectedSubjectName = subject.rawValue
-                        selected = .task
-                        answerState = .neutral
-                        answer = ""
-                        problem = ProblemGenerator.next(for: subject)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
-                    } label: { Label(subject.rawValue, systemImage: subject.icon) }
-                }
-            } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: selectedSubject.icon).font(.system(size: 16, weight: .heavy)).frame(width: 25)
-                    Text(selectedSubject.rawValue).font(.system(size: 15, weight: .heavy, design: .rounded))
-                    Spacer()
-                    Image(systemName: "chevron.down").font(.system(size: 11, weight: .heavy))
-                }
-                .foregroundStyle(palette.purple).padding(.horizontal, 14).frame(maxWidth: .infinity, minHeight: 42)
-                .background(.white.opacity(0.86), in: RoundedRectangle(cornerRadius: 14))
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
-                .contentShape(RoundedRectangle(cornerRadius: 14))
-            }.menuStyle(.borderlessButton)
-        }
-        .padding(11).background(.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 17))
-        .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.line.opacity(0.75), lineWidth: 1))
-    }
-
-    private var topBar: some View {
-        HStack(spacing: 10) {
-            Button { openShop() } label: {
-                HStack(spacing: 12) {
-                    Text("💎").font(.system(size: 32))
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Алмазы · магазин").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                        Text("\(store.stats.diamonds)").font(.system(size: 26, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    }
-                    Spacer(minLength: 0)
-                    Image(systemName: "chevron.right").font(.system(size: 11, weight: .heavy)).foregroundStyle(palette.purple)
-                }.padding(.horizontal, 14).frame(maxWidth: .infinity).frame(height: 70)
-                 .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
-                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
-            }.buttonStyle(.plain).help("Открыть магазин коллекционных игрушек")
-            HStack(spacing: 10) {
-                Text("🔥").font(.system(size: 30))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Серия").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                    Text("\(store.stats.currentStreak) подряд").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                }
-                Spacer(minLength: 2)
-                HStack(spacing: 4) {
-                    ForEach(0..<5, id: \.self) { index in
-                        Circle().fill(index < store.stats.currentStreak % 5 ? palette.purple : palette.line).frame(width: 8, height: 8)
-                    }
-                }
-            }.padding(.horizontal, 12).frame(maxWidth: .infinity).frame(height: 70)
-             .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
-             .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
-        }
-    }
-
-    private var quizCard: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 16)
-            Text("РЕШИ ПРИМЕР")
-                .font(.system(size: 15, weight: .heavy, design: .rounded))
-                .tracking(1.1)
-                .foregroundStyle(palette.purple)
-                .padding(.horizontal, 22)
-                .padding(.vertical, 11)
-                .background(.white.opacity(0.84), in: Capsule())
-                .overlay(Capsule().stroke(.white, lineWidth: 1))
-                .shadow(color: palette.pink.opacity(0.18), radius: 9, y: 3)
-
-            Spacer(minLength: 24)
-
-            Text(problem.text)
-                .font(.system(size: selectedSubject == .math ? 62 : 38, weight: .heavy, design: .rounded))
-                .foregroundStyle(palette.ink)
-                .multilineTextAlignment(.center)
-                .contentTransition(.numericText())
-                .minimumScaleFactor(0.42)
-                .lineLimit(2)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 12)
-
-            Spacer(minLength: 34)
-
-            HStack(spacing: 11) {
-                TextField(problem.isComparison ? "Выбери знак ниже" : "Введи ответ...", text: $answer)
-                    .font(.system(size: 23, weight: .bold, design: .rounded))
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(answerColor)
-                    .textFieldStyle(.plain)
-                    .focusEffectDisabled()
-                    .frame(height: 74)
-                    .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 21))
-                    .overlay(RoundedRectangle(cornerRadius: 21).stroke(answerColor.opacity(0.78), lineWidth: 2))
-                    .focused($answerFocused)
-                    .onSubmit(checkAnswer)
-                    .onChange(of: answer) { _, newValue in
-                        if problem.isComparison {
-                            let filtered = String(newValue.filter { ["<", ">", "="].contains(String($0)) }.prefix(1))
-                            if filtered != newValue { answer = filtered }
-                        } else if selectedSubject == .math {
-                            let filtered = String(newValue.filter(\.isNumber).prefix(3))
-                            if filtered != newValue { answer = filtered }
-                        } else if newValue.count > 24 {
-                            answer = String(newValue.prefix(24))
-                        }
-                    }
-
-                if problem.isComparison {
-                    HStack(spacing: 12) {
-                        ForEach([">", "<", "="], id: \.self) { symbol in
-                            Button {
-                                answer = symbol
-                                answerFocused = false
-                            } label: {
-                                Text(symbol)
-                                    .font(.system(size: 24, weight: .heavy, design: .rounded))
-                                    .foregroundStyle(answer == symbol ? .white : palette.ink)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 49)
-                                    .background(answer == symbol ? palette.purple : .white.opacity(0.90), in: RoundedRectangle(cornerRadius: 14))
-                                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
-                            }
-                            .buttonStyle(.plain)
-                            .disabled(answerState == .correct)
-                        }
-                    }
-                    .padding(.horizontal, 23)
-                    .padding(.top, -8)
-                }
-
-                Button(action: checkAnswer) {
-                    HStack(spacing: 7) {
-                        Text("Проверить")
-                        Image(systemName: "arrow.right")
-                    }
-                    .font(.system(size: 14, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 15)
-                    .frame(height: 74)
-                    .background(LinearGradient(colors: [palette.lilac, Color(red: 0.82, green: 0.50, blue: 0.84)],
-                                               startPoint: .topLeading, endPoint: .bottomTrailing),
-                                in: RoundedRectangle(cornerRadius: 21))
-                    .shadow(color: palette.purple.opacity(0.2), radius: 10, y: 5)
-                }
-                .buttonStyle(.plain)
-                .disabled(answerState == .correct)
-            }
-            .padding(.horizontal, 23)
-
-            Text(stateMessage)
-                .font(.system(size: 18, weight: .heavy, design: .rounded))
-                .foregroundStyle(answerColor)
-                .frame(height: 31)
-                .padding(.top, 13)
-
-            Spacer(minLength: 22)
-            HStack(spacing: 8) {
-                Text("✨")
-                Text("Ты можешь! У тебя всё получится!")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundStyle(palette.purple)
-                Text("💗")
-            }
-            .padding(.bottom, 21)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-            ZStack {
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(LinearGradient(
-                        colors: [palette.quizTop, palette.quizBottom, palette.palePink],
-                        startPoint: .topLeading, endPoint: .bottomTrailing
-                    ))
-                Circle().fill(.white.opacity(0.60)).frame(width: 360, height: 360).blur(radius: 10)
-                Circle().fill(palette.quizGlow.opacity(0.34)).frame(width: 230, height: 230).blur(radius: 12).offset(x: -190, y: 170)
-                Circle().fill(palette.lilac.opacity(0.20)).frame(width: 260, height: 260).blur(radius: 12).offset(x: 220, y: 170)
-            }
-        }
-        .overlay(alignment: .topLeading) {
-            Text("✦").font(.system(size: 24)).foregroundStyle(Color(red: 1, green: 0.74, blue: 0.44)).padding(23)
-        }
-        .overlay(alignment: .topTrailing) {
-            Text("✧").font(.system(size: 30)).foregroundStyle(palette.pink).padding(26)
-        }
-        .overlay(alignment: .bottomTrailing) {
-            Text("✦").font(.system(size: 22)).foregroundStyle(Color(red: 1, green: 0.78, blue: 0.52)).padding(23)
-        }
-        .overlay(alignment: .leading) {
-            if showBunny {
-                bunnySticker.scaleEffect(0.78)
-                    .offset(x: 8, y: 28)
-                    .transition(.move(edge: .leading).combined(with: .opacity))
-                    .zIndex(5)
-            }
-        }
-        .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white.opacity(0.92), lineWidth: 1.4))
     }
 
     private var bunnySticker: some View {
@@ -1233,15 +1025,12 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 15) {
                     Label("Тема оформления", systemImage: "paintpalette.fill").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     Text("Выбери одну из десяти тем. Цвета интерфейса изменятся сразу.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                    Picker("Цветовая тема", selection: $themeName) {
-                        ForEach(AppTheme.allCases) { theme in Text(theme.rawValue).tag(theme.rawValue) }
-                    }.pickerStyle(.menu).frame(maxWidth: 320, alignment: .leading)
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 10) {
                         ForEach(AppTheme.allCases) { theme in themeSwatch(theme) }
                     }
                     Divider().overlay(palette.line)
                     Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Нажми на название предмета вверху слева, чтобы переключиться. Математика работает; задания для остальных предметов появятся в следующем обновлении.")
+                    Text("Выбери предмет в левом меню. Для рисования доступны задания с выбором иллюстрации.")
                         .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     ForEach(StudySubject.allCases) { subject in
                         HStack(spacing: 9) {
