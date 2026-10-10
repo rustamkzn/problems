@@ -108,6 +108,13 @@ final class StatsStore: ObservableObject {
         return rewards
     }
 
+    func spendDiamonds(_ amount: Int) -> Bool {
+        guard amount > 0, stats.diamonds >= amount else { return false }
+        stats.diamonds -= amount
+        if let data = try? JSONEncoder().encode(stats) { UserDefaults.standard.set(data, forKey: key) }
+        return true
+    }
+
     static func dateKey(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_CA")
@@ -117,13 +124,10 @@ final class StatsStore: ObservableObject {
     }
 
     static func displayDate(_ key: String) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.timeZone = .current
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: key) else { return key }
-        formatter.dateFormat = "d MMMM"
-        return formatter.string(from: date)
+        let parts = key.split(separator: "-")
+        guard parts.count == 3, let year = Int(parts[0]), let month = Int(parts[1]), let day = Int(parts[2]), (1...12).contains(month), (1...31).contains(day) else { return key }
+        let months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]
+        return "\(day) \(months[month - 1]) \(year)"
     }
 }
 
@@ -144,6 +148,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
     case statistics = "Статистика"
     case days = "По дням"
     case rewards = "Награды"
+    case shop = "Магазин"
     case settings = "Настройки"
     case versionHistory = "Версии и изменения"
 
@@ -154,6 +159,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
         case .statistics: return "chart.bar.fill"
         case .days: return "calendar"
         case .rewards: return "trophy.fill"
+        case .shop: return "storefront.fill"
         case .settings: return "gearshape.fill"
         case .versionHistory: return "doc.text.magnifyingglass"
         }
@@ -166,28 +172,33 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     case mint = "Мята"
     case peach = "Персик"
     case night = "Ночное небо"
+    case rose = "Розовый сад"
+    case forest = "Лес"
+    case sky = "Небесная"
+    case sunshine = "Солнечная"
+    case galaxy = "Галактика"
     var id: String { rawValue }
 }
 private struct AppPalette {
     let theme: AppTheme
     private func c(_ r: Double, _ g: Double, _ b: Double) -> Color { Color(red:r, green:g, blue:b) }
-    var ink: Color { switch theme { case .lilac:c(0.20,0.15,0.39); case .ocean:c(0.10,0.22,0.38); case .mint:c(0.12,0.32,0.29); case .peach:c(0.42,0.23,0.24); case .night:c(0.92,0.91,1) } }
-    var purple: Color { switch theme { case .lilac:c(0.56,0.37,0.83); case .ocean:c(0.23,0.46,0.76); case .mint:c(0.19,0.56,0.48); case .peach:c(0.80,0.42,0.42); case .night:c(0.62,0.48,0.94) } }
-    var lilac: Color { switch theme { case .lilac:c(0.76,0.65,0.96); case .ocean:c(0.62,0.82,0.98); case .mint:c(0.58,0.84,0.75); case .peach:c(1,0.70,0.54); case .night:c(0.42,0.30,0.75) } }
-    var pink: Color { switch theme { case .lilac:c(0.96,0.70,0.86); case .ocean:c(0.63,0.88,0.94); case .mint:c(0.74,0.92,0.83); case .peach:c(1,0.75,0.66); case .night:c(0.83,0.45,0.75) } }
-    var palePink: Color { switch theme { case .lilac:c(1,0.92,0.97); case .ocean:c(0.91,0.97,1); case .mint:c(0.91,0.98,0.94); case .peach:c(1,0.94,0.88); case .night:c(0.23,0.20,0.34) } }
-    var green: Color { switch theme { case .lilac:c(0.20,0.66,0.43); case .ocean:c(0.15,0.62,0.52); case .mint:c(0.15,0.62,0.42); case .peach:c(0.28,0.61,0.40); case .night:c(0.44,0.82,0.60) } }
-    var red: Color { switch theme { case .lilac:c(0.89,0.28,0.42); case .ocean:c(0.84,0.34,0.40); case .mint:c(0.83,0.31,0.44); case .peach:c(0.84,0.28,0.31); case .night:c(0.98,0.46,0.58) } }
-    var muted: Color { switch theme { case .lilac:c(0.51,0.47,0.63); case .ocean:c(0.32,0.47,0.62); case .mint:c(0.30,0.50,0.46); case .peach:c(0.56,0.39,0.39); case .night:c(0.77,0.72,0.88) } }
-    var line: Color { switch theme { case .lilac:c(0.88,0.82,0.97); case .ocean:c(0.75,0.87,0.98); case .mint:c(0.76,0.91,0.84); case .peach:c(0.97,0.82,0.72); case .night:c(0.39,0.34,0.53) } }
-    var canvasTop: Color { switch theme { case .lilac:c(0.88,0.82,0.98); case .ocean:c(0.83,0.92,1); case .mint:c(0.82,0.96,0.89); case .peach:c(1,0.86,0.75); case .night:c(0.15,0.13,0.27) } }
-    var canvasMiddle: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.90,0.97,1); case .mint:c(0.94,1,0.96); case .peach:c(1,0.94,0.87); case .night:c(0.22,0.17,0.34) } }
-    var canvasBottom: Color { switch theme { case .lilac:c(0.96,0.91,1); case .ocean:c(0.88,0.95,1); case .mint:c(0.83,0.95,0.90); case .peach:c(1,0.89,0.81); case .night:c(0.14,0.18,0.31) } }
-    var sidebarTop: Color { switch theme { case .lilac:.white; case .ocean:c(0.96,0.99,1); case .mint:c(0.98,1,0.98); case .peach:c(1,0.99,0.96); case .night:c(0.20,0.16,0.31) } }
-    var sidebarBottom: Color { switch theme { case .lilac:c(0.95,0.90,1); case .ocean:c(0.87,0.94,1); case .mint:c(0.86,0.97,0.91); case .peach:c(1,0.90,0.81); case .night:c(0.14,0.14,0.25) } }
-    var quizTop: Color { switch theme { case .lilac:c(1,0.99,1); case .ocean:c(0.97,1,1); case .mint:c(0.99,1,0.99); case .peach:c(1,0.99,0.96); case .night:c(0.25,0.20,0.38) } }
-    var quizBottom: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.87,0.96,1); case .mint:c(0.88,0.98,0.92); case .peach:c(1,0.88,0.78); case .night:c(0.19,0.16,0.31) } }
-    var quizGlow: Color { switch theme { case .lilac:c(0.94,0.88,0.98); case .ocean:c(0.66,0.87,0.98); case .mint:c(0.70,0.91,0.82); case .peach:c(1,0.76,0.63); case .night:c(0.42,0.32,0.62) } }
+    var ink: Color { switch theme { case .lilac:c(0.20,0.15,0.39); case .ocean:c(0.10,0.22,0.38); case .mint:c(0.12,0.32,0.29); case .peach:c(0.42,0.23,0.24); case .night:c(0.92,0.91,1); case .rose:c(0.45,0.19,0.27); case .forest:c(0.08,0.35,0.265); case .sky:c(0.075,0.245,0.415); case .sunshine:c(0.465,0.25,0.2); case .galaxy:c(0.885,0.925,1) } }
+    var purple: Color { switch theme { case .lilac:c(0.56,0.37,0.83); case .ocean:c(0.23,0.46,0.76); case .mint:c(0.19,0.56,0.48); case .peach:c(0.80,0.42,0.42); case .night:c(0.62,0.48,0.94); case .rose:c(0.83,0.38,0.45); case .forest:c(0.15,0.59,0.455); case .sky:c(0.205,0.485,0.795); case .sunshine:c(0.845,0.44,0.38); case .galaxy:c(0.585,0.495,0.985) } }
+    var lilac: Color { switch theme { case .lilac:c(0.76,0.65,0.96); case .ocean:c(0.62,0.82,0.98); case .mint:c(0.58,0.84,0.75); case .peach:c(1,0.70,0.54); case .night:c(0.42,0.30,0.75); case .rose:c(1,0.66,0.57); case .forest:c(0.54,0.87,0.725); case .sky:c(0.595,0.845,1); case .sunshine:c(1,0.72,0.5); case .galaxy:c(0.385,0.315,0.795) } }
+    var pink: Color { switch theme { case .lilac:c(0.96,0.70,0.86); case .ocean:c(0.63,0.88,0.94); case .mint:c(0.74,0.92,0.83); case .peach:c(1,0.75,0.66); case .night:c(0.83,0.45,0.75); case .rose:c(1,0.71,0.69); case .forest:c(0.7,0.95,0.805); case .sky:c(0.605,0.905,0.975); case .sunshine:c(1,0.77,0.62); case .galaxy:c(0.795,0.465,0.795) } }
+    var palePink: Color { switch theme { case .lilac:c(1,0.92,0.97); case .ocean:c(0.91,0.97,1); case .mint:c(0.91,0.98,0.94); case .peach:c(1,0.94,0.88); case .night:c(0.23,0.20,0.34); case .rose:c(1,0.9,0.91); case .forest:c(0.87,1,0.915); case .sky:c(0.885,0.995,1); case .sunshine:c(1,0.96,0.84); case .galaxy:c(0.195,0.215,0.385) } }
+    var green: Color { switch theme { case .lilac:c(0.20,0.66,0.43); case .ocean:c(0.15,0.62,0.52); case .mint:c(0.15,0.62,0.42); case .peach:c(0.28,0.61,0.40); case .night:c(0.44,0.82,0.60); case .rose:c(0.31,0.57,0.43); case .forest:c(0.11,0.65,0.395); case .sky:c(0.125,0.645,0.555); case .sunshine:c(0.325,0.63,0.36); case .galaxy:c(0.405,0.835,0.645) } }
+    var red: Color { switch theme { case .lilac:c(0.89,0.28,0.42); case .ocean:c(0.84,0.34,0.40); case .mint:c(0.83,0.31,0.44); case .peach:c(0.84,0.28,0.31); case .night:c(0.98,0.46,0.58); case .rose:c(0.87,0.24,0.34); case .forest:c(0.79,0.34,0.415); case .sky:c(0.815,0.365,0.435); case .sunshine:c(0.885,0.3,0.27); case .galaxy:c(0.945,0.475,0.625) } }
+    var muted: Color { switch theme { case .lilac:c(0.51,0.47,0.63); case .ocean:c(0.32,0.47,0.62); case .mint:c(0.30,0.50,0.46); case .peach:c(0.56,0.39,0.39); case .night:c(0.77,0.72,0.88); case .rose:c(0.59,0.35,0.42); case .forest:c(0.26,0.53,0.435); case .sky:c(0.295,0.495,0.655); case .sunshine:c(0.605,0.41,0.35); case .galaxy:c(0.735,0.735,0.925) } }
+    var line: Color { switch theme { case .lilac:c(0.88,0.82,0.97); case .ocean:c(0.75,0.87,0.98); case .mint:c(0.76,0.91,0.84); case .peach:c(0.97,0.82,0.72); case .night:c(0.39,0.34,0.53); case .rose:c(1,0.78,0.75); case .forest:c(0.72,0.94,0.815); case .sky:c(0.725,0.895,1); case .sunshine:c(1,0.84,0.68); case .galaxy:c(0.355,0.355,0.575) } }
+    var canvasTop: Color { switch theme { case .lilac:c(0.88,0.82,0.98); case .ocean:c(0.83,0.92,1); case .mint:c(0.82,0.96,0.89); case .peach:c(1,0.86,0.75); case .night:c(0.15,0.13,0.27); case .rose:c(1,0.82,0.78); case .forest:c(0.78,0.99,0.865); case .sky:c(0.805,0.945,1); case .sunshine:c(1,0.88,0.71); case .galaxy:c(0.115,0.145,0.315) } }
+    var canvasMiddle: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.90,0.97,1); case .mint:c(0.94,1,0.96); case .peach:c(1,0.94,0.87); case .night:c(0.22,0.17,0.34); case .rose:c(1,0.9,0.9); case .forest:c(0.9,1,0.935); case .sky:c(0.875,0.995,1); case .sunshine:c(1,0.96,0.83); case .galaxy:c(0.185,0.185,0.385) } }
+    var canvasBottom: Color { switch theme { case .lilac:c(0.96,0.91,1); case .ocean:c(0.88,0.95,1); case .mint:c(0.83,0.95,0.90); case .peach:c(1,0.89,0.81); case .night:c(0.14,0.18,0.31); case .rose:c(1,0.85,0.84); case .forest:c(0.79,0.98,0.875); case .sky:c(0.855,0.975,1); case .sunshine:c(1,0.91,0.77); case .galaxy:c(0.105,0.195,0.355) } }
+    var sidebarTop: Color { switch theme { case .lilac:.white; case .ocean:c(0.96,0.99,1); case .mint:c(0.98,1,0.98); case .peach:c(1,0.99,0.96); case .night:c(0.20,0.16,0.31); case .rose:c(1,0.95,0.99); case .forest:c(0.94,1,0.955); case .sky:c(0.935,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.165,0.175,0.355) } }
+    var sidebarBottom: Color { switch theme { case .lilac:c(0.95,0.90,1); case .ocean:c(0.87,0.94,1); case .mint:c(0.86,0.97,0.91); case .peach:c(1,0.90,0.81); case .night:c(0.14,0.14,0.25); case .rose:c(1,0.86,0.84); case .forest:c(0.82,1,0.885); case .sky:c(0.845,0.965,1); case .sunshine:c(1,0.92,0.77); case .galaxy:c(0.105,0.155,0.295) } }
+    var quizTop: Color { switch theme { case .lilac:c(1,0.99,1); case .ocean:c(0.97,1,1); case .mint:c(0.99,1,0.99); case .peach:c(1,0.99,0.96); case .night:c(0.25,0.20,0.38); case .rose:c(1,0.95,0.99); case .forest:c(0.95,1,0.965); case .sky:c(0.945,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.215,0.215,0.425) } }
+    var quizBottom: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.87,0.96,1); case .mint:c(0.88,0.98,0.92); case .peach:c(1,0.88,0.78); case .night:c(0.19,0.16,0.31); case .rose:c(1,0.84,0.81); case .forest:c(0.84,1,0.895); case .sky:c(0.845,0.985,1); case .sunshine:c(1,0.9,0.74); case .galaxy:c(0.155,0.175,0.355) } }
+    var quizGlow: Color { switch theme { case .lilac:c(0.94,0.88,0.98); case .ocean:c(0.66,0.87,0.98); case .mint:c(0.70,0.91,0.82); case .peach:c(1,0.76,0.63); case .night:c(0.42,0.32,0.62); case .rose:c(1,0.72,0.66); case .forest:c(0.66,0.94,0.795); case .sky:c(0.635,0.895,1); case .sunshine:c(1,0.78,0.59); case .galaxy:c(0.385,0.335,0.665) } }
     static func make(_ theme: AppTheme) -> AppPalette { AppPalette(theme: theme) }
 }
 private enum StudySubject: String, CaseIterable, Identifiable {
@@ -197,6 +208,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
     case english = "Английский язык"
     case tatar = "Татарский язык"
     case art = "Рисование"
+    case keyboard = "Клавиатура"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -206,6 +218,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
         case .english: "globe"
         case .tatar: "textformat"
         case .art: "paintpalette.fill"
+        case .keyboard: "keyboard"
         }
     }
 }
@@ -219,12 +232,19 @@ private enum AchievementCatalog {
     static let all = [
         Achievement(id: "first-answer", title: "Первый шаг", detail: "Реши свой первый пример", emoji: "🌱"),
         Achievement(id: "ten-correct", title: "Десятка", detail: "10 правильных ответов", emoji: "🔟"),
+        Achievement(id: "twenty-correct", title: "Двадцатка", detail: "20 правильных ответов", emoji: "🌟"),
+        Achievement(id: "fifty-correct", title: "Полсотни", detail: "50 правильных ответов", emoji: "🎖️"),
         Achievement(id: "five-streak", title: "Не остановить", detail: "5 верных подряд", emoji: "🔥"),
         Achievement(id: "fifteen-streak", title: "Суперсерия", detail: "15 верных подряд", emoji: "⚡️"),
+        Achievement(id: "twenty-streak", title: "Серия мастера", detail: "20 верных подряд", emoji: "🚀"),
         Achievement(id: "daily-solver", title: "Марафонец", detail: "20 ответов за один день", emoji: "🏃"),
         Achievement(id: "three-days", title: "Стабильность", detail: "Занимайся в 3 разных дня", emoji: "📅"),
+        Achievement(id: "five-days", title: "Пять учебных дней", detail: "Занимайся в 5 разных днях", emoji: "🗓️"),
         Achievement(id: "perfect-ten", title: "Без ошибок", detail: "10 ответов без ошибок", emoji: "💎"),
-        Achievement(id: "hundred-answers", title: "Сотня", detail: "100 решённых примеров", emoji: "🏆")
+        Achievement(id: "accuracy-90", title: "Меткий ответ", detail: "Точность 90% после 50 ответов", emoji: "🎯"),
+        Achievement(id: "hundred-answers", title: "Сотня", detail: "100 решённых примеров", emoji: "🏆"),
+        Achievement(id: "five-hundred-answers", title: "Большой ум", detail: "500 решённых примеров", emoji: "🧠"),
+        Achievement(id: "diamond-100", title: "Алмазный запас", detail: "Накопи 100 алмазов", emoji: "💠")
     ]
 }
 private struct Collectible: Identifiable {
@@ -236,7 +256,15 @@ private struct Collectible: Identifiable {
         Collectible(id: "rainbow", title: "Радуга", detail: "Редкая цветная находка", emoji: "🌈"),
         Collectible(id: "magic-star", title: "Волшебная звезда", detail: "Маленькое чудо за старание", emoji: "🌟"),
         Collectible(id: "bunny-friend", title: "Друг-зайчонок", detail: "Пушистый помощник", emoji: "🐰"),
-        Collectible(id: "heart-gem", title: "Сердце-драгоценность", detail: "Особая находка", emoji: "💖")
+        Collectible(id: "heart-gem", title: "Сердце-драгоценность", detail: "Особая находка", emoji: "💖"),
+        Collectible(id: "fox", title: "Лисёнок", detail: "Хитрый хранитель знаний", emoji: "🦊"),
+        Collectible(id: "turtle", title: "Черепашка", detail: "Напоминает не торопиться", emoji: "🐢"),
+        Collectible(id: "unicorn", title: "Единорог", detail: "Волшебный друг", emoji: "🦄"),
+        Collectible(id: "koala", title: "Коала", detail: "Мягкий коллекционный друг", emoji: "🐨"),
+        Collectible(id: "planet", title: "Планета", detail: "Маленький мир открытий", emoji: "🪐"),
+        Collectible(id: "robot", title: "Робот", detail: "Помощник юного инженера", emoji: "🤖"),
+        Collectible(id: "dragon", title: "Дракончик", detail: "Редкий огненный друг", emoji: "🐉"),
+        Collectible(id: "cat", title: "Котёнок", detail: "Самый любопытный в коллекции", emoji: "🐱")
     ]
 }
 private struct ReleaseNote: Identifiable {
@@ -252,6 +280,8 @@ struct ContentView: View {
     @AppStorage("MathTrainer.SelectedSubject") private var selectedSubjectName = StudySubject.math.rawValue
     @AppStorage("MathTrainer.UnlockedAchievements") private var unlockedAchievementStorage = ""
     @AppStorage("MathTrainer.RandomCollectibles") private var randomCollectiblesStorage = ""
+    @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
+    @AppStorage("MathTrainer.ShopPrices") private var shopPricesStorage = ""
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
     @State private var answer = ""
@@ -275,14 +305,28 @@ struct ContentView: View {
     private var palette: AppPalette { AppPalette.make(AppTheme(rawValue: themeName) ?? .lilac) }
     private var unlockedAchievementIDs: Set<String> { Set(unlockedAchievementStorage.split(separator: ",").map(String.init)) }
     private var unlockedCollectibleIDs: Set<String> { Set(randomCollectiblesStorage.split(separator: ",").map(String.init)) }
+    private var shopOwnedIDs: Set<String> { Set(shopPurchasesStorage.split(separator: ",").map(String.init)) }
+    private var allOwnedCollectibleIDs: Set<String> { unlockedCollectibleIDs.union(shopOwnedIDs) }
+    private var shopPrices: [String: Int] {
+        var result: [String: Int] = [:]
+        for entry in shopPricesStorage.split(separator: ",") {
+            let pair = entry.split(separator: "=", maxSplits: 1)
+            if pair.count == 2, let price = Int(pair[1]) { result[String(pair[0])] = price }
+        }
+        return result
+    }
+    private var levelNumber: Int { store.stats.total / 25 + 1 }
+    private var levelProgress: Int { store.stats.total % 25 }
     private var releaseNotes: [ReleaseNote] {
         [
             ReleaseNote(version: appVersion, date: appReleaseDate, title: "Текущий выпуск", changes: [
                 "Исправлено: заяц появляется внутри карточки задания, а не между колонками.",
                 "Устранено: голубые линии и стандартное оформление поля ответа.",
-                "Добавлено: пять цветовых тем и переключение предметов.",
-                "Внесено: даты выхода и журнал изменений версий.",
-                "Добавлены: достижения и случайные коллекционные награды."
+                "Добавлено: 10 цветовых тем и раздел «Клавиатура» (пока без уроков).",
+                "Добавлен магазин из 12 коллекционных игрушек с разными ценами в алмазах.",
+                "Добавлены уровни, бронзовая, серебряная и золотая медали и новые достижения.",
+                "Исправлен формат дат в статистике по дням; название предмета возвращено в верхнюю часть меню.",
+                "Приложение переименовано в «Тренировка мозга», добавлена нативная иконка macOS."
             ]),
             ReleaseNote(version: "1.0.10", date: "09.10.2026", title: "Новый интерфейс", changes: [
                 "Переработан основной экран: боковое меню, карточка примера и правая панель статистики.",
@@ -339,51 +383,40 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 1180, minHeight: 760)
-        .onAppear { answerFocused = true }
+        .onAppear { prepareShopPrices(); answerFocused = true }
     }
 
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 17)
-                        .fill(LinearGradient(colors: [palette.purple, Color(red: 0.85, green: 0.43, blue: 0.74)],
-                                             startPoint: .topLeading, endPoint: .bottomTrailing))
-                    Image(systemName: "plus.forwardslash.minus")
-                        .font(.system(size: 25, weight: .heavy))
-                        .foregroundStyle(.white)
-                }
-                .frame(width: 52, height: 52)
-
-                Menu {
-                    ForEach(StudySubject.allCases) { subject in
-                        Button {
-                            selectedSubjectName = subject.rawValue
-                            selected = .task
-                            answerState = .neutral
-                            answer = ""
-                            if subject == .math {
-                                problem = ProblemGenerator.next()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
-                            }
-                        } label: { Label(subject.rawValue, systemImage: subject.icon) }
-                    }
-                } label: {
-                    VStack(alignment: .leading, spacing: 3) {
-                        HStack(spacing: 6) {
-                            Text(selectedSubject.rawValue).font(.system(size: 19, weight: .heavy, design: .rounded))
-                            Image(systemName: "chevron.down").font(.system(size: 10, weight: .heavy))
+                    RoundedRectangle(cornerRadius: 17).fill(LinearGradient(colors: [palette.purple, Color(red: 0.85, green: 0.43, blue: 0.74)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    Image(systemName: "brain.head.profile").font(.system(size: 27, weight: .heavy)).foregroundStyle(.white)
+                }.frame(width: 52, height: 52)
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Тренировка мозга").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).minimumScaleFactor(0.78)
+                    Menu {
+                        ForEach(StudySubject.allCases) { subject in
+                            Button {
+                                selectedSubjectName = subject.rawValue
+                                selected = .task
+                                answerState = .neutral
+                                answer = ""
+                                if subject == .math {
+                                    problem = ProblemGenerator.next()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
+                                }
+                            } label: { Label(subject.rawValue, systemImage: subject.icon) }
                         }
-                        .foregroundStyle(palette.ink)
-                        Text("Выбрать предмет").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                    }
-                    .contentShape(Rectangle())
-                }
-                .menuStyle(.borderlessButton)
+                    } label: {
+                        HStack(spacing: 5) {
+                            Text(selectedSubject.rawValue).font(.system(size: 12, weight: .heavy, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
+                            Image(systemName: "chevron.down").font(.system(size: 9, weight: .heavy))
+                        }.foregroundStyle(palette.purple).contentShape(Rectangle())
+                    }.menuStyle(.borderlessButton)
+                }.frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 18)
-            .padding(.top, 28)
-            .padding(.bottom, 38)
+            .padding(.horizontal, 14).padding(.top, 25).padding(.bottom, 27)
 
             VStack(spacing: 8) {
                 ForEach(AppSection.allCases) { section in
@@ -454,6 +487,7 @@ struct ContentView: View {
         case .statistics: statisticsPage
         case .days: daysPage
         case .rewards: rewardsPage
+        case .shop: shopPage
         case .settings: settingsPage
         case .versionHistory: versionHistoryPage
         }
@@ -495,6 +529,7 @@ struct ContentView: View {
         case .english: "🔤"
         case .tatar: "🌿"
         case .art: "🎨"
+        case .keyboard: "⌨️"
         }
     }
 
@@ -516,20 +551,19 @@ struct ContentView: View {
 
     private var topBar: some View {
         HStack(spacing: 10) {
-            HStack(spacing: 12) {
-                Text("💎").font(.system(size: 32))
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Алмазы").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                    Text("\(store.stats.diamonds)").font(.system(size: 26, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                }
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 14)
-            .frame(maxWidth: .infinity)
-            .frame(height: 70)
-            .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
-
+            Button { openShop() } label: {
+                HStack(spacing: 12) {
+                    Text("💎").font(.system(size: 32))
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("Алмазы · магазин").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("\(store.stats.diamonds)").font(.system(size: 26, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right").font(.system(size: 11, weight: .heavy)).foregroundStyle(palette.purple)
+                }.padding(.horizontal, 14).frame(maxWidth: .infinity).frame(height: 70)
+                 .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
+                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
+            }.buttonStyle(.plain).help("Открыть магазин коллекционных игрушек")
             HStack(spacing: 10) {
                 Text("🔥").font(.system(size: 30))
                 VStack(alignment: .leading, spacing: 2) {
@@ -539,17 +573,12 @@ struct ContentView: View {
                 Spacer(minLength: 2)
                 HStack(spacing: 4) {
                     ForEach(0..<5, id: \.self) { index in
-                        Circle()
-                            .fill(index < store.stats.currentStreak % 5 ? palette.purple : palette.line)
-                            .frame(width: 8, height: 8)
+                        Circle().fill(index < store.stats.currentStreak % 5 ? palette.purple : palette.line).frame(width: 8, height: 8)
                     }
                 }
-            }
-            .padding(.horizontal, 12)
-            .frame(maxWidth: .infinity)
-            .frame(height: 70)
-            .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
+            }.padding(.horizontal, 12).frame(maxWidth: .infinity).frame(height: 70)
+             .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
+             .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
         }
     }
 
@@ -749,7 +778,7 @@ struct ContentView: View {
                         emptyHint("Результаты появятся после первых примеров.")
                     } else {
                         HStack(spacing: 4) {
-                            tableHead("Дата", align: .leading)
+                            tableHead("Дата занятия", align: .leading)
                             tableHead("✓", align: .trailing).frame(width: 26)
                             tableHead("×", align: .trailing).frame(width: 26)
                             tableHead("Всего", align: .trailing).frame(width: 34)
@@ -799,7 +828,7 @@ struct ContentView: View {
                 emptyHint("Здесь появится история занятий — сколько ответов удалось решить каждый день.")
             } else {
                 HStack(spacing: 8) {
-                    tableHead("Дата", align: .leading)
+                    tableHead("Дата занятия", align: .leading)
                     tableHead("Верных", align: .trailing).frame(width: 58)
                     tableHead("Неверных", align: .trailing).frame(width: 68)
                     tableHead("Всего", align: .trailing).frame(width: 47)
@@ -879,7 +908,7 @@ struct ContentView: View {
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
-                        tableHead("Дата", align: .leading)
+                        tableHead("Дата занятия", align: .leading)
                         tableHead("Правильные", align: .trailing).frame(width: 120)
                         tableHead("Неправильные", align: .trailing).frame(width: 130)
                         tableHead("Всего ответов", align: .trailing).frame(width: 120)
@@ -914,36 +943,113 @@ struct ContentView: View {
     private var rewardsPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                pageHeading("Награды и достижения", subtitle: "Решай примеры, собирай алмазы и открывай праздничные сюрпризы ✨")
+                pageHeading("Награды и достижения", subtitle: "Собирай алмазы, повышай уровень и открывай коллекцию ✨")
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 13) {
+                        Text("⭐️").font(.system(size: 38))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Уровень \(levelNumber)").font(.system(size: 21, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("Всего решено примеров: \(store.stats.total)").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        }
+                        Spacer()
+                        Text("💎 \(store.stats.diamonds)").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                    }
+                    ProgressView(value: Double(levelProgress), total: 25).tint(palette.purple)
+                    Text("До уровня \(levelNumber + 1): ещё \(25 - levelProgress) ответов").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                }.padding(18).cardStyle(palette)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
-                    rewardLarge("🧸", title: "20 алмазов", detail: "Салют из разноцветных мягких игрушек", progress: min(store.stats.diamonds, 20), goal: 20, color: palette.pink)
-                    rewardLarge("🦋", title: "50 алмазов", detail: "Вокруг будут летать маленькие птички и бабочки", progress: min(store.stats.diamonds, 50), goal: 50, color: palette.lilac)
-                    rewardLarge("🔥", title: "5 верных подряд", detail: "Первая серия без ошибок", progress: store.stats.currentStreak % 5, goal: 5, color: Color(red: 1, green: 0.83, blue: 0.60))
-                    rewardLarge("🏆", title: "Лучшая серия", detail: "Твой личный рекорд — \(store.stats.bestStreak)", progress: min(store.stats.bestStreak, 20), goal: 20, color: Color(red: 0.76, green: 0.91, blue: 0.79))
+                    medalCard("🥉", title: "Бронзовая медаль", detail: "10 правильных ответов", progress: min(store.stats.correct, 10), goal: 10, color: Color(red: 0.78, green: 0.49, blue: 0.30))
+                    medalCard("🥈", title: "Серебряная медаль", detail: "50 правильных ответов", progress: min(store.stats.correct, 50), goal: 50, color: Color(red: 0.68, green: 0.73, blue: 0.80))
+                    medalCard("🥇", title: "Золотая медаль", detail: "100 правильных ответов", progress: min(store.stats.correct, 100), goal: 100, color: Color(red: 0.95, green: 0.72, blue: 0.22))
+                    medalCard("💠", title: "Алмазный кубок", detail: "250 правильных ответов", progress: min(store.stats.correct, 250), goal: 250, color: palette.lilac)
                 }
+                Button { openShop() } label: {
+                    Label("Открыть магазин коллекционных игрушек", systemImage: "storefront.fill")
+                        .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                        .padding(.horizontal, 19).padding(.vertical, 13)
+                        .background(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .leading, endPoint: .trailing), in: Capsule())
+                }.buttonStyle(.plain)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Коллекция достижений", icon: "rosette")
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(AchievementCatalog.all) { item in achievementCard(item) }
                     }
-                }
-                .padding(18).cardStyle(palette)
+                }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
-                    sectionTitle("Случайные находки", icon: "sparkles")
+                    sectionTitle("Коллекционные игрушки", icon: "sparkles")
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(Collectible.all) { item in collectibleCard(item) }
                     }
-                    Text("Редкая находка может выпасть случайно за правильный ответ.")
-                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("Игрушки можно находить случайно или покупать за алмазы.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                }.padding(18).cardStyle(palette)
+            }.padding(25)
+        }.scrollIndicators(.hidden)
+    }
+    private func medalCard(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
+        let earned = progress >= goal
+        return VStack(alignment: .leading, spacing: 9) {
+            Text(earned ? emoji : "🔒").font(.system(size: 37)).frame(width: 65, height: 65)
+                .background((earned ? color : palette.line).opacity(0.35), in: RoundedRectangle(cornerRadius: 19))
+            Text(title).font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(detail).font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            ProgressView(value: Double(progress), total: Double(goal)).tint(earned ? color : palette.purple)
+            Text(earned ? "Медаль получена!" : "\(progress) из \(goal)").font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(earned ? palette.green : palette.purple)
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(17).cardStyle(palette)
+    }
+    private var shopPage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                pageHeading("Магазин игрушек", subtitle: "Покупай за алмазы. После покупки игрушка становится яркой и открытой!")
+                HStack(spacing: 12) {
+                    Text("💎").font(.system(size: 33))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Твой баланс").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("\(store.stats.diamonds) алмазов").font(.system(size: 23, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    }
+                    Spacer()
+                    Text("\(Collectible.all.count) игрушек").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                }.padding(17).cardStyle(palette)
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
+                    ForEach(Collectible.all) { item in shopItemCard(item) }
                 }
-                .padding(18).cardStyle(palette)
-                Text("Каждый правильный ответ приносит один алмаз. Серия увеличивается, пока ответы верные, и начинается заново после ошибки.")
-                    .font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                    .padding(17).frame(maxWidth: .infinity, alignment: .leading).cardStyle(palette)
+                Text("Цены случайные при первом запуске и сохраняются на этом Mac.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            }.padding(25)
+        }.scrollIndicators(.hidden)
+    }
+    private func shopItemCard(_ item: Collectible) -> some View {
+        let owned = allOwnedCollectibleIDs.contains(item.id)
+        let price = shopPrices[item.id] ?? 20
+        return VStack(alignment: .leading, spacing: 9) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 17).fill(LinearGradient(colors: owned ? [palette.pink, palette.lilac] : [palette.line.opacity(0.5), palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing))
+                Text(owned ? item.emoji : "🔒").font(.system(size: 43)).saturation(owned ? 1 : 0).opacity(owned ? 1 : 0.55)
+            }.frame(height: 83)
+            Text(owned ? item.title : "Секретная игрушка").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1)
+            Text(owned ? item.detail : "Открой за алмазы").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
+            if owned {
+                Label("Открыта!", systemImage: "checkmark.seal.fill").font(.system(size: 11, weight: .heavy, design: .rounded)).foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
+            } else {
+                Button { buyCollectible(item) } label: {
+                    HStack(spacing: 5) { Text("💎").font(.system(size: 12)); Text("\(price)").font(.system(size: 13, weight: .heavy, design: .rounded)); Text("Купить").font(.system(size: 10, weight: .bold, design: .rounded)) }
+                        .frame(maxWidth: .infinity).padding(.vertical, 8)
+                        .foregroundStyle(store.stats.diamonds >= price ? .white : palette.muted)
+                        .background(store.stats.diamonds >= price ? palette.purple : palette.line, in: Capsule())
+                }.buttonStyle(.plain).disabled(store.stats.diamonds < price)
             }
-            .padding(25)
-        }
-        .scrollIndicators(.hidden)
+        }.padding(11).cardStyle(palette)
+    }
+    private func prepareShopPrices() {
+        var prices = shopPrices
+        for item in Collectible.all where prices[item.id] == nil { prices[item.id] = Int.random(in: 7...49) }
+        shopPricesStorage = prices.keys.sorted().map { "\($0)=\(prices[$0]!)" }.joined(separator: ",")
+    }
+    private func openShop() { prepareShopPrices(); selected = .shop }
+    private func buyCollectible(_ item: Collectible) {
+        guard !allOwnedCollectibleIDs.contains(item.id) else { return }
+        let price = shopPrices[item.id] ?? 20
+        guard store.spendDiamonds(price) else { return }
+        shopPurchasesStorage = shopOwnedIDs.union([item.id]).sorted().joined(separator: ",")
+        triggerCelebration("bonus:\(item.id)")
     }
 
     private var settingsPage: some View {
@@ -952,12 +1058,12 @@ struct ContentView: View {
                 pageHeading("Настройки", subtitle: "Настрой своё учебное пространство")
                 VStack(alignment: .leading, spacing: 15) {
                     Label("Тема оформления", systemImage: "paintpalette.fill").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Выбери одну из пяти тем. Цвета интерфейса изменятся сразу.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("Выбери одну из десяти тем. Цвета интерфейса изменятся сразу.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     Picker("Цветовая тема", selection: $themeName) {
                         ForEach(AppTheme.allCases) { theme in Text(theme.rawValue).tag(theme.rawValue) }
                     }.pickerStyle(.menu).frame(maxWidth: 320, alignment: .leading)
-                    HStack(spacing: 10) {
-                        themeSwatch(.lilac); themeSwatch(.ocean); themeSwatch(.mint); themeSwatch(.peach); themeSwatch(.night)
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 10) {
+                        ForEach(AppTheme.allCases) { theme in themeSwatch(theme) }
                     }
                     Divider().overlay(palette.line)
                     Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -991,7 +1097,7 @@ struct ContentView: View {
             VStack(spacing: 5) {
                 RoundedRectangle(cornerRadius: 9)
                     .fill(LinearGradient(colors: [p.purple, p.pink, p.palePink], startPoint: .leading, endPoint: .trailing))
-                    .frame(width: 54, height: 31)
+                    .frame(maxWidth: .infinity).frame(height: 31)
                     .overlay {
                         if themeName == theme.rawValue {
                             Image(systemName: "checkmark").font(.system(size: 12, weight: .heavy)).foregroundStyle(theme == .night ? .white : p.ink)
@@ -1136,7 +1242,7 @@ struct ContentView: View {
             .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.line.opacity(0.7), lineWidth: 1))
     }
     private func collectibleCard(_ item: Collectible) -> some View {
-        let unlocked = unlockedCollectibleIDs.contains(item.id)
+        let unlocked = allOwnedCollectibleIDs.contains(item.id)
         return HStack(spacing: 9) {
             Text(unlocked ? item.emoji : "❔").font(.system(size: 29))
                 .frame(width: 48, height: 48).background(palette.palePink, in: RoundedRectangle(cornerRadius: 14))
@@ -1155,12 +1261,19 @@ struct ContentView: View {
             switch item.id {
             case "first-answer": return store.stats.total >= 1
             case "ten-correct": return store.stats.correct >= 10
+            case "twenty-correct": return store.stats.correct >= 20
+            case "fifty-correct": return store.stats.correct >= 50
             case "five-streak": return store.stats.bestStreak >= 5
             case "fifteen-streak": return store.stats.bestStreak >= 15
+            case "twenty-streak": return store.stats.bestStreak >= 20
             case "daily-solver": return today.total >= 20
             case "three-days": return store.stats.days.filter { $0.total > 0 }.count >= 3
+            case "five-days": return store.stats.days.filter { $0.total > 0 }.count >= 5
             case "perfect-ten": return store.stats.total >= 10 && store.stats.accuracy == 100
+            case "accuracy-90": return store.stats.total >= 50 && store.stats.accuracy >= 90
             case "hundred-answers": return store.stats.total >= 100
+            case "five-hundred-answers": return store.stats.total >= 500
+            case "diamond-100": return store.stats.diamonds >= 100
             default: return false
             }
         }
@@ -1169,9 +1282,9 @@ struct ContentView: View {
     }
     private func maybeUnlockRandomCollectible() -> Collectible? {
         guard Double.random(in: 0..<1) < 0.08 else { return nil }
-        let already = unlockedCollectibleIDs
-        guard let item = Collectible.all.filter({ !already.contains($0.id) }).randomElement() else { return nil }
-        randomCollectiblesStorage = already.union([item.id]).sorted().joined(separator: ",")
+        let owned = allOwnedCollectibleIDs
+        guard let item = Collectible.all.filter({ !owned.contains($0.id) }).randomElement() else { return nil }
+        randomCollectiblesStorage = unlockedCollectibleIDs.union([item.id]).sorted().joined(separator: ",")
         return item
     }
     private func rewardLarge(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {

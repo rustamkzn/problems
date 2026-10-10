@@ -1,72 +1,82 @@
-name: Build Math Trainer macOS DMG
-
+name: Build Brain Training macOS DMG
 on:
   push:
     paths:
       - 'MATH_TRAINER/**'
       - '.github/workflows/build-math.yml'
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Build Swift app
         working-directory: MATH_TRAINER
         run: swift build -c release
-
-      - name: Create app bundle and DMG
+      - name: Create app icon, bundle and DMG
         working-directory: MATH_TRAINER
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
           VERSION="1.0.${GITHUB_RUN_NUMBER}"
           BUILD_DATE="$(date -u +'%d.%m.%Y')"
-          export VERSION BUILD_DATE
-          echo "Building MathTrainer version ${VERSION} released ${BUILD_DATE}"
-          rm -rf "MathTrainer.app" "MathTrainer.dmg"
-          mkdir -p "MathTrainer.app/Contents/MacOS"
-          cp ".build/release/MathTrainer" "MathTrainer.app/Contents/MacOS/MathTrainer"
-          chmod +x "MathTrainer.app/Contents/MacOS/MathTrainer"
-
-          cat > "MathTrainer.app/Contents/Info.plist" <<PLIST
+          APP_BUNDLE="Тренировка мозга.app"
+          rm -rf "$APP_BUNDLE" "BrainTraining.dmg" "BrainTraining.iconset" "icon-1024.png"
+          mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources" "BrainTraining.iconset"
+          cp ".build/release/MathTrainer" "$APP_BUNDLE/Contents/MacOS/MathTrainer"
+          chmod +x "$APP_BUNDLE/Contents/MacOS/MathTrainer"
+          swift - <<'SWIFT'
+          import AppKit
+          import Foundation
+          let image = NSImage(size: NSSize(width: 1024, height: 1024))
+          image.lockFocus()
+          let shape = NSBezierPath(roundedRect: NSRect(x: 34, y: 34, width: 956, height: 956), xRadius: 220, yRadius: 220)
+          NSGradient(colors: [NSColor(calibratedRed: 0.36, green: 0.22, blue: 0.82, alpha: 1), NSColor(calibratedRed: 0.88, green: 0.34, blue: 0.68, alpha: 1)])!.draw(in: shape, angle: -42)
+          func drawEmoji(_ value: String, size: CGFloat, at point: NSPoint) {
+              let text = value as NSString
+              let font = NSFont(name: "Apple Color Emoji", size: size) ?? NSFont.systemFont(ofSize: size)
+              text.draw(at: point, withAttributes: [.font: font])
+          }
+          drawEmoji("🧠", size: 430, at: NSPoint(x: 240, y: 275))
+          drawEmoji("✨", size: 140, at: NSPoint(x: 680, y: 690))
+          drawEmoji("💎", size: 128, at: NSPoint(x: 700, y: 150))
+          image.unlockFocus()
+          guard let tiff = image.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff), let png = bitmap.representation(using: .png, properties: [:]) else { fatalError("icon render failed") }
+          try png.write(to: URL(fileURLWithPath: "icon-1024.png"))
+          SWIFT
+          sips -z 16 16 icon-1024.png --out BrainTraining.iconset/icon_16x16.png >/dev/null
+          sips -z 32 32 icon-1024.png --out BrainTraining.iconset/icon_16x16@2x.png >/dev/null
+          sips -z 32 32 icon-1024.png --out BrainTraining.iconset/icon_32x32.png >/dev/null
+          sips -z 64 64 icon-1024.png --out BrainTraining.iconset/icon_32x32@2x.png >/dev/null
+          sips -z 128 128 icon-1024.png --out BrainTraining.iconset/icon_128x128.png >/dev/null
+          sips -z 256 256 icon-1024.png --out BrainTraining.iconset/icon_128x128@2x.png >/dev/null
+          sips -z 256 256 icon-1024.png --out BrainTraining.iconset/icon_256x256.png >/dev/null
+          sips -z 512 512 icon-1024.png --out BrainTraining.iconset/icon_256x256@2x.png >/dev/null
+          sips -z 512 512 icon-1024.png --out BrainTraining.iconset/icon_512x512.png >/dev/null
+          cp icon-1024.png BrainTraining.iconset/icon_512x512@2x.png
+          iconutil -c icns BrainTraining.iconset -o "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
+          cat > "$APP_BUNDLE/Contents/Info.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>CFBundleDisplayName</key>
-            <string>Математика</string>
-            <key>CFBundleExecutable</key>
-            <string>MathTrainer</string>
-            <key>CFBundleIdentifier</key>
-            <string>ru.rustam.mathtrainer</string>
-            <key>CFBundleName</key>
-            <string>Математика</string>
-            <key>CFBundlePackageType</key>
-            <string>APPL</string>
-            <key>CFBundleShortVersionString</key>
-            <string>${VERSION}</string>
-            <key>CFBundleVersion</key>
-            <string>${GITHUB_RUN_NUMBER}</string>
-            <key>AppReleaseDate</key>
-            <string>${BUILD_DATE}</string>
-            <key>LSMinimumSystemVersion</key>
-            <string>14.0</string>
-            <key>NSHighResolutionCapable</key>
-            <true/>
-          </dict>
-          </plist>
+          <plist version="1.0"><dict>
+          <key>CFBundleDisplayName</key><string>Тренировка мозга</string>
+          <key>CFBundleExecutable</key><string>MathTrainer</string>
+          <key>CFBundleIdentifier</key><string>ru.rustam.mathtrainer</string>
+          <key>CFBundleName</key><string>Тренировка мозга</string>
+          <key>CFBundleIconFile</key><string>AppIcon</string>
+          <key>CFBundlePackageType</key><string>APPL</string>
+          <key>CFBundleShortVersionString</key><string>${VERSION}</string>
+          <key>CFBundleVersion</key><string>${GITHUB_RUN_NUMBER}</string>
+          <key>AppReleaseDate</key><string>${BUILD_DATE}</string>
+          <key>LSMinimumSystemVersion</key><string>14.0</string>
+          <key>NSHighResolutionCapable</key><true/>
+          </dict></plist>
           PLIST
-
-          codesign --force --deep --sign - "MathTrainer.app"
-          hdiutil create -volname "Математика" -srcfolder "MathTrainer.app" -ov -format UDZO "MathTrainer.dmg"
-
+          codesign --force --deep --sign - "$APP_BUNDLE"
+          hdiutil create -volname "Тренировка мозга" -srcfolder "$APP_BUNDLE" -ov -format UDZO "BrainTraining.dmg"
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:
-          name: MathTrainer-macOS
-          path: MATH_TRAINER/MathTrainer.dmg
+          name: BrainTraining-macOS
+          path: MATH_TRAINER/BrainTraining.dmg
           if-no-files-found: error
