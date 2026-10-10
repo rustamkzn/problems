@@ -76,8 +76,6 @@ struct ProblemGenerator {
             questions = [("«Әни» по-русски?", "мама"), ("«Әти» по-русски?", "папа"), ("«Исәнме» по-русски?", "здравствуй"), ("«Рәхмәт» по-русски?", "спасибо"), ("«Су» по-русски?", "вода")]
         case .art:
             questions = [("Жёлтый + синий = ?", "зелёный"), ("Красный + жёлтый = ?", "оранжевый"), ("Какой цвет у травы?", "зелёный"), ("Цвет неба в ясный день?", "голубой"), ("Рисунок красками — это?", "живопись")]
-        case .keyboard:
-            questions = [("Какая буква после А?", "б"), ("Какая буква перед В?", "б"), ("Сколько букв в слове «кот»?", "3"), ("Какая буква после Б?", "в"), ("Первая буква слова «мама»?", "м")]
         }
         let question = questions.randomElement() ?? ("Попробуй ещё раз", "")
         return Problem(text: question.0, answer: question.1)
@@ -641,6 +639,148 @@ struct ContentView: View {
         }
         .padding(15)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var quizCard: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 16)
+            Text("РЕШИ ПРИМЕР")
+                .font(.system(size: 15, weight: .heavy, design: .rounded))
+                .tracking(1.1)
+                .foregroundStyle(palette.purple)
+                .padding(.horizontal, 22)
+                .padding(.vertical, 11)
+                .background(.white.opacity(0.84), in: Capsule())
+                .overlay(Capsule().stroke(.white, lineWidth: 1))
+                .shadow(color: palette.pink.opacity(0.18), radius: 9, y: 3)
+
+            Spacer(minLength: 24)
+
+            Text(problem.text)
+                .font(.system(size: selectedSubject == .math ? 62 : 38, weight: .heavy, design: .rounded))
+                .foregroundStyle(palette.ink)
+                .multilineTextAlignment(.center)
+                .contentTransition(.numericText())
+                .minimumScaleFactor(0.42)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 12)
+
+            Spacer(minLength: 34)
+
+            HStack(spacing: 11) {
+                TextField(problem.isComparison ? "Выбери знак ниже" : "Введи ответ...", text: $answer)
+                    .font(.system(size: 23, weight: .bold, design: .rounded))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(answerColor)
+                    .textFieldStyle(.plain)
+                    .focusEffectDisabled()
+                    .frame(height: 74)
+                    .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 21))
+                    .overlay(RoundedRectangle(cornerRadius: 21).stroke(answerColor.opacity(0.78), lineWidth: 2))
+                    .focused($answerFocused)
+                    .onSubmit(checkAnswer)
+                    .onChange(of: answer) { _, newValue in
+                        if problem.isComparison {
+                            let filtered = String(newValue.filter { ["<", ">", "="].contains(String($0)) }.prefix(1))
+                            if filtered != newValue { answer = filtered }
+                        } else if selectedSubject == .math {
+                            let filtered = String(newValue.filter(\.isNumber).prefix(3))
+                            if filtered != newValue { answer = filtered }
+                        } else if newValue.count > 24 {
+                            answer = String(newValue.prefix(24))
+                        }
+                    }
+
+                if problem.isComparison {
+                    HStack(spacing: 12) {
+                        ForEach([">", "<", "="], id: \.self) { symbol in
+                            Button {
+                                answer = symbol
+                                answerFocused = false
+                            } label: {
+                                Text(symbol)
+                                    .font(.system(size: 24, weight: .heavy, design: .rounded))
+                                    .foregroundStyle(answer == symbol ? .white : palette.ink)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 49)
+                                    .background(answer == symbol ? palette.purple : .white.opacity(0.90), in: RoundedRectangle(cornerRadius: 14))
+                                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(answerState == .correct)
+                        }
+                    }
+                    .padding(.horizontal, 23)
+                    .padding(.top, -8)
+                }
+
+                Button(action: checkAnswer) {
+                    HStack(spacing: 7) {
+                        Text("Проверить")
+                        Image(systemName: "arrow.right")
+                    }
+                    .font(.system(size: 14, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 15)
+                    .frame(height: 74)
+                    .background(LinearGradient(colors: [palette.lilac, Color(red: 0.82, green: 0.50, blue: 0.84)],
+                                               startPoint: .topLeading, endPoint: .bottomTrailing),
+                                in: RoundedRectangle(cornerRadius: 21))
+                    .shadow(color: palette.purple.opacity(0.2), radius: 10, y: 5)
+                }
+                .buttonStyle(.plain)
+                .disabled(answerState == .correct)
+            }
+            .padding(.horizontal, 23)
+
+            Text(stateMessage)
+                .font(.system(size: 18, weight: .heavy, design: .rounded))
+                .foregroundStyle(answerColor)
+                .frame(height: 31)
+                .padding(.top, 13)
+
+            Spacer(minLength: 22)
+            HStack(spacing: 8) {
+                Text("✨")
+                Text("Ты можешь! У тебя всё получится!")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(palette.purple)
+                Text("💗")
+            }
+            .padding(.bottom, 21)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            ZStack {
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(LinearGradient(
+                        colors: [palette.quizTop, palette.quizBottom, palette.palePink],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    ))
+                Circle().fill(.white.opacity(0.60)).frame(width: 360, height: 360).blur(radius: 10)
+                Circle().fill(palette.quizGlow.opacity(0.34)).frame(width: 230, height: 230).blur(radius: 12).offset(x: -190, y: 170)
+                Circle().fill(palette.lilac.opacity(0.20)).frame(width: 260, height: 260).blur(radius: 12).offset(x: 220, y: 170)
+            }
+        }
+        .overlay(alignment: .topLeading) {
+            Text("✦").font(.system(size: 24)).foregroundStyle(Color(red: 1, green: 0.74, blue: 0.44)).padding(23)
+        }
+        .overlay(alignment: .topTrailing) {
+            Text("✧").font(.system(size: 30)).foregroundStyle(palette.pink).padding(26)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            Text("✦").font(.system(size: 22)).foregroundStyle(Color(red: 1, green: 0.78, blue: 0.52)).padding(23)
+        }
+        .overlay(alignment: .leading) {
+            if showBunny {
+                bunnySticker.scaleEffect(0.78)
+                    .offset(x: 8, y: 28)
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .zIndex(5)
+            }
+        }
+        .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white.opacity(0.92), lineWidth: 1.4))
     }
 
     private var bunnySticker: some View {
