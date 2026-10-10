@@ -272,7 +272,7 @@ struct ContentView: View {
         Bundle.main.infoDictionary?["AppReleaseDate"] as? String ?? "Дата неизвестна"
     }
     private var selectedSubject: StudySubject { StudySubject(rawValue: selectedSubjectName) ?? .math }
-    private var palette: AppPalette { Apppalette.make(AppTheme(rawValue: themeName) ?? .lilac) }
+    private var palette: AppPalette { AppPalette.make(AppTheme(rawValue: themeName) ?? .lilac) }
     private var unlockedAchievementIDs: Set<String> { Set(unlockedAchievementStorage.split(separator: ",").map(String.init)) }
     private var unlockedCollectibleIDs: Set<String> { Set(randomCollectiblesStorage.split(separator: ",").map(String.init)) }
     private var releaseNotes: [ReleaseNote] {
