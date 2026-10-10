@@ -29,6 +29,12 @@ struct Problem {
 
 struct ProblemGenerator {
     static func next() -> Problem {
+        // Регулярная практика таблицы умножения для начальной школы.
+        if Int.random(in: 0...2) == 0 {
+            let a = Int.random(in: 2...9)
+            let b = Int.random(in: 2...9)
+            return Problem(text: "Таблица умножения: \(a) × \(b) = ?", answer: String(a * b))
+        }
         switch Int.random(in: 0...16) {
         case 0:
             let a = Int.random(in: 1...89)
@@ -210,7 +216,33 @@ struct ProblemGenerator {
                 ("Граффити", "paintbrush.pointed.fill", "Яркие буквы и рисунки на городской стене"),
                 ("Портрет", "person.crop.rectangle", "Изображение человека"),
                 ("Пейзаж", "mountain.2.fill", "Природа: горы, небо, лес или море"),
-                ("Натюрморт", "cup.and.saucer.fill", "Предметы, цветы или фрукты")
+                ("Натюрморт", "cup.and.saucer.fill", "Предметы, цветы или фрукты"),
+                ("Иллюстрация", "book.closed.fill", "Рисунок к книге или рассказу"),
+                ("Комикс", "text.book.closed.fill", "История в картинках с кадрами"),
+                ("Карикатура", "face.smiling.inverse", "Смешной рисунок с преувеличенными чертами"),
+                ("Мозаика", "square.grid.3x3.fill", "Изображение из маленьких кусочков"),
+                ("Аппликация", "scissors", "Картинка из вырезанных и наклеенных деталей"),
+                ("Скульптура", "figure.stand", "Объёмная фигура из глины, камня или другого материала"),
+                ("Оригами", "paperplane.fill", "Фигурка, сложенная из бумаги"),
+                ("Орнамент", "circle.grid.3x3.fill", "Повторяющийся узор"),
+                ("Аниме", "sparkles", "Рисунки в стиле японской анимации"),
+                ("Мультфильм", "play.rectangle.fill", "История с движущимися нарисованными героями"),
+                ("Архитектурный рисунок", "building.2.fill", "Изображение здания или дома"),
+                ("Набросок", "pencil.tip.crop.circle", "Быстрый предварительный рисунок"),
+                ("Абстракция", "scribble.variable", "Рисунок из форм и цветов без точного предмета"),
+                ("Фреска", "paintbrush.fill", "Большая настенная роспись"),
+                ("Коллаж", "rectangle.3.group.fill", "Картинка из разных фотографий и деталей"),
+                ("Плакат", "rectangle.portrait.fill", "Яркое изображение с коротким сообщением"),
+                ("Витраж", "sun.max.fill", "Изображение из цветного стекла"),
+                ("Эскиз", "pencil.and.outline", "Предварительный вариант будущей работы"),
+                ("Шарж", "face.smiling", "Шутливый портрет человека"),
+                ("Пиктограмма", "info.circle.fill", "Простой рисунок-значок"),
+                ("Книжная обложка", "book.closed", "Картинка на передней части книги"),
+                ("Рисунок природы", "leaf.fill", "Изображение растений, леса или цветов"),
+                ("Морской пейзаж", "water.waves", "Изображение моря или океана"),
+                ("Автопортрет", "person.crop.square", "Портрет, который художник рисует сам"),
+                ("Набор узоров", "circle.hexagongrid.fill", "Повторяющиеся формы и линии"),
+                ("Фантастический рисунок", "moon.stars.fill", "Придуманные существа и волшебные места")
             ]
             let target = artForms.randomElement() ?? artForms[0]
             let choices = artForms.shuffled().map { form in ArtChoice(title: form.0, symbol: form.1, caption: form.2) }
@@ -557,11 +589,12 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Английский, рисование, химия и магазин", changes: [
-                "Английский язык переведён на вопросы с четырьмя вариантами ответа; правильный ответ выбирается нажатием, без клавиатуры.",
-                "В рисовании выбор одного из четырёх вариантов сразу проверяет ответ; вопросы перемешиваются без немедленных повторов.",
-                "Добавлен предмет «Химия»: распознавание элементов по символу, названию и порядковому номеру с четырьмя вариантами.",
-                "Исправлен магазин: игрушки, полученные как случайные награды, не помечаются купленными — они остаются закрытыми в магазине, пока их не купят."
+            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Задания для второго класса и новые игрушки", changes: [
+                "В химии убраны задания на порядковые номера элементов: остаётся распознавание названия и химического символа.",
+                "В окружающем мире появились простые вопросы о природе, животных, теле человека и быте с четырьмя вариантами ответа.",
+                "В рисовании расширен набор до 30 художественных направлений и видов работ; варианты ответов перемешиваются.",
+                "В магазине видны названия и изображения закрытых игрушек: собачек, кошечек, единорогов, фей, принцесс и смешариков.",
+                "Таблица умножения теперь встречается примерно в каждом третьем математическом задании."
             ]),
             ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Математика и выбор предмета", changes: ["Добавлены задания на десятки и единицы, длину, массу и время.", "Переключатель предметов вынесен в левую колонку."]),
             ReleaseNote(version: "1.0.27", date: "10.10.2026", title: "Задания по рисованию", changes: ["Добавлен выбор иллюстраций: граффити, портрет, пейзаж и натюрморт."]),
@@ -1477,12 +1510,17 @@ struct ContentView: View {
         let owned = shopOwnedIDs.contains(item.id)
         let price = shopPrices[item.id] ?? 20
         return VStack(alignment: .leading, spacing: 9) {
-            ZStack {
+            ZStack(alignment: .topTrailing) {
                 RoundedRectangle(cornerRadius: 17).fill(LinearGradient(colors: owned ? [palette.pink, palette.lilac] : [palette.line.opacity(0.5), palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing))
-                Text(owned ? item.emoji : "🔒").font(.system(size: 43)).saturation(owned ? 1 : 0).opacity(owned ? 1 : 0.55)
+                Text(item.emoji).font(.system(size: 43)).saturation(owned ? 1 : 0.45).opacity(owned ? 1 : 0.72)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                if !owned {
+                    Image(systemName: "lock.fill").font(.system(size: 11, weight: .black)).foregroundStyle(.white)
+                        .padding(7).background(palette.purple, in: Circle()).padding(6)
+                }
             }.frame(height: 83)
-            Text(owned ? item.title : "Секретная игрушка").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1)
-            Text(owned ? item.detail : "Открой за алмазы").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
+            Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1)
+            Text(owned ? "Уже куплена · \(item.detail)" : item.detail).font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
             if owned {
                 Label("Открыта!", systemImage: "checkmark.seal.fill").font(.system(size: 11, weight: .heavy, design: .rounded)).foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
             } else {
