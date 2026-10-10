@@ -25,7 +25,7 @@ struct Problem {
 
 struct ProblemGenerator {
     static func next() -> Problem {
-        switch Int.random(in: 0...8) {
+        switch Int.random(in: 0...15) {
         case 0:
             let a = Int.random(in: 1...89)
             let b = Int.random(in: 1...(100 - a))
@@ -63,6 +63,31 @@ struct ProblemGenerator {
             let quotient = Int.random(in: 3...10)
             let subtract = Int.random(in: 1...(quotient - 1))
             return Problem(text: "\(divisor * quotient) : \(divisor) − \(subtract) = ?", answer: String(quotient - subtract))
+        case 8:
+            let tens = Int.random(in: 2...9)
+            let ones = Int.random(in: 1...9)
+            return Problem(text: "В числе \(tens * 10 + ones) сколько десятков?", answer: String(tens))
+        case 9:
+            let tens = Int.random(in: 1...9)
+            return Problem(text: "Сколько единиц в \(tens) десятках?", answer: String(tens * 10))
+        case 10:
+            let dm = Int.random(in: 2...9)
+            return Problem(text: "Сколько сантиметров в \(dm) дм?", answer: String(dm * 10))
+        case 11:
+            let kg = Int.random(in: 2...9)
+            return Problem(text: "Сколько граммов в \(kg) кг?", answer: String(kg * 1000))
+        case 12:
+            let centners = Int.random(in: 1...9)
+            return Problem(text: "Сколько килограммов в \(centners) ц?", answer: String(centners * 100))
+        case 13:
+            let days = Int.random(in: 2...9)
+            return Problem(text: "Сколько часов в \(days) сутках?", answer: String(days * 24))
+        case 14:
+            let weeks = Int.random(in: 2...4)
+            return Problem(text: "Сколько дней в \(weeks) неделях?", answer: String(weeks * 7))
+        case 15:
+            let years = Int.random(in: 2...4)
+            return Problem(text: "Сколько месяцев в \(years) годах?", answer: String(years * 12))
         default:
             let a = Int.random(in: 10...100)
             let b = Int.random(in: 10...100)
@@ -376,7 +401,7 @@ private struct Collectible: Identifiable {
     }()
 }
 
-private struct ReleaseNote: Identifiable {
+private struct ReleaseNote: Codable, Identifiable {
     let version: String
     let date: String
     let title: String
@@ -391,6 +416,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.RandomCollectibles") private var randomCollectiblesStorage = ""
     @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
     @AppStorage("MathTrainer.ShopPrices.v2") private var shopPricesStorage = ""
+    @AppStorage("MathTrainer.ReleaseNotes.v1") private var releaseNotesStorage = ""
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
     @State private var answer = ""
@@ -426,13 +452,14 @@ struct ContentView: View {
     }
     private var levelNumber: Int { store.stats.total / 25 + 1 }
     private var levelProgress: Int { store.stats.total % 25 }
-    private var releaseNotes: [ReleaseNote] {
+    private var builtInReleaseNotes: [ReleaseNote] {
         [
             ReleaseNote(version: appVersion, date: appReleaseDate, title: "Предметы и интерфейс", changes: [
                 "Добавлен заметный переключатель учебного предмета прямо на главной странице слева.",
                 "Уменьшена карточка общей статистики справа, чтобы она не растягивала весь экран.",
                 "Возвращён прежний вид магазина: закрытые игрушки обозначены замком и подписью «Секретная игрушка».",
-                "Добавлены задания по математике, окружающему миру, русскому, английскому и татарскому языкам, рисованию и клавиатуре.",
+                "Добавлены отдельные задания по математике: десятки и единицы, дециметры и сантиметры, килограммы, центнеры и граммы, сутки, часы, недели и месяцы.",
+                "История выпусков хранится локально и объединяется с новыми заметками после обновления.",
                 "В заданиях на сравнение видны оба числа и доступны знаки >, < и =."
             ]),
             ReleaseNote(version: "1.0.21", date: "10.10.2026", title: "Исправления и новые возможности", changes: ["Исправлено ограничение доступа в генераторе заданий, из-за которого не проходила сборка.", "Подготовлен выпуск с переключением учебных предметов и обновлёнными игрушками."]),
@@ -451,6 +478,33 @@ struct ContentView: View {
             ReleaseNote(version: "1.0.8", date: "09.10.2026", title: "Статистика", changes: ["Добавлена статистика правильных и неправильных ответов.", "Добавлена история результатов по дням и начисление алмазов."])
         ]
     }
+    private var releaseNotes: [ReleaseNote] {
+        var merged = builtInReleaseNotes
+        if let data = releaseNotesStorage.data(using: .utf8),
+           let saved = try? JSONDecoder().decode([ReleaseNote].self, from: data) {
+            for note in saved where !merged.contains(where: { $0.version == note.version }) {
+                merged.append(note)
+            }
+        }
+        return merged.sorted { lhs, rhs in
+            let l = lhs.version.split(separator: ".").compactMap { Int($0) }
+            let r = rhs.version.split(separator: ".").compactMap { Int($0) }
+            for index in 0..<max(l.count, r.count) {
+                let lv = index < l.count ? l[index] : 0
+                let rv = index < r.count ? r[index] : 0
+                if lv != rv { return lv > rv }
+            }
+            return lhs.date > rhs.date
+        }
+    }
+
+    private func persistReleaseNotes() {
+        let data = (try? JSONEncoder().encode(releaseNotes))
+        if let data, let value = String(data: data, encoding: .utf8), value != releaseNotesStorage {
+            releaseNotesStorage = value
+        }
+    }
+
     private var answerColor: Color {
         switch answerState {
         case .neutral: return palette.purple
@@ -490,7 +544,7 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 1180, minHeight: 760)
-        .onAppear { prepareShopPrices(); answerFocused = true }
+        .onAppear { prepareShopPrices(); persistReleaseNotes(); answerFocused = true }
     }
 
     private var sidebar: some View {
@@ -502,34 +556,39 @@ struct ContentView: View {
                 }.frame(width: 48, height: 48)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Тренировка мозга").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).minimumScaleFactor(0.78)
-                    Text("СЕЙЧАС ВЫБРАН ПРЕДМЕТ").font(.system(size: 8, weight: .heavy, design: .rounded)).tracking(0.35).foregroundStyle(palette.muted)
-                    Menu {
-                        ForEach(StudySubject.allCases) { subject in
-                            Button {
-                                selectedSubjectName = subject.rawValue
-                                selected = .task
-                                answerState = .neutral
-                                answer = ""
-                                problem = ProblemGenerator.next(for: subject)
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
-                            } label: { Label(subject.rawValue, systemImage: subject.icon) }
-                        }
-                    } label: {
-                        HStack(spacing: 7) {
-                            Image(systemName: selectedSubject.icon).font(.system(size: 11, weight: .heavy))
-                            Text(selectedSubject.rawValue).font(.system(size: 11, weight: .heavy, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
-                            Spacer(minLength: 1)
-                            Image(systemName: "chevron.down").font(.system(size: 9, weight: .heavy))
-                        }
-                        .foregroundStyle(palette.purple).padding(.horizontal, 9).padding(.vertical, 8)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 10))
-                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(palette.line, lineWidth: 1))
-                        .contentShape(RoundedRectangle(cornerRadius: 10))
-                    }.menuStyle(.borderlessButton)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 21)
+            .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 12)
+
+            VStack(alignment: .leading, spacing: 7) {
+                Text("СЕЙЧАС ВЫБРАН ПРЕДМЕТ")
+                    .font(.system(size: 8, weight: .heavy, design: .rounded)).tracking(0.35).foregroundStyle(palette.muted)
+                Menu {
+                    ForEach(StudySubject.allCases) { subject in
+                        Button {
+                            selectedSubjectName = subject.rawValue
+                            selected = .task
+                            answerState = .neutral
+                            answer = ""
+                            problem = ProblemGenerator.next(for: subject)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
+                        } label: { Label(subject.rawValue, systemImage: subject.icon) }
+                    }
+                } label: {
+                    HStack(spacing: 7) {
+                        Image(systemName: selectedSubject.icon).font(.system(size: 12, weight: .heavy))
+                        Text(selectedSubject.rawValue).font(.system(size: 12, weight: .heavy, design: .rounded)).lineLimit(1).minimumScaleFactor(0.75)
+                        Spacer(minLength: 1)
+                        Image(systemName: "chevron.down").font(.system(size: 10, weight: .heavy))
+                    }
+                    .foregroundStyle(palette.purple).padding(.horizontal, 10).padding(.vertical, 10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 11))
+                    .overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.line, lineWidth: 1.2))
+                    .contentShape(RoundedRectangle(cornerRadius: 11))
+                }.menuStyle(.borderlessButton)
+            }
+            .padding(.horizontal, 12).padding(.bottom, 18)
 
             VStack(spacing: 8) {
                 ForEach(AppSection.allCases) { section in
@@ -740,7 +799,7 @@ struct ContentView: View {
                                 let filtered = String(newValue.filter { ["<", ">", "="].contains(String($0)) }.prefix(1))
                                 if filtered != newValue { answer = filtered }
                             } else if selectedSubject == .math {
-                                let filtered = String(newValue.filter(\.isNumber).prefix(3))
+                                let filtered = String(newValue.filter(\.isNumber).prefix(4))
                                 if filtered != newValue { answer = filtered }
                             } else if newValue.count > 24 {
                                 answer = String(newValue.prefix(24))
