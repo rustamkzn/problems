@@ -660,6 +660,39 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    private var topBar: some View {
+        HStack(spacing: 10) {
+            Button { openShop() } label: {
+                HStack(spacing: 12) {
+                    Text("💎").font(.system(size: 32))
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("Алмазы · магазин").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("\(store.stats.diamonds)").font(.system(size: 26, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right").font(.system(size: 11, weight: .heavy)).foregroundStyle(palette.purple)
+                }.padding(.horizontal, 14).frame(maxWidth: .infinity).frame(height: 70)
+                 .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
+                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
+            }.buttonStyle(.plain).help("Открыть магазин коллекционных игрушек")
+            HStack(spacing: 10) {
+                Text("🔥").font(.system(size: 30))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Серия").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("\(store.stats.currentStreak) подряд").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                }
+                Spacer(minLength: 2)
+                HStack(spacing: 4) {
+                    ForEach(0..<5, id: \.self) { index in
+                        Circle().fill(index < store.stats.currentStreak % 5 ? palette.purple : palette.line).frame(width: 8, height: 8)
+                    }
+                }
+            }.padding(.horizontal, 12).frame(maxWidth: .infinity).frame(height: 70)
+             .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
+             .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
+        }
+    }
+
     private var quizCard: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 16)
