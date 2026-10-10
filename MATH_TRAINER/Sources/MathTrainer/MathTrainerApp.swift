@@ -2,31 +2,61 @@ import SwiftUI
 
 struct Problem {
     let text: String
-    let answer: Int
+    let answer: String
+    let isComparison: Bool
+
+    init(text: String, answer: String, isComparison: Bool = false) {
+        self.text = text
+        self.answer = answer
+        self.isComparison = isComparison
+    }
 }
 
 struct ProblemGenerator {
     static func next() -> Problem {
-        switch Int.random(in: 0...2) {
+        switch Int.random(in: 0...8) {
         case 0:
             let a = Int.random(in: 1...89)
             let b = Int.random(in: 1...(100 - a))
-            return Problem(text: "\(a) + \(b) = ?", answer: a + b)
+            return Problem(text: "\(a) + \(b) = ?", answer: String(a + b))
         case 1:
             let a = Int.random(in: 20...100)
             let b = Int.random(in: 1...a)
-            return Problem(text: "\(a) − \(b) = ?", answer: a - b)
+            return Problem(text: "\(a) − \(b) = ?", answer: String(a - b))
+        case 2:
+            let a = Int.random(in: 10...80)
+            let b = Int.random(in: 1...20)
+            let c = Int.random(in: 1...min(20, a + b))
+            return Problem(text: "\(a) + \(b) − \(c) = ?", answer: String(a + b - c))
+        case 3:
+            let a = Int.random(in: 2...9)
+            let b = Int.random(in: 2...9)
+            return Problem(text: "\(a) × \(b) = ?", answer: String(a * b))
+        case 4:
+            let divisor = Int.random(in: 2...9)
+            let quotient = Int.random(in: 2...10)
+            return Problem(text: "\(divisor * quotient) : \(divisor) = ?", answer: String(quotient))
+        case 5:
+            let a = Int.random(in: 2...9)
+            let b = Int.random(in: 2...9)
+            let c = Int.random(in: 1...15)
+            return Problem(text: "\(a) × \(b) + \(c) = ?", answer: String(a * b + c))
+        case 6:
+            let a = Int.random(in: 2...9)
+            let b = Int.random(in: 2...9)
+            let product = a * b
+            let c = Int.random(in: 1...max(1, product - 1))
+            return Problem(text: "\(a) × \(b) − \(c) = ?", answer: String(product - c))
+        case 7:
+            let divisor = Int.random(in: 2...9)
+            let quotient = Int.random(in: 3...10)
+            let subtract = Int.random(in: 1...(quotient - 1))
+            return Problem(text: "\(divisor * quotient) : \(divisor) − \(subtract) = ?", answer: String(quotient - subtract))
         default:
-            for _ in 0..<100 {
-                let a = Int.random(in: 10...80)
-                let b = Int.random(in: 1...20)
-                let sum = a + b
-                if sum <= 100 {
-                    let c = Int.random(in: 1...min(20, sum))
-                    return Problem(text: "\(a) + \(b) − \(c) = ?", answer: sum - c)
-                }
-            }
-            return Problem(text: "25 + 17 = ?", answer: 42)
+            let a = Int.random(in: 10...100)
+            let b = Int.random(in: 10...100)
+            let sign = a > b ? ">" : (a < b ? "<" : "=")
+            return Problem(text: "Сравни числа:\n\(a)  ?  \(b)", answer: sign, isComparison: true)
         }
     }
 }
@@ -116,18 +146,15 @@ final class StatsStore: ObservableObject {
     }
 
     static func dateKey(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_CA")
-        formatter.timeZone = .current
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+        let p = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        return String(format: "%04d-%02d-%02d", p.year ?? 0, p.month ?? 0, p.day ?? 0)
     }
 
     static func displayDate(_ key: String) -> String {
-        let parts = key.split(separator: "-")
-        guard parts.count == 3, let year = Int(parts[0]), let month = Int(parts[1]), let day = Int(parts[2]), (1...12).contains(month), (1...31).contains(day) else { return key }
-        let months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]
-        return "\(day) \(months[month - 1]) \(year)"
+        let p = key.split(separator: "-")
+        guard p.count == 3, let year = Int(p[0]), let month = Int(p[1]), let day = Int(p[2]),
+              (1...12).contains(month), (1...31).contains(day) else { return key }
+        return String(format: "%02d.%02d.%04d", day, month, year)
     }
 }
 
@@ -182,22 +209,22 @@ private enum AppTheme: String, CaseIterable, Identifiable {
 private struct AppPalette {
     let theme: AppTheme
     private func c(_ r: Double, _ g: Double, _ b: Double) -> Color { Color(red:r, green:g, blue:b) }
-    var ink: Color { switch theme { case .lilac:c(0.20,0.15,0.39); case .ocean:c(0.10,0.22,0.38); case .mint:c(0.12,0.32,0.29); case .peach:c(0.42,0.23,0.24); case .night:c(0.92,0.91,1); case .rose:c(0.45,0.19,0.27); case .forest:c(0.08,0.35,0.265); case .sky:c(0.075,0.245,0.415); case .sunshine:c(0.465,0.25,0.2); case .galaxy:c(0.885,0.925,1) } }
+    var ink: Color { switch theme { case .lilac:c(0.20,0.15,0.39); case .ocean:c(0.10,0.22,0.38); case .mint:c(0.12,0.32,0.29); case .peach:c(0.42,0.23,0.24); case .night:c(0.2,0.15,0.39); case .rose:c(0.45,0.19,0.27); case .forest:c(0.08,0.35,0.265); case .sky:c(0.075,0.245,0.415); case .sunshine:c(0.465,0.25,0.2); case .galaxy:c(0.16,0.13,0.3) } }
     var purple: Color { switch theme { case .lilac:c(0.56,0.37,0.83); case .ocean:c(0.23,0.46,0.76); case .mint:c(0.19,0.56,0.48); case .peach:c(0.80,0.42,0.42); case .night:c(0.62,0.48,0.94); case .rose:c(0.83,0.38,0.45); case .forest:c(0.15,0.59,0.455); case .sky:c(0.205,0.485,0.795); case .sunshine:c(0.845,0.44,0.38); case .galaxy:c(0.585,0.495,0.985) } }
     var lilac: Color { switch theme { case .lilac:c(0.76,0.65,0.96); case .ocean:c(0.62,0.82,0.98); case .mint:c(0.58,0.84,0.75); case .peach:c(1,0.70,0.54); case .night:c(0.42,0.30,0.75); case .rose:c(1,0.66,0.57); case .forest:c(0.54,0.87,0.725); case .sky:c(0.595,0.845,1); case .sunshine:c(1,0.72,0.5); case .galaxy:c(0.385,0.315,0.795) } }
     var pink: Color { switch theme { case .lilac:c(0.96,0.70,0.86); case .ocean:c(0.63,0.88,0.94); case .mint:c(0.74,0.92,0.83); case .peach:c(1,0.75,0.66); case .night:c(0.83,0.45,0.75); case .rose:c(1,0.71,0.69); case .forest:c(0.7,0.95,0.805); case .sky:c(0.605,0.905,0.975); case .sunshine:c(1,0.77,0.62); case .galaxy:c(0.795,0.465,0.795) } }
-    var palePink: Color { switch theme { case .lilac:c(1,0.92,0.97); case .ocean:c(0.91,0.97,1); case .mint:c(0.91,0.98,0.94); case .peach:c(1,0.94,0.88); case .night:c(0.23,0.20,0.34); case .rose:c(1,0.9,0.91); case .forest:c(0.87,1,0.915); case .sky:c(0.885,0.995,1); case .sunshine:c(1,0.96,0.84); case .galaxy:c(0.195,0.215,0.385) } }
+    var palePink: Color { switch theme { case .lilac:c(1,0.92,0.97); case .ocean:c(0.91,0.97,1); case .mint:c(0.91,0.98,0.94); case .peach:c(1,0.94,0.88); case .night:c(0.96,0.93,0.99); case .rose:c(1,0.9,0.91); case .forest:c(0.87,1,0.915); case .sky:c(0.885,0.995,1); case .sunshine:c(1,0.96,0.84); case .galaxy:c(0.96,0.94,1) } }
     var green: Color { switch theme { case .lilac:c(0.20,0.66,0.43); case .ocean:c(0.15,0.62,0.52); case .mint:c(0.15,0.62,0.42); case .peach:c(0.28,0.61,0.40); case .night:c(0.44,0.82,0.60); case .rose:c(0.31,0.57,0.43); case .forest:c(0.11,0.65,0.395); case .sky:c(0.125,0.645,0.555); case .sunshine:c(0.325,0.63,0.36); case .galaxy:c(0.405,0.835,0.645) } }
     var red: Color { switch theme { case .lilac:c(0.89,0.28,0.42); case .ocean:c(0.84,0.34,0.40); case .mint:c(0.83,0.31,0.44); case .peach:c(0.84,0.28,0.31); case .night:c(0.98,0.46,0.58); case .rose:c(0.87,0.24,0.34); case .forest:c(0.79,0.34,0.415); case .sky:c(0.815,0.365,0.435); case .sunshine:c(0.885,0.3,0.27); case .galaxy:c(0.945,0.475,0.625) } }
-    var muted: Color { switch theme { case .lilac:c(0.51,0.47,0.63); case .ocean:c(0.32,0.47,0.62); case .mint:c(0.30,0.50,0.46); case .peach:c(0.56,0.39,0.39); case .night:c(0.77,0.72,0.88); case .rose:c(0.59,0.35,0.42); case .forest:c(0.26,0.53,0.435); case .sky:c(0.295,0.495,0.655); case .sunshine:c(0.605,0.41,0.35); case .galaxy:c(0.735,0.735,0.925) } }
+    var muted: Color { switch theme { case .lilac:c(0.51,0.47,0.63); case .ocean:c(0.32,0.47,0.62); case .mint:c(0.30,0.50,0.46); case .peach:c(0.56,0.39,0.39); case .night:c(0.36,0.31,0.48); case .rose:c(0.59,0.35,0.42); case .forest:c(0.26,0.53,0.435); case .sky:c(0.295,0.495,0.655); case .sunshine:c(0.605,0.41,0.35); case .galaxy:c(0.34,0.29,0.48) } }
     var line: Color { switch theme { case .lilac:c(0.88,0.82,0.97); case .ocean:c(0.75,0.87,0.98); case .mint:c(0.76,0.91,0.84); case .peach:c(0.97,0.82,0.72); case .night:c(0.39,0.34,0.53); case .rose:c(1,0.78,0.75); case .forest:c(0.72,0.94,0.815); case .sky:c(0.725,0.895,1); case .sunshine:c(1,0.84,0.68); case .galaxy:c(0.355,0.355,0.575) } }
     var canvasTop: Color { switch theme { case .lilac:c(0.88,0.82,0.98); case .ocean:c(0.83,0.92,1); case .mint:c(0.82,0.96,0.89); case .peach:c(1,0.86,0.75); case .night:c(0.15,0.13,0.27); case .rose:c(1,0.82,0.78); case .forest:c(0.78,0.99,0.865); case .sky:c(0.805,0.945,1); case .sunshine:c(1,0.88,0.71); case .galaxy:c(0.115,0.145,0.315) } }
     var canvasMiddle: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.90,0.97,1); case .mint:c(0.94,1,0.96); case .peach:c(1,0.94,0.87); case .night:c(0.22,0.17,0.34); case .rose:c(1,0.9,0.9); case .forest:c(0.9,1,0.935); case .sky:c(0.875,0.995,1); case .sunshine:c(1,0.96,0.83); case .galaxy:c(0.185,0.185,0.385) } }
     var canvasBottom: Color { switch theme { case .lilac:c(0.96,0.91,1); case .ocean:c(0.88,0.95,1); case .mint:c(0.83,0.95,0.90); case .peach:c(1,0.89,0.81); case .night:c(0.14,0.18,0.31); case .rose:c(1,0.85,0.84); case .forest:c(0.79,0.98,0.875); case .sky:c(0.855,0.975,1); case .sunshine:c(1,0.91,0.77); case .galaxy:c(0.105,0.195,0.355) } }
-    var sidebarTop: Color { switch theme { case .lilac:.white; case .ocean:c(0.96,0.99,1); case .mint:c(0.98,1,0.98); case .peach:c(1,0.99,0.96); case .night:c(0.20,0.16,0.31); case .rose:c(1,0.95,0.99); case .forest:c(0.94,1,0.955); case .sky:c(0.935,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.165,0.175,0.355) } }
-    var sidebarBottom: Color { switch theme { case .lilac:c(0.95,0.90,1); case .ocean:c(0.87,0.94,1); case .mint:c(0.86,0.97,0.91); case .peach:c(1,0.90,0.81); case .night:c(0.14,0.14,0.25); case .rose:c(1,0.86,0.84); case .forest:c(0.82,1,0.885); case .sky:c(0.845,0.965,1); case .sunshine:c(1,0.92,0.77); case .galaxy:c(0.105,0.155,0.295) } }
-    var quizTop: Color { switch theme { case .lilac:c(1,0.99,1); case .ocean:c(0.97,1,1); case .mint:c(0.99,1,0.99); case .peach:c(1,0.99,0.96); case .night:c(0.25,0.20,0.38); case .rose:c(1,0.95,0.99); case .forest:c(0.95,1,0.965); case .sky:c(0.945,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.215,0.215,0.425) } }
-    var quizBottom: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.87,0.96,1); case .mint:c(0.88,0.98,0.92); case .peach:c(1,0.88,0.78); case .night:c(0.19,0.16,0.31); case .rose:c(1,0.84,0.81); case .forest:c(0.84,1,0.895); case .sky:c(0.845,0.985,1); case .sunshine:c(1,0.9,0.74); case .galaxy:c(0.155,0.175,0.355) } }
+    var sidebarTop: Color { switch theme { case .lilac:.white; case .ocean:c(0.96,0.99,1); case .mint:c(0.98,1,0.98); case .peach:c(1,0.99,0.96); case .night:c(0.98,0.97,1); case .rose:c(1,0.95,0.99); case .forest:c(0.94,1,0.955); case .sky:c(0.935,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.97,0.96,1) } }
+    var sidebarBottom: Color { switch theme { case .lilac:c(0.95,0.90,1); case .ocean:c(0.87,0.94,1); case .mint:c(0.86,0.97,0.91); case .peach:c(1,0.90,0.81); case .night:c(0.91,0.88,0.99); case .rose:c(1,0.86,0.84); case .forest:c(0.82,1,0.885); case .sky:c(0.845,0.965,1); case .sunshine:c(1,0.92,0.77); case .galaxy:c(0.9,0.88,0.99) } }
+    var quizTop: Color { switch theme { case .lilac:c(1,0.99,1); case .ocean:c(0.97,1,1); case .mint:c(0.99,1,0.99); case .peach:c(1,0.99,0.96); case .night:c(1,0.98,1); case .rose:c(1,0.95,0.99); case .forest:c(0.95,1,0.965); case .sky:c(0.945,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.99,0.98,1) } }
+    var quizBottom: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.87,0.96,1); case .mint:c(0.88,0.98,0.92); case .peach:c(1,0.88,0.78); case .night:c(0.88,0.83,0.98); case .rose:c(1,0.84,0.81); case .forest:c(0.84,1,0.895); case .sky:c(0.845,0.985,1); case .sunshine:c(1,0.9,0.74); case .galaxy:c(0.88,0.84,1) } }
     var quizGlow: Color { switch theme { case .lilac:c(0.94,0.88,0.98); case .ocean:c(0.66,0.87,0.98); case .mint:c(0.70,0.91,0.82); case .peach:c(1,0.76,0.63); case .night:c(0.42,0.32,0.62); case .rose:c(1,0.72,0.66); case .forest:c(0.66,0.94,0.795); case .sky:c(0.635,0.895,1); case .sunshine:c(1,0.78,0.59); case .galaxy:c(0.385,0.335,0.665) } }
     static func make(_ theme: AppTheme) -> AppPalette { AppPalette(theme: theme) }
 }
@@ -252,21 +279,58 @@ private struct Collectible: Identifiable {
     let title: String
     let detail: String
     let emoji: String
-    static let all = [
-        Collectible(id: "rainbow", title: "Радуга", detail: "Редкая цветная находка", emoji: "🌈"),
-        Collectible(id: "magic-star", title: "Волшебная звезда", detail: "Маленькое чудо за старание", emoji: "🌟"),
-        Collectible(id: "bunny-friend", title: "Друг-зайчонок", detail: "Пушистый помощник", emoji: "🐰"),
-        Collectible(id: "heart-gem", title: "Сердце-драгоценность", detail: "Особая находка", emoji: "💖"),
-        Collectible(id: "fox", title: "Лисёнок", detail: "Хитрый хранитель знаний", emoji: "🦊"),
-        Collectible(id: "turtle", title: "Черепашка", detail: "Напоминает не торопиться", emoji: "🐢"),
-        Collectible(id: "unicorn", title: "Единорог", detail: "Волшебный друг", emoji: "🦄"),
-        Collectible(id: "koala", title: "Коала", detail: "Мягкий коллекционный друг", emoji: "🐨"),
-        Collectible(id: "planet", title: "Планета", detail: "Маленький мир открытий", emoji: "🪐"),
-        Collectible(id: "robot", title: "Робот", detail: "Помощник юного инженера", emoji: "🤖"),
-        Collectible(id: "dragon", title: "Дракончик", detail: "Редкий огненный друг", emoji: "🐉"),
-        Collectible(id: "cat", title: "Котёнок", detail: "Самый любопытный в коллекции", emoji: "🐱")
-    ]
+
+    static let all: [Collectible] = {
+        let legacy: [Collectible] = [
+            Collectible(id: "rainbow", title: "Радуга", detail: "Редкая цветная находка", emoji: "🌈"),
+            Collectible(id: "magic-star", title: "Волшебная звезда", detail: "Маленькое чудо за старание", emoji: "🌟"),
+            Collectible(id: "bunny-friend", title: "Друг-зайчонок", detail: "Пушистый помощник", emoji: "🐰"),
+            Collectible(id: "heart-gem", title: "Сердце-драгоценность", detail: "Особая находка", emoji: "💖"),
+            Collectible(id: "fox", title: "Лисёнок", detail: "Хитрый хранитель знаний", emoji: "🦊"),
+            Collectible(id: "turtle", title: "Черепашка", detail: "Напоминает не торопиться", emoji: "🐢"),
+            Collectible(id: "unicorn", title: "Единорог", detail: "Волшебный друг", emoji: "🦄"),
+            Collectible(id: "koala", title: "Коала", detail: "Мягкий коллекционный друг", emoji: "🐨"),
+            Collectible(id: "planet", title: "Планета", detail: "Маленький мир открытий", emoji: "🪐"),
+            Collectible(id: "robot", title: "Робот", detail: "Помощник юного инженера", emoji: "🤖"),
+            Collectible(id: "dragon", title: "Дракончик", detail: "Редкий огненный друг", emoji: "🐉"),
+            Collectible(id: "cat", title: "Котёнок", detail: "Самый любопытный в коллекции", emoji: "🐱")
+        ]
+        let mascots: [(id: String, title: String, emoji: String)] = [
+            ("bunny", "Зайчонок", "🐰"), ("fox", "Лисёнок", "🦊"),
+            ("turtle", "Черепашка", "🐢"), ("unicorn", "Единорог", "🦄"),
+            ("koala", "Коала", "🐨"), ("planet", "Планета", "🪐"),
+            ("robot", "Робот", "🤖"), ("dragon", "Дракончик", "🐉"),
+            ("cat", "Котёнок", "🐱"), ("dog", "Щенок", "🐶"),
+            ("bear", "Медвежонок", "🐻"), ("panda", "Панда", "🐼"),
+            ("penguin", "Пингвин", "🐧"), ("owl", "Совёнок", "🦉"),
+            ("bee", "Пчёлка", "🐝"), ("butterfly", "Бабочка", "🦋"),
+            ("frog", "Лягушонок", "🐸"), ("whale", "Китёнок", "🐳"),
+            ("dolphin", "Дельфин", "🐬"), ("octopus", "Осьминожек", "🐙"),
+            ("hedgehog", "Ёжик", "🦔"), ("hamster", "Хомячок", "🐹"),
+            ("tiger", "Тигрёнок", "🐯"), ("lion", "Львёнок", "🦁"),
+            ("monkey", "Обезьянка", "🐵"), ("giraffe", "Жираф", "🦒"),
+            ("elephant", "Слонёнок", "🐘"), ("parrot", "Попугай", "🦜"),
+            ("duck", "Утёнок", "🦆"), ("snail", "Улитка", "🐌")
+        ]
+        let collections: [(id: String, name: String, detail: String)] = [
+            ("bronze", "Бронзовый", "Тёплая бронзовая коллекция"),
+            ("silver", "Серебряный", "Блестящая серебряная коллекция"),
+            ("gold", "Золотой", "Редкая золотая коллекция"),
+            ("cosmic", "Космический", "Игрушка из далёкой галактики"),
+            ("rainbow", "Радужный", "Яркая радужная коллекция")
+        ]
+        let themed = collections.flatMap { collection in
+            mascots.map { mascot in
+                Collectible(id: "\(collection.id)-\(mascot.id)",
+                            title: "\(collection.name) \(mascot.title)",
+                            detail: collection.detail,
+                            emoji: mascot.emoji)
+            }
+        }
+        return legacy + themed
+    }()
 }
+
 private struct ReleaseNote: Identifiable {
     let version: String
     let date: String
@@ -281,7 +345,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.UnlockedAchievements") private var unlockedAchievementStorage = ""
     @AppStorage("MathTrainer.RandomCollectibles") private var randomCollectiblesStorage = ""
     @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
-    @AppStorage("MathTrainer.ShopPrices") private var shopPricesStorage = ""
+    @AppStorage("MathTrainer.ShopPrices.v2") private var shopPricesStorage = ""
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
     @State private var answer = ""
@@ -323,9 +387,12 @@ struct ContentView: View {
                 "Исправлено: заяц появляется внутри карточки задания, а не между колонками.",
                 "Устранено: голубые линии и стандартное оформление поля ответа.",
                 "Добавлено: 10 цветовых тем и раздел «Клавиатура» (пока без уроков).",
-                "Добавлен магазин из 12 коллекционных игрушек с разными ценами в алмазах.",
+                "Магазин расширен до 162 игрушек: 12 прежних предметов и 150 новых вариантов.",
+                "Первая игрушка стоит 25 алмазов; цена следующей случайно растёт на 20 или 25 алмазов и сохраняется."
                 "Добавлены уровни, бронзовая, серебряная и золотая медали и новые достижения.",
-                "Исправлен формат дат в статистике по дням; название предмета возвращено в верхнюю часть меню.",
+                "Исправлено отображение даты занятия: DD.MM.YYYY с явным контрастным цветом текста.",
+                "Для тем «Ночное небо» и «Галактика» исправлен контраст текста и фон карточек.",
+                "Добавлены таблица умножения и деления, смешанные действия и сравнение чисел знаками >, < и =."
                 "Приложение переименовано в «Тренировка мозга», добавлена нативная иконка macOS."
             ]),
             ReleaseNote(version: "1.0.10", date: "09.10.2026", title: "Новый интерфейс", changes: [
@@ -608,7 +675,7 @@ struct ContentView: View {
             Spacer(minLength: 34)
 
             HStack(spacing: 11) {
-                TextField("Введи ответ...", text: $answer)
+                TextField(problem.isComparison ? "Выбери знак ниже" : "Введи ответ...", text: $answer)
                     .font(.system(size: 23, weight: .bold, design: .rounded))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(answerColor)
@@ -620,9 +687,37 @@ struct ContentView: View {
                     .focused($answerFocused)
                     .onSubmit(checkAnswer)
                     .onChange(of: answer) { _, newValue in
-                        let filtered = String(newValue.filter(\.isNumber).prefix(3))
-                        if filtered != newValue { answer = filtered }
+                        if problem.isComparison {
+                            let filtered = String(newValue.filter { ["<", ">", "="].contains(String($0)) }.prefix(1))
+                            if filtered != newValue { answer = filtered }
+                        } else {
+                            let filtered = String(newValue.filter(\.isNumber).prefix(3))
+                            if filtered != newValue { answer = filtered }
+                        }
                     }
+
+                if problem.isComparison {
+                    HStack(spacing: 12) {
+                        ForEach([">", "<", "="], id: \.self) { symbol in
+                            Button {
+                                answer = symbol
+                                answerFocused = false
+                            } label: {
+                                Text(symbol)
+                                    .font(.system(size: 24, weight: .heavy, design: .rounded))
+                                    .foregroundStyle(answer == symbol ? .white : palette.ink)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 49)
+                                    .background(answer == symbol ? palette.purple : .white.opacity(0.90), in: RoundedRectangle(cornerRadius: 14))
+                                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(answerState == .correct)
+                        }
+                    }
+                    .padding(.horizontal, 23)
+                    .padding(.top, -8)
+                }
 
                 Button(action: checkAnswer) {
                     HStack(spacing: 7) {
@@ -786,7 +881,7 @@ struct ContentView: View {
                         }
                         ForEach(Array(store.stats.days.prefix(4))) { day in
                             HStack(spacing: 4) {
-                                Text(StatsStore.displayDate(day.date)).frame(maxWidth: .infinity, alignment: .leading)
+                                Text(StatsStore.displayDate(day.date)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.65).frame(maxWidth: .infinity, alignment: .leading)
                                 Text("\(day.correct)").foregroundStyle(palette.green).frame(width: 26, alignment: .trailing)
                                 Text("\(day.incorrect)").foregroundStyle(palette.red).frame(width: 26, alignment: .trailing)
                                 Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 34, alignment: .trailing)
@@ -837,7 +932,7 @@ struct ContentView: View {
                 .padding(.horizontal, 8)
                 ForEach(Array(store.stats.days.prefix(3))) { day in
                     HStack(spacing: 8) {
-                        Text(StatsStore.displayDate(day.date)).frame(maxWidth: .infinity, alignment: .leading)
+                        Text(StatsStore.displayDate(day.date)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.65).frame(maxWidth: .infinity, alignment: .leading)
                         Text("\(day.correct)").foregroundStyle(palette.green).frame(width: 58, alignment: .trailing)
                         Text("\(day.incorrect)").foregroundStyle(palette.red).frame(width: 68, alignment: .trailing)
                         Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 47, alignment: .trailing)
@@ -920,7 +1015,7 @@ struct ContentView: View {
                     } else {
                         ForEach(store.stats.days) { day in
                             HStack(spacing: 8) {
-                                Text(StatsStore.displayDate(day.date)).frame(maxWidth: .infinity, alignment: .leading)
+                                Text(StatsStore.displayDate(day.date)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.65).frame(maxWidth: .infinity, alignment: .leading)
                                 Text("\(day.correct)").foregroundStyle(palette.green).frame(width: 120, alignment: .trailing)
                                 Text("\(day.incorrect)").foregroundStyle(palette.red).frame(width: 130, alignment: .trailing)
                                 Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 120, alignment: .trailing)
@@ -1040,13 +1135,30 @@ struct ContentView: View {
     }
     private func prepareShopPrices() {
         var prices = shopPrices
-        for item in Collectible.all where prices[item.id] == nil { prices[item.id] = Int.random(in: 7...49) }
+        var lastPrice = 0
+        for (index, item) in Collectible.all.enumerated() {
+            if let existing = prices[item.id], existing >= lastPrice {
+                lastPrice = existing
+                continue
+            }
+            if index == 0 || lastPrice == 0 {
+                lastPrice = 25
+            } else {
+                lastPrice += Bool.random() ? 20 : 25
+            }
+            prices[item.id] = lastPrice
+        }
         shopPricesStorage = prices.keys.sorted().map { "\($0)=\(prices[$0]!)" }.joined(separator: ",")
     }
-    private func openShop() { prepareShopPrices(); selected = .shop }
+
+    private func openShop() {
+        prepareShopPrices()
+        selected = .shop
+    }
+
     private func buyCollectible(_ item: Collectible) {
         guard !allOwnedCollectibleIDs.contains(item.id) else { return }
-        let price = shopPrices[item.id] ?? 20
+        let price = shopPrices[item.id] ?? 25
         guard store.spendDiamonds(price) else { return }
         shopPurchasesStorage = shopOwnedIDs.union([item.id]).sorted().joined(separator: ",")
         triggerCelebration("bonus:\(item.id)")
@@ -1312,8 +1424,8 @@ struct ContentView: View {
     }
 
     private func checkAnswer() {
-        guard let value = Int(answer), !answer.isEmpty, answerState != .correct else { return }
-        let isCorrect = value == problem.answer
+        guard !answer.isEmpty, answerState != .correct else { return }
+        let isCorrect = answer.trimmingCharacters(in: .whitespacesAndNewlines) == problem.answer
         let rewards = store.record(correct: isCorrect)
         let newAchievements = unlockEligibleAchievements()
 
