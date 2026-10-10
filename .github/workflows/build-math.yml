@@ -24,8 +24,9 @@ jobs:
         run: |
           set -e
           VERSION="1.0.${GITHUB_RUN_NUMBER}"
-          export VERSION
-          echo "Building MathTrainer version ${VERSION}"
+          BUILD_DATE="$(date -u +'%d.%m.%Y')"
+          export VERSION BUILD_DATE
+          echo "Building MathTrainer version ${VERSION} released ${BUILD_DATE}"
           rm -rf "MathTrainer.app" "MathTrainer.dmg"
           mkdir -p "MathTrainer.app/Contents/MacOS"
           cp ".build/release/MathTrainer" "MathTrainer.app/Contents/MacOS/MathTrainer"
@@ -50,6 +51,8 @@ jobs:
             <string>${VERSION}</string>
             <key>CFBundleVersion</key>
             <string>${GITHUB_RUN_NUMBER}</string>
+            <key>AppReleaseDate</key>
+            <string>${BUILD_DATE}</string>
             <key>LSMinimumSystemVersion</key>
             <string>14.0</string>
             <key>NSHighResolutionCapable</key>
