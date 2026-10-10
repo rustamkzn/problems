@@ -118,6 +118,7 @@ struct ProblemGenerator {
         case .english: hints = ["Вспомни перевод слова в контексте.", "Произнеси слово вслух.", "Подумай, где встречал это слово.", "Проверь написание букв."]
         case .tatar: hints = ["Вспомни перевод татарского слова.", "Произнеси слово вслух.", "Вспомни, как это говорят дома.", "Повтори слово и его значение."]
         case .art: hints = ["Портрет изображает человека, пейзаж — природу.", "Натюрморт изображает предметы или цветы.", "Граффити часто состоит из ярких букв и рисунков.", "Обрати внимание на главный объект."]
+        case .chemistry: hints = ["Вспомни символы химических элементов.", "Первая буква символа обычно заглавная, вторая — строчная.", "Найди элемент по его месту в таблице Менделеева.", "Попробуй исключить элементы из других групп."]
         }
         return hints.randomElement() ?? "Внимательно прочитай условие и проверь ответ."
     }
@@ -155,9 +156,40 @@ struct ProblemGenerator {
         case .english:
             let words: [(String,String)] = [("cat","кот"),("dog","собака"),("sun","солнце"),("book","книга"),("apple","яблоко"),("water","вода"),("house","дом"),("school","школа"),("friend","друг"),("family","семья"),("mother","мама"),("father","папа"),("sister","сестра"),("brother","брат"),("bird","птица"),("fish","рыба"),("tree","дерево"),("flower","цветок"),("green","зелёный"),("blue","синий"),("red","красный"),("yellow","жёлтый"),("black","чёрный"),("white","белый"),("one","один"),("two","два"),("three","три"),("four","четыре"),("five","пять"),("happy","счастливый"),("small","маленький"),("big","большой"),("fast","быстрый"),("slow","медленный"),("bread","хлеб"),("milk","молоко"),("chair","стул"),("table","стол"),("window","окно"),("door","дверь"),("morning","утро"),("night","ночь"),("hello","привет"),("please","пожалуйста"),("pencil","карандаш"),("rain","дождь"),("snow","снег"),("star","звезда"),("orange","апельсин"),("cheese","сыр")]
             let item = words.randomElement()!
-            let styles = ["Переведи", "Как переводится", "Что означает слово", "Подбери русский перевод для", "Укажи значение слова"]
             let reverse = Int.random(in: 0...1) == 1
-            questions = [reverse ? ("Как по-английски «\(item.1)»?", item.0) : ("\(styles.randomElement()!) \(item.0)", item.1)]
+            let correct = reverse ? item.0 : item.1
+            let distractors = words.map { reverse ? $0.0 : $0.1 }.filter { $0 != correct }.shuffled().prefix(3)
+            let choices = ([correct] + Array(distractors)).shuffled()
+            let prompt = reverse ? "Как по-английски «\(item.1)»?" : "Что значит английское слово «\(item.0)»?"
+            return Problem(text: prompt, answer: correct, isTatarChoice: true, tatarChoices: choices)
+        case .chemistry:
+            let elements: [(String, String, Int)] = [
+                ("H", "Водород", 1), ("He", "Гелий", 2), ("Li", "Литий", 3), ("Be", "Бериллий", 4), ("B", "Бор", 5), ("C", "Углерод", 6), ("N", "Азот", 7), ("O", "Кислород", 8), ("F", "Фтор", 9), ("Ne", "Неон", 10),
+                ("Na", "Натрий", 11), ("Mg", "Магний", 12), ("Al", "Алюминий", 13), ("Si", "Кремний", 14), ("P", "Фосфор", 15), ("S", "Сера", 16), ("Cl", "Хлор", 17), ("Ar", "Аргон", 18), ("K", "Калий", 19), ("Ca", "Кальций", 20),
+                ("Fe", "Железо", 26), ("Cu", "Медь", 29), ("Zn", "Цинк", 30), ("Ag", "Серебро", 47), ("Sn", "Олово", 50), ("I", "Йод", 53), ("Au", "Золото", 79), ("Hg", "Ртуть", 80), ("Pb", "Свинец", 82), ("U", "Уран", 92),
+                ("Cr", "Хром", 24), ("Mn", "Марганец", 25), ("Co", "Кобальт", 27), ("Ni", "Никель", 28), ("Br", "Бром", 35), ("Ba", "Барий", 56), ("Pt", "Платина", 78), ("W", "Вольфрам", 74), ("Ne", "Неон", 10), ("Se", "Селен", 34)
+            ]
+            let element = elements.randomElement()!
+            let mode = Int.random(in: 0...2)
+            let correct: String
+            let prompt: String
+            let pool: [String]
+            switch mode {
+            case 0:
+                correct = element.1
+                prompt = "Как называется элемент с символом \(element.0)? (№ \(element.2))"
+                pool = elements.map { $0.1 }
+            case 1:
+                correct = element.0
+                prompt = "Какой символ у элемента «\(element.1)»?"
+                pool = elements.map { $0.0 }
+            default:
+                correct = element.1
+                prompt = "Какой элемент имеет порядковый номер \(element.2)?"
+                pool = elements.map { $0.1 }
+            }
+            let choices = ([correct] + Array(pool.filter { $0 != correct }.shuffled().prefix(3))).shuffled()
+            return Problem(text: prompt, answer: correct, isTatarChoice: true, tatarChoices: choices)
         case .tatar:
             let words: [(String,String)] = [("Әни","мама"),("Әти","папа"),("Исәнме","здравствуй"),("Рәхмәт","спасибо"),("Су","вода"),("Икмәк","хлеб"),("Өй","дом"),("Мәктәп","школа"),("Дус","друг"),("Китап","книга"),("Алма","яблоко"),("Кояш","солнце"),("Ай","луна"),("Йолдыз","звезда"),("Эт","собака"),("Мәче","кошка"),("Ат","лошадь"),("Кош","птица"),("Балык","рыба"),("Агач","дерево"),("Чәчәк","цветок"),("Яшел","зелёный"),("Зәңгәр","синий"),("Кызыл","красный"),("Ак","белый"),("Кара","чёрный"),("Бер","один"),("Ике","два"),("Өч","три"),("Дүрт","четыре"),("Биш","пять"),("Алты","шесть"),("Җиде","семь"),("Сигез","восемь"),("Тугыз","девять"),("Ун","десять"),("Яхшы","хорошо"),("Матур","красивый"),("Зур","большой"),("Кечкенә","маленький"),("Сәлам","привет"),("Сау бул","до свидания"),("Яңгыр","дождь"),("Кар","снег"),("Көн","день"),("Төн","ночь"),("Сөт","молоко"),("Дуслык","дружба"),("Гаилә","семья"),("Бәхет","счастье")]
             let item = words.randomElement()!
@@ -360,6 +392,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
     case english = "Английский язык"
     case tatar = "Татарский язык"
     case art = "Рисование"
+    case chemistry = "Химия"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -369,6 +402,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
         case .english: "globe"
         case .tatar: "textformat"
         case .art: "paintpalette.fill"
+        case .chemistry: "testtube.2"
         }
     }
 }
@@ -484,6 +518,7 @@ struct ContentView: View {
     @State private var answerState: AnswerState = .neutral
     @State private var currentTip = "Внимательно прочитай условие и проверь ответ."
     @State private var showSubjectPicker = false
+    @State private var seenQuestionTexts: [String: Set<String>] = [:]
     @State private var showBunny = false
     @State private var celebration: String?
     @State private var showCelebration = false
@@ -516,11 +551,11 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Удобный выбор предмета и татарский язык", changes: [
-                "Заменено системное меню предметов на собственную раскрывающуюся панель с крупными цветными кнопками и галочкой у выбранного предмета.",
-                "В татарском языке теперь можно выбрать правильный перевод из четырёх вариантов — переключать раскладку для ответа не нужно.",
-                "Обновлены формулировки заданий по татарскому языку: в каждом вопросе ясно указано направление перевода.",
-                "История версий получила отдельное описание именно этих изменений; предыдущие записи сохраняются."
+            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Английский, рисование, химия и магазин", changes: [
+                "Английский язык переведён на вопросы с четырьмя вариантами ответа; правильный ответ выбирается нажатием, без клавиатуры.",
+                "В рисовании выбор одного из четырёх вариантов сразу проверяет ответ; вопросы перемешиваются без немедленных повторов.",
+                "Добавлен предмет «Химия»: распознавание элементов по символу, названию и порядковому номеру с четырьмя вариантами.",
+                "Исправлен магазин: игрушки, полученные как случайные награды, не помечаются купленными — они остаются закрытыми в магазине, пока их не купят."
             ]),
             ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Математика и выбор предмета", changes: ["Добавлены задания на десятки и единицы, длину, массу и время.", "Переключатель предметов вынесен в левую колонку."]),
             ReleaseNote(version: "1.0.27", date: "10.10.2026", title: "Задания по рисованию", changes: ["Добавлен выбор иллюстраций: граффити, портрет, пейзаж и натюрморт."]),
@@ -674,7 +709,7 @@ struct ContentView: View {
                                 selected = .task
                                 answerState = .neutral
                                 answer = ""
-                                problem = ProblemGenerator.next(for: subject)
+                                problem = makeUniqueProblem(for: subject)
                                 currentTip = ProblemGenerator.tip(for: subject, problem: problem)
                                 showSubjectPicker = false
                                 answerFocused = false
@@ -824,6 +859,7 @@ struct ContentView: View {
         case .english: "🔤"
         case .tatar: "🌿"
         case .art: "🎨"
+        case .chemistry: "⚗️"
         }
     }
 
@@ -1025,7 +1061,7 @@ struct ContentView: View {
 
     private var tatarChoiceGrid: some View {
         VStack(spacing: 12) {
-            Text("ВЫБЕРИ ПРАВИЛЬНЫЙ ПЕРЕВОД")
+            Text(selectedSubject == .tatar ? "ВЫБЕРИ ПРАВИЛЬНЫЙ ПЕРЕВОД" : "ВЫБЕРИ ПРАВИЛЬНЫЙ ОТВЕТ")
                 .font(.system(size: 11, weight: .black, design: .rounded))
                 .tracking(0.35)
                 .foregroundStyle(palette.purple)
@@ -1069,6 +1105,7 @@ struct ContentView: View {
                     Button {
                         answer = choice.title
                         answerFocused = false
+                        DispatchQueue.main.async { checkAnswer() }
                     } label: {
                         VStack(spacing: 6) {
                             ZStack {
@@ -1431,7 +1468,7 @@ struct ContentView: View {
         }.scrollIndicators(.hidden)
     }
     private func shopItemCard(_ item: Collectible) -> some View {
-        let owned = allOwnedCollectibleIDs.contains(item.id)
+        let owned = shopOwnedIDs.contains(item.id)
         let price = shopPrices[item.id] ?? 20
         return VStack(alignment: .leading, spacing: 9) {
             ZStack {
@@ -1773,8 +1810,22 @@ struct ContentView: View {
         }
     }
 
+    private func makeUniqueProblem(for subject: StudySubject) -> Problem {
+        let key = subject.rawValue
+        var seen = seenQuestionTexts[key, default: []]
+        var candidate = ProblemGenerator.next(for: subject)
+        for _ in 0..<100 {
+            if !seen.contains(candidate.text) { break }
+            candidate = ProblemGenerator.next(for: subject)
+        }
+        if seen.contains(candidate.text) { seen.removeAll() }
+        seen.insert(candidate.text)
+        seenQuestionTexts[key] = seen
+        return candidate
+    }
+
     private func nextProblem() {
-        problem = ProblemGenerator.next(for: selectedSubject)
+        problem = makeUniqueProblem(for: selectedSubject)
         currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
         answer = ""
         answerState = .neutral
