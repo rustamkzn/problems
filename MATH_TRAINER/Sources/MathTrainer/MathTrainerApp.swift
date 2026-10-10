@@ -413,31 +413,28 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var releaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Исправления и новые возможности", changes: [
-                "Исправлено отображение сравнения чисел: оба числа и место для знака >, < или = теперь видны.",
-                "Выровнены элементы меню раздела «Задание», чтобы активный пункт не менял размер.",
-                "История версий сохранена: описания прошлых выпусков остаются отдельными записями.",
-                "Добавлено переключение между математикой, окружающим миром, русским, английским и татарским языками, рисованием и клавиатурой; для каждого предмета доступны простые задания.",
-                "В магазине до покупки игрушка видна приглушённой, после покупки становится яркой.",
-                "Добавлены пони, единороги, принцессы, смайлики и персонажи в мультяшном стиле.",
-                "Сохранены прежние функции: статистика по дням, алмазы, достижения, темы оформления и коллекционные игрушки."
+            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Предметы и интерфейс", changes: [
+                "Добавлен заметный переключатель учебного предмета прямо на главной странице слева.",
+                "Уменьшена карточка общей статистики справа, чтобы она не растягивала весь экран.",
+                "Возвращён прежний вид магазина: закрытые игрушки обозначены замком и подписью «Секретная игрушка».",
+                "Добавлены задания по математике, окружающему миру, русскому, английскому и татарскому языкам, рисованию и клавиатуре.",
+                "В заданиях на сравнение видны оба числа и доступны знаки >, < и =."
             ]),
-            ReleaseNote(version: "1.0.10", date: "09.10.2026", title: "Новый интерфейс", changes: [
-                "Переработан основной экран: боковое меню, карточка примера и правая панель статистики.",
-                "Добавлены статистика по дням, алмазы и праздничные анимации.",
-                "Добавлен номер версии в интерфейс."
-            ]),
-            ReleaseNote(version: "1.0.9", date: "09.10.2026", title: "Версия и награды", changes: [
-                "Сделан заметным номер версии приложения.",
-                "Обновлены награды за 20 и 50 алмазов."
-            ]),
-            ReleaseNote(version: "1.0.8", date: "09.10.2026", title: "Статистика", changes: [
-                "Добавлена статистика правильных и неправильных ответов.",
-                "Добавлена история результатов по дням и начисление алмазов."
-            ]),
+            ReleaseNote(version: "1.0.20", date: "10.10.2026", title: "Исправления интерфейса", changes: ["Исправлена ошибка компиляции в генераторе заданий по предметам."]),
+            ReleaseNote(version: "1.0.19", date: "10.10.2026", title: "Предметы и магазин", changes: ["Добавлены отдельные вопросы по учебным предметам и переключение предмета.", "Обновлены игрушки и карточки магазина."]),
+            ReleaseNote(version: "1.0.18", date: "10.10.2026", title: "Исправление сборки", changes: ["Исправлена запись журнала изменений, из-за которой не проходила компиляция."]),
+            ReleaseNote(version: "1.0.17", date: "10.10.2026", title: "Темы оформления", changes: ["Улучшена читаемость текста на тёмных темах «Ночное небо» и «Галактика».", "Исправлено отображение дат в статистике."]),
+            ReleaseNote(version: "1.0.16", date: "10.10.2026", title: "Задания и коллекция", changes: ["Расширен набор математических заданий: смешанные действия, умножение, деление и сравнение чисел.", "Расширен каталог коллекционных игрушек."]),
+            ReleaseNote(version: "1.0.15", date: "10.10.2026", title: "Оформление приложения", changes: ["Добавлены название и иконка приложения для macOS.", "Уточнены элементы интерфейса и раздел наград."]),
+            ReleaseNote(version: "1.0.14", date: "10.10.2026", title: "Темы и награды", changes: ["Добавлены десять цветовых тем оформления.", "Добавлены достижения, медали, уровни и коллекционные игрушки.", "Добавлен раздел «Клавиатура»."]),
+            ReleaseNote(version: "1.0.13", date: "10.10.2026", title: "Праздничные анимации", changes: ["Исправлено расположение элементов праздничной анимации и наград."]),
+            ReleaseNote(version: "1.0.12", date: "10.10.2026", title: "Награды за успехи", changes: ["Добавлены награды за серии правильных ответов и алмазы.", "Улучшена анимация поздравления."]),
+            ReleaseNote(version: "1.0.11", date: "10.10.2026", title: "Статистика занятий", changes: ["Добавлены ежедневные результаты и подсчёт правильных и неправильных ответов.", "Добавлено начисление алмазов за верные ответы."]),
+            ReleaseNote(version: "1.0.10", date: "09.10.2026", title: "Новый интерфейс", changes: ["Переработан основной экран: боковое меню, карточка примера и правая панель статистики.", "Добавлены статистика по дням, алмазы и праздничные анимации.", "Добавлен номер версии в интерфейс."]),
+            ReleaseNote(version: "1.0.9", date: "09.10.2026", title: "Версия и награды", changes: ["Сделан заметным номер версии приложения.", "Обновлены награды за 20 и 50 алмазов."]),
+            ReleaseNote(version: "1.0.8", date: "09.10.2026", title: "Статистика", changes: ["Добавлена статистика правильных и неправильных ответов.", "Добавлена история результатов по дням и начисление алмазов."])
         ]
     }
-
     private var answerColor: Color {
         switch answerState {
         case .neutral: return palette.purple
@@ -626,8 +623,9 @@ struct ContentView: View {
     }
 
     private var taskDashboard: some View {
-        HStack(alignment: .top, spacing: 15) {
-            VStack(spacing: 14) {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(spacing: 11) {
+                subjectSwitcher
                 topBar
                 quizCard
                     .frame(maxWidth: .infinity, minHeight: 430)
@@ -635,10 +633,46 @@ struct ContentView: View {
                 tipBar
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            rightDashboard.frame(width: 318)
+            rightDashboard.frame(maxWidth: 286, maxHeight: .infinity)
         }
-        .padding(17)
+        .padding(15)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var subjectSwitcher: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 7) {
+                Image(systemName: "books.vertical.fill").font(.system(size: 14, weight: .heavy)).foregroundStyle(palette.purple)
+                Text("УЧЕБНЫЙ ПРЕДМЕТ").font(.system(size: 11, weight: .heavy, design: .rounded)).tracking(0.5).foregroundStyle(palette.muted)
+                Spacer()
+                Text("Выбери предмет").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            }
+            Menu {
+                ForEach(StudySubject.allCases) { subject in
+                    Button {
+                        selectedSubjectName = subject.rawValue
+                        selected = .task
+                        answerState = .neutral
+                        answer = ""
+                        problem = ProblemGenerator.next(for: subject)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
+                    } label: { Label(subject.rawValue, systemImage: subject.icon) }
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: selectedSubject.icon).font(.system(size: 16, weight: .heavy)).frame(width: 25)
+                    Text(selectedSubject.rawValue).font(.system(size: 15, weight: .heavy, design: .rounded))
+                    Spacer()
+                    Image(systemName: "chevron.down").font(.system(size: 11, weight: .heavy))
+                }
+                .foregroundStyle(palette.purple).padding(.horizontal, 14).frame(maxWidth: .infinity, minHeight: 42)
+                .background(.white.opacity(0.86), in: RoundedRectangle(cornerRadius: 14))
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
+                .contentShape(RoundedRectangle(cornerRadius: 14))
+            }.menuStyle(.borderlessButton)
+        }
+        .padding(11).background(.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 17))
+        .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.line.opacity(0.75), lineWidth: 1))
     }
 
     private var topBar: some View {
@@ -860,17 +894,15 @@ struct ContentView: View {
     private var rightDashboard: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 8) {
                     sectionTitle("Общая статистика", icon: "chart.bar.fill")
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                        miniStat("Всего ответов", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 6), GridItem(.flexible(), spacing: 6)], spacing: 6) {
+                        miniStat("Всего", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
                         miniStat("Верных", value: "\(store.stats.correct)", icon: "checkmark.circle.fill", color: palette.green)
-                        miniStat("Неверных", value: "\(store.stats.incorrect)", icon: "xmark.circle.fill", color: palette.red)
+                        miniStat("Ошибок", value: "\(store.stats.incorrect)", icon: "xmark.circle.fill", color: palette.red)
                         miniStat("Точность", value: "\(store.stats.accuracy)%", icon: "percent", color: Color(red: 0.29, green: 0.57, blue: 0.87))
                     }
-                }
-                .padding(13)
-                .cardStyle(palette)
+                }.padding(9).cardStyle(palette)
 
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
@@ -1123,7 +1155,7 @@ struct ContentView: View {
     private var shopPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                pageHeading("Магазин игрушек", subtitle: "Покупай за алмазы. После покупки игрушка становится яркой и открытой!")
+                pageHeading("Магазин игрушек", subtitle: "Собирай коллекцию игрушек за алмазы!")
                 HStack(spacing: 12) {
                     Text("💎").font(.system(size: 33))
                     VStack(alignment: .leading, spacing: 2) {
@@ -1146,9 +1178,9 @@ struct ContentView: View {
         return VStack(alignment: .leading, spacing: 9) {
             ZStack {
                 RoundedRectangle(cornerRadius: 17).fill(LinearGradient(colors: owned ? [palette.pink, palette.lilac] : [palette.line.opacity(0.5), palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing))
-                Text(item.emoji).font(.system(size: 43)).saturation(owned ? 1 : 0.12).opacity(owned ? 1 : 0.48).blur(radius: owned ? 0 : 0.25)
+                Text(owned ? item.emoji : "🔒").font(.system(size: 43)).saturation(owned ? 1 : 0).opacity(owned ? 1 : 0.55)
             }.frame(height: 83)
-            Text(owned ? item.title : "???").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(owned ? palette.ink : palette.muted).lineLimit(1)
+            Text(owned ? item.title : "Секретная игрушка").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1)
             Text(owned ? item.detail : "Открой за алмазы").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
             if owned {
                 Label("Открыта!", systemImage: "checkmark.seal.fill").font(.system(size: 11, weight: .heavy, design: .rounded)).foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
@@ -1299,17 +1331,16 @@ struct ContentView: View {
     }
 
     private func miniStat(_ title: String, value: String, icon: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack(spacing: 5) {
-                Image(systemName: icon).font(.system(size: 13, weight: .heavy)).foregroundStyle(color)
-                Text(title).font(.system(size: 10, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted).lineLimit(1).minimumScaleFactor(0.75)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 4) {
+                Image(systemName: icon).font(.system(size: 11, weight: .heavy)).foregroundStyle(color)
+                Text(title).font(.system(size: 9, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted).lineLimit(1).minimumScaleFactor(0.68)
             }
-            Text(value).font(.system(size: 23, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(value).font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7)
         }
-        .frame(maxWidth: .infinity, minHeight: 67, alignment: .leading)
-        .padding(10)
-        .background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line.opacity(0.7), lineWidth: 1))
+        .frame(maxWidth: .infinity, minHeight: 49, alignment: .leading)
+        .padding(7).background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.line.opacity(0.7), lineWidth: 1))
     }
 
     private func todayStat(_ title: String, value: Int, icon: String, color: Color) -> some View {
