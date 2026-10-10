@@ -25,7 +25,7 @@ struct Problem {
 
 struct ProblemGenerator {
     static func next() -> Problem {
-        switch Int.random(in: 0...15) {
+        switch Int.random(in: 0...16) {
         case 0:
             let a = Int.random(in: 1...89)
             let b = Int.random(in: 1...(100 - a))
