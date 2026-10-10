@@ -96,7 +96,7 @@ struct ProblemGenerator {
         }
     }
 
-    static func tip(for subject: StudySubject, problem: Problem) -> String {
+    fileprivate static func tip(for subject: StudySubject, problem: Problem) -> String {
         let hints: [String]
         switch subject {
         case .math:
