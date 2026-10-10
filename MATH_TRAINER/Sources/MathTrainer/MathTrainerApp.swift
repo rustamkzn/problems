@@ -13,13 +13,17 @@ struct Problem {
     let isComparison: Bool
     let isArtChoice: Bool
     let artChoices: [ArtChoice]
+    let isTatarChoice: Bool
+    let tatarChoices: [String]
 
-    init(text: String, answer: String, isComparison: Bool = false, isArtChoice: Bool = false, artChoices: [ArtChoice] = []) {
+    init(text: String, answer: String, isComparison: Bool = false, isArtChoice: Bool = false, artChoices: [ArtChoice] = [], isTatarChoice: Bool = false, tatarChoices: [String] = []) {
         self.text = text
         self.answer = answer
         self.isComparison = isComparison
         self.isArtChoice = isArtChoice
         self.artChoices = artChoices
+        self.isTatarChoice = isTatarChoice
+        self.tatarChoices = tatarChoices
     }
 }
 
@@ -157,8 +161,12 @@ struct ProblemGenerator {
         case .tatar:
             let words: [(String,String)] = [("Әни","мама"),("Әти","папа"),("Исәнме","здравствуй"),("Рәхмәт","спасибо"),("Су","вода"),("Икмәк","хлеб"),("Өй","дом"),("Мәктәп","школа"),("Дус","друг"),("Китап","книга"),("Алма","яблоко"),("Кояш","солнце"),("Ай","луна"),("Йолдыз","звезда"),("Эт","собака"),("Мәче","кошка"),("Ат","лошадь"),("Кош","птица"),("Балык","рыба"),("Агач","дерево"),("Чәчәк","цветок"),("Яшел","зелёный"),("Зәңгәр","синий"),("Кызыл","красный"),("Ак","белый"),("Кара","чёрный"),("Бер","один"),("Ике","два"),("Өч","три"),("Дүрт","четыре"),("Биш","пять"),("Алты","шесть"),("Җиде","семь"),("Сигез","восемь"),("Тугыз","девять"),("Ун","десять"),("Яхшы","хорошо"),("Матур","красивый"),("Зур","большой"),("Кечкенә","маленький"),("Сәлам","привет"),("Сау бул","до свидания"),("Яңгыр","дождь"),("Кар","снег"),("Көн","день"),("Төн","ночь"),("Сөт","молоко"),("Дуслык","дружба"),("Гаилә","семья"),("Бәхет","счастье")]
             let item = words.randomElement()!
-            let styles = ["по-русски", "на русский язык", "значит на русском"]
-            questions = Int.random(in: 0...1) == 0 ? [("\(styles.randomElement()!): «\(item.0)»?", item.1)] : [("Как сказать по-татарски «\(item.1)»?", item.0)]
+            let reverse = Int.random(in: 0...1) == 1
+            let correct = reverse ? item.0 : item.1
+            let distractors = words.map { reverse ? $0.0 : $0.1 }.filter { $0 != correct }.shuffled().prefix(3)
+            let choices = ([correct] + Array(distractors)).shuffled()
+            let prompt = reverse ? "Как по-татарски «\(item.1)»?" : "Что значит татарское слово «\(item.0)»?"
+            return Problem(text: prompt, answer: correct, isTatarChoice: true, tatarChoices: choices)
         case .art:
             let artForms: [(String, String, String)] = [
                 ("Граффити", "paintbrush.pointed.fill", "Яркие буквы и рисунки на городской стене"),
@@ -475,6 +483,7 @@ struct ContentView: View {
     @State private var selected: AppSection = .task
     @State private var answerState: AnswerState = .neutral
     @State private var currentTip = "Внимательно прочитай условие и проверь ответ."
+    @State private var showSubjectPicker = false
     @State private var showBunny = false
     @State private var celebration: String?
     @State private var showCelebration = false
@@ -507,15 +516,11 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Предметы и интерфейс", changes: [
-                "Переключатель предметов выделен заметной рамкой и показывает текущий предмет.",
-                "Подсказки меняются в соответствии с текущим заданием.",
-                "Расширены случайные задания по всем учебным предметам.",
-                "Уменьшена карточка общей статистики справа, чтобы она не растягивала весь экран.",
-                "Возвращён прежний вид магазина: закрытые игрушки обозначены замком и подписью «Секретная игрушка».",
-                "Добавлены отдельные задания по математике: десятки и единицы, дециметры и сантиметры, килограммы, центнеры и граммы, сутки, часы, недели и месяцы.",
-                "История выпусков хранится локально и объединяется с новыми заметками после обновления.",
-                "В заданиях на сравнение видны оба числа и доступны знаки >, < и =."
+            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Удобный выбор предмета и татарский язык", changes: [
+                "Заменено системное меню предметов на собственную раскрывающуюся панель с крупными цветными кнопками и галочкой у выбранного предмета.",
+                "В татарском языке теперь можно выбрать правильный перевод из четырёх вариантов — переключать раскладку для ответа не нужно.",
+                "Обновлены формулировки заданий по татарскому языку: в каждом вопросе ясно указано направление перевода.",
+                "История версий получила отдельное описание именно этих изменений; предыдущие записи сохраняются."
             ]),
             ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Математика и выбор предмета", changes: ["Добавлены задания на десятки и единицы, длину, массу и время.", "Переключатель предметов вынесен в левую колонку."]),
             ReleaseNote(version: "1.0.27", date: "10.10.2026", title: "Задания по рисованию", changes: ["Добавлен выбор иллюстраций: граффити, портрет, пейзаж и натюрморт."]),
@@ -622,53 +627,89 @@ struct ContentView: View {
             }
             .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 12)
 
-            VStack(alignment: .leading, spacing: 7) {
-                Text("СЕЙЧАС ВЫБРАН ПРЕДМЕТ")
-                    .font(.system(size: 8, weight: .heavy, design: .rounded)).tracking(0.35).foregroundStyle(palette.muted)
-                Menu {
-                    ForEach(StudySubject.allCases) { subject in
-                        Button {
-                            selectedSubjectName = subject.rawValue
-                            selected = .task
-                            answerState = .neutral
-                            answer = ""
-                            problem = ProblemGenerator.next(for: subject)
-                            currentTip = ProblemGenerator.tip(for: subject, problem: problem)
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
-                        } label: { Label(subject.rawValue, systemImage: subject.icon) }
+            VStack(alignment: .leading, spacing: 9) {
+                Text("ВЫБЕРИ ПРЕДМЕТ")
+                    .font(.system(size: 10, weight: .black, design: .rounded)).tracking(0.6).foregroundStyle(palette.ink)
+                Button {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
+                        showSubjectPicker.toggle()
                     }
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: selectedSubject.icon)
-                            .font(.system(size: 17, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(.white.opacity(0.20), in: RoundedRectangle(cornerRadius: 10))
+                            .font(.system(size: 19, weight: .heavy))
+                            .frame(width: 40, height: 40)
+                            .background(.white.opacity(0.22), in: RoundedRectangle(cornerRadius: 11))
                         VStack(alignment: .leading, spacing: 3) {
                             Text(selectedSubject.rawValue)
-                                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                                .font(.system(size: 14, weight: .heavy, design: .rounded))
                                 .lineLimit(1).minimumScaleFactor(0.75)
-                            Text("Нажми, чтобы сменить")
-                                .font(.system(size: 9, weight: .semibold, design: .rounded))
-                                .opacity(0.88)
+                            Text("НАЖМИ ЗДЕСЬ ДЛЯ СМЕНЫ")
+                                .font(.system(size: 8, weight: .black, design: .rounded))
+                                .tracking(0.2)
                         }
                         Spacer(minLength: 1)
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 11, weight: .heavy))
-                            .frame(width: 24, height: 24)
-                            .background(.white.opacity(0.20), in: Circle())
+                        Image(systemName: showSubjectPicker ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 13, weight: .black))
+                            .frame(width: 28, height: 28)
+                            .background(.white.opacity(0.22), in: Circle())
                     }
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 10).padding(.vertical, 9)
+                    .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        LinearGradient(colors: [palette.purple, Color(red: 0.67, green: 0.31, blue: 0.66)],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing),
-                        in: RoundedRectangle(cornerRadius: 14)
-                    )
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.9), lineWidth: 1.5))
-                    .shadow(color: palette.purple.opacity(0.24), radius: 5, x: 0, y: 2)
-                    .contentShape(RoundedRectangle(cornerRadius: 14))
-                }.menuStyle(.borderlessButton)
+                    .background(LinearGradient(colors: [Color(red: 0.42, green: 0.20, blue: 0.78), Color(red: 0.78, green: 0.25, blue: 0.62)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 15))
+                    .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color.white, lineWidth: 2.5))
+                    .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color(red: 0.35, green: 0.15, blue: 0.62), lineWidth: 1))
+                    .shadow(color: Color.purple.opacity(0.30), radius: 6, x: 0, y: 3)
+                    .contentShape(RoundedRectangle(cornerRadius: 15))
+                }
+                .buttonStyle(.plain)
+                .help("Нажми, чтобы выбрать другой учебный предмет")
+
+                if showSubjectPicker {
+                    VStack(spacing: 6) {
+                        ForEach(StudySubject.allCases) { subject in
+                            Button {
+                                selectedSubjectName = subject.rawValue
+                                selected = .task
+                                answerState = .neutral
+                                answer = ""
+                                problem = ProblemGenerator.next(for: subject)
+                                currentTip = ProblemGenerator.tip(for: subject, problem: problem)
+                                showSubjectPicker = false
+                                answerFocused = false
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: subject.icon)
+                                        .font(.system(size: 15, weight: .bold))
+                                        .frame(width: 30, height: 30)
+                                        .foregroundStyle(subject == selectedSubject ? .white : palette.purple)
+                                        .background(subject == selectedSubject ? palette.purple : palette.palePink, in: RoundedRectangle(cornerRadius: 9))
+                                    Text(subject.rawValue)
+                                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                                        .foregroundStyle(palette.ink)
+                                    Spacer()
+                                    if subject == selectedSubject {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 16, weight: .heavy))
+                                            .foregroundStyle(palette.purple)
+                                    }
+                                }
+                                .padding(.horizontal, 9).padding(.vertical, 7)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(subject == selectedSubject ? palette.palePink : Color.white, in: RoundedRectangle(cornerRadius: 11))
+                                .overlay(RoundedRectangle(cornerRadius: 11).stroke(subject == selectedSubject ? palette.purple : palette.line, lineWidth: subject == selectedSubject ? 2 : 1))
+                                .contentShape(RoundedRectangle(cornerRadius: 11))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(7)
+                    .background(Color.white, in: RoundedRectangle(cornerRadius: 15))
+                    .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 2))
+                    .shadow(color: palette.purple.opacity(0.18), radius: 7, x: 0, y: 3)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
             }
             .padding(.horizontal, 12).padding(.bottom, 18)
 
@@ -863,6 +904,8 @@ struct ContentView: View {
 
             if problem.isArtChoice {
                 artChoiceGrid
+            } else if problem.isTatarChoice {
+                tatarChoiceGrid
             } else {
                 HStack(spacing: 11) {
                     TextField(problem.isComparison ? "Выбери знак ниже" : "Введи ответ...", text: $answer)
@@ -978,6 +1021,45 @@ struct ContentView: View {
             }
         }
         .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white.opacity(0.92), lineWidth: 1.4))
+    }
+
+    private var tatarChoiceGrid: some View {
+        VStack(spacing: 12) {
+            Text("ВЫБЕРИ ПРАВИЛЬНЫЙ ПЕРЕВОД")
+                .font(.system(size: 11, weight: .black, design: .rounded))
+                .tracking(0.35)
+                .foregroundStyle(palette.purple)
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                ForEach(Array(problem.tatarChoices.enumerated()), id: \.element) { index, choice in
+                    Button {
+                        answer = choice
+                        answerFocused = false
+                        DispatchQueue.main.async { checkAnswer() }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text(["А", "Ә", "Б", "В"][index])
+                                .font(.system(size: 13, weight: .black, design: .rounded))
+                                .frame(width: 27, height: 27)
+                                .background(answer == choice ? Color.white.opacity(0.22) : palette.palePink, in: Circle())
+                            Text(choice)
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .multilineTextAlignment(.leading)
+                                .lineLimit(2)
+                            Spacer(minLength: 0)
+                        }
+                        .foregroundStyle(answer == choice ? .white : palette.ink)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+                        .background(answer == choice ? palette.purple : Color.white, in: RoundedRectangle(cornerRadius: 14))
+                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(answer == choice ? palette.purple : palette.line, lineWidth: answer == choice ? 2.5 : 1.5))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(answerState == .correct)
+                }
+            }
+        }
+        .padding(.horizontal, 22)
+        .padding(.top, 8)
     }
 
     private var artChoiceGrid: some View {
