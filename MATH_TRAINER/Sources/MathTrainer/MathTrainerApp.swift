@@ -127,38 +127,38 @@ struct ProblemGenerator {
         case .world:
             let n = Int.random(in: 2...1000)
             switch Int.random(in: 0...6) {
-            case 0: questions = [("Сколько лап у \\(n) кошек?", String(n * 4))]
-            case 1: questions = [("Сколько ног у \\(n) птиц?", String(n * 2))]
-            case 2: questions = [("Сколько дней в \\(n) неделях?", String(n * 7))]
-            case 3: questions = [("Сколько месяцев в \\(n) годах?", String(n * 12))]
-            case 4: questions = [("Сколько часов в \\(n) сутках?", String(n * 24))]
-            case 5: questions = [("Сколько колёс у \\(n) велосипедов?", String(n * 2))]
-            default: questions = [("Сколько ног у \\(n) пауков?", String(n * 8))]
+            case 0: questions = [("Сколько лап у \(n) кошек?", String(n * 4))]
+            case 1: questions = [("Сколько ног у \(n) птиц?", String(n * 2))]
+            case 2: questions = [("Сколько дней в \(n) неделях?", String(n * 7))]
+            case 3: questions = [("Сколько месяцев в \(n) годах?", String(n * 12))]
+            case 4: questions = [("Сколько часов в \(n) сутках?", String(n * 24))]
+            case 5: questions = [("Сколько колёс у \(n) велосипедов?", String(n * 2))]
+            default: questions = [("Сколько ног у \(n) пауков?", String(n * 8))]
             }
         case .russian:
             let words: [(String,String,String)] = [("день","светлое время","ночь"),("смелый","храбрый","трусливый"),("быстрый","скорый","медленный"),("красивый","прекрасный","уродливый"),("радость","веселье","печаль"),("большой","огромный","маленький"),("говорить","разговаривать","молчать"),("холодный","студёный","горячий"),("умный","разумный","глупый"),("начало","старт","конец"),("свет","сияние","тьма"),("друг","товарищ","враг"),("труд","работа","отдых"),("добрый","отзывчивый","злой"),("дом","жилище","улица"),("лес","бор","пустыня"),("весёлый","радостный","грустный"),("сильный","мощный","слабый"),("тихий","спокойный","громкий"),("чистый","опрятный","грязный")]
             let item = words.randomElement()!
             switch Int.random(in: 0...7) {
-            case 0: questions = [("Подбери синоним к слову «\\(item.0)»", item.1)]
-            case 1: questions = [("Подбери антоним к слову «\\(item.0)»", item.2)]
-            case 2: questions = [("Сколько букв в слове «\\(item.0)»?", String(item.0.count))]
-            case 3: questions = [("Напиши слово «\\(item.0)» наоборот", String(item.0.reversed()))]
-            case 4: questions = [("Сколько гласных в слове «\\(item.0)»?", String(item.0.lowercased().filter { "аеёиоуыэюя".contains($0) }.count))]
-            case 5: questions = [("Сколько согласных в слове «\\(item.0)»?", String(item.0.lowercased().filter { "бвгджзйклмнпрстфхцчшщ".contains($0) }.count))]
-            case 6: questions = [("Какой первый звук в слове «\\(item.0)»?", String(item.0.lowercased().prefix(1)))]
-            default: questions = [("Какой последний звук в слове «\\(item.0)»?", String(item.0.lowercased().suffix(1)))]
+            case 0: questions = [("Подбери синоним к слову «\(item.0)»", item.1)]
+            case 1: questions = [("Подбери антоним к слову «\(item.0)»", item.2)]
+            case 2: questions = [("Сколько букв в слове «\(item.0)»?", String(item.0.count))]
+            case 3: questions = [("Напиши слово «\(item.0)» наоборот", String(item.0.reversed()))]
+            case 4: questions = [("Сколько гласных в слове «\(item.0)»?", String(item.0.lowercased().filter { "аеёиоуыэюя".contains($0) }.count))]
+            case 5: questions = [("Сколько согласных в слове «\(item.0)»?", String(item.0.lowercased().filter { "бвгджзйклмнпрстфхцчшщ".contains($0) }.count))]
+            case 6: questions = [("Какой первый звук в слове «\(item.0)»?", String(item.0.lowercased().prefix(1)))]
+            default: questions = [("Какой последний звук в слове «\(item.0)»?", String(item.0.lowercased().suffix(1)))]
             }
         case .english:
             let words: [(String,String)] = [("cat","кот"),("dog","собака"),("sun","солнце"),("book","книга"),("apple","яблоко"),("water","вода"),("house","дом"),("school","школа"),("friend","друг"),("family","семья"),("mother","мама"),("father","папа"),("sister","сестра"),("brother","брат"),("bird","птица"),("fish","рыба"),("tree","дерево"),("flower","цветок"),("green","зелёный"),("blue","синий"),("red","красный"),("yellow","жёлтый"),("black","чёрный"),("white","белый"),("one","один"),("two","два"),("three","три"),("four","четыре"),("five","пять"),("happy","счастливый"),("small","маленький"),("big","большой"),("fast","быстрый"),("slow","медленный"),("bread","хлеб"),("milk","молоко"),("chair","стул"),("table","стол"),("window","окно"),("door","дверь"),("morning","утро"),("night","ночь"),("hello","привет"),("please","пожалуйста"),("pencil","карандаш"),("rain","дождь"),("snow","снег"),("star","звезда"),("orange","апельсин"),("cheese","сыр")]
             let item = words.randomElement()!
             let styles = ["Переведи", "Как переводится", "Что означает слово", "Подбери русский перевод для", "Укажи значение слова"]
             let reverse = Int.random(in: 0...1) == 1
-            questions = [reverse ? ("Как по-английски «\\(item.1)»?", item.0) : ("\\(styles.randomElement()!) \\(item.0)", item.1)]
+            questions = [reverse ? ("Как по-английски «\(item.1)»?", item.0) : ("\(styles.randomElement()!) \(item.0)", item.1)]
         case .tatar:
             let words: [(String,String)] = [("Әни","мама"),("Әти","папа"),("Исәнме","здравствуй"),("Рәхмәт","спасибо"),("Су","вода"),("Икмәк","хлеб"),("Өй","дом"),("Мәктәп","школа"),("Дус","друг"),("Китап","книга"),("Алма","яблоко"),("Кояш","солнце"),("Ай","луна"),("Йолдыз","звезда"),("Эт","собака"),("Мәче","кошка"),("Ат","лошадь"),("Кош","птица"),("Балык","рыба"),("Агач","дерево"),("Чәчәк","цветок"),("Яшел","зелёный"),("Зәңгәр","синий"),("Кызыл","красный"),("Ак","белый"),("Кара","чёрный"),("Бер","один"),("Ике","два"),("Өч","три"),("Дүрт","четыре"),("Биш","пять"),("Алты","шесть"),("Җиде","семь"),("Сигез","восемь"),("Тугыз","девять"),("Ун","десять"),("Яхшы","хорошо"),("Матур","красивый"),("Зур","большой"),("Кечкенә","маленький"),("Сәлам","привет"),("Сау бул","до свидания"),("Яңгыр","дождь"),("Кар","снег"),("Көн","день"),("Төн","ночь"),("Сөт","молоко"),("Дуслык","дружба"),("Гаилә","семья"),("Бәхет","счастье")]
             let item = words.randomElement()!
             let styles = ["по-русски", "на русский язык", "значит на русском"]
-            questions = Int.random(in: 0...1) == 0 ? [("\\(styles.randomElement()!): «\\(item.0)»?", item.1)] : [("Как сказать по-татарски «\\(item.1)»?", item.0)]
+            questions = Int.random(in: 0...1) == 0 ? [("\(styles.randomElement()!): «\(item.0)»?", item.1)] : [("Как сказать по-татарски «\(item.1)»?", item.0)]
         case .art:
             let artForms: [(String, String, String)] = [
                 ("Граффити", "paintbrush.pointed.fill", "Яркие буквы и рисунки на городской стене"),
@@ -174,7 +174,7 @@ struct ProblemGenerator {
         }
         let question = questions.randomElement() ?? ("Попробуй ещё раз", "")
         let prefixes = ["Задание:", "Проверь себя:", "Подумай:", "Вопрос:", "Мини-вызов:", "Попробуй решить:", "Вспомни и ответь:", "Тренировка:", "Пора подумать:", "Небольшая задача:"]
-        return Problem(text: "\\(prefixes.randomElement()!) \\(question.0)", answer: question.1)
+        return Problem(text: "\(prefixes.randomElement()!) \(question.0)", answer: question.1)
     }
 }
 
@@ -638,18 +638,36 @@ struct ContentView: View {
                         } label: { Label(subject.rawValue, systemImage: subject.icon) }
                     }
                 } label: {
-                    HStack(spacing: 7) {
-                        Image(systemName: selectedSubject.icon).font(.system(size: 12, weight: .heavy))
-                        Text(selectedSubject.rawValue).font(.system(size: 12, weight: .heavy, design: .rounded)).lineLimit(1).minimumScaleFactor(0.75)
+                    HStack(spacing: 10) {
+                        Image(systemName: selectedSubject.icon)
+                            .font(.system(size: 17, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(.white.opacity(0.20), in: RoundedRectangle(cornerRadius: 10))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(selectedSubject.rawValue)
+                                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                                .lineLimit(1).minimumScaleFactor(0.75)
+                            Text("Нажми, чтобы сменить")
+                                .font(.system(size: 9, weight: .semibold, design: .rounded))
+                                .opacity(0.88)
+                        }
                         Spacer(minLength: 1)
-                        Image(systemName: "chevron.down").font(.system(size: 10, weight: .heavy))
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 11, weight: .heavy))
+                            .frame(width: 24, height: 24)
+                            .background(.white.opacity(0.20), in: Circle())
                     }
-                    .foregroundStyle(palette.purple).padding(.horizontal, 10).padding(.vertical, 10)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10).padding(.vertical, 9)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(palette.palePink.opacity(0.72), in: RoundedRectangle(cornerRadius: 11))
-                    .overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.purple, lineWidth: 2))
-                    .shadow(color: palette.purple.opacity(0.14), radius: 3, x: 0, y: 1)
-                    .contentShape(RoundedRectangle(cornerRadius: 11))
+                    .background(
+                        LinearGradient(colors: [palette.purple, Color(red: 0.67, green: 0.31, blue: 0.66)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: RoundedRectangle(cornerRadius: 14)
+                    )
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.9), lineWidth: 1.5))
+                    .shadow(color: palette.purple.opacity(0.24), radius: 5, x: 0, y: 2)
+                    .contentShape(RoundedRectangle(cornerRadius: 14))
                 }.menuStyle(.borderlessButton)
             }
             .padding(.horizontal, 12).padding(.bottom, 18)
