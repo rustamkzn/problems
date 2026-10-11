@@ -2,6 +2,48 @@ import SwiftUI
 import AppKit
 import Combine
 
+private struct StudyIllustration: View {
+    let subject: StudySubject
+    let prompt: String
+    private var lower: String { prompt.lowercased() }
+    private var symbol: String {
+        if subject == .logic { return lower.contains("круг") ? "circle.fill" : (lower.contains("угл") || lower.contains("фигур") ? "shapes.fill" : "puzzlepiece.extension.fill") }
+        if subject == .biology {
+            if lower.contains("серд") || lower.contains("кров") { return "heart.fill" }
+            if lower.contains("рыб") || lower.contains("жабр") { return "fish.fill" }
+            if lower.contains("бабоч") || lower.contains("гусен") { return "ladybug.fill" }
+            if lower.contains("мозг") || lower.contains("думать") { return "brain.head.profile.fill" }
+            return "leaf.fill"
+        }
+        if lower.contains("мензур") { return "ruler.fill" }
+        if lower.contains("петри") { return "circle.hexagongrid.fill" }
+        if lower.contains("пипет") { return "eyedropper.full" }
+        if lower.contains("ступк") { return "circle.bottomhalf.filled" }
+        return "flask.fill"
+    }
+    private var colors: [Color] {
+        switch subject {
+        case .logic: return [Color(red: 0.42, green: 0.31, blue: 0.96), Color(red: 0.98, green: 0.34, blue: 0.58), Color(red: 0.20, green: 0.72, blue: 0.98)]
+        case .biology: return [Color(red: 0.12, green: 0.72, blue: 0.48), Color(red: 0.98, green: 0.42, blue: 0.38), Color(red: 0.98, green: 0.72, blue: 0.20)]
+        default: return [Color(red: 0.20, green: 0.62, blue: 0.98), Color(red: 0.63, green: 0.40, blue: 0.96), Color(red: 0.20, green: 0.80, blue: 0.76)]
+        }
+    }
+    var body: some View {
+        HStack(spacing: 13) {
+            ForEach(0..<3, id: \.self) { index in
+                ZStack {
+                    RoundedRectangle(cornerRadius: 22, style: .continuous).fill(colors[index].opacity(0.15))
+                    Circle().fill(colors[index].opacity(0.20)).frame(width: 74, height: 74).offset(x: 15, y: -20)
+                    Image(systemName: index == 1 ? symbol : (subject == .logic ? ["circle.grid.3x3.fill", "puzzlepiece.extension.fill", "square.on.circle.fill"][index] : (subject == .biology ? ["leaf.fill", "pawprint.fill", "drop.fill"][index] : ["testtube.2", "flask.fill", "eyedropper.full"][index])))
+                        .font(.system(size: 39, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(colors[index])
+                }
+                .frame(maxWidth: .infinity).frame(height: 112)
+                .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(colors[index].opacity(0.22), lineWidth: 1))
+            }
+        }.accessibilityLabel(subject.rawValue + ": иллюстрация к заданию")
+    }
+}
+
 struct Problem {
     let text: String
     let answer: String
@@ -777,9 +819,9 @@ struct ProblemGenerator {
         case .orthography: return orthographyQuestion(level: level)
         case .geography: return geographyQuestion(level: level)
         case .logic:
-            bank = [("Продолжи ряд: 2, 4, 6, 8, …", "10", ["10", "9", "12", "14"]), ("Что лишнее: круг, квадрат, треугольник, яблоко?", "Яблоко", ["Яблоко", "Круг", "Квадрат", "Треугольник"]), ("У Маши 3 яблока, у Пети на 2 больше. Сколько у Пети?", "5", ["5", "1", "6", "8"]), ("Продолжи ряд: 1, 3, 5, 7, …", "9", ["9", "8", "10", "11"]), ("Если сегодня среда, какой день будет через 2 дня?", "Пятница", ["Пятница", "Четверг", "Суббота", "Воскресенье"])]
+            bank = [("Продолжи ряд: 2, 4, 6, 8, …", "10", ["10", "9", "12", "14"]), ("Что лишнее: круг, квадрат, треугольник, яблоко?", "Яблоко", ["Яблоко", "Круг", "Квадрат", "Треугольник"]), ("У Маши 3 яблока, у Пети на 2 больше. Сколько у Пети?", "5", ["5", "1", "6", "8"]), ("Продолжи ряд: 1, 3, 5, 7, …", "9", ["9", "8", "10", "11"]), ("Если сегодня среда, какой день будет через 2 дня?", "Пятница", ["Пятница", "Четверг", "Суббота", "Воскресенье"]), ("Какой фигуры не хватает: круг, квадрат, круг, квадрат, …?", "Круг", ["Круг", "Треугольник", "Звезда", "Прямоугольник"]), ("У ряда фигур число углов увеличивается: 3, 4, 5, … Сколько углов у следующей?", "6", ["6", "5", "7", "8"]), ("На столе 4 красных и 2 синих кубика. Сколько всего кубиков?", "6", ["6", "5", "7", "8"]), ("Что тяжелее: килограмм ваты или килограмм железа?", "Одинаково", ["Одинаково", "Вата", "Железо", "Нельзя сравнить"]) ]
         case .biology:
-            bank = [("Какой орган перекачивает кровь?", "Сердце", ["Сердце", "Лёгкие", "Желудок", "Мозг"]), ("Что нужно растениям для фотосинтеза?", "Свет", ["Свет", "Песок", "Пластик", "Темнота"]), ("Чем дышит рыба в воде?", "Жабрами", ["Жабрами", "Лёгкими", "Кожей головы", "Плавниками"]), ("Какая часть растения поглощает воду из почвы?", "Корень", ["Корень", "Цветок", "Плод", "Лист"]), ("К какой группе относится бабочка?", "Насекомые", ["Насекомые", "Птицы", "Млекопитающие", "Рыбы"])]
+            bank = [("Какой орган перекачивает кровь?", "Сердце", ["Сердце", "Лёгкие", "Желудок", "Мозг"]), ("Что нужно растениям для фотосинтеза?", "Свет", ["Свет", "Песок", "Пластик", "Темнота"]), ("Чем дышит рыба в воде?", "Жабрами", ["Жабрами", "Лёгкими", "Кожей головы", "Плавниками"]), ("Какая часть растения поглощает воду из почвы?", "Корень", ["Корень", "Цветок", "Плод", "Лист"]), ("К какой группе относится бабочка?", "Насекомые", ["Насекомые", "Птицы", "Млекопитающие", "Рыбы"]), ("Какая часть цветка превращается в плод?", "Завязь", ["Завязь", "Корень", "Лист", "Стебель"]), ("Какое животное проходит стадии гусеницы и куколки?", "Бабочка", ["Бабочка", "Кошка", "Воробей", "Карась"]), ("Как называется зелёный пигмент листьев?", "Хлорофилл", ["Хлорофилл", "Гемоглобин", "Крахмал", "Кальций"]), ("Какой орган помогает человеку думать?", "Мозг", ["Мозг", "Желудок", "Почка", "Лёгкое"]) ]
         case .world:
             switch level {
             case 2:
@@ -834,11 +876,11 @@ struct ProblemGenerator {
         case .chemistry:
             switch level {
             case 2:
-                bank = [("Какой символ у кислорода?", "O", ["O", "H", "C", "N"]), ("Как называется формула H₂O?", "Вода", ["Вода", "Кислород", "Поваренная соль", "Углекислый газ"])]
+                bank = [("Какой символ у кислорода?", "O", ["O", "H", "C", "N"]), ("Как называется формула H₂O?", "Вода", ["Вода", "Кислород", "Поваренная соль", "Углекислый газ"]), ("Как называется стеклянный сосуд с узким горлышком для реакций?", "Колба", ["Колба", "Чашка Петри", "Ступка", "Пипетка"]), ("В чём обычно измеряют объём жидкости в лаборатории?", "Мензурка", ["Мензурка", "Чашка Петри", "Шпатель", "Щипцы"]), ("Для чего используют чашку Петри?", "Для выращивания культур и наблюдений", ["Для выращивания культур и наблюдений", "Для нагрева металла", "Для измерения массы", "Для перемешивания газа"]) ]
             case 3:
-                bank = [("Какой символ у натрия?", "Na", ["Na", "N", "S", "Ne"]), ("Какие частицы имеют отрицательный заряд?", "Электроны", ["Электроны", "Протоны", "Нейтроны", "Молекулы воды"])]
+                bank = [("Какой символ у натрия?", "Na", ["Na", "N", "S", "Ne"]), ("Какие частицы имеют отрицательный заряд?", "Электроны", ["Электроны", "Протоны", "Нейтроны", "Молекулы воды"]), ("Какой сосуд имеет деления для измерения объёма?", "Мензурка", ["Мензурка", "Колба Эрленмейера", "Чашка Петри", "Пробирка без делений"]), ("Как называется инструмент для переноса небольшого количества жидкости по каплям?", "Пипетка", ["Пипетка", "Стеклянная палочка", "Штатив", "Чашка Петри"]) ]
             case 4:
-                bank = [("Как называется переход жидкости в газ?", "Испарение", ["Испарение", "Замерзание", "Кристаллизация", "Плавление"]), ("Какое изменение обычно является химическим?", "Ржавление железа", ["Ржавление железа", "Таяние льда", "Разрезание бумаги", "Растворение сахара без реакции"])]
+                bank = [("Как называется переход жидкости в газ?", "Испарение", ["Испарение", "Замерзание", "Кристаллизация", "Плавление"]), ("Какое изменение обычно является химическим?", "Ржавление железа", ["Ржавление железа", "Таяние льда", "Разрезание бумаги", "Растворение сахара без реакции"]), ("В каком сосуде удобно проводить реакцию с перемешиванием раствора?", "Колба Эрленмейера", ["Колба Эрленмейера", "Чашка Петри", "Часовое стекло", "Пипетка"]), ("Какой предмет используют для измельчения твёрдых веществ?", "Ступка с пестиком", ["Ступка с пестиком", "Мензурка", "Термометр", "Чашка Петри"]) ]
             default:
                 bank = [("Как записывают две молекулы воды?", "2H₂O", ["2H₂O", "H₂O₂", "H₂", "HO₂"]), ("Что показывает нижний индекс в химической формуле?", "Количество атомов данного элемента", ["Количество атомов данного элемента", "Цвет вещества", "Температуру кипения", "Размер пробирки"])]
             }
@@ -1555,7 +1597,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
     case orthography = "Орфография"
     case geography = "География"
     case logic = "Логика"
-    case biology = "Биология для начинающих"
+    case biology = "Биология"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -1815,20 +1857,17 @@ private struct Reward3DBadge: View {
     let tint: Color
     var size: CGFloat = 74
     var locked: Bool = false
-    @State private var gleam = false
     var body: some View {
         ZStack {
-            Circle().fill(LinearGradient(colors: locked ? [Color.gray.opacity(0.35), Color.gray.opacity(0.16)] : [tint.opacity(0.93), tint.opacity(0.56), tint.opacity(0.95)],
-                startPoint: gleam ? .topLeading : .bottomLeading, endPoint: gleam ? .bottomTrailing : .topTrailing))
-            Circle().stroke(.white.opacity(locked ? 0.25 : 0.82), lineWidth: max(1, size * 0.04)).padding(size * 0.065)
-            Circle().fill(.white.opacity(0.24)).frame(width: size * 0.30, height: size * 0.12).blur(radius: size * 0.025).offset(x: -size * 0.17, y: -size * 0.25)
-            Image(systemName: locked ? "lock.fill" : symbol).font(.system(size: size * 0.42, weight: .black)).symbolRenderingMode(.hierarchical)
-                .foregroundStyle(locked ? Color.gray : Color.white).shadow(color: .black.opacity(0.22), radius: size * 0.045, y: size * 0.04)
-        }
-        .frame(width: size, height: size).overlay(Circle().stroke(.white.opacity(0.45), lineWidth: 1))
-        .shadow(color: tint.opacity(locked ? 0.05 : 0.30), radius: size * 0.10, x: 0, y: size * 0.065)
-        .rotation3DEffect(.degrees(gleam ? 5 : -4), axis: (x: 0.2, y: 1, z: 0))
-        .onAppear { withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) { gleam = true } }
+            Circle().fill(locked ? Color.gray.opacity(0.13) : tint.opacity(0.16))
+            Circle().stroke(locked ? Color.gray.opacity(0.22) : tint.opacity(0.55), lineWidth: max(1.5, size * 0.035)).padding(size * 0.07)
+            if locked {
+                Image(systemName: "lock.fill").font(.system(size: size * 0.30, weight: .bold)).foregroundStyle(Color.gray.opacity(0.65))
+            } else {
+                Image(systemName: symbol).font(.system(size: size * 0.43, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint)
+                Circle().fill(.white.opacity(0.72)).frame(width: size * 0.10, height: size * 0.10).offset(x: -size * 0.22, y: -size * 0.20)
+            }
+        }.frame(width: size, height: size).overlay(Circle().stroke(tint.opacity(0.14), lineWidth: 1))
     }
 }
 
@@ -2391,6 +2430,8 @@ struct ContentView: View {
                 pddIllustration(for: problem.text).padding(.horizontal, 24).padding(.top, 5)
             } else if selectedSubject == .geography && problem.text.localizedCaseInsensitiveContains("флаг") {
                 geographyFlagIllustration(for: problem).padding(.horizontal, 24).padding(.top, 5)
+            } else if selectedSubject == .logic || selectedSubject == .biology || selectedSubject == .chemistry {
+                StudyIllustration(subject: selectedSubject, prompt: problem.text).frame(maxWidth: .infinity).frame(height: 142).padding(.horizontal, 30).padding(.top, 8)
             }
 
             Spacer(minLength: selectedSubject == .pdd ? 7 : 34)
@@ -3982,6 +4023,10 @@ struct ContentView: View {
         case .art:
             return "Вспомни основное правило цвета, композиции или материала. Обрати внимание на ключевые слова вопроса и выбери определение, которое точно им соответствует."
         case .chemistry:
+            if lower.contains("колб") { return "Колба нужна для смешивания, хранения или проведения реакций. Обрати внимание на форму горлышка и корпуса." }
+            if lower.contains("мензур") { return "Мензурка — цилиндрический сосуд с делениями для измерения объёма жидкости." }
+            if lower.contains("петри") { return "Чашка Петри — неглубокая круглая ёмкость для наблюдений и выращивания культур." }
+            if lower.contains("пипет") { return "Пипетка помогает переносить небольшие объёмы жидкости, часто по каплям." }
             return "Проверь символ элемента: первая буква заглавная, вторая, если есть, строчная. Для формулы запомни, что нижний индекс показывает число атомов."
         case .informatics:
             return "Прочитай все варианты, подумай о назначении устройства или команды и исключи небезопасные действия. Пароли и личные данные никому не сообщают."
