@@ -53,15 +53,22 @@ private struct StudyIllustration: View {
             if lower.contains("кубик") || lower.contains("куб") { return "cube.fill" }
             return "puzzlepiece.extension.fill"
         case .biology:
+            if lower.contains("дельфин") || lower.contains("карась") || lower.contains("рыб") || lower.contains("жабр") { return "fish.fill" }
+            if lower.contains("орёл") || lower.contains("пингвин") || lower.contains("птиц") { return "bird.fill" }
+            if lower.contains("бабоч") || lower.contains("пчел") || lower.contains("насеком") { return "ladybug.fill" }
+            if lower.contains("ёж") || lower.contains("крот") || lower.contains("верблюд") || lower.contains("медвед") || lower.contains("млекопитающ") { return "pawprint.fill" }
+            if lower.contains("лягуш") { return "figure.frog" }
+            if lower.contains("улит") { return "shell.fill" }
+            if lower.contains("паук") || lower.contains("черв") { return "ant.fill" }
+            if lower.contains("сосна") || lower.contains("берёз") || lower.contains("папорот") { return "tree.fill" }
+            if lower.contains("кактус") { return "cactus.fill" }
+            if lower.contains("шампиньон") || lower.contains("гриб") { return "cloud.fill" }
+            if lower.contains("бактери") || lower.contains("микроорганизм") { return "microbe.fill" }
             if lower.contains("дыш") || lower.contains("лёгк") { return "lungs.fill" }
             if lower.contains("серд") || lower.contains("кров") { return "heart.fill" }
-            if lower.contains("рыб") || lower.contains("жабр") { return "fish.fill" }
-            if lower.contains("бабоч") || lower.contains("гусен") || lower.contains("кукол") { return "ladybug.fill" }
             if lower.contains("мозг") || lower.contains("думать") { return "brain.head.profile.fill" }
-            if lower.contains("лягуш") || lower.contains("головаст") { return "water.waves" }
-            if lower.contains("пыльц") || lower.contains("насеком") || lower.contains("цвет") { return "microbe.fill" }
-            if lower.contains("гриб") { return "tree.fill" }
-            return "leaf.fill"
+            if lower.contains("растени") || lower.contains("лист") || lower.contains("цвет") { return "leaf.fill" }
+            return "pawprint.fill"
         default:
             if lower.contains("петри") { return "circle.hexagongrid.fill" }
             if lower.contains("мензур") || lower.contains("делени") || lower.contains("объём") { return "testtube.2" }
