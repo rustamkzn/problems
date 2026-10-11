@@ -751,7 +751,7 @@ struct ProblemGenerator {
                 "Выбери название страны, чей флаг ты видишь.",
                 "Как называется государство, представленное этим флагом?",
                 "Найди правильное название страны по флагу.",
-                "Посмотри на изображение и назови страну.",
+                "Посмотри на изображение флага и назови страну.",
                 "Какой стране соответствует этот флаг?",
                 "Выбери страну с таким государственным флагом.",
                 "Какой флаг ты видишь на рисунке?",
@@ -2763,6 +2763,44 @@ struct ContentView: View {
             ZStack { Color(red: 0.06, green: 0.15, blue: 0.39); Rectangle().fill(.white).frame(height: 25); Rectangle().fill(.white).frame(width: 25); Rectangle().fill(Color(red: 0.78, green: 0.07, blue: 0.18)).frame(height: 12); Rectangle().fill(Color(red: 0.78, green: 0.07, blue: 0.18)).frame(width: 12) }
         case "Украина":
             VStack(spacing: 0) { Color(red: 0, green: 0.37, blue: 0.78); Color(red: 1, green: 0.83, blue: 0.18) }
+        case "Нидерланды":
+            HStack(spacing: 0) { Color(red: 0.68, green: 0.08, blue: 0.16); Color.white; Color(red: 0.08, green: 0.22, blue: 0.55) }
+        case "Австрия":
+            VStack(spacing: 0) { Color(red: 0.78, green: 0.08, blue: 0.16); Color.white; Color(red: 0.78, green: 0.08, blue: 0.16) }
+        case "Бельгия":
+            HStack(spacing: 0) { Color.black; Color(red: 0.98, green: 0.82, blue: 0.10); Color(red: 0.83, green: 0.10, blue: 0.16) }
+        case "Швейцария":
+            ZStack { Color(red: 0.82, green: 0.08, blue: 0.16); Rectangle().fill(.white).frame(width: 48, height: 15); Rectangle().fill(.white).frame(width: 15, height: 48) }
+        case "Швеция":
+            ZStack { Color(red: 0.05, green: 0.29, blue: 0.60); Rectangle().fill(Color(red: 0.98, green: 0.79, blue: 0.12)).frame(height: 13).offset(y: -5); Rectangle().fill(Color(red: 0.98, green: 0.79, blue: 0.12)).frame(width: 13).offset(x: -28) }
+        case "Норвегия":
+            ZStack { Color(red: 0.78, green: 0.08, blue: 0.16); Rectangle().fill(.white).frame(height: 25); Rectangle().fill(.white).frame(width: 25); Rectangle().fill(Color(red: 0.05, green: 0.18, blue: 0.43)).frame(height: 12); Rectangle().fill(Color(red: 0.05, green: 0.18, blue: 0.43)).frame(width: 12) }
+        case "Дания":
+            ZStack { Color(red: 0.78, green: 0.08, blue: 0.16); Rectangle().fill(.white).frame(height: 13).offset(y: -7); Rectangle().fill(.white).frame(width: 13).offset(x: -34) }
+        case "Финляндия":
+            ZStack { Color.white; Rectangle().fill(Color(red: 0.08, green: 0.22, blue: 0.55)).frame(height: 14); Rectangle().fill(Color(red: 0.08, green: 0.22, blue: 0.55)).frame(width: 14).offset(x: -30) }
+        case "Греция":
+            VStack(spacing: 0) { ForEach(0..<9, id: \.self) { i in i.isMultiple(of: 2) ? Color(red: 0.05, green: 0.24, blue: 0.55) : Color.white } }
+        case "Ирландия":
+            HStack(spacing: 0) { Color(red: 0.06, green: 0.55, blue: 0.30); Color.white; Color(red: 0.96, green: 0.42, blue: 0.12) }
+        case "Мексика":
+            HStack(spacing: 0) { Color(red: 0.02, green: 0.40, blue: 0.24); ZStack { Color.white; Image(systemName: "bird.fill").foregroundStyle(Color(red: 0.45, green: 0.28, blue: 0.12)) }; Color(red: 0.82, green: 0.10, blue: 0.17) }
+        case "Аргентина":
+            VStack(spacing: 0) { Color(red: 0.42, green: 0.75, blue: 0.91); ZStack { Color.white; Circle().fill(Color(red: 0.96, green: 0.72, blue: 0.13)).frame(width: 20, height: 20) }; Color(red: 0.42, green: 0.75, blue: 0.91) }
+        case "Южная Корея":
+            ZStack { Color.white; Circle().trim(from: 0, to: 0.5).fill(Color(red: 0.82, green: 0.12, blue: 0.18)).frame(width: 36, height: 36).rotationEffect(.degrees(-90)); Circle().trim(from: 0.5, to: 1).fill(Color(red: 0.05, green: 0.22, blue: 0.55)).frame(width: 36, height: 36).rotationEffect(.degrees(-90)) }
+        case "Турция":
+            ZStack(alignment: .leading) { Color(red: 0.85, green: 0.08, blue: 0.16); HStack(spacing: 2) { Image(systemName: "moon.fill"); Image(systemName: "star.fill").font(.system(size: 15)) }.font(.system(size: 28)).foregroundStyle(.white).padding(.leading, 24) }
+        case "Саудовская Аравия":
+            ZStack { Color(red: 0.02, green: 0.38, blue: 0.22); Text("لا إله إلا الله").font(.system(size: 15, weight: .bold)).foregroundStyle(.white); Rectangle().fill(.white).frame(width: 58, height: 3).offset(y: 24) }
+        case "Пакистан":
+            HStack(spacing: 0) { Color.white.frame(width: 35); ZStack { Color(red: 0.01, green: 0.36, blue: 0.23); Image(systemName: "moon.fill").font(.system(size: 31)).foregroundStyle(.white); Image(systemName: "star.fill").font(.system(size: 12)).foregroundStyle(.white).offset(x: 10, y: -8) } }
+        case "Индонезия":
+            VStack(spacing: 0) { Color(red: 0.82, green: 0.08, blue: 0.16); Color.white }
+        case "Вьетнам":
+            ZStack { Color(red: 0.82, green: 0.08, blue: 0.16); Image(systemName: "star.fill").font(.system(size: 38)).foregroundStyle(Color(red: 1, green: 0.83, blue: 0.16)) }
+        case "Таиланд":
+            VStack(spacing: 0) { Color(red: 0.75, green: 0.06, blue: 0.16); Color.white; Color(red: 0.05, green: 0.12, blue: 0.32).frame(height: 32); Color.white; Color(red: 0.75, green: 0.06, blue: 0.16) }
         default:
             VStack(spacing: 0) { Color.white; Color(red: 0.1, green: 0.35, blue: 0.9); Color(red: 0.86, green: 0.10, blue: 0.18) }
         }
