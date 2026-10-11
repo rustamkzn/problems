@@ -2556,7 +2556,8 @@ struct ContentView: View {
                     sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
                     ForEach(StudySubject.allCases) { subject in
                         let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
-                        VStack(alignment: .leading, spacing: 6) {
+                        let subjectMistakes = decodedMistakes.filter { $0.subject == subject.rawValue }
+                        VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 8) {
                                 Image(systemName: subject.icon).foregroundStyle(palette.purple).frame(width: 23)
                                 Text(subject.rawValue).font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
@@ -2571,7 +2572,53 @@ struct ContentView: View {
                             }.frame(height: 8)
                             Text("Верно: \(result.correct) · Ошибок: \(result.incorrect) · Всего: \(result.total)")
                                 .font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                        }.padding(11).background(palette.cardSurface.opacity(0.56), in: RoundedRectangle(cornerRadius: 12))
+
+                            if !subjectMistakes.isEmpty {
+                                Button {
+                                    expandedMistakeSubject = expandedMistakeSubject == subject.rawValue ? nil : subject.rawValue
+                                } label: {
+                                    HStack(spacing: 7) {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                        Text("Ошибки для повторения: \(subjectMistakes.count)")
+                                        Spacer()
+                                        Image(systemName: expandedMistakeSubject == subject.rawValue ? "chevron.up" : "chevron.down")
+                                    }
+                                    .font(.system(size: 12, weight: .heavy, design: .rounded))
+                                    .foregroundStyle(palette.red)
+                                    .padding(10)
+                                    .background(palette.red.opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
+                                }.buttonStyle(.plain)
+                                if expandedMistakeSubject == subject.rawValue {
+                                    ForEach(subjectMistakes) { mistake in
+                                        VStack(alignment: .leading, spacing: 7) {
+                                            Text(mistake.question)
+                                                .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                            Text("Твой ответ: \(mistake.selectedAnswer)")
+                                                .font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
+                                            Text("Правильный ответ: \(mistake.correctAnswer)")
+                                                .font(.system(size: 11, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
+                                            Text("Как решить: \(mistake.explanation)")
+                                                .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                            Button {
+                                                startMistakeReview(mistake)
+                                            } label: {
+                                                Label("Повторить задание с вариантами", systemImage: "arrow.clockwise.circle.fill")
+                                                    .font(.system(size: 12, weight: .heavy, design: .rounded))
+                                                    .foregroundStyle(.white)
+                                                    .frame(maxWidth: .infinity)
+                                                    .padding(.vertical, 10)
+                                                    .background(palette.purple, in: Capsule())
+                                            }.buttonStyle(.plain)
+                                        }
+                                        .padding(12)
+                                        .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
+                                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.red.opacity(0.4), lineWidth: 1))
+                                    }
+                                }
+                            }
+                        }.padding(11).background(palette.cardSurface.opacity(0.72), in: RoundedRectangle(cornerRadius: 12))
                     }
                     Text("Ориентир: меньше 60% — предмет стоит повторить, 60–79% — нужна практика, 80% и выше — хороший уровень.")
                         .font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
@@ -2770,6 +2817,7 @@ struct ContentView: View {
         olympiadWon = false
         olympiadSecondsRemaining = 1800
         olympiadCompleted = 0
+        olympiadSubjectOrder = StudySubject.allCases.shuffled()
         olympiadFeedback = ""
         nextOlympiadProblem()
     }
@@ -2785,7 +2833,11 @@ struct ContentView: View {
     }
 
     private func nextOlympiadProblem() {
-        olympiadSubject = StudySubject.allCases.randomElement() ?? .math
+        if olympiadCompleted < olympiadSubjectOrder.count {
+            olympiadSubject = olympiadSubjectOrder[olympiadCompleted]
+        } else {
+            olympiadSubject = StudySubject.allCases.randomElement() ?? .math
+        }
         olympiadProblem = ProblemGenerator.next(for: olympiadSubject, difficulty: difficultyLevel)
         olympiadAnswer = ""
         olympiadFeedback = ""
@@ -2799,21 +2851,24 @@ struct ContentView: View {
         _ = store.record(correct: correct, grantDiamond: false)
         recordSubjectAnswer(subject: olympiadSubject, correct: correct)
         _ = unlockEligibleAchievements()
+        let salute = correct ? countCorrectTowardMilestone() : false
         if correct {
             olympiadCompleted += 1
             olympiadFeedback = "Верно! Отличная работа 🎉"
             if olympiadCompleted >= 50 {
-                finishOlympiad(won: true)
+                finishOlympiad(won: true, salute: salute)
             } else {
+                if salute { triggerCelebration("milestone:50") }
                 nextOlympiadProblem()
             }
         } else {
+            recordMistake(subject: olympiadSubject, item: olympiadProblem, selectedAnswer: rawAnswer)
             olympiadAnswer = ""
             olympiadFeedback = "Пока неверно. Попробуй ещё раз — время ещё есть!"
         }
     }
 
-    private func finishOlympiad(won: Bool) {
+    private func finishOlympiad(won: Bool, salute: Bool = false) {
         guard olympiadStarted, !olympiadFinished else { return }
         olympiadStarted = false
         olympiadFinished = true
@@ -2822,7 +2877,7 @@ struct ContentView: View {
             store.addDiamonds(100)
             olympiadWins += 1
             _ = unlockEligibleAchievements()
-            triggerCelebration("olympiad:win")
+            triggerCelebration(salute ? "milestone:50" : "olympiad:win")
         }
     }
 
@@ -3427,6 +3482,109 @@ struct ContentView: View {
         if let data = try? JSONEncoder().encode(all) { subjectPerformanceStorage = String(decoding: data, as: UTF8.self) }
     }
 
+    private func countCorrectTowardMilestone() -> Bool {
+        lifetimeCorrectAnswers += 1
+        return lifetimeCorrectAnswers.isMultiple(of: 50)
+    }
+
+    private func mistakeChoices(for item: Problem, selectedAnswer: String) -> [String] {
+        if item.isComparison { return ["<", "=", ">"] }
+        if item.isTatarChoice, item.tatarChoices.count >= 2 { return item.tatarChoices }
+        if let correctNumber = Int(item.answer) {
+            var values = [correctNumber, correctNumber + 1, max(0, correctNumber - 1), correctNumber + 2, correctNumber + 3]
+            values = Array(Set(values)).shuffled()
+            var result = [String(correctNumber)]
+            result += values.map(String.init).filter { !result.contains($0) }.prefix(3)
+            return result.shuffled()
+        }
+        var result: [String] = []
+        for value in [item.answer, selectedAnswer, "Не знаю", "Попробуй ещё раз", "Вспомни правило"] where !value.isEmpty && !result.contains(value) {
+            result.append(value)
+        }
+        return Array(result.prefix(4)).shuffled()
+    }
+
+    private func mistakeExplanation(for subject: StudySubject, question: String) -> String {
+        let lower = question.lowercased()
+        switch subject {
+        case .math:
+            if question.contains("×") { return "Умножение означает взять число несколько раз. Сначала вычисли произведение, затем выполни оставшиеся действия по порядку." }
+            if question.contains(":") || question.contains("÷") { return "Деление помогает узнать, на сколько равных частей разделили число. Проверь ответ умножением: частное × делитель = делимое." }
+            if question.contains("?") && (question.contains(">") || question.contains("<") || question.contains("Сравни")) { return "Сравни числа слева направо: сначала сотни, затем десятки и единицы. Знак раскрывается в сторону большего числа." }
+            return "Прочитай знаки действий ещё раз, выполни вычисления по порядку и проверь ответ обратным действием."
+        case .pdd:
+            if lower.contains("светофор") || lower.contains("сигнал") { return "Вспомни сигнал светофора: красный — стой, жёлтый — приготовься остановиться, зелёный для пешехода разрешает переход только если это безопасно." }
+            if lower.contains("зебр") || lower.contains("переход") { return "Переходи дорогу в установленном месте, остановись у края, посмотри по сторонам и убедись, что транспорт остановился." }
+            if lower.contains("лини") || lower.contains("размет") { return "Дорожная разметка помогает разделять потоки и показывать места остановки или перехода. Не играй на проезжей части и не пересекай запрещающие линии." }
+            return "Посмотри на форму, цвет и символ знака. Предупреждающие знаки часто имеют треугольную форму с красной каймой; круглые знаки могут запрещать или предписывать действие."
+        case .orthography:
+            if lower.contains("жи") || lower.contains("ши") { return "После Ж и Ш в обычных словах пишется И: например, «жираф», «машина», «шишка»." }
+            if lower.contains("ча") || lower.contains("ща") { return "В сочетаниях ЧА–ЩА пиши А, а в ЧУ–ЩУ пиши У. Прочитай слово по слогам и проверь сомнительную букву." }
+            if lower.contains("предлож") || lower.contains("запят") { return "Прочитай предложение вслух. Проверь границы частей предложения и поставь запятые между однородными членами или перед подходящим союзом по правилу." }
+            return "Найди место, где сомневаешься. Для безударной гласной подбери проверочное слово, для парной согласной измени слово так, чтобы после неё стояла гласная."
+        case .geography:
+            if lower.contains("флаг") { return "У флага важны цвета и порядок полос. Сравни все полосы сверху вниз и не путай флаги похожих стран." }
+            if lower.contains("столиц") || lower.contains("город") { return "Столица — главный город страны, но не обязательно самый большой. Вспомни пару «страна — столица» и повтори её на карте." }
+            if lower.contains("океан") || lower.contains("море") { return "Океаны — самые большие водные пространства. Море меньше океана и часто частично окружено сушей." }
+            if lower.contains("остров") || lower.contains("материк") { return "Остров со всех сторон окружён водой. Материк — огромный участок суши, например Евразия, Африка или Австралия." }
+            if lower.contains("рек") { return "Река — поток воды, который течёт по руслу. Запомни название реки вместе с местом, где она протекает." }
+            return "Сначала определи, о чём вопрос: стране, городе, флаге, материке, острове, море, океане или реке. Затем вспомни название и его расположение."
+        case .english:
+            return "Прочитай слово или предложение целиком. Вспомни перевод и правило, затем сравни грамматическую форму во всех четырёх вариантах."
+        case .russian:
+            return "Определи, что спрашивают: значение слова, часть речи или правило. Прочитай варианты и исключи те, которые не подходят по смыслу или грамматике."
+        case .tatar:
+            return "Повтори перевод татарского слова вслух и сопоставь его с русским значением. Полезно выучить слово вместе с коротким примером."
+        case .art:
+            return "Вспомни основное правило цвета, композиции или материала. Обрати внимание на ключевые слова вопроса и выбери определение, которое точно им соответствует."
+        case .chemistry:
+            return "Проверь символ элемента: первая буква заглавная, вторая, если есть, строчная. Для формулы запомни, что нижний индекс показывает число атомов."
+        case .informatics:
+            return "Прочитай все варианты, подумай о назначении устройства или команды и исключи небезопасные действия. Пароли и личные данные никому не сообщают."
+        }
+    }
+
+    private func recordMistake(subject: StudySubject, item: Problem, selectedAnswer: String) {
+        guard reviewingMistakeID == nil else { return }
+        var items = decodedMistakes
+        guard !items.contains(where: { $0.subject == subject.rawValue && $0.question == item.text }) else { return }
+        let record = MistakeRecord(
+            id: UUID().uuidString,
+            subject: subject.rawValue,
+            question: item.text,
+            selectedAnswer: selectedAnswer,
+            correctAnswer: item.answer,
+            choices: mistakeChoices(for: item, selectedAnswer: selectedAnswer),
+            explanation: mistakeExplanation(for: subject, question: item.text),
+            date: StatsStore.dateKey(Date())
+        )
+        items.append(record)
+        if let data = try? JSONEncoder().encode(items) { mistakesStorage = String(decoding: data, as: UTF8.self) }
+    }
+
+    private func removeMistake(id: String) {
+        let remaining = decodedMistakes.filter { $0.id != id }
+        if let data = try? JSONEncoder().encode(remaining) { mistakesStorage = String(decoding: data, as: UTF8.self) }
+    }
+
+    private func removeMistakes(subject: StudySubject, question: String) {
+        let remaining = decodedMistakes.filter { !($0.subject == subject.rawValue && $0.question == question) }
+        if let data = try? JSONEncoder().encode(remaining) { mistakesStorage = String(decoding: data, as: UTF8.self) }
+    }
+
+    private func startMistakeReview(_ item: MistakeRecord) {
+        guard let subject = StudySubject(rawValue: item.subject) else { return }
+        selectedSubjectName = subject.rawValue
+        selected = .task
+        problem = Problem(text: item.question, answer: item.correctAnswer, isTatarChoice: true, tatarChoices: item.choices)
+        currentTip = item.explanation
+        answer = ""
+        answerState = .neutral
+        reviewingMistakeID = item.id
+        showSubjectPicker = false
+        answerFocused = false
+    }
+
     private func tickTimers() {
         let location = NSEvent.mouseLocation
         if abs(location.x - lastMouseLocation.x) > 0.5 || abs(location.y - lastMouseLocation.y) > 0.5 {
@@ -3494,10 +3652,19 @@ struct ContentView: View {
         let rewards = store.record(correct: isCorrect)
         recordSubjectAnswer(subject: selectedSubject, correct: isCorrect)
         let newAchievements = unlockEligibleAchievements()
+        let salute = isCorrect ? countCorrectTowardMilestone() : false
 
         if isCorrect {
             answerState = .correct
-            if let reward = rewards.last {
+            if let reviewID = reviewingMistakeID {
+                removeMistake(id: reviewID)
+                reviewingMistakeID = nil
+            } else {
+                removeMistakes(subject: selectedSubject, question: problem.text)
+            }
+            if salute {
+                triggerCelebration("milestone:50")
+            } else if let reward = rewards.last {
                 triggerCelebration(reward)
             } else if let item = newAchievements.randomElement() {
                 triggerCelebration("achievement:\(item.id)")
@@ -3509,6 +3676,10 @@ struct ContentView: View {
             }
         } else {
             answerState = .incorrect
+            if reviewingMistakeID == nil {
+                recordMistake(subject: selectedSubject, item: problem, selectedAnswer: answer)
+            }
+            currentTip = mistakeExplanation(for: selectedSubject, question: problem.text)
             answer = ""
             withAnimation(.spring(response: 0.4, dampingFraction: 0.66)) { showBunny = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
