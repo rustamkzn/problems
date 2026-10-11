@@ -3617,6 +3617,10 @@ struct ContentView: View {
     private func mistakeExplanation(for subject: StudySubject, question: String) -> String {
         let lower = question.lowercased()
         switch subject {
+        case .world:
+            if lower.contains("растен") { return "Растениям нужны свет, вода, воздух и подходящая температура. Вспомни, какая часть растения выполняет нужную функцию." }
+            if lower.contains("живот") || lower.contains("птиц") { return "Сопоставь признаки животного с группой: где живёт, чем покрыто тело и чем питается." }
+            return "Прочитай вопрос и найди основной природный объект. Вспомни его признак, назначение или связь с окружающим миром."
         case .math:
             if question.contains("×") { return "Умножение означает взять число несколько раз. Сначала вычисли произведение, затем выполни оставшиеся действия по порядку." }
             if question.contains(":") || question.contains("÷") { return "Деление помогает узнать, на сколько равных частей разделили число. Проверь ответ умножением: частное × делитель = делимое." }
