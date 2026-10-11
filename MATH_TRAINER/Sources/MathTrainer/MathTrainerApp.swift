@@ -1726,7 +1726,44 @@ struct ContentView: View {
                     Text("Тренировка мозга").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).minimumScaleFactor(0.78)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 12)
+            .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 10)
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("УРОВЕНЬ СЛОЖНОСТИ")
+                        .font(.system(size: 9, weight: .black, design: .rounded))
+                        .tracking(0.45).foregroundStyle(palette.ink)
+                    Spacer(minLength: 2)
+                    Text("\(difficultyLevel)/5")
+                        .font(.system(size: 10, weight: .heavy, design: .rounded))
+                        .foregroundStyle(palette.purple)
+                }
+                HStack(spacing: 5) {
+                    ForEach(1...5, id: \.self) { level in
+                        Button {
+                            difficultyLevel = level
+                            answer = ""
+                            answerState = .neutral
+                            problem = makeUniqueProblem(for: selectedSubject)
+                            currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
+                            answerFocused = false
+                        } label: {
+                            Text("\(level)")
+                                .font(.system(size: 15, weight: .black, design: .rounded))
+                                .foregroundStyle(difficultyLevel == level ? .white : palette.ink)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 32)
+                                .background(difficultyLevel == level ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 9))
+                                .overlay(RoundedRectangle(cornerRadius: 9).stroke(difficultyLevel == level ? palette.purple : palette.line, lineWidth: difficultyLevel == level ? 2 : 1))
+                        }
+                        .buttonStyle(.plain)
+                        .help("Уровень сложности \(level)")
+                    }
+                }
+                Text("1 — базовый · 5 — самый сложный")
+                    .font(.system(size: 9, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            }
+            .padding(.horizontal, 12).padding(.bottom, 12)
 
             VStack(alignment: .leading, spacing: 9) {
                 Text("ВЫБЕРИ ПРЕДМЕТ")
