@@ -2110,6 +2110,40 @@ struct ContentView: View {
                     largeStat("Лучшая серия", value: "\(store.stats.bestStreak)", icon: "flame.fill", color: Color(red: 0.94, green: 0.52, blue: 0.24))
                 }
                 VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("Активное время занятий", icon: "clock.fill")
+                    HStack(spacing: 12) {
+                        miniStat("Сегодня", value: formattedTime(todayActiveSeconds), icon: "calendar", color: palette.purple)
+                        miniStat("Текущая сессия", value: formattedTime(sessionSeconds), icon: "timer", color: palette.green)
+                        miniStat("Всего", value: formattedTime(lifetimeActiveSeconds), icon: "hourglass", color: palette.purple)
+                    }
+                    Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
+                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                }.padding(18).cardStyle(palette)
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
+                    ForEach(StudySubject.allCases) { subject in
+                        let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 8) {
+                                Image(systemName: subject.icon).foregroundStyle(palette.purple).frame(width: 23)
+                                Text(subject.rawValue).font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                                Spacer()
+                                Text("\(result.accuracy)%").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(result.total == 0 ? palette.muted : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple)))
+                            }
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    Capsule().fill(palette.line.opacity(0.65))
+                                    Capsule().fill(result.total == 0 ? palette.line : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple))).frame(width: geo.size.width * CGFloat(result.accuracy) / 100)
+                                }
+                            }.frame(height: 8)
+                            Text("Верно: \(result.correct) · Ошибок: \(result.incorrect) · Всего: \(result.total)")
+                                .font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        }.padding(11).background(Color.white.opacity(0.56), in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    Text("Ориентир: меньше 60% — предмет стоит повторить, 60–79% — нужна практика, 80% и выше — хороший уровень.")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                }.padding(18).cardStyle(palette)
+                VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Твой прогресс", icon: "chart.bar.fill")
                     HStack {
                         Text("Правильные ответы").font(.system(size: 14, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
@@ -2162,6 +2196,200 @@ struct ContentView: View {
             }
         } message: {
             Text("Текущие ответы и серия будут обнулены. История по месяцам, алмазы, достижения и игрушки сохранятся.")
+        }
+    }
+
+
+    private var olympiadPage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                pageHeading("Олимпиада", subtitle: "50 заданий из всех предметов за 30 минут 🏆")
+                if olympiadFinished {
+                    VStack(spacing: 18) {
+                        Text(olympiadWon ? "🎁" : "😔")
+                            .font(.system(size: olympiadWon ? 132 : 100))
+                            .shadow(color: (olympiadWon ? palette.purple : palette.muted).opacity(0.22), radius: 18, y: 7)
+                        Text(olympiadWon ? "ОЛИМПИАДА ПРОЙДЕНА!" : "В ЭТОТ РАЗ НЕ ПОЛУЧИЛОСЬ")
+                            .font(.system(size: 27, weight: .heavy, design: .rounded))
+                            .foregroundStyle(olympiadWon ? palette.green : palette.ink)
+                            .multilineTextAlignment(.center)
+                        if olympiadWon {
+                            Text("💎 +100 алмазов 💎")
+                                .font(.system(size: 30, weight: .heavy, design: .rounded))
+                                .foregroundStyle(palette.purple)
+                            Text("Ты решил все 50 заданий за отведённое время. Большая награда уже добавлена в магазин!")
+                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .foregroundStyle(palette.muted).multilineTextAlignment(.center)
+                        } else {
+                            Text("Не расстраивайся! Сложные задания помогают становиться сильнее. Отдохни и попробуй пройти олимпиаду попозже 💜")
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .foregroundStyle(palette.muted).multilineTextAlignment(.center)
+                        }
+                        Text("Выполнено заданий: \(olympiadCompleted) из 50")
+                            .font(.system(size: 15, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Button("Попробовать ещё раз") { resetOlympiad() }
+                            .font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                            .padding(.horizontal, 24).padding(.vertical, 14)
+                            .background(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .leading, endPoint: .trailing), in: Capsule())
+                            .buttonStyle(.plain)
+                    }
+                    .frame(maxWidth: .infinity).padding(35).cardStyle(palette)
+                } else if !olympiadStarted {
+                    VStack(alignment: .leading, spacing: 18) {
+                        HStack(spacing: 18) {
+                            Text("🏆").font(.system(size: 70)).frame(width: 110, height: 110)
+                                .background(LinearGradient(colors: [palette.pink, palette.lilac], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 28))
+                            VStack(alignment: .leading, spacing: 7) {
+                                Text("Большое испытание").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                Text("50 заданий · 30 минут").font(.system(size: 17, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                                Text("Вопросы выбираются случайно из всех учебных предметов. Нужно правильно ответить на каждый вопрос до окончания таймера.")
+                                    .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            }
+                        }
+                        HStack(alignment: .top, spacing: 12) {
+                            Label("Математика", systemImage: "function")
+                            Label("Языки", systemImage: "text.book.closed")
+                            Label("Наука и мир", systemImage: "globe")
+                            Label("Информатика", systemImage: "desktopcomputer")
+                        }.font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        Button { startOlympiad() } label: {
+                            Label("Начать олимпиаду", systemImage: "play.fill")
+                                .font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                .padding(.horizontal, 25).padding(.vertical, 15)
+                                .background(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .leading, endPoint: .trailing), in: Capsule())
+                        }.buttonStyle(.plain)
+                    }.padding(25).cardStyle(palette)
+                    VStack(alignment: .leading, spacing: 10) {
+                        sectionTitle("Правила", icon: "checkmark.seal.fill")
+                        Text("• 30 минут на все 50 заданий.\n• При неправильном ответе можно попробовать ещё раз, пока идёт время.\n• За прохождение всех заданий вовремя начисляется 100 алмазов.\n• Если время закончится, награда не начисляется — можно пройти олимпиаду позже.")
+                            .font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(palette.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }.padding(20).cardStyle(palette)
+                } else {
+                    VStack(alignment: .leading, spacing: 18) {
+                        HStack {
+                            Label("Задание \(olympiadCompleted + 1) из 50", systemImage: "flag.checkered")
+                                .font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Spacer()
+                            Text(String(format: "%02d:%02d", olympiadSecondsRemaining / 60, olympiadSecondsRemaining % 60))
+                                .font(.system(size: 24, weight: .heavy, design: .monospaced))
+                                .foregroundStyle(olympiadSecondsRemaining <= 300 ? palette.red : palette.purple)
+                                .padding(.horizontal, 13).padding(.vertical, 9)
+                                .background((olympiadSecondsRemaining <= 300 ? palette.red : palette.purple).opacity(0.12), in: Capsule())
+                        }
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule().fill(palette.line)
+                                Capsule().fill(palette.green).frame(width: geo.size.width * CGFloat(olympiadCompleted) / 50)
+                            }
+                        }.frame(height: 12)
+                        HStack(spacing: 8) {
+                            Image(systemName: olympiadSubject.icon).font(.system(size: 20, weight: .heavy)).foregroundStyle(.white)
+                                .frame(width: 45, height: 45).background(palette.purple, in: RoundedRectangle(cornerRadius: 12))
+                            Text(olympiadSubject.rawValue.uppercased()).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                        }
+                        Text(olympiadProblem.text)
+                            .font(.system(size: 31, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 145).padding(15)
+                            .background(Color.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
+                        if olympiadProblem.isTatarChoice {
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                                ForEach(olympiadProblem.tatarChoices, id: \.self) { choice in
+                                    Button { submitOlympiadAnswer(choice) } label: {
+                                        Text(choice).font(.system(size: 15, weight: .bold, design: .rounded))
+                                            .foregroundStyle(palette.ink).multilineTextAlignment(.center)
+                                            .frame(maxWidth: .infinity, minHeight: 58)
+                                            .padding(8).background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 15))
+                                            .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple.opacity(0.65), lineWidth: 1.5))
+                                    }.buttonStyle(.plain)
+                                }
+                            }
+                        } else {
+                            HStack(spacing: 10) {
+                                TextField("Твой ответ", text: $olympiadAnswer)
+                                    .font(.system(size: 21, weight: .bold, design: .rounded)).textFieldStyle(.plain)
+                                    .multilineTextAlignment(.center).foregroundStyle(palette.ink)
+                                    .frame(height: 60).background(.white, in: RoundedRectangle(cornerRadius: 15))
+                                    .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 1.5))
+                                    .onSubmit { submitOlympiadAnswer(olympiadAnswer) }
+                                Button { submitOlympiadAnswer(olympiadAnswer) } label: {
+                                    Image(systemName: "arrow.right.circle.fill").font(.system(size: 34)).foregroundStyle(palette.green)
+                                }.buttonStyle(.plain).disabled(olympiadAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                            }
+                        }
+                        if !olympiadFeedback.isEmpty {
+                            Text(olympiadFeedback).font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundStyle(olympiadFeedback.hasPrefix("Верно") ? palette.green : palette.red)
+                                .frame(maxWidth: .infinity, alignment: .center).padding(10)
+                                .background(Color.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        Text("Каждый ответ записывается в статистику предмета. Алмазы за олимпиаду начисляются только после победы.")
+                            .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    }.padding(24).cardStyle(palette)
+                }
+            }.padding(25)
+        }.scrollIndicators(.hidden)
+    }
+
+    private func startOlympiad() {
+        olympiadStarted = true
+        olympiadFinished = false
+        olympiadWon = false
+        olympiadSecondsRemaining = 1800
+        olympiadCompleted = 0
+        olympiadFeedback = ""
+        nextOlympiadProblem()
+    }
+
+    private func resetOlympiad() {
+        olympiadStarted = false
+        olympiadFinished = false
+        olympiadWon = false
+        olympiadCompleted = 0
+        olympiadSecondsRemaining = 1800
+        olympiadAnswer = ""
+        olympiadFeedback = ""
+    }
+
+    private func nextOlympiadProblem() {
+        olympiadSubject = StudySubject.allCases.randomElement() ?? .math
+        olympiadProblem = ProblemGenerator.next(for: olympiadSubject)
+        olympiadAnswer = ""
+        olympiadFeedback = ""
+    }
+
+    private func submitOlympiadAnswer(_ rawAnswer: String) {
+        guard olympiadStarted, !olympiadFinished, !rawAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let normalized = rawAnswer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let correctAnswer = olympiadProblem.answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let correct = normalized == correctAnswer
+        _ = store.record(correct: correct, grantDiamond: false)
+        recordSubjectAnswer(subject: olympiadSubject, correct: correct)
+        _ = unlockEligibleAchievements()
+        if correct {
+            olympiadCompleted += 1
+            olympiadFeedback = "Верно! Отличная работа 🎉"
+            if olympiadCompleted >= 50 {
+                finishOlympiad(won: true)
+            } else {
+                nextOlympiadProblem()
+            }
+        } else {
+            olympiadAnswer = ""
+            olympiadFeedback = "Пока неверно. Попробуй ещё раз — время ещё есть!"
+        }
+    }
+
+    private func finishOlympiad(won: Bool) {
+        guard olympiadStarted, !olympiadFinished else { return }
+        olympiadStarted = false
+        olympiadFinished = true
+        olympiadWon = won
+        if won {
+            store.addDiamonds(100)
+            olympiadWins += 1
+            _ = unlockEligibleAchievements()
+            triggerCelebration("olympiad:win")
         }
     }
 
@@ -2305,8 +2533,9 @@ struct ContentView: View {
     private func medalCard(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
         let earned = progress >= goal
         return VStack(alignment: .leading, spacing: 9) {
-            Text(earned ? emoji : "🔒").font(.system(size: 37)).frame(width: 65, height: 65)
-                .background((earned ? color : palette.line).opacity(0.35), in: RoundedRectangle(cornerRadius: 19))
+            Text(earned ? emoji : "🔒").font(.system(size: 47)).frame(width: 78, height: 78)
+                .background(LinearGradient(colors: earned ? [color, palette.pink] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(earned ? color : palette.line, lineWidth: 2))
             Text(title).font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             Text(detail).font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             ProgressView(value: Double(progress), total: Double(goal)).tint(earned ? color : palette.purple)
@@ -2492,6 +2721,15 @@ struct ContentView: View {
                         ForEach(AppTheme.allCases) { theme in themeSwatch(theme) }
                     }
                     Divider().overlay(palette.line)
+                    Label("Контрастность экрана", systemImage: "circle.lefthalf.filled").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    HStack(spacing: 10) {
+                        Text("Мягче").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        Slider(value: $screenContrast, in: 0.75...1.45, step: 0.05).tint(palette.purple)
+                        Text("Ярче").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                    Text("Текущая контрастность: \(Int((screenContrast * 100).rounded()))%. Изменение применяется сразу.")
+                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Divider().overlay(palette.line)
                     Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     Text("Выбери предмет в левом меню. В рисовании — вопросы о цветах, художественных жанрах, материалах и техниках.")
                         .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
@@ -2513,6 +2751,11 @@ struct ContentView: View {
                     Button("Открыть историю версий →") { selected = .versionHistory }.font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
                     Text("Журнал выпусков и описания изменений сохраняются в программе. Статистика по месяцам, алмазы и коллекции сохраняются на этом Mac.")
                         .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Divider().overlay(palette.line)
+                    Text("© 2026 Муллагалиев Рустам. Все права защищены.")
+                        .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Разработчик: Муллагалиев Рустам")
+                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(22).cardStyle(palette)
             }.padding(25)
         }.scrollIndicators(.hidden)
@@ -2654,29 +2897,31 @@ struct ContentView: View {
     private func achievementCard(_ item: Achievement) -> some View {
         let unlocked = unlockedAchievementIDs.contains(item.id)
         return HStack(alignment: .top, spacing: 10) {
-            Text(unlocked ? item.emoji : "🔒").font(.system(size: 28))
-                .frame(width: 48, height: 48).background((unlocked ? palette.lilac : palette.line).opacity(0.45), in: RoundedRectangle(cornerRadius: 14))
+            Text(unlocked ? item.emoji : "🔒").font(.system(size: 40))
+                .frame(width: 66, height: 66).background(LinearGradient(colors: unlocked ? [palette.pink, palette.lilac] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(unlocked ? palette.purple : palette.line, lineWidth: 2))
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text(item.detail).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                 Text(unlocked ? "Получено!" : "Ещё впереди").font(.system(size: 10, weight: .bold, design: .rounded)).foregroundStyle(unlocked ? palette.green : palette.muted)
             }
             Spacer(minLength: 0)
-        }.frame(maxWidth: .infinity, minHeight: 78, alignment: .leading).padding(11)
+        }.frame(maxWidth: .infinity, minHeight: 92, alignment: .leading).padding(12)
             .background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 15))
             .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.line.opacity(0.7), lineWidth: 1))
     }
     private func collectibleCard(_ item: Collectible) -> some View {
         let unlocked = allOwnedCollectibleIDs.contains(item.id)
         return HStack(spacing: 9) {
-            Text(unlocked ? item.emoji : "❔").font(.system(size: 29))
-                .frame(width: 48, height: 48).background(palette.palePink, in: RoundedRectangle(cornerRadius: 14))
+            Text(unlocked ? item.emoji : "❔").font(.system(size: 40))
+                .frame(width: 66, height: 66).background(LinearGradient(colors: [palette.pink, palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(palette.purple.opacity(0.75), lineWidth: 2))
             VStack(alignment: .leading, spacing: 3) {
                 Text(unlocked ? item.title : "Секретная находка").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text(unlocked ? item.detail : "Шанс найти за верный ответ").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
-        }.frame(maxWidth: .infinity, minHeight: 62, alignment: .leading).padding(9)
+        }.frame(maxWidth: .infinity, minHeight: 84, alignment: .leading).padding(11)
             .background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 14))
     }
     private func unlockEligibleAchievements() -> [Achievement] {
@@ -2943,6 +3188,7 @@ struct ContentView: View {
         switch celebration {
         case "diamonds:20": return "🎉 20 алмазов!"
         case "diamonds:50": return "🦋 50 алмазов!"
+        case "olympiad:win": return "🏆 Олимпийская победа!"
         default:
             if let reward = celebration, reward.hasPrefix("achievement:") {
                 let id = String(reward.dropFirst("achievement:".count))
@@ -2964,6 +3210,7 @@ struct ContentView: View {
         switch celebration {
         case "diamonds:20": return "Салют из разноцветных мягких игрушек!"
         case "diamonds:50": return "Птички и бабочки летают вокруг!"
+        case "olympiad:win": return "Все 50 заданий пройдены. Начислено 100 алмазов!"
         default:
             if let reward = celebration, reward.hasPrefix("achievement:") {
                 let id = String(reward.dropFirst("achievement:".count))
