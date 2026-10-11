@@ -120,6 +120,7 @@ struct ProblemGenerator {
         case .informatics: hints = ["Вспомни, для чего нужны разные устройства и программы.", "Выбирай самый безопасный вариант действий.", "Прочитай все четыре ответа и найди тот, который подходит точнее.", "Алгоритм — это порядок шагов для выполнения задачи."]
         case .pdd: hints = ["Вспомни цвет светофора и его значение.", "Обращай внимание на форму и цвет дорожного знака.", "Переходи дорогу только в безопасном, разрешённом месте.", "Выбирай самый безопасный вариант для пешехода."]
         case .orthography: hints = ["Прочитай слово медленно и вспомни правило.", "Проверь безударную гласную проверочным словом.", "Вспомни жи–ши, ча–ща и чу–щу.", "Прочитай предложение целиком и проверь каждое слово."]
+        case .geography: hints = ["Найди ключевое слово: страна, столица, материк, море или река.", "Посмотри на порядок цветов флага.", "Остров со всех сторон окружён водой, а река течёт по руслу.", "Океан больше моря."]
         }
         return hints.randomElement() ?? "Внимательно прочитай условие и проверь ответ."
     }
@@ -556,6 +557,65 @@ struct ProblemGenerator {
         Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled())
     }
 
+    private static func geographyQuestion(level: Int) -> Problem {
+        let basic: [(String, String, [String])] = [
+            ("Как называется страна, в которой находится город Казань?", "Россия", ["Россия", "Италия", "Япония", "Бразилия"]),
+            ("Какой город является столицей России?", "Москва", ["Москва", "Казань", "Сочи", "Владивосток"]),
+            ("Какой океан самый большой на Земле?", "Тихий океан", ["Тихий океан", "Атлантический океан", "Индийский океан", "Северный Ледовитый океан"]),
+            ("Как называется большой участок суши, окружённый водой со всех сторон?", "Остров", ["Остров", "Полуостров", "Река", "Гора"]),
+            ("Что такое река?", "Поток воды, который течёт по руслу", ["Поток воды, который течёт по руслу", "Высокая гора", "Участок пустыни", "Часть флага"]),
+            ("Как называется очень большая часть суши, например Африка или Австралия?", "Материк", ["Материк", "Островок", "Залив", "Море"]),
+            ("Какой город является столицей Франции?", "Париж", ["Париж", "Рим", "Лондон", "Берлин"]),
+            ("Как называется большое солёное водное пространство, меньшее океана?", "Море", ["Море", "Озеро всегда", "Река", "Ледник"]),
+            ("Какие три цвета расположены на флаге России сверху вниз?", "Белый, синий, красный", ["Белый, синий, красный", "Красный, жёлтый, зелёный", "Синий, жёлтый, чёрный", "Зелёный, белый, оранжевый"]),
+            ("На каком материке находится Египет?", "Африка", ["Африка", "Европа", "Австралия", "Антарктида"]),
+            ("Какой материк покрыт льдом и находится вокруг Южного полюса?", "Антарктида", ["Антарктида", "Африка", "Евразия", "Южная Америка"]),
+            ("Как называется столица Татарстана?", "Казань", ["Казань", "Уфа", "Самара", "Омск"]),
+            ("Какая из этих стран находится в Азии?", "Япония", ["Япония", "Португалия", "Норвегия", "Исландия"]),
+            ("Какой океан омывает восточное побережье Африки и юг Азии?", "Индийский океан", ["Индийский океан", "Северный Ледовитый океан", "Южный океан", "Тихий океан"]),
+            ("Какая река протекает через город Казань?", "Казанка", ["Казанка", "Нева", "Темза", "Сена"]),
+            ("Как называется столица Великобритании?", "Лондон", ["Лондон", "Мадрид", "Прага", "Рим"]),
+            ("Как называется столица Италии?", "Рим", ["Рим", "Париж", "Афины", "Вена"]),
+            ("На каком материке находится Бразилия?", "Южная Америка", ["Южная Америка", "Европа", "Антарктида", "Австралия"]),
+            ("Что из этого — океан?", "Атлантический", ["Атлантический", "Каспийское море", "Волга", "Байкал"])
+        ]
+        let level2: [(String, String, [String])] = [
+            ("Какой материк самый большой?", "Евразия", ["Евразия", "Австралия", "Антарктида", "Южная Америка"]),
+            ("Какое море омывает побережье Сочи?", "Чёрное море", ["Чёрное море", "Балтийское море", "Красное море", "Карибское море"]),
+            ("В какой стране находится город Токио?", "Япония", ["Япония", "Канада", "Египет", "Испания"]),
+            ("Как называется столица Египта?", "Каир", ["Каир", "Афины", "Берн", "Рига"]),
+            ("Какой материк расположен к югу от Европы через Средиземное море?", "Африка", ["Африка", "Австралия", "Антарктида", "Северная Америка"])
+        ]
+        let level3: [(String, String, [String])] = [
+            ("Какой океан находится между Европой и Северной Америкой?", "Атлантический океан", ["Атлантический океан", "Индийский океан", "Тихий океан", "Южный океан"]),
+            ("Какая река является одной из самых длинных в Европе?", "Волга", ["Волга", "Сена", "Темза", "По"]),
+            ("Как называется столица Казахстана?", "Астана", ["Астана", "Ташкент", "Минск", "Баку"]),
+            ("Какой остров — самый большой в мире?", "Гренландия", ["Гренландия", "Мадагаскар", "Кипр", "Куба"])
+        ]
+        let level4: [(String, String, [String])] = [
+            ("Какие два материка соединены Панамским перешейком?", "Северная и Южная Америка", ["Северная и Южная Америка", "Европа и Африка", "Азия и Австралия", "Африка и Антарктида"]),
+            ("В каком океане находятся Гавайские острова?", "Тихий океан", ["Тихий океан", "Атлантический океан", "Индийский океан", "Северный Ледовитый океан"]),
+            ("Какая река протекает через Париж?", "Сена", ["Сена", "Волга", "Нил", "Амазонка"]),
+            ("Как называется линия, которая условно делит Землю на Северное и Южное полушария?", "Экватор", ["Экватор", "Меридиан", "Горизонт", "Береговая линия"])
+        ]
+        let level5: [(String, String, [String])] = [
+            ("Какой океан омывает западное побережье Южной Америки?", "Тихий океан", ["Тихий океан", "Индийский океан", "Северный Ледовитый океан", "Южный океан"]),
+            ("Какой пролив отделяет Аляску от России?", "Берингов пролив", ["Берингов пролив", "Гибралтарский пролив", "Ла-Манш", "Магелланов пролив"]),
+            ("Как называется столица Австралии?", "Канберра", ["Канберра", "Сидней", "Мельбурн", "Перт"]),
+            ("Какая река протекает через Лондон?", "Темза", ["Темза", "Сена", "Дунай", "Нил"])
+        ]
+        let questions: [(String, String, [String])]
+        switch min(5, max(1, level)) {
+        case 1: questions = basic
+        case 2: questions = level2 + basic
+        case 3: questions = level3 + level2
+        case 4: questions = level4 + level3
+        default: questions = level5 + level4
+        }
+        let item = questions.randomElement()!
+        return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled())
+    }
+
     private static func trafficQuestion(level: Int) -> Problem {
         let basic: [(String, String, [String])] = [
             ("Что означает красный сигнал светофора?", "Стой", ["Стой", "Иди быстрее", "Можно играть", "Переходи дорогу"]),
@@ -670,6 +730,7 @@ struct ProblemGenerator {
         case .math: return nil
         case .pdd: return trafficQuestion(level: level)
         case .orthography: return orthographyQuestion(level: level)
+        case .geography: return geographyQuestion(level: level)
         case .world:
             switch level {
             case 2:
@@ -758,6 +819,7 @@ struct ProblemGenerator {
            let advanced = nextAdvancedQuestion(for: subject, level: difficulty) { return advanced }
         if subject == .pdd { return trafficQuestion(level: 1) }
         if subject == .orthography { return orthographyQuestion(level: 1) }
+        if subject == .geography { return geographyQuestion(level: 1) }
         let questions: [(String, String)]
         switch subject {
         case .math:
@@ -766,6 +828,8 @@ struct ProblemGenerator {
             return trafficQuestion(level: 1)
         case .orthography:
             return orthographyQuestion(level: 1)
+        case .geography:
+            return geographyQuestion(level: 1)
         case .informatics:
             return informaticsQuestionBank.randomElement() ?? Problem(
                 text: "Какое устройство помогает напечатать текст?",
@@ -945,6 +1009,17 @@ private struct SubjectPerformance: Codable {
     var incorrect = 0
     var total: Int { correct + incorrect }
     var accuracy: Int { total == 0 ? 0 : Int((Double(correct) / Double(total) * 100).rounded()) }
+}
+
+private struct MistakeRecord: Codable, Identifiable {
+    let id: String
+    let subject: String
+    let question: String
+    let selectedAnswer: String
+    let correctAnswer: String
+    let choices: [String]
+    let explanation: String
+    let date: String
 }
 
 struct MonthlyStats: Codable, Identifiable {
@@ -1420,6 +1495,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
     case informatics = "Информатика"
     case pdd = "ПДД"
     case orthography = "Орфография"
+    case geography = "География"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -1433,6 +1509,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
         case .informatics: "desktopcomputer"
         case .pdd: "car.side.fill"
         case .orthography: "character.book.closed.fill"
+        case .geography: "globe.americas.fill"
         }
     }
 }
@@ -1609,6 +1686,8 @@ struct ContentView: View {
     @AppStorage("MathTrainer.SubjectPerformance.v1") private var subjectPerformanceStorage = ""
     @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
     @AppStorage("MathTrainer.OlympiadWins.v1") private var olympiadWins = 0
+    @AppStorage("MathTrainer.Mistakes.v1") private var mistakesStorage = ""
+    @AppStorage("MathTrainer.CorrectAnswersLifetime.v1") private var lifetimeCorrectAnswers = 0
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
     @State private var answer = ""
@@ -1632,6 +1711,9 @@ struct ContentView: View {
     @State private var olympiadCompleted = 0
     @State private var olympiadProblem = ProblemGenerator.next()
     @State private var olympiadSubject = StudySubject.math
+    @State private var olympiadSubjectOrder: [StudySubject] = []
+    @State private var expandedMistakeSubject: String? = nil
+    @State private var reviewingMistakeID: String? = nil
     @State private var olympiadAnswer = ""
     @State private var olympiadFeedback = ""
     @FocusState private var answerFocused: Bool
@@ -1652,6 +1734,10 @@ struct ContentView: View {
     }
     private var decodedActiveSeconds: [String: Int] {
         guard let data = activeSecondsStorage.data(using: .utf8), let value = try? JSONDecoder().decode([String: Int].self, from: data) else { return [:] }
+        return value
+    }
+    private var decodedMistakes: [MistakeRecord] {
+        guard let data = mistakesStorage.data(using: .utf8), let value = try? JSONDecoder().decode([MistakeRecord].self, from: data) else { return [] }
         return value
     }
     private var todayActiveSeconds: Int { decodedActiveSeconds[StatsStore.dateKey(Date())] ?? 0 }
@@ -2047,6 +2133,7 @@ struct ContentView: View {
         case .informatics: "💻"
         case .pdd: "🚦"
         case .orthography: "🔤"
+        case .geography: "🌎"
         }
     }
 
