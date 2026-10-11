@@ -2080,6 +2080,7 @@ struct ContentView: View {
                     Button {
                         selectedSubjectName = subject.rawValue
                         selected = .task
+                        reviewingMistakeID = nil
                         answerState = .neutral
                         answer = ""
                         problem = makeUniqueProblem(for: subject)
@@ -2363,7 +2364,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
-        } else if lower.contains("зебр") || lower.contains("пешеходный переход") || lower.contains("переход дороги") {
+        } else if lower.contains("зебр") || lower.contains("переход") {
             VStack(spacing: 7) {
                 HStack(spacing: 8) {
                     ForEach(0..<7, id: \.self) { _ in
@@ -2922,6 +2923,7 @@ struct ContentView: View {
     }
 
     private func startOlympiad() {
+        reviewingMistakeID = nil
         olympiadStarted = true
         olympiadFinished = false
         olympiadWon = false
@@ -3659,6 +3661,12 @@ struct ContentView: View {
     }
 
     private func recordMistake(subject: StudySubject, item: Problem, selectedAnswer: String) {
+        if let reviewID = reviewingMistakeID {
+            let reviewed = decodedMistakes.first(where: { $0.id == reviewID })
+            if reviewed?.subject != subject.rawValue || reviewed?.question != item.text {
+                reviewingMistakeID = nil
+            }
+        }
         guard reviewingMistakeID == nil else { return }
         var items = decodedMistakes
         guard !items.contains(where: { $0.subject == subject.rawValue && $0.question == item.text }) else { return }
@@ -3770,10 +3778,14 @@ struct ContentView: View {
 
         if isCorrect {
             answerState = .correct
-            if let reviewID = reviewingMistakeID {
+            if let reviewID = reviewingMistakeID,
+               let reviewed = decodedMistakes.first(where: { $0.id == reviewID }),
+               reviewed.subject == selectedSubject.rawValue,
+               reviewed.question == problem.text {
                 removeMistake(id: reviewID)
                 reviewingMistakeID = nil
             } else {
+                reviewingMistakeID = nil
                 removeMistakes(subject: selectedSubject, question: problem.text)
             }
             if salute {
