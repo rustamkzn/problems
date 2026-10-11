@@ -912,7 +912,7 @@ struct ContentView: View {
             .padding(7)
         }
         .frame(maxWidth: .infinity)
-        .frame(maxHeight: 330)
+        .frame(height: 330)
         .background(Color.white, in: RoundedRectangle(cornerRadius: 15))
         .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 2))
         .shadow(color: palette.purple.opacity(0.22), radius: 10, x: 0, y: 5)
