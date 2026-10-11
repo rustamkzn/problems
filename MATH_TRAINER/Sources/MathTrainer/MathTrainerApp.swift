@@ -291,21 +291,141 @@ struct TrainerStats: Codable {
     var accuracy: Int { total == 0 ? 0 : Int((Double(correct) / Double(total) * 100).rounded()) }
 }
 
+struct MonthlyStats: Codable, Identifiable {
+    var monthKey: String
+    var correct: Int
+    var incorrect: Int
+    var bestStreak: Int
+    var days: [DayStats]
+    var id: String { monthKey }
+    var total: Int { correct + incorrect }
+    var accuracy: Int { total == 0 ? 0 : Int((Double(correct) / Double(total) * 100).rounded()) }
+}
+
 @MainActor
 final class StatsStore: ObservableObject {
     @Published var stats: TrainerStats
+    @Published private(set) var monthlyHistory: [MonthlyStats]
     private let key = "MathTrainer.Stats.v2"
+    private let monthlyHistoryKey = "MathTrainer.Stats.MonthlyHistory.v1"
+    private let currentMonthStorageKey = "MathTrainer.Stats.CurrentMonth.v1"
+    private var currentMonthKey: String
 
     init() {
-        if let data = UserDefaults.standard.data(forKey: key),
+        let defaults = UserDefaults.standard
+        let loadedStats: TrainerStats
+        if let data = defaults.data(forKey: "MathTrainer.Stats.v2"),
            let decoded = try? JSONDecoder().decode(TrainerStats.self, from: data) {
-            stats = decoded
+            loadedStats = decoded
         } else {
-            stats = TrainerStats()
+            loadedStats = TrainerStats()
+        }
+        if let data = defaults.data(forKey: "MathTrainer.Stats.MonthlyHistory.v1"),
+           let decoded = try? JSONDecoder().decode([MonthlyStats].self, from: data) {
+            monthlyHistory = decoded
+        } else {
+            monthlyHistory = []
+        }
+        stats = loadedStats
+        let nowKey = Self.monthKey(Date())
+        let storedMonth = defaults.string(forKey: currentMonthStorageKey)
+        let lastRecordedMonth = loadedStats.days.map { String($0.date.prefix(7)) }.filter { $0.count == 7 }.max()
+        currentMonthKey = storedMonth ?? lastRecordedMonth ?? nowKey
+
+        if storedMonth == nil {
+            migrateLegacyStats(to: nowKey, oldStats: loadedStats)
+        } else if currentMonthKey != nowKey {
+            archiveCurrentMonth()
+            beginMonth(nowKey)
+        } else {
+            // Discard any stray day rows from other months without deleting their history.
+            let thisMonthDays = stats.days.filter { $0.date.hasPrefix(nowKey) }
+            if thisMonthDays.count != stats.days.count {
+                archiveDaysOutsideCurrentMonth(nowKey: nowKey)
+                stats.days = thisMonthDays
+                stats.correct = thisMonthDays.reduce(0) { $0 + $1.correct }
+                stats.incorrect = thisMonthDays.reduce(0) { $0 + $1.incorrect }
+                stats.currentStreak = 0
+                stats.bestStreak = thisMonthDays.isEmpty ? 0 : stats.bestStreak
+            }
+        }
+        currentMonthKey = nowKey
+        defaults.set(nowKey, forKey: currentMonthStorageKey)
+        persistStats()
+        persistMonthlyHistory()
+    }
+
+    /// Combines existing lifetime/day-based data into monthly buckets the first time
+    /// the app with monthly stats is launched.
+    private func migrateLegacyStats(to nowKey: String, oldStats: TrainerStats) {
+        let grouped = Dictionary(grouping: oldStats.days) { String($0.date.prefix(7)) }
+        let latestDay = oldStats.days.map(\.date).max()
+        var migrated: [MonthlyStats] = []
+        for (month, days) in grouped where month.count == 7 && month != nowKey {
+            migrated.append(MonthlyStats(
+                monthKey: month,
+                correct: days.reduce(0) { $0 + $1.correct },
+                incorrect: days.reduce(0) { $0 + $1.incorrect },
+                bestStreak: 0,
+                days: days.sorted { $0.date > $1.date }
+            ))
+        }
+        // The active month stays in the live dashboard. Older months are archived.
+        let activeDays = oldStats.days.filter { $0.date.hasPrefix(nowKey) }.sorted { $0.date > $1.date }
+        if !activeDays.isEmpty {
+            stats.days = activeDays
+            stats.correct = activeDays.reduce(0) { $0 + $1.correct }
+            stats.incorrect = activeDays.reduce(0) { $0 + $1.incorrect }
+            stats.bestStreak = oldStats.bestStreak
+            stats.currentStreak = latestDay?.hasPrefix(nowKey) == true ? oldStats.currentStreak : 0
+        } else if oldStats.days.isEmpty && oldStats.total > 0 {
+            // Early versions might have counters but no daily breakdown; preserve them as current.
+            stats = oldStats
+        } else {
+            stats.correct = 0
+            stats.incorrect = 0
+            stats.currentStreak = 0
+            stats.bestStreak = 0
+            stats.days = []
+            stats.celebratedStreaks = []
+        }
+        for item in migrated { mergeIntoHistory(item) }
+    }
+
+    private func archiveDaysOutsideCurrentMonth(nowKey: String) {
+        let groups = Dictionary(grouping: stats.days.filter { !$0.date.hasPrefix(nowKey) }) {
+            String($0.date.prefix(7))
+        }
+        for (month, days) in groups where month.count == 7 {
+            mergeIntoHistory(MonthlyStats(
+                monthKey: month,
+                correct: days.reduce(0) { $0 + $1.correct },
+                incorrect: days.reduce(0) { $0 + $1.incorrect },
+                bestStreak: 0,
+                days: days.sorted { $0.date > $1.date }
+            ))
         }
     }
 
+    /// Public UI view: history plus the live month, combined with any manual-reset
+    /// snapshots already saved for this same month.
+    var monthSummaries: [MonthlyStats] {
+        var items = monthlyHistory
+        if stats.total > 0 || !stats.days.isEmpty || stats.bestStreak > 0 {
+            let active = MonthlyStats(
+                monthKey: currentMonthKey,
+                correct: stats.correct,
+                incorrect: stats.incorrect,
+                bestStreak: stats.bestStreak,
+                days: stats.days
+            )
+            Self.merge(active, into: &items)
+        }
+        return items.sorted { $0.monthKey > $1.monthKey }
+    }
+
     func record(correct isCorrect: Bool) -> [String] {
+        refreshMonthIfNeeded()
         let dayKey = Self.dateKey(Date())
         if let index = stats.days.firstIndex(where: { $0.date == dayKey }) {
             if isCorrect {
@@ -340,17 +460,122 @@ final class StatsStore: ObservableObject {
         }
 
         stats.days.sort { $0.date > $1.date }
-        if let data = try? JSONEncoder().encode(stats) {
-            UserDefaults.standard.set(data, forKey: key)
-        }
+        persistStats()
         return rewards
     }
 
     func spendDiamonds(_ amount: Int) -> Bool {
+        refreshMonthIfNeeded()
         guard amount > 0, stats.diamonds >= amount else { return false }
         stats.diamonds -= amount
-        if let data = try? JSONEncoder().encode(stats) { UserDefaults.standard.set(data, forKey: key) }
+        persistStats()
         return true
+    }
+
+    /// Starts a new active statistics period but never removes monthly history or diamonds.
+    func resetCurrentMonthStats() {
+        refreshMonthIfNeeded()
+        archiveCurrentMonth()
+        stats.correct = 0
+        stats.incorrect = 0
+        stats.currentStreak = 0
+        stats.bestStreak = 0
+        stats.days = []
+        stats.celebratedStreaks = []
+        persistStats()
+        persistMonthlyHistory()
+    }
+
+    /// Also called on calendar-day notifications so an app left open overnight rolls over.
+    func refreshMonthIfNeeded() {
+        let nowKey = Self.monthKey(Date())
+        guard nowKey != currentMonthKey else { return }
+        archiveCurrentMonth()
+        beginMonth(nowKey)
+        currentMonthKey = nowKey
+        UserDefaults.standard.set(nowKey, forKey: currentMonthStorageKey)
+        persistStats()
+        persistMonthlyHistory()
+    }
+
+    private func archiveCurrentMonth() {
+        guard stats.total > 0 || !stats.days.isEmpty || stats.bestStreak > 0 else { return }
+        mergeIntoHistory(MonthlyStats(
+            monthKey: currentMonthKey,
+            correct: stats.correct,
+            incorrect: stats.incorrect,
+            bestStreak: stats.bestStreak,
+            days: stats.days
+        ))
+        persistMonthlyHistory()
+    }
+
+    private func beginMonth(_ month: String) {
+        stats.correct = 0
+        stats.incorrect = 0
+        stats.currentStreak = 0
+        stats.bestStreak = 0
+        stats.days = []
+        stats.celebratedStreaks = []
+        currentMonthKey = month
+    }
+
+    private func mergeIntoHistory(_ item: MonthlyStats) {
+        Self.merge(item, into: &monthlyHistory)
+        monthlyHistory.sort { $0.monthKey > $1.monthKey }
+    }
+
+    private static func merge(_ item: MonthlyStats, into items: inout [MonthlyStats]) {
+        guard let index = items.firstIndex(where: { $0.monthKey == item.monthKey }) else {
+            items.append(item)
+            return
+        }
+        items[index].correct += item.correct
+        items[index].incorrect += item.incorrect
+        items[index].bestStreak = max(items[index].bestStreak, item.bestStreak)
+        var daysByDate = Dictionary(uniqueKeysWithValues: items[index].days.map { ($0.date, $0) })
+        for day in item.days {
+            if var old = daysByDate[day.date] {
+                old.correct += day.correct
+                old.incorrect += day.incorrect
+                daysByDate[day.date] = old
+            } else {
+                daysByDate[day.date] = day
+            }
+        }
+        items[index].days = daysByDate.values.sorted { $0.date > $1.date }
+    }
+
+    private func persistStats() {
+        if let data = try? JSONEncoder().encode(stats) {
+            UserDefaults.standard.set(data, forKey: key)
+        }
+    }
+
+    private func persistMonthlyHistory() {
+        if let data = try? JSONEncoder().encode(monthlyHistory) {
+            UserDefaults.standard.set(data, forKey: monthlyHistoryKey)
+        }
+    }
+
+    static func monthKey(_ date: Date) -> String {
+        let p = Calendar.current.dateComponents([.year, .month], from: date)
+        return String(format: "%04d-%02d", p.year ?? 0, p.month ?? 0)
+    }
+
+    static func displayMonth(_ key: String) -> String {
+        let parts = key.split(separator: "-")
+        guard parts.count == 2, let year = Int(parts[0]), let month = Int(parts[1]),
+              (1...12).contains(month) else { return key }
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = 1
+        guard let date = Calendar.current.date(from: components) else { return key }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "LLLL yyyy"
+        return formatter.string(from: date)
     }
 
     static func dateKey(_ date: Date) -> String {
@@ -365,7 +590,6 @@ final class StatsStore: ObservableObject {
         return String(format: "%02d.%02d.%04d", day, month, year)
     }
 }
-
 @main
 struct MathTrainerApp: App {
     var body: some Scene {
@@ -412,28 +636,33 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     case sky = "Небесная"
     case sunshine = "Солнечная"
     case galaxy = "Галактика"
+    case coral = "Коралловая"
+    case teal = "Бирюзовая"
+    case denim = "Джинсовая"
+    case amber = "Янтарная"
+    case berry = "Ягодная"
     var id: String { rawValue }
 }
 private struct AppPalette {
     let theme: AppTheme
     private func c(_ r: Double, _ g: Double, _ b: Double) -> Color { Color(red:r, green:g, blue:b) }
-    var ink: Color { switch theme { case .lilac:c(0.20,0.15,0.39); case .ocean:c(0.10,0.22,0.38); case .mint:c(0.12,0.32,0.29); case .peach:c(0.42,0.23,0.24); case .night:c(0.2,0.15,0.39); case .rose:c(0.45,0.19,0.27); case .forest:c(0.08,0.35,0.265); case .sky:c(0.075,0.245,0.415); case .sunshine:c(0.465,0.25,0.2); case .galaxy:c(0.16,0.13,0.3) } }
-    var purple: Color { switch theme { case .lilac:c(0.56,0.37,0.83); case .ocean:c(0.23,0.46,0.76); case .mint:c(0.19,0.56,0.48); case .peach:c(0.80,0.42,0.42); case .night:c(0.62,0.48,0.94); case .rose:c(0.83,0.38,0.45); case .forest:c(0.15,0.59,0.455); case .sky:c(0.205,0.485,0.795); case .sunshine:c(0.845,0.44,0.38); case .galaxy:c(0.585,0.495,0.985) } }
-    var lilac: Color { switch theme { case .lilac:c(0.76,0.65,0.96); case .ocean:c(0.62,0.82,0.98); case .mint:c(0.58,0.84,0.75); case .peach:c(1,0.70,0.54); case .night:c(0.42,0.30,0.75); case .rose:c(1,0.66,0.57); case .forest:c(0.54,0.87,0.725); case .sky:c(0.595,0.845,1); case .sunshine:c(1,0.72,0.5); case .galaxy:c(0.385,0.315,0.795) } }
-    var pink: Color { switch theme { case .lilac:c(0.96,0.70,0.86); case .ocean:c(0.63,0.88,0.94); case .mint:c(0.74,0.92,0.83); case .peach:c(1,0.75,0.66); case .night:c(0.83,0.45,0.75); case .rose:c(1,0.71,0.69); case .forest:c(0.7,0.95,0.805); case .sky:c(0.605,0.905,0.975); case .sunshine:c(1,0.77,0.62); case .galaxy:c(0.795,0.465,0.795) } }
-    var palePink: Color { switch theme { case .lilac:c(1,0.92,0.97); case .ocean:c(0.91,0.97,1); case .mint:c(0.91,0.98,0.94); case .peach:c(1,0.94,0.88); case .night:c(0.96,0.93,0.99); case .rose:c(1,0.9,0.91); case .forest:c(0.87,1,0.915); case .sky:c(0.885,0.995,1); case .sunshine:c(1,0.96,0.84); case .galaxy:c(0.96,0.94,1) } }
-    var green: Color { switch theme { case .lilac:c(0.20,0.66,0.43); case .ocean:c(0.15,0.62,0.52); case .mint:c(0.15,0.62,0.42); case .peach:c(0.28,0.61,0.40); case .night:c(0.44,0.82,0.60); case .rose:c(0.31,0.57,0.43); case .forest:c(0.11,0.65,0.395); case .sky:c(0.125,0.645,0.555); case .sunshine:c(0.325,0.63,0.36); case .galaxy:c(0.405,0.835,0.645) } }
-    var red: Color { switch theme { case .lilac:c(0.89,0.28,0.42); case .ocean:c(0.84,0.34,0.40); case .mint:c(0.83,0.31,0.44); case .peach:c(0.84,0.28,0.31); case .night:c(0.98,0.46,0.58); case .rose:c(0.87,0.24,0.34); case .forest:c(0.79,0.34,0.415); case .sky:c(0.815,0.365,0.435); case .sunshine:c(0.885,0.3,0.27); case .galaxy:c(0.945,0.475,0.625) } }
-    var muted: Color { switch theme { case .lilac:c(0.51,0.47,0.63); case .ocean:c(0.32,0.47,0.62); case .mint:c(0.30,0.50,0.46); case .peach:c(0.56,0.39,0.39); case .night:c(0.36,0.31,0.48); case .rose:c(0.59,0.35,0.42); case .forest:c(0.26,0.53,0.435); case .sky:c(0.295,0.495,0.655); case .sunshine:c(0.605,0.41,0.35); case .galaxy:c(0.34,0.29,0.48) } }
-    var line: Color { switch theme { case .lilac:c(0.88,0.82,0.97); case .ocean:c(0.75,0.87,0.98); case .mint:c(0.76,0.91,0.84); case .peach:c(0.97,0.82,0.72); case .night:c(0.39,0.34,0.53); case .rose:c(1,0.78,0.75); case .forest:c(0.72,0.94,0.815); case .sky:c(0.725,0.895,1); case .sunshine:c(1,0.84,0.68); case .galaxy:c(0.355,0.355,0.575) } }
-    var canvasTop: Color { switch theme { case .lilac:c(0.88,0.82,0.98); case .ocean:c(0.83,0.92,1); case .mint:c(0.82,0.96,0.89); case .peach:c(1,0.86,0.75); case .night:c(0.9,0.87,0.98); case .rose:c(1,0.82,0.78); case .forest:c(0.78,0.99,0.865); case .sky:c(0.805,0.945,1); case .sunshine:c(1,0.88,0.71); case .galaxy:c(0.88,0.84,0.99) } }
-    var canvasMiddle: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.90,0.97,1); case .mint:c(0.94,1,0.96); case .peach:c(1,0.94,0.87); case .night:c(0.98,0.95,1); case .rose:c(1,0.9,0.9); case .forest:c(0.9,1,0.935); case .sky:c(0.875,0.995,1); case .sunshine:c(1,0.96,0.83); case .galaxy:c(0.96,0.94,1) } }
-    var canvasBottom: Color { switch theme { case .lilac:c(0.96,0.91,1); case .ocean:c(0.88,0.95,1); case .mint:c(0.83,0.95,0.90); case .peach:c(1,0.89,0.81); case .night:c(0.93,0.9,0.99); case .rose:c(1,0.85,0.84); case .forest:c(0.79,0.98,0.875); case .sky:c(0.855,0.975,1); case .sunshine:c(1,0.91,0.77); case .galaxy:c(0.91,0.89,1) } }
-    var sidebarTop: Color { switch theme { case .lilac:.white; case .ocean:c(0.96,0.99,1); case .mint:c(0.98,1,0.98); case .peach:c(1,0.99,0.96); case .night:c(0.98,0.97,1); case .rose:c(1,0.95,0.99); case .forest:c(0.94,1,0.955); case .sky:c(0.935,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.97,0.96,1) } }
-    var sidebarBottom: Color { switch theme { case .lilac:c(0.95,0.90,1); case .ocean:c(0.87,0.94,1); case .mint:c(0.86,0.97,0.91); case .peach:c(1,0.90,0.81); case .night:c(0.91,0.88,0.99); case .rose:c(1,0.86,0.84); case .forest:c(0.82,1,0.885); case .sky:c(0.845,0.965,1); case .sunshine:c(1,0.92,0.77); case .galaxy:c(0.9,0.88,0.99) } }
-    var quizTop: Color { switch theme { case .lilac:c(1,0.99,1); case .ocean:c(0.97,1,1); case .mint:c(0.99,1,0.99); case .peach:c(1,0.99,0.96); case .night:c(1,0.98,1); case .rose:c(1,0.95,0.99); case .forest:c(0.95,1,0.965); case .sky:c(0.945,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.99,0.98,1) } }
-    var quizBottom: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.87,0.96,1); case .mint:c(0.88,0.98,0.92); case .peach:c(1,0.88,0.78); case .night:c(0.88,0.83,0.98); case .rose:c(1,0.84,0.81); case .forest:c(0.84,1,0.895); case .sky:c(0.845,0.985,1); case .sunshine:c(1,0.9,0.74); case .galaxy:c(0.88,0.84,1) } }
-    var quizGlow: Color { switch theme { case .lilac:c(0.94,0.88,0.98); case .ocean:c(0.66,0.87,0.98); case .mint:c(0.70,0.91,0.82); case .peach:c(1,0.76,0.63); case .night:c(0.42,0.32,0.62); case .rose:c(1,0.72,0.66); case .forest:c(0.66,0.94,0.795); case .sky:c(0.635,0.895,1); case .sunshine:c(1,0.78,0.59); case .galaxy:c(0.385,0.335,0.665) } }
+    var ink: Color { switch theme { case .lilac:c(0.20,0.15,0.39); case .ocean:c(0.10,0.22,0.38); case .mint:c(0.12,0.32,0.29); case .peach:c(0.42,0.23,0.24); case .night:c(0.2,0.15,0.39); case .rose:c(0.45,0.19,0.27); case .forest:c(0.08,0.35,0.265); case .sky:c(0.075,0.245,0.415); case .sunshine:c(0.465,0.25,0.2); case .galaxy:c(0.16,0.13,0.3) case .coral:c(0.39,0.15,0.16); case .teal:c(0.09,0.26,0.29); case .denim:c(0.14,0.24,0.38); case .amber:c(0.36,0.24,0.08); case .berry:c(0.39,0.14,0.27) } }
+    var purple: Color { switch theme { case .lilac:c(0.56,0.37,0.83); case .ocean:c(0.23,0.46,0.76); case .mint:c(0.19,0.56,0.48); case .peach:c(0.80,0.42,0.42); case .night:c(0.62,0.48,0.94); case .rose:c(0.83,0.38,0.45); case .forest:c(0.15,0.59,0.455); case .sky:c(0.205,0.485,0.795); case .sunshine:c(0.845,0.44,0.38); case .galaxy:c(0.585,0.495,0.985) case .coral:c(0.73,0.27,0.27); case .teal:c(0.10,0.47,0.50); case .denim:c(0.22,0.41,0.65); case .amber:c(0.70,0.42,0.10); case .berry:c(0.66,0.25,0.43) } }
+    var lilac: Color { switch theme { case .lilac:c(0.76,0.65,0.96); case .ocean:c(0.62,0.82,0.98); case .mint:c(0.58,0.84,0.75); case .peach:c(1,0.70,0.54); case .night:c(0.42,0.30,0.75); case .rose:c(1,0.66,0.57); case .forest:c(0.54,0.87,0.725); case .sky:c(0.595,0.845,1); case .sunshine:c(1,0.72,0.5); case .galaxy:c(0.385,0.315,0.795) case .coral:c(0.94,0.54,0.43); case .teal:c(0.43,0.77,0.75); case .denim:c(0.50,0.70,0.88); case .amber:c(0.94,0.69,0.34); case .berry:c(0.86,0.49,0.67) } }
+    var pink: Color { switch theme { case .lilac:c(0.96,0.70,0.86); case .ocean:c(0.63,0.88,0.94); case .mint:c(0.74,0.92,0.83); case .peach:c(1,0.75,0.66); case .night:c(0.83,0.45,0.75); case .rose:c(1,0.71,0.69); case .forest:c(0.7,0.95,0.805); case .sky:c(0.605,0.905,0.975); case .sunshine:c(1,0.77,0.62); case .galaxy:c(0.795,0.465,0.795) case .coral:c(0.97,0.60,0.50); case .teal:c(0.54,0.82,0.78); case .denim:c(0.59,0.78,0.92); case .amber:c(0.98,0.75,0.43); case .berry:c(0.91,0.57,0.73) } }
+    var palePink: Color { switch theme { case .lilac:c(1,0.92,0.97); case .ocean:c(0.91,0.97,1); case .mint:c(0.91,0.98,0.94); case .peach:c(1,0.94,0.88); case .night:c(0.96,0.93,0.99); case .rose:c(1,0.9,0.91); case .forest:c(0.87,1,0.915); case .sky:c(0.885,0.995,1); case .sunshine:c(1,0.96,0.84); case .galaxy:c(0.96,0.94,1) case .coral:c(0.99,0.89,0.84); case .teal:c(0.88,0.96,0.94); case .denim:c(0.88,0.93,0.98); case .amber:c(1,0.94,0.81); case .berry:c(0.98,0.89,0.93) } }
+    var green: Color { switch theme { case .lilac:c(0.20,0.66,0.43); case .ocean:c(0.15,0.62,0.52); case .mint:c(0.15,0.62,0.42); case .peach:c(0.28,0.61,0.40); case .night:c(0.44,0.82,0.60); case .rose:c(0.31,0.57,0.43); case .forest:c(0.11,0.65,0.395); case .sky:c(0.125,0.645,0.555); case .sunshine:c(0.325,0.63,0.36); case .galaxy:c(0.405,0.835,0.645) case .coral:c(0.22,0.56,0.37); case .teal:c(0.11,0.55,0.46); case .denim:c(0.16,0.53,0.69); case .amber:c(0.39,0.57,0.20); case .berry:c(0.22,0.56,0.40) } }
+    var red: Color { switch theme { case .lilac:c(0.89,0.28,0.42); case .ocean:c(0.84,0.34,0.40); case .mint:c(0.83,0.31,0.44); case .peach:c(0.84,0.28,0.31); case .night:c(0.98,0.46,0.58); case .rose:c(0.87,0.24,0.34); case .forest:c(0.79,0.34,0.415); case .sky:c(0.815,0.365,0.435); case .sunshine:c(0.885,0.3,0.27); case .galaxy:c(0.945,0.475,0.625) case .coral:c(0.79,0.19,0.22); case .teal:c(0.79,0.29,0.31); case .denim:c(0.76,0.29,0.34); case .amber:c(0.79,0.32,0.14); case .berry:c(0.78,0.21,0.39) } }
+    var muted: Color { switch theme { case .lilac:c(0.51,0.47,0.63); case .ocean:c(0.32,0.47,0.62); case .mint:c(0.30,0.50,0.46); case .peach:c(0.56,0.39,0.39); case .night:c(0.36,0.31,0.48); case .rose:c(0.59,0.35,0.42); case .forest:c(0.26,0.53,0.435); case .sky:c(0.295,0.495,0.655); case .sunshine:c(0.605,0.41,0.35); case .galaxy:c(0.34,0.29,0.48) case .coral:c(0.47,0.28,0.26); case .teal:c(0.27,0.43,0.42); case .denim:c(0.28,0.39,0.52); case .amber:c(0.51,0.37,0.21); case .berry:c(0.48,0.29,0.39) } }
+    var line: Color { switch theme { case .lilac:c(0.88,0.82,0.97); case .ocean:c(0.75,0.87,0.98); case .mint:c(0.76,0.91,0.84); case .peach:c(0.97,0.82,0.72); case .night:c(0.39,0.34,0.53); case .rose:c(1,0.78,0.75); case .forest:c(0.72,0.94,0.815); case .sky:c(0.725,0.895,1); case .sunshine:c(1,0.84,0.68); case .galaxy:c(0.355,0.355,0.575) case .coral:c(0.92,0.67,0.60); case .teal:c(0.69,0.88,0.84); case .denim:c(0.70,0.82,0.94); case .amber:c(0.95,0.82,0.60); case .berry:c(0.94,0.73,0.82) } }
+    var canvasTop: Color { switch theme { case .lilac:c(0.88,0.82,0.98); case .ocean:c(0.83,0.92,1); case .mint:c(0.82,0.96,0.89); case .peach:c(1,0.86,0.75); case .night:c(0.9,0.87,0.98); case .rose:c(1,0.82,0.78); case .forest:c(0.78,0.99,0.865); case .sky:c(0.805,0.945,1); case .sunshine:c(1,0.88,0.71); case .galaxy:c(0.88,0.84,0.99) case .coral:c(0.98,0.75,0.65); case .teal:c(0.77,0.93,0.89); case .denim:c(0.78,0.88,0.97); case .amber:c(0.99,0.85,0.60); case .berry:c(0.96,0.79,0.87) } }
+    var canvasMiddle: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.90,0.97,1); case .mint:c(0.94,1,0.96); case .peach:c(1,0.94,0.87); case .night:c(0.98,0.95,1); case .rose:c(1,0.9,0.9); case .forest:c(0.9,1,0.935); case .sky:c(0.875,0.995,1); case .sunshine:c(1,0.96,0.83); case .galaxy:c(0.96,0.94,1) case .coral:c(1,0.90,0.83); case .teal:c(0.91,0.97,0.95); case .denim:c(0.91,0.95,0.99); case .amber:c(1,0.94,0.77); case .berry:c(0.99,0.90,0.94) } }
+    var canvasBottom: Color { switch theme { case .lilac:c(0.96,0.91,1); case .ocean:c(0.88,0.95,1); case .mint:c(0.83,0.95,0.90); case .peach:c(1,0.89,0.81); case .night:c(0.93,0.9,0.99); case .rose:c(1,0.85,0.84); case .forest:c(0.79,0.98,0.875); case .sky:c(0.855,0.975,1); case .sunshine:c(1,0.91,0.77); case .galaxy:c(0.91,0.89,1) case .coral:c(0.97,0.77,0.68); case .teal:c(0.80,0.93,0.89); case .denim:c(0.80,0.89,0.97); case .amber:c(0.99,0.87,0.65); case .berry:c(0.96,0.80,0.88) } }
+    var sidebarTop: Color { switch theme { case .lilac:.white; case .ocean:c(0.96,0.99,1); case .mint:c(0.98,1,0.98); case .peach:c(1,0.99,0.96); case .night:c(0.98,0.97,1); case .rose:c(1,0.95,0.99); case .forest:c(0.94,1,0.955); case .sky:c(0.935,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.97,0.96,1) case .coral:c(1,0.91,0.87); case .teal:c(0.93,0.98,0.96); case .denim:c(0.93,0.96,1); case .amber:c(1,0.96,0.85); case .berry:c(1,0.93,0.96) } }
+    var sidebarBottom: Color { switch theme { case .lilac:c(0.95,0.90,1); case .ocean:c(0.87,0.94,1); case .mint:c(0.86,0.97,0.91); case .peach:c(1,0.90,0.81); case .night:c(0.91,0.88,0.99); case .rose:c(1,0.86,0.84); case .forest:c(0.82,1,0.885); case .sky:c(0.845,0.965,1); case .sunshine:c(1,0.92,0.77); case .galaxy:c(0.9,0.88,0.99) case .coral:c(0.97,0.78,0.69); case .teal:c(0.83,0.94,0.91); case .denim:c(0.82,0.90,0.97); case .amber:c(1,0.88,0.67); case .berry:c(0.97,0.82,0.90) } }
+    var quizTop: Color { switch theme { case .lilac:c(1,0.99,1); case .ocean:c(0.97,1,1); case .mint:c(0.99,1,0.99); case .peach:c(1,0.99,0.96); case .night:c(1,0.98,1); case .rose:c(1,0.95,0.99); case .forest:c(0.95,1,0.965); case .sky:c(0.945,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.99,0.98,1) case .coral:c(1,0.97,0.94); case .teal:c(0.97,1,0.99); case .denim:c(0.97,0.99,1); case .amber:c(1,0.99,0.91); case .berry:c(1,0.97,0.99) } }
+    var quizBottom: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.87,0.96,1); case .mint:c(0.88,0.98,0.92); case .peach:c(1,0.88,0.78); case .night:c(0.88,0.83,0.98); case .rose:c(1,0.84,0.81); case .forest:c(0.84,1,0.895); case .sky:c(0.845,0.985,1); case .sunshine:c(1,0.9,0.74); case .galaxy:c(0.88,0.84,1) case .coral:c(0.99,0.82,0.75); case .teal:c(0.83,0.95,0.91); case .denim:c(0.82,0.91,0.98); case .amber:c(1,0.90,0.70); case .berry:c(0.98,0.83,0.91) } }
+    var quizGlow: Color { switch theme { case .lilac:c(0.94,0.88,0.98); case .ocean:c(0.66,0.87,0.98); case .mint:c(0.70,0.91,0.82); case .peach:c(1,0.76,0.63); case .night:c(0.42,0.32,0.62); case .rose:c(1,0.72,0.66); case .forest:c(0.66,0.94,0.795); case .sky:c(0.635,0.895,1); case .sunshine:c(1,0.78,0.59); case .galaxy:c(0.385,0.335,0.665) case .coral:c(0.90,0.52,0.43); case .teal:c(0.40,0.72,0.70); case .denim:c(0.42,0.62,0.83); case .amber:c(0.91,0.64,0.25); case .berry:c(0.81,0.40,0.61) } }
     static func make(_ theme: AppTheme) -> AppPalette { AppPalette(theme: theme) }
 }
 private enum StudySubject: String, CaseIterable, Identifiable {
@@ -569,6 +798,7 @@ struct ContentView: View {
     @State private var answerState: AnswerState = .neutral
     @State private var currentTip = "Внимательно прочитай условие и проверь ответ."
     @State private var showSubjectPicker = false
+    @State private var showResetStatsConfirmation = false
     @State private var seenQuestionTexts: [String: Set<String>] = [:]
     @State private var showBunny = false
     @State private var celebration: String?
@@ -602,13 +832,11 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Задания для второго класса и новые игрушки", changes: [
-                "В химии убраны задания на порядковые номера элементов: остаётся распознавание названия и химического символа.",
-                "В окружающем мире появились простые вопросы о природе, животных, теле человека и быте с четырьмя вариантами ответа.",
-                "Рисование полностью обновлено: разнообразные текстовые вопросы о цветах, жанрах, материалах, техниках и композиции; четыре текстовых варианта ответа без картинок.",
-                "В магазине закрытые призы скрыты за одинаковыми коробочками; название и вид открываются только после получения.",
-                "Повторное получение или покупка уже собранной игрушки заблокированы.",
-                "Таблица умножения теперь встречается примерно в каждом третьем математическом задании."
+            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Статистика, темы и история версий", changes: [
+                "Исправлено дублирование одинаковых описаний в истории обновлений: остаётся самая свежая запись.",
+                "Добавлены пять новых насыщенных светлых тем: «Коралловая», «Бирюзовая», «Джинсовая», «Янтарная» и «Ягодная» — теперь доступно 15 тем.",
+                "Статистика автоматически начинается заново в новом месяце, а результаты прошлых месяцев сохраняются в истории.",
+                "Добавлен ручной сброс статистики текущего месяца с сохранением месячной истории и алмазов."
             ]),
             ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Математика и выбор предмета", changes: ["Добавлены задания на десятки и единицы, длину, массу и время.", "Переключатель предметов открывается поверх нижних вкладок и не меняет высоту страницы."]),
             ReleaseNote(version: "1.0.27", date: "10.10.2026", title: "Задания по рисованию", changes: ["Добавлен выбор иллюстраций: граффити, портрет, пейзаж и натюрморт."]),
@@ -641,7 +869,7 @@ struct ContentView: View {
                 merged.append(note)
             }
         }
-        return merged.sorted { lhs, rhs in
+        let sorted = merged.sorted { lhs, rhs in
             let l = lhs.version.split(separator: ".").compactMap { Int($0) }
             let r = rhs.version.split(separator: ".").compactMap { Int($0) }
             for index in 0..<max(l.count, r.count) {
@@ -650,6 +878,11 @@ struct ContentView: View {
                 if lv != rv { return lv > rv }
             }
             return lhs.date > rhs.date
+        }
+        var seenDescriptions = Set<String>()
+        return sorted.filter { note in
+            let fingerprint = note.title + "|" + note.changes.joined(separator: "\u{1F}")
+            return seenDescriptions.insert(fingerprint).inserted
         }
     }
 
@@ -699,7 +932,10 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 1180, minHeight: 760)
-        .onAppear { prepareShopPrices(); persistReleaseNotes(); answerFocused = true }
+        .onAppear { prepareShopPrices(); persistReleaseNotes(); store.refreshMonthIfNeeded(); answerFocused = true }
+        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
+            store.refreshMonthIfNeeded()
+        }
     }
 
     private var sidebar: some View {
@@ -1359,10 +1595,36 @@ struct ContentView: View {
                 Button("Посмотреть статистику по дням →") { selected = .days }
                     .font(.system(size: 14, weight: .heavy, design: .rounded))
                     .foregroundStyle(palette.purple).buttonStyle(.plain)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    sectionTitle("Статистика текущего месяца", icon: "arrow.counterclockwise")
+                    Text("В начале нового месяца счётчики обнуляются автоматически. История по месяцам, достижения, коллекция и алмазы сохраняются.")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                    Button {
+                        showResetStatsConfirmation = true
+                    } label: {
+                        Label("Сбросить статистику текущего месяца", systemImage: "trash")
+                            .font(.system(size: 13, weight: .heavy, design: .rounded))
+                            .foregroundStyle(palette.red)
+                            .padding(.horizontal, 14).padding(.vertical, 11)
+                            .background(palette.red.opacity(0.10), in: Capsule())
+                    }.buttonStyle(.plain)
+                }
+                .padding(18)
+                .cardStyle(palette)
             }
             .padding(25)
         }
         .scrollIndicators(.hidden)
+        .alert("Сбросить статистику текущего месяца?", isPresented: $showResetStatsConfirmation) {
+            Button("Отмена", role: .cancel) {}
+            Button("Сбросить", role: .destructive) {
+                store.resetCurrentMonthStats()
+            }
+        } message: {
+            Text("Текущие ответы и серия будут обнулены. История по месяцам, алмазы, достижения и игрушки сохранятся.")
+        }
     }
 
     private var daysPage: some View {
@@ -1398,6 +1660,48 @@ struct ContentView: View {
                             .font(.system(size: 14, weight: .semibold, design: .rounded))
                             .padding(12)
                             .background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 11))
+                        }
+                    }
+                }
+                .padding(20)
+                .cardStyle(palette)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("История статистики по месяцам", icon: "calendar")
+                    if store.monthSummaries.isEmpty {
+                        emptyHint("История появится после первых занятий. Каждый месяц будет сохранён отдельно.")
+                    } else {
+                        ForEach(store.monthSummaries) { month in
+                            VStack(alignment: .leading, spacing: 7) {
+                                HStack(alignment: .firstTextBaseline) {
+                                    Text(StatsStore.displayMonth(month.monthKey))
+                                        .font(.system(size: 15, weight: .heavy, design: .rounded))
+                                        .foregroundStyle(palette.ink)
+                                    Spacer()
+                                    Text("\(month.accuracy)%")
+                                        .font(.system(size: 15, weight: .heavy, design: .rounded))
+                                        .foregroundStyle(palette.purple)
+                                }
+                                HStack(spacing: 12) {
+                                    Label("\(month.correct) верно", systemImage: "checkmark.circle.fill")
+                                        .foregroundStyle(palette.green)
+                                    Label("\(month.incorrect) ошибок", systemImage: "xmark.circle.fill")
+                                        .foregroundStyle(palette.red)
+                                    Spacer(minLength: 0)
+                                    Text("Всего: \(month.total)")
+                                        .foregroundStyle(palette.ink)
+                                }
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                HStack {
+                                    Text("Лучшая серия: \(month.bestStreak)")
+                                    Spacer()
+                                    Text("Дней с занятиями: \(month.days.filter { $0.total > 0 }.count)")
+                                }
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                                .foregroundStyle(palette.muted)
+                            }
+                            .padding(13)
+                            .background(.white.opacity(0.58), in: RoundedRectangle(cornerRadius: 13))
                         }
                     }
                 }
@@ -1563,13 +1867,13 @@ struct ContentView: View {
                 pageHeading("Настройки", subtitle: "Настрой своё учебное пространство")
                 VStack(alignment: .leading, spacing: 15) {
                     Label("Тема оформления", systemImage: "paintpalette.fill").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Выбери одну из десяти тем. Цвета интерфейса изменятся сразу.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("Выбери одну из пятнадцати тем. Цвета интерфейса изменятся сразу.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 10) {
                         ForEach(AppTheme.allCases) { theme in themeSwatch(theme) }
                     }
                     Divider().overlay(palette.line)
                     Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Выбери предмет в левом меню. Для рисования доступны задания с выбором иллюстрации.")
+                    Text("Выбери предмет в левом меню. В рисовании — вопросы о цветах, художественных жанрах, материалах и техниках.")
                         .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     ForEach(StudySubject.allCases) { subject in
                         HStack(spacing: 9) {
@@ -1587,7 +1891,7 @@ struct ContentView: View {
                     }
                     Text("Дата выпуска: \(appReleaseDate)").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
                     Button("Открыть историю версий →") { selected = .versionHistory }.font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
-                    Text("Журнал выпусков и описания изменений сохраняются в программе. Статистика и коллекции тоже остаются на этом Mac.")
+                    Text("Журнал выпусков и описания изменений сохраняются в программе. Статистика по месяцам, алмазы и коллекции сохраняются на этом Mac.")
                         .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(22).cardStyle(palette)
             }.padding(25)
