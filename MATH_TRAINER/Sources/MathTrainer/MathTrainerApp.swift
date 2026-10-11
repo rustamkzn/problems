@@ -121,6 +121,8 @@ struct ProblemGenerator {
         case .pdd: hints = ["Вспомни цвет светофора и его значение.", "Обращай внимание на форму и цвет дорожного знака.", "Переходи дорогу только в безопасном, разрешённом месте.", "Выбирай самый безопасный вариант для пешехода."]
         case .orthography: hints = ["Прочитай слово медленно и вспомни правило.", "Проверь безударную гласную проверочным словом.", "Вспомни жи–ши, ча–ща и чу–щу.", "Прочитай предложение целиком и проверь каждое слово."]
         case .geography: hints = ["Найди ключевое слово: страна, столица, материк, море или река.", "Посмотри на порядок цветов флага.", "Остров со всех сторон окружён водой, а река течёт по руслу.", "Океан больше моря."]
+        case .logic: hints = ["Найди закономерность между числами или фигурами.", "Проверь, что меняется от шага к шагу.", "Исключи варианты, которые нарушают условие."]
+        case .biology: hints = ["Вспомни, чем живые организмы отличаются от неживых объектов.", "Сопоставь строение организма с его функцией.", "Подумай о среде обитания и питании."]
         }
         return hints.randomElement() ?? "Внимательно прочитай условие и проверь ответ."
     }
@@ -774,6 +776,10 @@ struct ProblemGenerator {
         case .pdd: return trafficQuestion(level: level)
         case .orthography: return orthographyQuestion(level: level)
         case .geography: return geographyQuestion(level: level)
+        case .logic:
+            bank = [("Продолжи ряд: 2, 4, 6, 8, …", "10", ["10", "9", "12", "14"]), ("Что лишнее: круг, квадрат, треугольник, яблоко?", "Яблоко", ["Яблоко", "Круг", "Квадрат", "Треугольник"]), ("У Маши 3 яблока, у Пети на 2 больше. Сколько у Пети?", "5", ["5", "1", "6", "8"]), ("Продолжи ряд: 1, 3, 5, 7, …", "9", ["9", "8", "10", "11"]), ("Если сегодня среда, какой день будет через 2 дня?", "Пятница", ["Пятница", "Четверг", "Суббота", "Воскресенье"])]
+        case .biology:
+            bank = [("Какой орган перекачивает кровь?", "Сердце", ["Сердце", "Лёгкие", "Желудок", "Мозг"]), ("Что нужно растениям для фотосинтеза?", "Свет", ["Свет", "Песок", "Пластик", "Темнота"]), ("Чем дышит рыба в воде?", "Жабрами", ["Жабрами", "Лёгкими", "Кожей головы", "Плавниками"]), ("Какая часть растения поглощает воду из почвы?", "Корень", ["Корень", "Цветок", "Плод", "Лист"]), ("К какой группе относится бабочка?", "Насекомые", ["Насекомые", "Птицы", "Млекопитающие", "Рыбы"])]
         case .world:
             switch level {
             case 2:
@@ -873,6 +879,15 @@ struct ProblemGenerator {
             return orthographyQuestion(level: 1)
         case .geography:
             return geographyQuestion(level: 1)
+        case .logic, .biology:
+            let bank: [(String, String, [String])]
+            if subject == .logic {
+                bank = [("Продолжи ряд: 3, 6, 9, 12, …", "15", ["15", "14", "16", "18"]), ("Что лишнее: кошка, собака, воробей, стол?", "Стол", ["Стол", "Кошка", "Собака", "Воробей"]), ("У трёх братьев по одной сестре. Сколько всего детей?", "4", ["4", "3", "6", "7"]), ("Продолжи ряд: 10, 8, 6, 4, …", "2", ["2", "0", "3", "1"])]
+            } else {
+                bank = [("Какой орган помогает человеку дышать?", "Лёгкие", ["Лёгкие", "Сердце", "Печень", "Желудок"]), ("Что является живым организмом?", "Гриб", ["Гриб", "Камень", "Стекло", "Вода"]), ("Как называется детёныш лягушки?", "Головастик", ["Головастик", "Цыплёнок", "Щенок", "Теленок"]), ("Что переносит пыльцу между цветками?", "Насекомые", ["Насекомые", "Рыбы", "Камни", "Облака"])]
+            }
+            let item = bank.randomElement()!
+            return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled())
         case .informatics:
             return informaticsQuestionBank.randomElement() ?? Problem(
                 text: "Какое устройство помогает напечатать текст?",
@@ -1539,6 +1554,8 @@ private enum StudySubject: String, CaseIterable, Identifiable {
     case pdd = "ПДД"
     case orthography = "Орфография"
     case geography = "География"
+    case logic = "Логика"
+    case biology = "Биология для начинающих"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -1553,6 +1570,8 @@ private enum StudySubject: String, CaseIterable, Identifiable {
         case .pdd: "car.side.fill"
         case .orthography: "character.book.closed.fill"
         case .geography: "globe.americas.fill"
+        case .logic: "brain.head.profile"
+        case .biology: "leaf"
         }
     }
 }
@@ -1853,6 +1872,7 @@ struct ContentView: View {
     @State private var lastMouseMovementAt = Date()
     @State private var lastMouseLocation = NSEvent.mouseLocation
     @State private var olympiadStarted = false
+    @State private var olympiadPaused = false
     @State private var olympiadFinished = false
     @State private var olympiadWon = false
     @State private var olympiadSecondsRemaining = 1800
@@ -1907,7 +1927,12 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: appVersion, date: appReleaseDate, title: "ПДД, орфография, уровни и тёмные темы", changes: [
+            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Логика, биология и пауза в олимпиаде", changes: [
+                "Добавлены учебные предметы «Логика» и «Биология для начинающих» с текстовыми вопросами и вариантами ответов.",
+                "В олимпиаде появилась пауза и продолжение: таймер не уменьшается, пока испытание приостановлено.",
+                "История версий дополнена записью о новых функциях."
+            ]),
+            ReleaseNote(version: "1.0.29", date: "11.10.2026", title: "ПДД, орфография, уровни и тёмные темы", changes: [
                 "Добавлены предметы «ПДД» и «Орфография»: тесты по дорожным знакам и разметке, а также поиску орфографических ошибок.",
                 "Уровни сложности 1–5 доступны слева у логотипа. На уровнях 2–5 добавляются более сложные задания по каждому предмету; уровень 1 сохраняет прежний набор.",
                 "Добавлены пять новых тёмных высококонтрастных тем, а ползунок контрастности вынесен наверх настроек и заметно выделен.",
@@ -2284,6 +2309,8 @@ struct ContentView: View {
         case .pdd: "🚦"
         case .orthography: "🔤"
         case .geography: "🌎"
+        case .logic: "🧩"
+        case .biology: "🧬"
         }
     }
 
@@ -3108,6 +3135,19 @@ struct ContentView: View {
                                 .padding(.horizontal, 13).padding(.vertical, 9)
                                 .background((olympiadSecondsRemaining <= 300 ? palette.red : palette.purple).opacity(0.12), in: Capsule())
                         }
+                        HStack {
+                            Button {
+                                olympiadPaused.toggle()
+                            } label: {
+                                Label(olympiadPaused ? "Продолжить олимпиаду" : "Пауза", systemImage: olympiadPaused ? "play.fill" : "pause.fill")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 16).padding(.vertical, 10)
+                                    .background(olympiadPaused ? palette.green : palette.purple, in: Capsule())
+                            }.buttonStyle(.plain)
+                            if olympiadPaused { Text("Таймер остановлен").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.muted) }
+                            Spacer()
+                        }
                         GeometryReader { geo in
                             ZStack(alignment: .leading) {
                                 Capsule().fill(palette.line)
@@ -3169,6 +3209,7 @@ struct ContentView: View {
 
     private func startOlympiad() {
         reviewingMistakeID = nil
+        olympiadPaused = false
         olympiadStarted = true
         olympiadFinished = false
         olympiadWon = false
@@ -3181,6 +3222,7 @@ struct ContentView: View {
 
     private func resetOlympiad() {
         olympiadStarted = false
+        olympiadPaused = false
         olympiadFinished = false
         olympiadWon = false
         olympiadCompleted = 0
@@ -3943,6 +3985,10 @@ struct ContentView: View {
             return "Проверь символ элемента: первая буква заглавная, вторая, если есть, строчная. Для формулы запомни, что нижний индекс показывает число атомов."
         case .informatics:
             return "Прочитай все варианты, подумай о назначении устройства или команды и исключи небезопасные действия. Пароли и личные данные никому не сообщают."
+        case .logic:
+            return "Ищи закономерность, внимательно проверь каждое условие и исключи варианты, которые противоречат последовательности."
+        case .biology:
+            return "Вспомни основные признаки живых организмов, функции органов и потребности растений и животных."
         }
     }
 
@@ -4006,7 +4052,7 @@ struct ContentView: View {
             daySeconds[key, default: 0] += 1
             if let data = try? JSONEncoder().encode(daySeconds) { activeSecondsStorage = String(decoding: data, as: UTF8.self) }
         }
-        if olympiadStarted && !olympiadFinished {
+        if olympiadStarted && !olympiadPaused && !olympiadFinished {
             if olympiadSecondsRemaining <= 1 { finishOlympiad(won: false) }
             else { olympiadSecondsRemaining -= 1 }
         }
