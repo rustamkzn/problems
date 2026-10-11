@@ -1,4 +1,6 @@
 import SwiftUI
+import AppKit
+import Combine
 
 struct Problem {
     let text: String
@@ -714,6 +716,13 @@ struct TrainerStats: Codable {
     var accuracy: Int { total == 0 ? 0 : Int((Double(correct) / Double(total) * 100).rounded()) }
 }
 
+private struct SubjectPerformance: Codable {
+    var correct = 0
+    var incorrect = 0
+    var total: Int { correct + incorrect }
+    var accuracy: Int { total == 0 ? 0 : Int((Double(correct) / Double(total) * 100).rounded()) }
+}
+
 struct MonthlyStats: Codable, Identifiable {
     var monthKey: String
     var correct: Int
@@ -847,7 +856,7 @@ final class StatsStore: ObservableObject {
         return items.sorted { $0.monthKey > $1.monthKey }
     }
 
-    func record(correct isCorrect: Bool) -> [String] {
+    func record(correct isCorrect: Bool, grantDiamond: Bool = true) -> [String] {
         refreshMonthIfNeeded()
         let dayKey = Self.dateKey(Date())
         if let index = stats.days.firstIndex(where: { $0.date == dayKey }) {
@@ -863,7 +872,7 @@ final class StatsStore: ObservableObject {
         var rewards: [String] = []
         if isCorrect {
             stats.correct += 1
-            stats.diamonds += 1
+            if grantDiamond { stats.diamonds += 1 }
             stats.currentStreak += 1
             stats.bestStreak = max(stats.bestStreak, stats.currentStreak)
 
@@ -872,10 +881,12 @@ final class StatsStore: ObservableObject {
                 stats.celebratedStreaks.append(stats.currentStreak)
                 rewards.append("streak:\(stats.currentStreak)")
             }
-            for milestone in [20, 50] where stats.diamonds >= milestone
-                && !stats.celebratedDiamondMilestones.contains(milestone) {
-                stats.celebratedDiamondMilestones.append(milestone)
-                rewards.append("diamonds:\(milestone)")
+            if grantDiamond {
+                for milestone in [20, 50] where stats.diamonds >= milestone
+                    && !stats.celebratedDiamondMilestones.contains(milestone) {
+                    stats.celebratedDiamondMilestones.append(milestone)
+                    rewards.append("diamonds:\(milestone)")
+                }
             }
         } else {
             stats.incorrect += 1
@@ -885,6 +896,12 @@ final class StatsStore: ObservableObject {
         stats.days.sort { $0.date > $1.date }
         persistStats()
         return rewards
+    }
+
+    func addDiamonds(_ amount: Int) {
+        guard amount > 0 else { return }
+        stats.diamonds += amount
+        persistStats()
     }
 
     func spendDiamonds(_ amount: Int) -> Bool {
@@ -1027,6 +1044,7 @@ struct MathTrainerApp: App {
 
 private enum AppSection: String, CaseIterable, Identifiable {
     case task = "Задание"
+    case olympiad = "Олимпиада"
     case statistics = "Статистика"
     case days = "По дням"
     case rewards = "Награды"
@@ -1038,6 +1056,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .task: return "house.fill"
+        case .olympiad: return "trophy.circle.fill"
         case .statistics: return "chart.bar.fill"
         case .days: return "calendar"
         case .rewards: return "trophy.fill"
@@ -1118,23 +1137,75 @@ private struct Achievement: Identifiable {
     let emoji: String
 }
 private enum AchievementCatalog {
-    static let all = [
-        Achievement(id: "first-answer", title: "Первый шаг", detail: "Реши свой первый пример", emoji: "🌱"),
-        Achievement(id: "ten-correct", title: "Десятка", detail: "10 правильных ответов", emoji: "🔟"),
-        Achievement(id: "twenty-correct", title: "Двадцатка", detail: "20 правильных ответов", emoji: "🌟"),
-        Achievement(id: "fifty-correct", title: "Полсотни", detail: "50 правильных ответов", emoji: "🎖️"),
-        Achievement(id: "five-streak", title: "Не остановить", detail: "5 верных подряд", emoji: "🔥"),
-        Achievement(id: "fifteen-streak", title: "Суперсерия", detail: "15 верных подряд", emoji: "⚡️"),
-        Achievement(id: "twenty-streak", title: "Серия мастера", detail: "20 верных подряд", emoji: "🚀"),
-        Achievement(id: "daily-solver", title: "Марафонец", detail: "20 ответов за один день", emoji: "🏃"),
-        Achievement(id: "three-days", title: "Стабильность", detail: "Занимайся в 3 разных дня", emoji: "📅"),
-        Achievement(id: "five-days", title: "Пять учебных дней", detail: "Занимайся в 5 разных днях", emoji: "🗓️"),
-        Achievement(id: "perfect-ten", title: "Без ошибок", detail: "10 ответов без ошибок", emoji: "💎"),
-        Achievement(id: "accuracy-90", title: "Меткий ответ", detail: "Точность 90% после 50 ответов", emoji: "🎯"),
-        Achievement(id: "hundred-answers", title: "Сотня", detail: "100 решённых примеров", emoji: "🏆"),
-        Achievement(id: "five-hundred-answers", title: "Большой ум", detail: "500 решённых примеров", emoji: "🧠"),
-        Achievement(id: "diamond-100", title: "Алмазный запас", detail: "Накопи 100 алмазов", emoji: "💠")
-    ]
+    static let all: [Achievement] = {
+        let base: [Achievement] = [
+            Achievement(id: "first-answer", title: "Первый шаг", detail: "Реши свой первый пример", emoji: "🌱"),
+            Achievement(id: "ten-correct", title: "Десятка", detail: "10 правильных ответов", emoji: "🔟"),
+            Achievement(id: "twenty-correct", title: "Двадцатка", detail: "20 правильных ответов", emoji: "🌟"),
+            Achievement(id: "fifty-correct", title: "Полсотни", detail: "50 правильных ответов", emoji: "🎖️"),
+            Achievement(id: "five-streak", title: "Не остановить", detail: "5 верных подряд", emoji: "🔥"),
+            Achievement(id: "fifteen-streak", title: "Суперсерия", detail: "15 верных подряд", emoji: "⚡️"),
+            Achievement(id: "twenty-streak", title: "Серия мастера", detail: "20 верных подряд", emoji: "🚀"),
+            Achievement(id: "daily-solver", title: "Марафонец", detail: "20 ответов за один день", emoji: "🏃"),
+            Achievement(id: "three-days", title: "Стабильность", detail: "Занимайся в 3 разных дня", emoji: "📅"),
+            Achievement(id: "five-days", title: "Пять учебных дней", detail: "Занимайся в 5 разных днях", emoji: "🗓️"),
+            Achievement(id: "perfect-ten", title: "Без ошибок", detail: "10 ответов без ошибок", emoji: "💎"),
+            Achievement(id: "accuracy-90", title: "Меткий ответ", detail: "Точность 90% после 50 ответов", emoji: "🎯"),
+            Achievement(id: "hundred-answers", title: "Сотня", detail: "100 решённых примеров", emoji: "🏆"),
+            Achievement(id: "five-hundred-answers", title: "Большой ум", detail: "500 решённых примеров", emoji: "🧠"),
+            Achievement(id: "diamond-100", title: "Алмазный запас", detail: "Накопи 100 алмазов", emoji: "💠")
+        ]
+        let extra: [Achievement] = (1...100).map { number in
+            let id: String
+            let title: String
+            let detail: String
+            let emojis = ["🏅", "🌈", "🚀", "🦄", "💎", "🧠", "🌟", "🐉", "🎯", "👑"]
+            switch number {
+            case 1...25:
+                let goal = number * 5
+                id = "extra-total-\(goal)"
+                title = ["Любознательный", "Исследователь", "Умный шаг", "Знаток", "Покоритель задач"][number % 5] + " №\(number)"
+                detail = "Ответь на \(goal) вопросов в обычных занятиях и олимпиадах"
+            case 26...50:
+                let goal = (number - 25) * 5
+                id = "extra-correct-\(goal)"
+                title = ["Меткий ум", "Мастер точности", "Верный путь", "Золотой ответ", "Профи"][number % 5] + " №\(number)"
+                detail = "Набери \(goal) правильных ответов"
+            case 51...70:
+                let goal = number - 47
+                id = "extra-streak-\(goal)"
+                title = "Огненная серия №\(number)"
+                detail = "Дай \(goal) правильных ответов подряд"
+            case 71...80:
+                let level = number - 70
+                let accuracy = 70 + level * 3
+                let total = level * 10
+                id = "extra-accuracy-\(accuracy)-\(total)"
+                title = "Точность \(accuracy)%"
+                detail = "Поддержи точность не ниже \(accuracy)% после \(total) ответов"
+            case 81...88:
+                let index = number - 81
+                let subject = StudySubject.allCases[index].rawValue
+                id = "extra-subject-\(index)-10"
+                title = "Знаток: \(subject)"
+                detail = "Реши 10 заданий по предмету «\(subject)»"
+            case 89...96:
+                let goals = [10, 20, 30, 45, 60, 90, 120, 180]
+                let goal = goals[number - 89]
+                id = "extra-active-minutes-\(goal)"
+                title = "Время знаний: \(goal) мин"
+                detail = "Проведи \(goal) минут активных занятий за компьютером"
+            default:
+                let goals = [1, 2, 5, 10]
+                let goal = goals[number - 97]
+                id = "extra-olympiad-wins-\(goal)"
+                title = "Олимпийская звезда ×\(goal)"
+                detail = "Победи в олимпиаде \(goal) раз"
+            }
+            return Achievement(id: id, title: title, detail: detail, emoji: emojis[(number - 1) % emojis.count])
+        }
+        return base + extra
+    }()
 }
 private struct Collectible: Identifiable {
     let id: String
@@ -1227,6 +1298,10 @@ struct ContentView: View {
     @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
     @AppStorage("MathTrainer.ShopPrices.v3") private var shopPricesStorage = ""
     @AppStorage("MathTrainer.ReleaseNotes.v1") private var releaseNotesStorage = ""
+    @AppStorage("MathTrainer.ScreenContrast.v1") private var screenContrast = 1.0
+    @AppStorage("MathTrainer.SubjectPerformance.v1") private var subjectPerformanceStorage = ""
+    @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
+    @AppStorage("MathTrainer.OlympiadWins.v1") private var olympiadWins = 0
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
     @State private var answer = ""
@@ -1240,6 +1315,18 @@ struct ContentView: View {
     @State private var celebration: String?
     @State private var showCelebration = false
     @State private var celebrationTokens: [CelebrationToken] = []
+    @State private var sessionSeconds = 0
+    @State private var lastMouseMovementAt = Date()
+    @State private var lastMouseLocation = NSEvent.mouseLocation
+    @State private var olympiadStarted = false
+    @State private var olympiadFinished = false
+    @State private var olympiadWon = false
+    @State private var olympiadSecondsRemaining = 1800
+    @State private var olympiadCompleted = 0
+    @State private var olympiadProblem = ProblemGenerator.next()
+    @State private var olympiadSubject = StudySubject.math
+    @State private var olympiadAnswer = ""
+    @State private var olympiadFeedback = ""
     @FocusState private var answerFocused: Bool
 
     enum AnswerState { case neutral, correct, incorrect }
@@ -1252,6 +1339,16 @@ struct ContentView: View {
     }
     private var selectedSubject: StudySubject { StudySubject(rawValue: selectedSubjectName) ?? .math }
     private var palette: AppPalette { AppPalette.make(AppTheme(rawValue: themeName) ?? .lilac) }
+    private var decodedSubjectPerformance: [String: SubjectPerformance] {
+        guard let data = subjectPerformanceStorage.data(using: .utf8), let value = try? JSONDecoder().decode([String: SubjectPerformance].self, from: data) else { return [:] }
+        return value
+    }
+    private var decodedActiveSeconds: [String: Int] {
+        guard let data = activeSecondsStorage.data(using: .utf8), let value = try? JSONDecoder().decode([String: Int].self, from: data) else { return [:] }
+        return value
+    }
+    private var todayActiveSeconds: Int { decodedActiveSeconds[StatsStore.dateKey(Date())] ?? 0 }
+    private var lifetimeActiveSeconds: Int { decodedActiveSeconds.values.reduce(0, +) }
     private var unlockedAchievementIDs: Set<String> { Set(unlockedAchievementStorage.split(separator: ",").map(String.init)) }
     private var unlockedCollectibleIDs: Set<String> { Set(randomCollectiblesStorage.split(separator: ",").map(String.init)) }
     private var shopOwnedIDs: Set<String> { Set(shopPurchasesStorage.split(separator: ",").map(String.init)) }
@@ -1268,11 +1365,12 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Информатика и обновлённый магазин", changes: [
-                "Добавлен предмет «Информатика» с более чем 1 000 уникальных тестовых вопросов для начальной школы.",
-                "Обычные призы стоят от 25 алмазов, каждая следующая игрушка дороже на 1 алмаз.",
-                "Добавлены редкие коллекционные подарки за 100 алмазов с особым оформлением и праздничным открытием.",
-                "Выпадающий список предметов увеличен: все предметы помещаются без прокрутки."
+            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Олимпиада, 100 достижений и подробная статистика", changes: [
+                "Добавлено 100 новых достижений с целями по ответам, точности, сериям, предметам, активному времени и победам в олимпиаде.",
+                "Добавлена олимпиада на 50 заданий со случайным выбором предметов и таймером на 30 минут. За победу начисляется 100 алмазов.",
+                "В статистике отображаются результаты отдельно по каждому учебному предмету и время активного занятия.",
+                "Добавлен ползунок контрастности и увеличены иконки коллекций, наград и подарков.",
+                "Указаны авторские права и разработчик: Муллагалиев Рустам, 2026."
             ]),
             ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Математика и выбор предмета", changes: ["Добавлены задания на десятки и единицы, длину, массу и время.", "Переключатель предметов открывается поверх нижних вкладок и не меняет высоту страницы."]),
             ReleaseNote(version: "1.0.27", date: "10.10.2026", title: "Задания по рисованию", changes: ["Добавлен выбор иллюстраций: граффити, портрет, пейзаж и натюрморт."]),
@@ -1359,6 +1457,7 @@ struct ContentView: View {
             .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 25))
             .overlay(RoundedRectangle(cornerRadius: 25).stroke(.white.opacity(0.94), lineWidth: 1.2))
             .clipShape(RoundedRectangle(cornerRadius: 25))
+            .contrast(screenContrast)
             .padding(13)
 
             if showCelebration {
@@ -1368,7 +1467,8 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 1180, minHeight: 760)
-        .onAppear { prepareShopPrices(); persistReleaseNotes(); store.refreshMonthIfNeeded(); answerFocused = true }
+        .onAppear { prepareShopPrices(); persistReleaseNotes(); store.refreshMonthIfNeeded(); lastMouseLocation = NSEvent.mouseLocation; lastMouseMovementAt = Date(); answerFocused = true }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in tickTimers() }
         .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
             store.refreshMonthIfNeeded()
         }
@@ -1505,6 +1605,7 @@ struct ContentView: View {
         switch selected {
         case .task:
             taskDashboard
+        case .olympiad: olympiadPage
         case .statistics: statisticsPage
         case .days: daysPage
         case .rewards: rewardsPage
@@ -2598,12 +2699,69 @@ struct ContentView: View {
             case "hundred-answers": return store.stats.total >= 100
             case "five-hundred-answers": return store.stats.total >= 500
             case "diamond-100": return store.stats.diamonds >= 100
-            default: return false
+            default: return isExtraAchievementUnlocked(item.id)
             }
         }
         if !newly.isEmpty { unlockedAchievementStorage = already.union(newly.map(\.id)).sorted().joined(separator: ",") }
         return newly
     }
+    private func isExtraAchievementUnlocked(_ id: String) -> Bool {
+        func number(after prefix: String) -> Int? { Int(id.dropFirst(prefix.count)) }
+        if id.hasPrefix("extra-total-") { return (number(after: "extra-total-") ?? Int.max) <= store.stats.total }
+        if id.hasPrefix("extra-correct-") { return (number(after: "extra-correct-") ?? Int.max) <= store.stats.correct }
+        if id.hasPrefix("extra-streak-") { return (number(after: "extra-streak-") ?? Int.max) <= store.stats.bestStreak }
+        if id.hasPrefix("extra-active-minutes-") { return (number(after: "extra-active-minutes-") ?? Int.max) * 60 <= lifetimeActiveSeconds }
+        if id.hasPrefix("extra-olympiad-wins-") { return (number(after: "extra-olympiad-wins-") ?? Int.max) <= olympiadWins }
+        if id.hasPrefix("extra-accuracy-") {
+            let parts = id.split(separator: "-")
+            if parts.count == 4, let goal = Int(parts[2]), let minimum = Int(parts[3]) { return store.stats.total >= minimum && store.stats.accuracy >= goal }
+        }
+        if id.hasPrefix("extra-subject-") {
+            let parts = id.split(separator: "-")
+            if parts.count == 4, let index = Int(parts[2]), let goal = Int(parts[3]), StudySubject.allCases.indices.contains(index) {
+                return (decodedSubjectPerformance[StudySubject.allCases[index].rawValue]?.total ?? 0) >= goal
+            }
+        }
+        return false
+    }
+
+    private func recordSubjectAnswer(subject: StudySubject, correct: Bool) {
+        var all = decodedSubjectPerformance
+        var item = all[subject.rawValue] ?? SubjectPerformance()
+        if correct { item.correct += 1 } else { item.incorrect += 1 }
+        all[subject.rawValue] = item
+        if let data = try? JSONEncoder().encode(all) { subjectPerformanceStorage = String(decoding: data, as: UTF8.self) }
+    }
+
+    private func tickTimers() {
+        let location = NSEvent.mouseLocation
+        if abs(location.x - lastMouseLocation.x) > 0.5 || abs(location.y - lastMouseLocation.y) > 0.5 {
+            lastMouseLocation = location
+            lastMouseMovementAt = Date()
+        }
+        if Date().timeIntervalSince(lastMouseMovementAt) <= 300 {
+            sessionSeconds += 1
+            var daySeconds = decodedActiveSeconds
+            let key = StatsStore.dateKey(Date())
+            daySeconds[key, default: 0] += 1
+            if let data = try? JSONEncoder().encode(daySeconds) { activeSecondsStorage = String(decoding: data, as: UTF8.self) }
+        }
+        if olympiadStarted && !olympiadFinished {
+            if olympiadSecondsRemaining <= 1 { finishOlympiad(won: false) }
+            else { olympiadSecondsRemaining -= 1 }
+        }
+    }
+
+    private func formattedTime(_ seconds: Int) -> String {
+        let safe = max(0, seconds)
+        let hours = safe / 3600
+        let minutes = (safe % 3600) / 60
+        let secs = safe % 60
+        if hours > 0 { return String(format: "%d ч %02d мин", hours, minutes) }
+        if minutes > 0 { return String(format: "%d мин %02d сек", minutes, secs) }
+        return "\(secs) сек"
+    }
+
     private func maybeUnlockRandomCollectible() -> Collectible? {
         guard Double.random(in: 0..<1) < 0.08 else { return nil }
         let owned = allOwnedCollectibleIDs
@@ -2640,6 +2798,7 @@ struct ContentView: View {
         let normalizedAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let isCorrect = normalizedAnswer == problem.answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let rewards = store.record(correct: isCorrect)
+        recordSubjectAnswer(subject: selectedSubject, correct: isCorrect)
         let newAchievements = unlockEligibleAchievements()
 
         if isCorrect {
