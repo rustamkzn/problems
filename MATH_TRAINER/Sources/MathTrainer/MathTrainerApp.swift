@@ -577,7 +577,19 @@ struct ProblemGenerator {
             ("Как называется столица Великобритании?", "Лондон", ["Лондон", "Мадрид", "Прага", "Рим"]),
             ("Как называется столица Италии?", "Рим", ["Рим", "Париж", "Афины", "Вена"]),
             ("На каком материке находится Бразилия?", "Южная Америка", ["Южная Америка", "Европа", "Антарктида", "Австралия"]),
-            ("Что из этого — океан?", "Атлантический", ["Атлантический", "Каспийское море", "Волга", "Байкал"])
+            ("Что из этого — океан?", "Атлантический", ["Атлантический", "Каспийское море", "Волга", "Байкал"]),
+            ("Какой стране принадлежит показанный флаг?", "Германия", ["Германия", "Франция", "Италия", "Испания"]),
+            ("Какой стране принадлежит показанный флаг?", "Франция", ["Франция", "Германия", "Япония", "Бразилия"]),
+            ("Какой стране принадлежит показанный флаг?", "Италия", ["Италия", "Испания", "Германия", "Китай"]),
+            ("Какой стране принадлежит показанный флаг?", "Испания", ["Испания", "Италия", "Франция", "Россия"]),
+            ("Какой стране принадлежит показанный флаг?", "Япония", ["Япония", "Китай", "Индия", "США"]),
+            ("Какой стране принадлежит показанный флаг?", "Бразилия", ["Бразилия", "Россия", "Китай", "Германия"]),
+            ("Какой стране принадлежит показанный флаг?", "Китай", ["Китай", "Япония", "Италия", "Франция"]),
+            ("Какой стране принадлежит показанный флаг?", "Индия", ["Индия", "Ирландия", "Италия", "Испания"]),
+            ("Какой стране принадлежит показанный флаг?", "Польша", ["Польша", "Индонезия", "Монако", "Австрия"]),
+            ("Какой стране принадлежит показанный флаг?", "США", ["США", "Великобритания", "Канада", "Бразилия"]),
+            ("Какой стране принадлежит показанный флаг?", "Великобритания", ["Великобритания", "США", "Франция", "Ирландия"]),
+            ("Какой стране принадлежит показанный флаг?", "Украина", ["Украина", "Швеция", "Казахстан", "Россия"])
         ]
         let level2: [(String, String, [String])] = [
             ("Какой материк самый большой?", "Евразия", ["Евразия", "Австралия", "Антарктида", "Южная Америка"]),
@@ -630,7 +642,25 @@ struct ProblemGenerator {
             ("Как вести себя рядом с дорогой?", "Не играть у проезжей части", ["Не играть у проезжей части", "Кататься между машинами", "Выбегать за мячом", "Толкаться у края дороги"]),
             ("Что помогает быть заметнее в темноте?", "Светоотражатель", ["Светоотражатель", "Тёмная одежда", "Наушники", "Закрытый зонт"]),
             ("Где нужно ждать автобус?", "На остановке", ["На остановке", "На проезжей части", "На разделительной полосе", "Между машинами"]),
-            ("Что означает жёлтый сигнал светофора?", "Нужно приготовиться остановиться", ["Нужно приготовиться остановиться", "Можно начинать игру", "Пешеходам можно бежать", "Светофор выключен"])
+            ("Что означает жёлтый сигнал светофора?", "Нужно приготовиться остановиться", ["Нужно приготовиться остановиться", "Можно начинать игру", "Пешеходам можно бежать", "Светофор выключен"]),
+            ("Что означает знак «Стоянка запрещена» — синий круг с одной красной диагональю?", "Стоянка запрещена", ["Стоянка запрещена", "Остановка запрещена", "Парковка разрешена", "Лежачий полицейский"]),
+            ("Что означает знак «Остановка запрещена» — синий круг с красным крестом?", "Остановка запрещена", ["Остановка запрещена", "Стоянка запрещена", "Парковка разрешена", "Пешеходный переход"]),
+            ("Что означает красный круглый знак с белой горизонтальной полосой?", "Въезд запрещён", ["Въезд запрещён", "Движение разрешено", "Парковка разрешена", "Главная дорога"]),
+            ("Что обозначает знак с числом 40 в красном круге?", "Ограничение максимальной скорости 40 км/ч", ["Ограничение максимальной скорости 40 км/ч", "Минимальная скорость 40 км/ч", "Расстояние до города 40 км", "Номер автобуса 40"]),
+            ("Что предупреждает треугольный знак с изображением неровности?", "Впереди искусственная дорожная неровность", ["Впереди искусственная дорожная неровность", "Стоянка запрещена", "Подземный переход", "Конец автомагистрали"]),
+            ("Что означает знак «Главная дорога» — жёлтый ромб в белой кайме?", "У этой дороги преимущество проезда", ["У этой дороги преимущество проезда", "Остановка запрещена", "Въезд запрещён", "Пешеходная зона"]),
+            ("Что обозначает знак «Движение пешеходов запрещено»?", "Пешеходам нельзя идти в этом месте", ["Пешеходам нельзя идти в этом месте", "Здесь обязательно перейти дорогу", "Стоянка запрещена", "Здесь находится школа"]),
+            ("Что означает знак «Велосипедная дорожка»?", "Дорожка предназначена для велосипедистов", ["Дорожка предназначена для велосипедистов", "Велосипеды запрещены", "Стоянка велосипедов запрещена", "Место для автобусов"]),
+            ("Что означает знак «Дети» — треугольник с двумя силуэтами?", "Возможен выход детей на дорогу", ["Возможен выход детей на дорогу", "Движение детей запрещено", "Рядом остановка метро", "Стоянка запрещена"]),
+            ("Что означает знак «Железнодорожный переезд»?", "Впереди пересечение дороги с железнодорожными путями", ["Впереди пересечение дороги с железнодорожными путями", "Переход через реку", "Стоянка запрещена", "Начало велосипедной дорожки"]),
+            ("Что означает синий знак с белой буквой P?", "Место парковки", ["Место парковки", "Остановка запрещена", "Въезд запрещён", "Лежачий полицейский"]),
+            ("Что показывает знак «Обгон запрещён»?", "Обгонять другие транспортные средства нельзя", ["Обгонять другие транспортные средства нельзя", "Обгон разрешён всегда", "Стоянка запрещена", "Только пешеходная зона"]),
+            ("Что означает знак «Уступите дорогу» — перевёрнутый треугольник?", "Нужно уступить дорогу другим участникам движения", ["Нужно уступить дорогу другим участникам движения", "Главная дорога начинается здесь", "Въезд запрещён", "Парковка разрешена"]),
+            ("Как выглядит знак «Движение запрещено»?", "Белый круг с красной каймой", ["Белый круг с красной каймой", "Синий квадрат с буквой P", "Жёлтый ромб", "Зелёный треугольник"]),
+            ("Что означает знак «Поворот направо запрещён»?", "Поворачивать направо нельзя", ["Поворачивать направо нельзя", "Поворот направо обязателен", "Стоянка разрешена", "Пешеходный переход"]),
+            ("Что обозначает знак «Скользкая дорога»?", "На дороге возможно скольжение", ["На дороге возможно скольжение", "Дорога всегда сухая", "Стоянка запрещена", "Начало автомагистрали"]),
+            ("Что означает знак с изображением детей у школы?", "На дороге могут появиться дети", ["На дороге могут появиться дети", "Стоянка разрешена", "Пешеходам запрещено двигаться везде", "Въезд запрещён"]),
+            ("Что обозначает знак «Конец ограничения скорости»?", "Ограничение скорости, указанное ранее, заканчивается", ["Ограничение скорости, указанное ранее, заканчивается", "Начинается стоянка запрещена", "Дорога закрывается", "Скорость всегда равна нулю"])
         ]
         let level2: [(String, String, [String])] = [
             ("Как узнать предупреждающий знак?", "Обычно это треугольник с красной каймой", ["Обычно это треугольник с красной каймой", "Это всегда синий квадрат", "Это всегда зелёный круг", "У всех знаков одинаковая форма"]),
@@ -686,7 +716,20 @@ struct ProblemGenerator {
             ("Выбери слово без ошибки.", "чувство", ["чуство", "чувство", "чювство", "чувсство"]),
             ("В каком слове ошибка?", "пажалуйста", ["пожалуйста", "пажалуйста", "пожалуста", "пожалуйсто"]),
             ("Как правильно пишется слово?", "морковь", ["марковь", "морков", "морковь", "моркофь"]),
-            ("В каком слове ошибка?", "каньки", ["коньки", "каньки", "конки", "канькы"])
+            ("В каком слове ошибка?", "каньки", ["коньки", "каньки", "конки", "канькы"]),
+            ("Вставь пропущенную букву: «Вчера мы гуляли в пар_е».", "к", ["к", "г", "х", "т"]),
+            ("Вставь пропущенную букву: «На ветке сидела пт_ца».", "и", ["и", "е", "я", "о"]),
+            ("Вставь пропущенную букву: «Утром пошёл сильный до_дь».", "ж", ["ж", "ш", "з", "щ"]),
+            ("Какой слог пропущен в слове «ма__на»?", "ши", ["ши", "си", "чы", "жи"]),
+            ("Какой слог пропущен в слове «ка__даш»?", "ран", ["ран", "рон", "рань", "рен"]),
+            ("Вставь пропущенную букву: «Дети построили сне_ную крепость».", "ж", ["ж", "ш", "з", "с"]),
+            ("Вставь пропущенную букву: «Мы увидели краси_ый закат».", "в", ["в", "ф", "т", "п"]),
+            ("Какой слог пропущен в слове «бе__за»?", "рё", ["рё", "ря", "ри", "ре"]),
+            ("Вставь пропущенную букву: «В саду созрела спелая гру_а».", "ш", ["ш", "ж", "щ", "с"]),
+            ("Какой слог пропущен в слове «уче__к»?", "ни", ["ни", "не", "ны", "но"]),
+            ("Вставь пропущенную букву в предложении: «По небу плывут обла_а».", "к", ["к", "г", "х", "ч"]),
+            ("Какой слог пропущен в слове «коро__»?", "ва", ["ва", "во", "вы", "ве"]),
+            ("Вставь пропущенную букву: «На поляне росли ромаш_и».", "к", ["к", "г", "х", "щ"])
         ]
         let level2: [(String, String, [String])] = [
             ("Как правильно написать сочетание?", "жи–ши пиши с И", ["жи–ши пиши с И", "жи–ши пиши с Ы", "жи–ши пиши с Я", "жи–ши пиши с Ю"]),
@@ -1600,7 +1643,8 @@ private struct Collectible: Identifiable {
         switch id {
         case "rainbow", "magic-star", "heart-gem", "dragon",
              "cosmic-unicorn", "rainbow-dragon", "gold-princess",
-             "cosmic-mermaid", "rainbow-princess-pony":
+             "cosmic-mermaid", "rainbow-princess-pony",
+             "rare-krosh", "rare-rainbow-unicorn", "rare-princess-pony":
             return true
         default:
             return false
@@ -1620,7 +1664,10 @@ private struct Collectible: Identifiable {
             Collectible(id: "planet", title: "Планета", detail: "Маленький мир открытий", emoji: "🪐"),
             Collectible(id: "robot", title: "Робот", detail: "Помощник юного инженера", emoji: "🤖"),
             Collectible(id: "dragon", title: "Дракончик", detail: "Редкий огненный друг", emoji: "🐉"),
-            Collectible(id: "cat", title: "Котёнок", detail: "Самый любопытный в коллекции", emoji: "🐱")
+            Collectible(id: "cat", title: "Котёнок", detail: "Самый любопытный в коллекции", emoji: "🐱"),
+            Collectible(id: "rare-krosh", title: "Смешарик Крош 3D", detail: "Редкий коллекционный герой", emoji: "🐰"),
+            Collectible(id: "rare-rainbow-unicorn", title: "Радужный единорог 3D", detail: "Редкая волшебная игрушка", emoji: "🦄"),
+            Collectible(id: "rare-princess-pony", title: "Принцесса-пони 3D", detail: "Редкая игрушка из сказочной коллекции", emoji: "🦄")
         ]
         let mascots: [(id: String, title: String, emoji: String)] = [
             ("bunny", "Зайчонок", "🐰"), ("fox", "Лисёнок", "🦊"),
@@ -1663,6 +1710,107 @@ private struct Collectible: Identifiable {
         }
         return legacy + themed
     }()
+}
+
+private struct Collectible3DView: View {
+    let id: String
+    let title: String
+    let size: CGFloat
+    var animated: Bool = true
+    @State private var motion = false
+
+    private var key: String { (id + " " + title).lowercased() }
+    private var unicorn: Bool { key.contains("единорог") || key.contains("unicorn") }
+    private var pony: Bool { key.contains("пони") || key.contains("pony") || key.contains("принцесс") }
+    private var bunny: Bool { key.contains("крош") || key.contains("bunny") || key.contains("зайч") }
+    private var princess: Bool { key.contains("принцесс") || key.contains("princess") }
+    private var fairy: Bool { key.contains("фея") || key.contains("fairy") || key.contains("русал") }
+    private var colors: [Color] {
+        if unicorn { return [Color(red: 1, green: 0.72, blue: 0.92), Color(red: 0.55, green: 0.36, blue: 0.96), Color(red: 0.25, green: 0.67, blue: 1)] }
+        if pony || princess { return [Color(red: 1, green: 0.66, blue: 0.78), Color(red: 0.96, green: 0.31, blue: 0.64), Color(red: 0.55, green: 0.25, blue: 0.83)] }
+        if bunny { return [Color(red: 0.46, green: 0.83, blue: 1), Color(red: 0.10, green: 0.55, blue: 0.95), Color(red: 0.05, green: 0.27, blue: 0.68)] }
+        if key.contains("dragon") || key.contains("дракон") { return [Color(red: 1, green: 0.69, blue: 0.35), Color(red: 0.91, green: 0.25, blue: 0.25), Color(red: 0.48, green: 0.13, blue: 0.48)] }
+        if key.contains("cat") || key.contains("кот") { return [Color(red: 1, green: 0.86, blue: 0.51), Color(red: 0.96, green: 0.54, blue: 0.34), Color(red: 0.65, green: 0.25, blue: 0.25)] }
+        return [Color(red: 0.75, green: 0.86, blue: 1), Color(red: 0.43, green: 0.56, blue: 0.95), Color(red: 0.30, green: 0.30, blue: 0.73)]
+    }
+    var body: some View {
+        ZStack {
+            Ellipse().fill(LinearGradient(colors: [colors[1].opacity(0.10), colors[2].opacity(0.28)], startPoint: .top, endPoint: .bottom))
+                .frame(width: size * 0.78, height: size * 0.19).offset(y: size * 0.39).blur(radius: size * 0.035)
+            if fairy {
+                Circle().fill(LinearGradient(colors: [.white.opacity(0.9), colors[0].opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: size * 0.34, height: size * 0.45).offset(x: -size * 0.34, y: size * 0.02)
+                Circle().fill(LinearGradient(colors: [.white.opacity(0.9), colors[1].opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: size * 0.34, height: size * 0.45).offset(x: size * 0.34, y: size * 0.02)
+            }
+            if bunny {
+                RoundedRectangle(cornerRadius: size * 0.12).fill(LinearGradient(colors: [colors[0], colors[1]], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: size * 0.21, height: size * 0.47).rotationEffect(.degrees(-14)).offset(x: -size * 0.22, y: -size * 0.37)
+                RoundedRectangle(cornerRadius: size * 0.12).fill(LinearGradient(colors: [colors[0], colors[1]], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: size * 0.21, height: size * 0.47).rotationEffect(.degrees(14)).offset(x: size * 0.22, y: -size * 0.37)
+            } else if pony || unicorn {
+                RoundedRectangle(cornerRadius: size * 0.09).fill(LinearGradient(colors: [colors[0], colors[1]], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: size * 0.16, height: size * 0.23).rotationEffect(.degrees(-22)).offset(x: -size * 0.23, y: -size * 0.28)
+                RoundedRectangle(cornerRadius: size * 0.09).fill(LinearGradient(colors: [colors[0], colors[1]], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: size * 0.16, height: size * 0.23).rotationEffect(.degrees(22)).offset(x: size * 0.23, y: -size * 0.28)
+            }
+            Circle().fill(LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing))
+                .frame(width: size * 0.72, height: size * 0.72)
+                .overlay(alignment: .topLeading) { Circle().fill(.white.opacity(0.54)).frame(width: size * 0.19, height: size * 0.12).blur(radius: size * 0.015).offset(x: size * 0.14, y: size * 0.12) }
+                .overlay(Circle().stroke(.white.opacity(0.66), lineWidth: max(1, size * 0.018)))
+                .shadow(color: colors[2].opacity(0.37), radius: size * 0.10, x: size * 0.035, y: size * 0.09)
+            if unicorn {
+                Image(systemName: "sparkles").font(.system(size: size * 0.30, weight: .black))
+                    .foregroundStyle(LinearGradient(colors: [.white, Color(red: 1, green: 0.78, blue: 0.28)], startPoint: .top, endPoint: .bottom))
+                    .shadow(color: .white.opacity(0.85), radius: size * 0.05).offset(y: -size * 0.39)
+            } else if princess {
+                Image(systemName: "crown.fill").font(.system(size: size * 0.29, weight: .black))
+                    .foregroundStyle(LinearGradient(colors: [Color(red: 1, green: 0.91, blue: 0.43), Color(red: 1, green: 0.54, blue: 0.12)], startPoint: .top, endPoint: .bottom))
+                    .shadow(color: Color.orange.opacity(0.35), radius: size * 0.05, y: size * 0.025).offset(y: -size * 0.39)
+            }
+            HStack(spacing: size * 0.12) { eye; eye }.offset(y: size * 0.015)
+            Capsule().fill(Color(red: 0.25, green: 0.10, blue: 0.20).opacity(0.85)).frame(width: size * 0.19, height: size * 0.055).offset(y: size * 0.18)
+            if bunny { RoundedRectangle(cornerRadius: size * 0.012).fill(.white).frame(width: size * 0.055, height: size * 0.075).offset(y: size * 0.205) }
+            if pony || unicorn {
+                Circle().fill(colors[0].opacity(0.95)).frame(width: size * 0.26, height: size * 0.28)
+                    .overlay(Circle().stroke(.white.opacity(0.4), lineWidth: 1)).offset(x: size * 0.28, y: -size * 0.20)
+            }
+            if princess { Image(systemName: "sparkle").font(.system(size: size * 0.16, weight: .black)).foregroundStyle(.white).offset(x: -size * 0.24, y: size * 0.25) }
+        }
+        .frame(width: size, height: size)
+        .rotation3DEffect(.degrees(animated && motion ? 8 : -5), axis: (x: 0.08, y: 1, z: 0))
+        .scaleEffect(animated && motion ? 1.035 : 0.97).offset(y: animated && motion ? -3 : 3)
+        .onAppear { guard animated else { return }; withAnimation(.easeInOut(duration: 1.35).repeatForever(autoreverses: true)) { motion = true } }
+    }
+    private var eye: some View {
+        ZStack {
+            Circle().fill(.white).frame(width: size * 0.15, height: size * 0.18)
+            Circle().fill(Color(red: 0.10, green: 0.12, blue: 0.26)).frame(width: size * 0.07, height: size * 0.09).offset(x: size * 0.018, y: size * 0.014)
+            Circle().fill(.white).frame(width: size * 0.028, height: size * 0.035).offset(x: size * 0.03, y: -size * 0.014)
+        }
+    }
+}
+
+private struct Reward3DBadge: View {
+    let symbol: String
+    let tint: Color
+    var size: CGFloat = 74
+    var locked: Bool = false
+    @State private var gleam = false
+    var body: some View {
+        ZStack {
+            Circle().fill(LinearGradient(colors: locked ? [Color.gray.opacity(0.35), Color.gray.opacity(0.16)] : [tint.opacity(0.93), tint.opacity(0.56), tint.opacity(0.95)],
+                startPoint: gleam ? .topLeading : .bottomLeading, endPoint: gleam ? .bottomTrailing : .topTrailing))
+            Circle().stroke(.white.opacity(locked ? 0.25 : 0.82), lineWidth: max(1, size * 0.04)).padding(size * 0.065)
+            Circle().fill(.white.opacity(0.24)).frame(width: size * 0.30, height: size * 0.12).blur(radius: size * 0.025).offset(x: -size * 0.17, y: -size * 0.25)
+            Image(systemName: locked ? "lock.fill" : symbol).font(.system(size: size * 0.42, weight: .black)).symbolRenderingMode(.hierarchical)
+                .foregroundStyle(locked ? Color.gray : Color.white).shadow(color: .black.opacity(0.22), radius: size * 0.045, y: size * 0.04)
+        }
+        .frame(width: size, height: size).overlay(Circle().stroke(.white.opacity(0.45), lineWidth: 1))
+        .shadow(color: tint.opacity(locked ? 0.05 : 0.30), radius: size * 0.10, x: 0, y: size * 0.065)
+        .rotation3DEffect(.degrees(gleam ? 5 : -4), axis: (x: 0.2, y: 1, z: 0))
+        .onAppear { withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) { gleam = true } }
+    }
 }
 
 private struct ReleaseNote: Codable, Identifiable {
@@ -1752,6 +1900,7 @@ struct ContentView: View {
             let pair = entry.split(separator: "=", maxSplits: 1)
             if pair.count == 2, let price = Int(pair[1]) { result[String(pair[0])] = price }
         }
+        for item in Collectible.all where item.isRare { result[item.id] = 500 }
         return result
     }
     private var levelNumber: Int { store.stats.total / 25 + 1 }
@@ -2212,9 +2361,9 @@ struct ContentView: View {
                 .padding(.horizontal, 12)
 
             if selectedSubject == .pdd {
-                pddIllustration(for: problem.text)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 5)
+                pddIllustration(for: problem.text).padding(.horizontal, 24).padding(.top, 5)
+            } else if selectedSubject == .geography && problem.text.localizedCaseInsensitiveContains("флаг") {
+                geographyFlagIllustration(for: problem).padding(.horizontal, 24).padding(.top, 5)
             }
 
             Spacer(minLength: selectedSubject == .pdd ? 7 : 34)
@@ -2339,6 +2488,74 @@ struct ContentView: View {
     }
 
     @ViewBuilder
+    private func geographyFlagIllustration(for problem: Problem) -> some View {
+        VStack(spacing: 6) {
+            flagDesign(for: problem.answer).frame(width: 172, height: 96)
+                .clipShape(RoundedRectangle(cornerRadius: 8)).overlay(RoundedRectangle(cornerRadius: 8).stroke(.white, lineWidth: 2))
+                .shadow(color: .black.opacity(0.20), radius: 8, y: 4)
+            Text("ФЛАГ СТРАНЫ").font(.system(size: 10, weight: .black, design: .rounded)).tracking(1.1).foregroundStyle(palette.muted)
+        }
+        .padding(10).background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 15))
+        .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.line, lineWidth: 1))
+    }
+
+    @ViewBuilder
+    private func flagDesign(for country: String) -> some View {
+        switch country {
+        case "Германия":
+            VStack(spacing: 0) { Color.black; Color(red: 0.83, green: 0.12, blue: 0.18); Color(red: 1, green: 0.79, blue: 0.13) }
+        case "Франция":
+            HStack(spacing: 0) { Color(red: 0.12, green: 0.24, blue: 0.61); Color.white; Color(red: 0.85, green: 0.15, blue: 0.22) }
+        case "Италия":
+            HStack(spacing: 0) { Color(red: 0.0, green: 0.57, blue: 0.31); Color.white; Color(red: 0.85, green: 0.15, blue: 0.19) }
+        case "Испания":
+            VStack(spacing: 0) { Color(red: 0.73, green: 0.08, blue: 0.13); Color(red: 1, green: 0.78, blue: 0.13); Color(red: 0.73, green: 0.08, blue: 0.13) }
+        case "Япония":
+            ZStack { Color.white; Circle().fill(Color(red: 0.73, green: 0.06, blue: 0.16)).frame(width: 42, height: 42) }
+        case "Бразилия":
+            ZStack { Color(red: 0.0, green: 0.48, blue: 0.25); FlagDiamond().fill(Color(red: 1, green: 0.82, blue: 0.15)).padding(.horizontal, 22).padding(.vertical, 17); Circle().fill(Color(red: 0.05, green: 0.20, blue: 0.52)).frame(width: 37, height: 37) }
+        case "Китай":
+            ZStack(alignment: .topLeading) { Color(red: 0.87, green: 0.09, blue: 0.16); Image(systemName: "star.fill").font(.system(size: 30)).foregroundStyle(Color(red: 1, green: 0.83, blue: 0.20)).padding(12) }
+        case "Индия":
+            VStack(spacing: 0) { Color(red: 1, green: 0.57, blue: 0.17); Color.white; ZStack { Color(red: 0.07, green: 0.44, blue: 0.28); Circle().fill(Color(red: 0.09, green: 0.22, blue: 0.52)).frame(width: 24, height: 24).overlay(Circle().stroke(Color.white, lineWidth: 1)) } }
+        case "Польша":
+            VStack(spacing: 0) { Color.white; Color(red: 0.85, green: 0.12, blue: 0.24) }
+        case "США":
+            ZStack(alignment: .topLeading) {
+                VStack(spacing: 0) { ForEach(0..<13, id: \.self) { i in (i.isMultiple(of: 2) ? Color.white : Color(red: 0.78, green: 0.12, blue: 0.20)) } }
+                Color(red: 0.10, green: 0.20, blue: 0.47).frame(width: 72, height: 51).overlay(Image(systemName: "star.fill").font(.system(size: 20)).foregroundStyle(.white))
+            }
+        case "Великобритания":
+            ZStack { Color(red: 0.06, green: 0.15, blue: 0.39); Rectangle().fill(.white).frame(height: 25); Rectangle().fill(.white).frame(width: 25); Rectangle().fill(Color(red: 0.78, green: 0.07, blue: 0.18)).frame(height: 12); Rectangle().fill(Color(red: 0.78, green: 0.07, blue: 0.18)).frame(width: 12) }
+        case "Украина":
+            VStack(spacing: 0) { Color(red: 0, green: 0.37, blue: 0.78); Color(red: 1, green: 0.83, blue: 0.18) }
+        default:
+            VStack(spacing: 0) { Color.white; Color(red: 0.1, green: 0.35, blue: 0.9); Color(red: 0.86, green: 0.10, blue: 0.18) }
+        }
+    }
+
+    private struct TriangleShape: Shape {
+        func path(in rect: CGRect) -> Path {
+            Path { p in
+                p.move(to: CGPoint(x: rect.midX, y: rect.minY))
+                p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+                p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+                p.closeSubpath()
+            }
+        }
+    }
+    private struct FlagDiamond: Shape {
+        func path(in rect: CGRect) -> Path {
+            Path { p in
+                p.move(to: CGPoint(x: rect.midX, y: rect.minY))
+                p.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+                p.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+                p.addLine(to: CGPoint(x: rect.minX, y: rect.midY))
+                p.closeSubpath()
+            }
+        }
+    }
+
     private func pddIllustration(for question: String) -> some View {
         let lower = question.lowercased()
         if lower.contains("светофор") || lower.contains("сигнал") {
@@ -2408,18 +2625,43 @@ struct ContentView: View {
                         .foregroundStyle(Color(red: 1, green: 0.78, blue: 0.08))
                         .frame(width: 92, height: 80)
                         .background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
-                } else if lower.contains("круглый") || lower.contains("красной каймой") || lower.contains("запрет") {
+                } else if lower.contains("стоянка запрещена") {
                     ZStack {
-                        Circle().fill(Color.white).frame(width: 68, height: 68)
+                        Circle().fill(Color(red: 0.06, green: 0.27, blue: 0.75)).frame(width: 68, height: 68)
+                        Circle().stroke(Color(red: 0.88, green: 0.08, blue: 0.14), lineWidth: 7).frame(width: 68, height: 68)
+                        Rectangle().fill(Color(red: 0.88, green: 0.08, blue: 0.14)).frame(width: 66, height: 7).rotationEffect(.degrees(-35))
+                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                } else if lower.contains("остановка запрещена") {
+                    ZStack {
+                        Circle().fill(Color(red: 0.06, green: 0.27, blue: 0.75)).frame(width: 68, height: 68)
+                        Circle().stroke(Color(red: 0.88, green: 0.08, blue: 0.14), lineWidth: 7).frame(width: 68, height: 68)
+                        Rectangle().fill(Color(red: 0.88, green: 0.08, blue: 0.14)).frame(width: 66, height: 7)
+                        Rectangle().fill(Color(red: 0.88, green: 0.08, blue: 0.14)).frame(width: 7, height: 66)
+                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                } else if lower.contains("лежач") || lower.contains("неровност") {
+                    ZStack {
+                        TriangleShape().fill(.white).frame(width: 70, height: 64)
+                        TriangleShape().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 7).frame(width: 70, height: 64)
+                        Image(systemName: "car.side.fill").font(.system(size: 24, weight: .black)).foregroundStyle(.black).offset(y: 8)
+                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                } else if lower.contains("скорост") || lower.contains("числом 40") {
+                    ZStack {
+                        Circle().fill(.white).frame(width: 68, height: 68)
+                        Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
+                        Text(lower.contains("40") ? "40" : (lower.contains("60") ? "60" : "50")).font(.system(size: 25, weight: .black, design: .rounded)).foregroundStyle(.black)
+                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                } else if lower.contains("круглый") || lower.contains("красной каймой") || lower.contains("запрет") || lower.contains("обгон") || lower.contains("въезд") {
+                    ZStack {
+                        Circle().fill(lower.contains("въезд запрещ") ? Color(red: 0.88, green: 0.06, blue: 0.12) : Color.white).frame(width: 68, height: 68)
                         Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
                         if lower.contains("пешеход") {
                             Image(systemName: "figure.walk").font(.system(size: 31, weight: .bold)).foregroundStyle(.black)
+                        } else if lower.contains("буквой p") || lower.contains("парков") {
+                            Text("P").font(.system(size: 34, weight: .black)).foregroundStyle(.blue)
                         } else {
                             Rectangle().fill(Color(red: 0.90, green: 0.08, blue: 0.12)).frame(width: 48, height: 7).rotationEffect(.degrees(-35))
                         }
-                    }
-                    .frame(width: 92, height: 80)
-                    .background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
                 } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 13).fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 80, height: 70)
@@ -2882,6 +3124,8 @@ struct ContentView: View {
                             .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
                         if olympiadSubject == .pdd {
                             pddIllustration(for: olympiadProblem.text)
+                        } else if olympiadSubject == .geography && olympiadProblem.text.localizedCaseInsensitiveContains("флаг") {
+                            geographyFlagIllustration(for: olympiadProblem)
                         }
                         if olympiadProblem.isTatarChoice || olympiadProblem.isComparison {
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
@@ -2945,11 +3189,8 @@ struct ContentView: View {
     }
 
     private func nextOlympiadProblem() {
-        if olympiadCompleted < olympiadSubjectOrder.count {
-            olympiadSubject = olympiadSubjectOrder[olympiadCompleted]
-        } else {
-            olympiadSubject = StudySubject.allCases.randomElement() ?? .math
-        }
+        if olympiadSubjectOrder.isEmpty { olympiadSubjectOrder = StudySubject.allCases.shuffled() }
+        olympiadSubject = olympiadSubjectOrder[olympiadCompleted % olympiadSubjectOrder.count]
         olympiadProblem = ProblemGenerator.next(for: olympiadSubject, difficulty: difficultyLevel)
         olympiadAnswer = ""
         olympiadFeedback = ""
@@ -3096,7 +3337,7 @@ struct ContentView: View {
                     ProgressView(value: Double(levelProgress), total: 25).tint(palette.purple)
                     Text("До уровня \(levelNumber + 1): ещё \(25 - levelProgress) ответов").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(18).cardStyle(palette)
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     medalCard("🥉", title: "Бронзовая медаль", detail: "10 правильных ответов", progress: min(store.stats.correct, 10), goal: 10, color: Color(red: 0.78, green: 0.49, blue: 0.30))
                     medalCard("🥈", title: "Серебряная медаль", detail: "50 правильных ответов", progress: min(store.stats.correct, 50), goal: 50, color: Color(red: 0.68, green: 0.73, blue: 0.80))
                     medalCard("🥇", title: "Золотая медаль", detail: "100 правильных ответов", progress: min(store.stats.correct, 100), goal: 100, color: Color(red: 0.95, green: 0.72, blue: 0.22))
@@ -3110,7 +3351,7 @@ struct ContentView: View {
                 }.buttonStyle(.plain)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Коллекция достижений", icon: "rosette")
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(AchievementCatalog.all) { item in achievementCard(item) }
                     }
                 }.padding(18).cardStyle(palette)
@@ -3118,7 +3359,7 @@ struct ContentView: View {
                     sectionTitle("Коллекционные игрушки", icon: "sparkles")
                     Text("\(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }.count) из \(Collectible.all.count) игрушек открыто")
                         .font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }) { item in collectibleCard(item) }
                     }
                     if !Collectible.all.contains(where: { allOwnedCollectibleIDs.contains($0.id) }) {
@@ -3133,9 +3374,10 @@ struct ContentView: View {
     private func medalCard(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
         let earned = progress >= goal
         return VStack(alignment: .leading, spacing: 9) {
-            Text(earned ? emoji : "🔒").font(.system(size: 70)).frame(width: 117, height: 117)
-                .background(LinearGradient(colors: earned ? [color, palette.pink] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(earned ? color : palette.line, lineWidth: 2))
+            Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 70, locked: !earned)
+                .frame(width: 117, height: 94, alignment: .leading)
+                .background(LinearGradient(colors: earned ? [color.opacity(0.18), palette.pink.opacity(0.10)] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(earned ? color : palette.line, lineWidth: 1.5))
             Text(title).font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             Text(detail).font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             ProgressView(value: Double(progress), total: Double(goal)).tint(earned ? color : palette.purple)
@@ -3155,7 +3397,7 @@ struct ContentView: View {
                                 .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.78, blue: 0.25) : Color(red: 0.72, green: 0.43, blue: 0.06))
                             Text("Редкие коллекционные").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             Spacer(minLength: 0)
-                            Text("100 💎").font(.system(size: 15, weight: .black, design: .rounded))
+                            Text("500 💎").font(.system(size: 15, weight: .black, design: .rounded))
                                 .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.78, blue: 0.25) : Color(red: 0.60, green: 0.34, blue: 0.02))
                         }
                         Text("Редкие подарки — вверху страницы. Купленные и уже открытые игрушки остаются видимыми в коллекции.")
@@ -3207,7 +3449,7 @@ struct ContentView: View {
                         .font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
                         .frame(maxWidth: .infinity).padding(22)
                 }
-                Text("Редкие подарки стоят 100 алмазов. Обычные цены идут по порядку: 25, 26, 27, 28 и далее.")
+                Text("Редкие 3D-игрушки стоят 500 алмазов. Обычные цены идут по порядку: 25, 26, 27, 28 и далее.")
                     .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }.padding(25)
@@ -3216,7 +3458,7 @@ struct ContentView: View {
 
     private func shopItemCard(_ item: Collectible) -> some View {
         let owned = allOwnedCollectibleIDs.contains(item.id)
-        let price = shopPrices[item.id] ?? (item.isRare ? 100 : 25)
+        let price = shopPrices[item.id] ?? (item.isRare ? 500 : 25)
         let gold = Color(red: 0.82, green: 0.58, blue: 0.12)
         return VStack(alignment: .leading, spacing: 9) {
             ZStack(alignment: .topTrailing) {
@@ -3228,11 +3470,21 @@ struct ContentView: View {
                         startPoint: .topLeading, endPoint: .bottomTrailing
                     )
                 )
-                Text(owned ? item.emoji : (item.isRare ? "🌠" : "🎁"))
-                    .font(.system(size: item.isRare ? 70 : 65))
-                    .saturation(owned ? 1 : 0.58)
-                    .opacity(owned ? 1 : 0.78)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                if owned {
+                    Collectible3DView(id: item.id, title: item.title, size: item.isRare ? 112 : 94, animated: item.isRare)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
+                        .onTapGesture { if item.isRare { triggerCelebration("rare:\(item.id)") } }
+                } else {
+                    ZStack {
+                        Circle().fill(LinearGradient(colors: [Color.white.opacity(0.92), palette.lilac.opacity(0.85)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .frame(width: item.isRare ? 75 : 68, height: item.isRare ? 75 : 68)
+                            .shadow(color: palette.purple.opacity(0.2), radius: 8, y: 4)
+                        Image(systemName: item.isRare ? "sparkles" : "gift.fill")
+                            .font(.system(size: item.isRare ? 37 : 31, weight: .black))
+                            .foregroundStyle(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
                 if item.isRare {
                     Image(systemName: "sparkles")
                         .font(.system(size: 18, weight: .black))
@@ -3254,7 +3506,7 @@ struct ContentView: View {
             }
             Text(owned ? item.title : (item.isRare ? "Редкий коллекционный приз" : "Секретный приз"))
                 .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
-            Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "Особый сюрприз за 100 алмазов" : "Открой коробочку, чтобы узнать игрушку"))
+            Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "3D-коллекционный приз за 500 алмазов" : "Открой коробочку, чтобы узнать игрушку"))
                 .font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
 
             if owned {
@@ -3290,7 +3542,7 @@ struct ContentView: View {
         var ordinaryIndex = 0
         for item in Collectible.all {
             if item.isRare {
-                prices[item.id] = 100
+                prices[item.id] = 500
             } else {
                 prices[item.id] = 25 + ordinaryIndex
                 ordinaryIndex += 1
@@ -3510,12 +3762,44 @@ struct ContentView: View {
         .cardStyle(palette)
     }
 
+    private func medalSymbol(for emoji: String) -> String {
+        switch emoji {
+        case "🥉", "🥈", "🥇": return "medal.fill"
+        case "💠": return "diamond.fill"
+        default: return "trophy.fill"
+        }
+    }
+
+    private func achievementSymbol(for id: String) -> String {
+        switch id {
+        case "first-answer": return "leaf.fill"
+        case "ten-correct": return "star.fill"
+        case "twenty-correct": return "sparkles"
+        case "fifty-correct": return "medal.fill"
+        case "five-streak", "fifteen-streak", "twenty-streak": return "bolt.fill"
+        case "daily-solver": return "figure.run"
+        case "three-days", "five-days": return "calendar"
+        case "perfect-ten": return "diamond.fill"
+        case "accuracy-90": return "scope"
+        case "hundred-answers", "five-hundred-answers": return "brain.head.profile"
+        case "diamond-100": return "diamond.fill"
+        default:
+            if id.contains("olympiad") { return "trophy.fill" }
+            if id.contains("subject") { return "books.vertical.fill" }
+            if id.contains("streak") { return "bolt.fill" }
+            if id.contains("diamond") { return "diamond.fill" }
+            if id.contains("day") { return "calendar" }
+            return "star.circle.fill"
+        }
+    }
+
     private func achievementCard(_ item: Achievement) -> some View {
         let unlocked = unlockedAchievementIDs.contains(item.id)
         return HStack(alignment: .top, spacing: 10) {
-            Text(unlocked ? item.emoji : "🔒").font(.system(size: 60))
-                .frame(width: 99, height: 99).background(LinearGradient(colors: unlocked ? [palette.pink, palette.lilac] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(unlocked ? palette.purple : palette.line, lineWidth: 2))
+            Reward3DBadge(symbol: achievementSymbol(for: item.id), tint: unlocked ? palette.purple : palette.muted, size: 64, locked: !unlocked)
+                .frame(width: 82, height: 82)
+                .background(LinearGradient(colors: unlocked ? [palette.pink.opacity(0.35), palette.lilac.opacity(0.35)] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(unlocked ? palette.purple : palette.line, lineWidth: 1.5))
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text(item.detail).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
@@ -3529,9 +3813,10 @@ struct ContentView: View {
     private func collectibleCard(_ item: Collectible) -> some View {
         let unlocked = allOwnedCollectibleIDs.contains(item.id)
         return HStack(spacing: 9) {
-            Text(unlocked ? item.emoji : "❔").font(.system(size: 60))
-                .frame(width: 99, height: 99).background(LinearGradient(colors: [palette.pink, palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(palette.purple.opacity(0.75), lineWidth: 2))
+            Collectible3DView(id: item.id, title: item.title, size: 82, animated: unlocked && item.isRare)
+                .frame(width: 99, height: 99)
+                .background(LinearGradient(colors: [palette.pink.opacity(0.25), palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(palette.purple.opacity(0.75), lineWidth: 1.5))
             VStack(alignment: .leading, spacing: 3) {
                 Text(unlocked ? item.title : "Секретная находка").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text(unlocked ? item.detail : "Шанс найти за верный ответ").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
@@ -3910,11 +4195,12 @@ struct ContentView: View {
                         )
                 }
                 VStack(spacing: 12) {
-                    if let giftEmoji = celebrationGiftEmoji {
-                        Text(giftEmoji)
-                            .font(.system(size: 100))
-                            .frame(height: 112)
+                    if let giftItem = celebrationGiftItem {
+                        Collectible3DView(id: giftItem.id, title: giftItem.title, size: 140, animated: true)
+                            .frame(height: 152)
                             .shadow(color: palette.purple.opacity(0.3), radius: 12, y: 5)
+                    } else {
+                        Reward3DBadge(symbol: "sparkles", tint: palette.purple, size: 104).frame(height: 112)
                     }
                     Text(celebrationTitle)
                         .font(.system(size: 34, weight: .heavy, design: .rounded))
@@ -3939,12 +4225,12 @@ struct ContentView: View {
         }
     }
 
-    private var celebrationGiftEmoji: String? {
+    private var celebrationGiftItem: Collectible? {
         guard let reward = celebration else { return nil }
         let prefix = reward.hasPrefix("rare:") ? "rare:" : (reward.hasPrefix("bonus:") ? "bonus:" : "")
         guard !prefix.isEmpty else { return nil }
         let id = String(reward.dropFirst(prefix.count))
-        return Collectible.all.first(where: { $0.id == id })?.emoji ?? "🎁"
+        return Collectible.all.first(where: { $0.id == id })
     }
 
     private var celebrationTitle: String {
