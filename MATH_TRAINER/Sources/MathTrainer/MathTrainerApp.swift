@@ -715,10 +715,10 @@ struct ProblemGenerator {
         let answer: String
         let choices: [String]
         switch type {
-        case 0: answer = item.1; choices = ([answer] + Array(Set(kinds.filter { $0 != answer })).shuffled().prefix(3)).shuffled()
-        case 1: answer = item.2; choices = ([answer] + Array(Set(habitats.filter { $0 != answer })).shuffled().prefix(3)).shuffled()
-        case 2: answer = item.3; choices = ([answer] + Array(Set(foods.filter { $0 != answer })).shuffled().prefix(3)).shuffled()
-        default: answer = item.4; choices = ([answer] + Array(Set(breathing.filter { $0 != answer })).shuffled().prefix(3)).shuffled()
+        case 0: answer = item.1; choices = ([answer] + Array(Array(Set(kinds.filter { $0 != answer })).shuffled().prefix(3).prefix(3))).shuffled()
+        case 1: answer = item.2; choices = ([answer] + Array(Array(Set(habitats.filter { $0 != answer })).shuffled().prefix(3).prefix(3))).shuffled()
+        case 2: answer = item.3; choices = ([answer] + Array(Array(Set(foods.filter { $0 != answer })).shuffled().prefix(3).prefix(3))).shuffled()
+        default: answer = item.4; choices = ([answer] + Array(Array(Set(breathing.filter { $0 != answer })).shuffled().prefix(3).prefix(3))).shuffled()
         }
         let prompt = String(format: forms[type], item.0)
         let variant = illustrated ? "Рассмотри иллюстрацию. " : ""
