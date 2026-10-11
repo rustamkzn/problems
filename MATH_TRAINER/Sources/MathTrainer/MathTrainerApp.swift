@@ -2556,6 +2556,7 @@ struct ContentView: View {
         }
     }
 
+    @ViewBuilder
     private func pddIllustration(for question: String) -> some View {
         let lower = question.lowercased()
         if lower.contains("светофор") || lower.contains("сигнал") {
