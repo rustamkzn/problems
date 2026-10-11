@@ -2210,7 +2210,13 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 12)
 
-            Spacer(minLength: 34)
+            if selectedSubject == .pdd {
+                pddIllustration(for: problem.text)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 5)
+            }
+
+            Spacer(minLength: selectedSubject == .pdd ? 7 : 34)
 
             if problem.isTatarChoice {
                 tatarChoiceGrid
@@ -2251,7 +2257,7 @@ struct ContentView: View {
                                         .foregroundStyle(answer == symbol ? .white : palette.ink)
                                         .frame(maxWidth: .infinity)
                                         .frame(height: 49)
-                                        .background(answer == symbol ? palette.purple : .white.opacity(0.90), in: RoundedRectangle(cornerRadius: 14))
+                                        .background(answer == symbol ? palette.purple : palette.cardSurface.opacity(palette.isDark ? 0.98 : 0.90), in: RoundedRectangle(cornerRadius: 14))
                                         .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
                                 }
                                 .buttonStyle(.plain)
@@ -2329,6 +2335,107 @@ struct ContentView: View {
             }
         }
         .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white.opacity(0.92), lineWidth: 1.4))
+    }
+
+    @ViewBuilder
+    private func pddIllustration(for question: String) -> some View {
+        let lower = question.lowercased()
+        if lower.contains("светофор") || lower.contains("сигнал") {
+            HStack(spacing: 17) {
+                VStack(spacing: 8) {
+                    Circle().fill(Color(red: 1, green: 0.16, blue: 0.18)).frame(width: 27, height: 27)
+                        .opacity(lower.contains("красный") ? 1 : 0.85)
+                    Circle().fill(Color(red: 1, green: 0.78, blue: 0.08)).frame(width: 27, height: 27)
+                    Circle().fill(Color(red: 0.12, green: 0.88, blue: 0.36)).frame(width: 27, height: 27)
+                }
+                .padding(10)
+                .background(Color(red: 0.12, green: 0.13, blue: 0.16), in: RoundedRectangle(cornerRadius: 13))
+                .overlay(RoundedRectangle(cornerRadius: 13).stroke(Color.white.opacity(0.75), lineWidth: 2))
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("СВЕТОФОР").font(.system(size: 13, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Красный — стой").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(Color(red: 0.95, green: 0.19, blue: 0.23))
+                    Text("Жёлтый — приготовься").font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(Color(red: 0.95, green: 0.62, blue: 0.03))
+                    Text("Зелёный — иди, если безопасно").font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(Color(red: 0.08, green: 0.65, blue: 0.27))
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
+        } else if lower.contains("зебр") || lower.contains("пешеходный переход") || lower.contains("переход дороги") {
+            VStack(spacing: 7) {
+                HStack(spacing: 8) {
+                    ForEach(0..<7, id: \.self) { _ in
+                        RoundedRectangle(cornerRadius: 2).fill(.white).frame(width: 16, height: 55)
+                    }
+                }
+                Text("ПЕШЕХОДНЫЙ ПЕРЕХОД").font(.system(size: 10, weight: .black, design: .rounded)).tracking(0.6).foregroundStyle(.white)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(Color(red: 0.16, green: 0.18, blue: 0.21), in: RoundedRectangle(cornerRadius: 13))
+            .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
+        } else if lower.contains("размет") || lower.contains("сплошная линия") || lower.contains("стоп-линия") || lower.contains("полос") {
+            VStack(spacing: 8) {
+                ZStack(alignment: .top) {
+                    RoundedRectangle(cornerRadius: 12).fill(Color(red: 0.15, green: 0.17, blue: 0.20))
+                    VStack(spacing: 7) {
+                        if lower.contains("стоп-линия") {
+                            Rectangle().fill(.white).frame(height: 7).padding(.horizontal, 8).padding(.top, 13)
+                        }
+                        HStack(spacing: 9) {
+                            ForEach(0..<6, id: \.self) { _ in
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(lower.contains("сплошная") ? .white : Color(red: 1, green: 0.83, blue: 0.20))
+                                    .frame(width: 23, height: lower.contains("сплошная") ? 5 : 4)
+                            }
+                        }.frame(maxWidth: .infinity).padding(.top, lower.contains("стоп-линия") ? 4 : 22)
+                    }
+                }.frame(height: 66)
+                Text(lower.contains("стоп-линия") ? "СТОП-ЛИНИЯ" : "ДОРОЖНАЯ РАЗМЕТКА")
+                    .font(.system(size: 10, weight: .black, design: .rounded)).tracking(0.5).foregroundStyle(palette.ink)
+            }
+            .padding(8)
+            .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
+        } else {
+            HStack(spacing: 16) {
+                if lower.contains("предупреждающ") || lower.contains("треугольник") {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 64, weight: .black))
+                        .foregroundStyle(Color(red: 1, green: 0.78, blue: 0.08))
+                        .frame(width: 92, height: 80)
+                        .background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                } else if lower.contains("круглый") || lower.contains("красной каймой") || lower.contains("запрет") {
+                    ZStack {
+                        Circle().fill(Color.white).frame(width: 68, height: 68)
+                        Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
+                        if lower.contains("пешеход") {
+                            Image(systemName: "figure.walk").font(.system(size: 31, weight: .bold)).foregroundStyle(.black)
+                        } else {
+                            Rectangle().fill(Color(red: 0.90, green: 0.08, blue: 0.12)).frame(width: 48, height: 7).rotationEffect(.degrees(-35))
+                        }
+                    }
+                    .frame(width: 92, height: 80)
+                    .background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 13).fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 80, height: 70)
+                        Image(systemName: "figure.walk").font(.system(size: 39, weight: .bold)).foregroundStyle(.white)
+                    }.frame(width: 92, height: 80)
+                        .background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                }
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("ДОРОЖНЫЕ ЗНАКИ").font(.system(size: 12, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Посмотри на форму, цвет и символ знака.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(8)
+            .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
+        }
     }
 
     private var tatarChoiceGrid: some View {
@@ -2770,8 +2877,11 @@ struct ContentView: View {
                         }
                         Text(olympiadProblem.text)
                             .font(.system(size: 31, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 145).padding(15)
+                            .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 100).padding(15)
                             .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
+                        if olympiadSubject == .pdd {
+                            pddIllustration(for: olympiadProblem.text)
+                        }
                         if olympiadProblem.isTatarChoice || olympiadProblem.isComparison {
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                                 ForEach(olympiadProblem.isComparison ? ["<", "=", ">"] : olympiadProblem.tatarChoices, id: \.self) { choice in
@@ -3725,7 +3835,9 @@ struct ContentView: View {
     private func triggerCelebration(_ reward: String) {
         celebration = reward
         let emojis: [String]
-        if reward == "diamonds:20" {
+        if reward == "milestone:50" {
+            emojis = ["🎆", "🎇", "🌈", "⭐️", "🌟", "💫", "🎉", "🎊", "🪅", "💎", "🎈", "✨", "🚀", "🦄", "🪄", "🌸"]
+        } else if reward == "diamonds:20" {
             emojis = ["🧸", "🎈", "🎉", "🪅", "🪁", "🧸", "🎊", "🧸", "🎈"]
         } else if reward == "diamonds:50" {
             emojis = ["🐦", "🦋", "🐤", "🦋", "🐦", "🦋", "🐦", "🦋", "🐤"]
@@ -3745,13 +3857,14 @@ struct ContentView: View {
             emojis = ["⭐️", "✨", "💜", "🌸", "⭐️"]
         }
 
-        celebrationTokens = (0..<42).map { index in
+        let tokenCount = reward == "milestone:50" ? 96 : 42
+        celebrationTokens = (0..<tokenCount).map { index in
             CelebrationToken(
                 emoji: emojis[index % emojis.count],
                 x: Double.random(in: 0.03...0.97),
                 y: Double.random(in: 0.07...0.93),
-                delay: Double.random(in: 0...1.1),
-                drift: Double.random(in: -140...140)
+                delay: Double.random(in: reward == "milestone:50" ? 0...1.7 : 0...1.1),
+                drift: Double.random(in: reward == "milestone:50" ? -240...240 : -140...140)
             )
         }
         withAnimation(.easeInOut(duration: 0.25)) { showCelebration = true }
@@ -3767,7 +3880,7 @@ struct ContentView: View {
                 ForEach(celebrationTokens.indices, id: \.self) { index in
                     let token = celebrationTokens[index]
                     Text(token.emoji)
-                        .font(.system(size: CGFloat(24 + token.delay * 12)))
+                        .font(.system(size: CGFloat(celebration == "milestone:50" ? 27 + token.delay * 13 : 24 + token.delay * 12)))
                         .position(x: CGFloat(token.x) * geo.size.width, y: CGFloat(token.y) * geo.size.height)
                         .offset(
                             x: showCelebration ? CGFloat(token.drift) : 0,
@@ -3781,6 +3894,12 @@ struct ContentView: View {
                         )
                 }
                 VStack(spacing: 12) {
+                    if let giftEmoji = celebrationGiftEmoji {
+                        Text(giftEmoji)
+                            .font(.system(size: 100))
+                            .frame(height: 112)
+                            .shadow(color: palette.purple.opacity(0.3), radius: 12, y: 5)
+                    }
                     Text(celebrationTitle)
                         .font(.system(size: 34, weight: .heavy, design: .rounded))
                         .multilineTextAlignment(.center)
@@ -3804,8 +3923,17 @@ struct ContentView: View {
         }
     }
 
+    private var celebrationGiftEmoji: String? {
+        guard let reward = celebration else { return nil }
+        let prefix = reward.hasPrefix("rare:") ? "rare:" : (reward.hasPrefix("bonus:") ? "bonus:" : "")
+        guard !prefix.isEmpty else { return nil }
+        let id = String(reward.dropFirst(prefix.count))
+        return Collectible.all.first(where: { $0.id == id })?.emoji ?? "🎁"
+    }
+
     private var celebrationTitle: String {
         switch celebration {
+        case "milestone:50": return "🎆 50 правильных ответов!"
         case "diamonds:20": return "🎉 20 алмазов!"
         case "diamonds:50": return "🦋 50 алмазов!"
         case "olympiad:win": return "🏆 Олимпийская победа!"
@@ -3828,6 +3956,7 @@ struct ContentView: View {
     }
     private var celebrationSubtitle: String {
         switch celebration {
+        case "milestone:50": return "🎉 Вот это серия! Цветной салют за 50 правильных ответов."
         case "diamonds:20": return "Салют из разноцветных мягких игрушек!"
         case "diamonds:50": return "Птички и бабочки летают вокруг!"
         case "olympiad:win": return "Все 50 заданий пройдены. Начислено 100 алмазов!"
