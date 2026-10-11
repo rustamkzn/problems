@@ -1523,20 +1523,20 @@ private enum AchievementCatalog {
     static let all: [Achievement] = {
         let base: [Achievement] = [
             Achievement(id: "first-answer", title: "Первый шаг", detail: "Реши свой первый пример", emoji: "🌱"),
-            Achievement(id: "ten-correct", title: "Десятка", detail: "10 правильных ответов", emoji: "🔟"),
-            Achievement(id: "twenty-correct", title: "Двадцатка", detail: "20 правильных ответов", emoji: "🌟"),
-            Achievement(id: "fifty-correct", title: "Полсотни", detail: "50 правильных ответов", emoji: "🎖️"),
-            Achievement(id: "five-streak", title: "Не остановить", detail: "5 верных подряд", emoji: "🔥"),
-            Achievement(id: "fifteen-streak", title: "Суперсерия", detail: "15 верных подряд", emoji: "⚡️"),
-            Achievement(id: "twenty-streak", title: "Серия мастера", detail: "20 верных подряд", emoji: "🚀"),
-            Achievement(id: "daily-solver", title: "Марафонец", detail: "20 ответов за один день", emoji: "🏃"),
-            Achievement(id: "three-days", title: "Стабильность", detail: "Занимайся в 3 разных дня", emoji: "📅"),
-            Achievement(id: "five-days", title: "Пять учебных дней", detail: "Занимайся в 5 разных днях", emoji: "🗓️"),
-            Achievement(id: "perfect-ten", title: "Без ошибок", detail: "10 ответов без ошибок", emoji: "💎"),
-            Achievement(id: "accuracy-90", title: "Меткий ответ", detail: "Точность 90% после 50 ответов", emoji: "🎯"),
-            Achievement(id: "hundred-answers", title: "Сотня", detail: "100 решённых примеров", emoji: "🏆"),
-            Achievement(id: "five-hundred-answers", title: "Большой ум", detail: "500 решённых примеров", emoji: "🧠"),
-            Achievement(id: "diamond-100", title: "Алмазный запас", detail: "Накопи 100 алмазов", emoji: "💠")
+            Achievement(id: "ten-correct", title: "Первые 25", detail: "25 правильных ответов", emoji: "🔟"),
+            Achievement(id: "twenty-correct", title: "Полсотни", detail: "50 правильных ответов", emoji: "🌟"),
+            Achievement(id: "fifty-correct", title: "Сотня знатока", detail: "100 правильных ответов", emoji: "🎖️"),
+            Achievement(id: "five-streak", title: "Десять подряд", detail: "10 верных ответов подряд", emoji: "🔥"),
+            Achievement(id: "fifteen-streak", title: "Серия из 20", detail: "20 верных ответов подряд", emoji: "⚡️"),
+            Achievement(id: "twenty-streak", title: "Серия из 30", detail: "30 верных ответов подряд", emoji: "🚀"),
+            Achievement(id: "daily-solver", title: "Учебный марафон", detail: "30 ответов за один день", emoji: "🏃"),
+            Achievement(id: "three-days", title: "Пять учебных дней", detail: "Занимайся в 5 разных дней", emoji: "📅"),
+            Achievement(id: "five-days", title: "Десять учебных дней", detail: "Занимайся в 10 разных дней", emoji: "🗓️"),
+            Achievement(id: "perfect-ten", title: "Без ошибок", detail: "25 ответов без ошибок", emoji: "💎"),
+            Achievement(id: "accuracy-90", title: "Меткий ответ", detail: "Точность не ниже 90% после 100 ответов", emoji: "🎯"),
+            Achievement(id: "hundred-answers", title: "Четверть тысячи", detail: "250 решённых примеров", emoji: "🏆"),
+            Achievement(id: "five-hundred-answers", title: "Большой ум", detail: "1000 решённых примеров", emoji: "🧠"),
+            Achievement(id: "diamond-100", title: "Алмазный запас", detail: "Накопи 150 алмазов", emoji: "💠")
         ]
         let extra: [Achievement] = (1...100).map { number in
             let id: String
@@ -1545,42 +1545,42 @@ private enum AchievementCatalog {
             let emojis = ["🏅", "🌈", "🚀", "🦄", "💎", "🧠", "🌟", "🐉", "🎯", "👑"]
             switch number {
             case 1...25:
-                let goal = number * 5
+                let goal = number * 25
                 id = "extra-total-\(goal)"
                 title = ["Любознательный", "Исследователь", "Умный шаг", "Знаток", "Покоритель задач"][number % 5] + " №\(number)"
                 detail = "Ответь на \(goal) вопросов в обычных занятиях и олимпиадах"
             case 26...50:
-                let goal = (number - 25) * 5
+                let goal = (number - 25) * 15
                 id = "extra-correct-\(goal)"
                 title = ["Меткий ум", "Мастер точности", "Верный путь", "Золотой ответ", "Профи"][number % 5] + " №\(number)"
                 detail = "Набери \(goal) правильных ответов"
             case 51...70:
-                let goal = number - 47
+                let goal = number - 45
                 id = "extra-streak-\(goal)"
                 title = "Огненная серия №\(number)"
                 detail = "Дай \(goal) правильных ответов подряд"
             case 71...80:
                 let level = number - 70
-                let accuracy = 70 + level * 3
-                let total = level * 10
+                let accuracy = 65 + level * 3
+                let total = level * 25
                 id = "extra-accuracy-\(accuracy)-\(total)"
                 title = "Точность \(accuracy)%"
                 detail = "Поддержи точность не ниже \(accuracy)% после \(total) ответов"
-            case 81...88:
+            case 81...91:
                 let index = number - 81
                 let subject = StudySubject.allCases[index].rawValue
-                id = "extra-subject-\(index)-10"
+                id = "extra-subject-\(index)-25"
                 title = "Знаток: \(subject)"
-                detail = "Реши 10 заданий по предмету «\(subject)»"
-            case 89...96:
-                let goals = [10, 20, 30, 45, 60, 90, 120, 180]
-                let goal = goals[number - 89]
+                detail = "Реши 25 заданий по предмету «\(subject)»"
+            case 92...97:
+                let goals = [30, 60, 90, 120, 180, 240]
+                let goal = goals[number - 92]
                 id = "extra-active-minutes-\(goal)"
                 title = "Время знаний: \(goal) мин"
                 detail = "Проведи \(goal) минут активных занятий за компьютером"
             default:
-                let goals = [1, 2, 5, 10]
-                let goal = goals[number - 97]
+                let goals = [1, 3, 5]
+                let goal = goals[number - 98]
                 id = "extra-olympiad-wins-\(goal)"
                 title = "Олимпийская звезда ×\(goal)"
                 detail = "Победи в олимпиаде \(goal) раз"
@@ -2105,7 +2105,7 @@ struct ContentView: View {
                         }
                         .padding(.horizontal, 9).padding(.vertical, 7)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(subject == selectedSubject ? palette.palePink : Color.white, in: RoundedRectangle(cornerRadius: 11))
+                        .background(subject == selectedSubject ? palette.palePink : palette.cardSurface, in: RoundedRectangle(cornerRadius: 11))
                         .overlay(RoundedRectangle(cornerRadius: 11).stroke(subject == selectedSubject ? palette.purple : palette.line, lineWidth: subject == selectedSubject ? 2 : 1))
                         .contentShape(RoundedRectangle(cornerRadius: 11))
                     }
@@ -2115,7 +2115,7 @@ struct ContentView: View {
             .padding(7)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 440)
+        .frame(height: 610)
         .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
         .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 2))
         .shadow(color: palette.purple.opacity(0.22), radius: 10, x: 0, y: 5)
@@ -2191,7 +2191,7 @@ struct ContentView: View {
             Text("РЕШИ ПРИМЕР")
                 .font(.system(size: 15, weight: .heavy, design: .rounded))
                 .tracking(1.1)
-                .foregroundStyle(palette.purple)
+                .foregroundStyle(palette.isDark ? Color(red: 0.88, green: 0.82, blue: 1) : palette.purple)
                 .padding(.horizontal, 22)
                 .padding(.vertical, 11)
                 .background(palette.cardSurface.opacity(0.84), in: Capsule())
@@ -2358,7 +2358,7 @@ struct ContentView: View {
                         .foregroundStyle(answer == choice ? .white : palette.ink)
                         .padding(10)
                         .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
-                        .background(answer == choice ? palette.purple : Color.white, in: RoundedRectangle(cornerRadius: 14))
+                        .background(answer == choice ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 14))
                         .overlay(RoundedRectangle(cornerRadius: 14).stroke(answer == choice ? palette.purple : palette.line, lineWidth: answer == choice ? 2.5 : 1.5))
                     }
                     .buttonStyle(.plain)
@@ -2966,7 +2966,7 @@ struct ContentView: View {
     private func medalCard(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
         let earned = progress >= goal
         return VStack(alignment: .leading, spacing: 9) {
-            Text(earned ? emoji : "🔒").font(.system(size: 141)).frame(width: 234, height: 234)
+            Text(earned ? emoji : "🔒").font(.system(size: 70)).frame(width: 117, height: 117)
                 .background(LinearGradient(colors: earned ? [color, palette.pink] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(earned ? color : palette.line, lineWidth: 2))
             Text(title).font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -2978,7 +2978,39 @@ struct ContentView: View {
     private var shopPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                pageHeading("Магазин игрушек", subtitle: "Собирай коллекцию игрушек за алмазы!")
+                pageHeading("Магазин игрушек", subtitle: "Собирай алмазы и открывай подарки 🎁")
+
+                // Rare collectible block deliberately stays at the top. Owned items remain visible here.
+                if Collectible.all.contains(where: { $0.isRare }) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "sparkles").font(.system(size: 20, weight: .black))
+                                .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.78, blue: 0.25) : Color(red: 0.72, green: 0.43, blue: 0.06))
+                            Text("Редкие коллекционные").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Spacer(minLength: 0)
+                            Text("100 💎").font(.system(size: 15, weight: .black, design: .rounded))
+                                .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.78, blue: 0.25) : Color(red: 0.60, green: 0.34, blue: 0.02))
+                        }
+                        Text("Редкие подарки — вверху страницы. Купленные и уже открытые игрушки остаются видимыми в коллекции.")
+                            .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .fixedSize(horizontal: false, vertical: true)
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
+                            ForEach(Collectible.all.filter { $0.isRare }) { item in
+                                shopItemCard(item)
+                            }
+                        }
+                    }
+                    .padding(18)
+                    .background(
+                        palette.isDark
+                            ? palette.cardSurface
+                            : Color(red: 1.0, green: 0.95, blue: 0.75),
+                        in: RoundedRectangle(cornerRadius: 21)
+                    )
+                    .overlay(RoundedRectangle(cornerRadius: 21).stroke(palette.isDark ? palette.purple : Color(red: 0.84, green: 0.60, blue: 0.18), lineWidth: 2))
+                    .shadow(color: palette.purple.opacity(0.13), radius: 10, y: 4)
+                }
+
                 HStack(spacing: 12) {
                     Text("💎").font(.system(size: 33))
                     VStack(alignment: .leading, spacing: 2) {
@@ -2990,46 +3022,17 @@ struct ContentView: View {
                         .font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
                 }.padding(17).cardStyle(palette)
 
-                if Collectible.all.contains(where: { !$0.isRare && !allOwnedCollectibleIDs.contains($0.id) }) {
+                if Collectible.all.contains(where: { !$0.isRare }) {
                     VStack(alignment: .leading, spacing: 12) {
                         sectionTitle("Обычные игрушки", icon: "gift")
-                        Text("Первая стоит 25 алмазов, каждая следующая — на 1 алмаз дороже.")
+                        Text("Купленные игрушки остаются в списке с отметкой «Открыта!». Их можно рассмотреть, даже если алмазы уже потрачены.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
-                            ForEach(Collectible.all.filter { !$0.isRare && !allOwnedCollectibleIDs.contains($0.id) }) { item in
+                            ForEach(Collectible.all.filter { !$0.isRare }) { item in
                                 shopItemCard(item)
                             }
                         }
                     }.padding(18).cardStyle(palette)
-                }
-
-                if Collectible.all.contains(where: { $0.isRare && !allOwnedCollectibleIDs.contains($0.id) }) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "sparkles").font(.system(size: 18, weight: .black)).foregroundStyle(Color(red: 0.72, green: 0.43, blue: 0.06))
-                            Text("Редкие коллекционные").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Spacer(minLength: 0)
-                            Text("100 💎").font(.system(size: 13, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.60, green: 0.34, blue: 0.02))
-                        }
-                        Text("Особые подарки с золотым оформлением. После покупки будет яркое праздничное открытие!")
-                            .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                            .fixedSize(horizontal: false, vertical: true)
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
-                            ForEach(Collectible.all.filter { $0.isRare && !allOwnedCollectibleIDs.contains($0.id) }) { item in
-                                shopItemCard(item)
-                            }
-                        }
-                    }
-                    .padding(18)
-                    .background(
-                        LinearGradient(
-                            colors: [Color(red: 1.0, green: 0.97, blue: 0.83), Color(red: 1.0, green: 0.90, blue: 0.68)],
-                            startPoint: .topLeading, endPoint: .bottomTrailing
-                        ),
-                        in: RoundedRectangle(cornerRadius: 21)
-                    )
-                    .overlay(RoundedRectangle(cornerRadius: 21).stroke(Color(red: 0.84, green: 0.60, blue: 0.18), lineWidth: 2))
-                    .shadow(color: Color.orange.opacity(0.13), radius: 10, y: 4)
                 }
 
                 if Collectible.all.allSatisfy({ allOwnedCollectibleIDs.contains($0.id) }) {
@@ -3059,7 +3062,7 @@ struct ContentView: View {
                     )
                 )
                 Text(owned ? item.emoji : (item.isRare ? "🌠" : "🎁"))
-                    .font(.system(size: item.isRare ? 141 : 129))
+                    .font(.system(size: item.isRare ? 70 : 65))
                     .saturation(owned ? 1 : 0.58)
                     .opacity(owned ? 1 : 0.78)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -3073,13 +3076,13 @@ struct ContentView: View {
                         .padding(7).background(palette.purple, in: Circle()).padding(6)
                 }
             }
-            .frame(height: item.isRare ? 288 : 249)
+            .frame(height: item.isRare ? 144 : 125)
             .overlay(RoundedRectangle(cornerRadius: 17).stroke(item.isRare ? gold : palette.line.opacity(0.7), lineWidth: item.isRare ? 2 : 1))
 
             if item.isRare {
                 Label("РЕДКИЙ КОЛЛЕКЦИОННЫЙ", systemImage: "sparkles")
                     .font(.system(size: 9, weight: .black, design: .rounded))
-                    .foregroundStyle(Color(red: 0.52, green: 0.31, blue: 0.02))
+                    .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.80, blue: 0.30) : Color(red: 0.52, green: 0.31, blue: 0.02))
                     .lineLimit(1).minimumScaleFactor(0.7)
             }
             Text(owned ? item.title : (item.isRare ? "Редкий коллекционный приз" : "Секретный приз"))
@@ -3106,9 +3109,9 @@ struct ContentView: View {
         }
         .padding(11)
         .background(
-            item.isRare
+            item.isRare && !palette.isDark
                 ? LinearGradient(colors: [Color(red: 1.0, green: 0.985, blue: 0.91), Color(red: 1.0, green: 0.94, blue: 0.77)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                : LinearGradient(colors: [Color.white.opacity(0.88), Color.white.opacity(0.78)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                : LinearGradient(colors: [palette.cardSurface.opacity(0.98), palette.cardSurface.opacity(0.92)], startPoint: .topLeading, endPoint: .bottomTrailing),
             in: RoundedRectangle(cornerRadius: 19)
         )
         .overlay(RoundedRectangle(cornerRadius: 19).stroke(item.isRare ? gold.opacity(0.8) : palette.line.opacity(0.7), lineWidth: item.isRare ? 2 : 1))
@@ -3154,7 +3157,10 @@ struct ContentView: View {
                         Text("Передвинь ползунок — внешний вид изменится сразу.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         Slider(value: $screenContrast, in: 0.75...1.55, step: 0.05)
-                            .tint(palette.purple).controlSize(.large).frame(minHeight: 32)
+                            .tint(Color(red: 0.28, green: 0.08, blue: 0.78))
+                            .controlSize(.large).frame(minHeight: 38)
+                            .padding(.horizontal, 5)
+                            .background(Color(red: 0.28, green: 0.08, blue: 0.78).opacity(0.10), in: Capsule())
                         HStack {
                             Text("75% · мягче").foregroundStyle(palette.muted)
                             Spacer()
@@ -3311,8 +3317,8 @@ struct ContentView: View {
 
     private func rewardPreview(emoji: String, title: String, subtitle: String, progress: Int, goal: Int) -> some View {
         HStack(spacing: 9) {
-            Text(emoji).font(.system(size: 81))
-                .frame(width: 126, height: 135)
+            Text(emoji).font(.system(size: 40))
+                .frame(width: 63, height: 68)
                 .background(palette.palePink, in: RoundedRectangle(cornerRadius: 12))
             VStack(alignment: .leading, spacing: 3) {
                 Text(title).font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -3340,8 +3346,8 @@ struct ContentView: View {
     private func achievementCard(_ item: Achievement) -> some View {
         let unlocked = unlockedAchievementIDs.contains(item.id)
         return HStack(alignment: .top, spacing: 10) {
-            Text(unlocked ? item.emoji : "🔒").font(.system(size: 120))
-                .frame(width: 198, height: 198).background(LinearGradient(colors: unlocked ? [palette.pink, palette.lilac] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+            Text(unlocked ? item.emoji : "🔒").font(.system(size: 60))
+                .frame(width: 99, height: 99).background(LinearGradient(colors: unlocked ? [palette.pink, palette.lilac] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(unlocked ? palette.purple : palette.line, lineWidth: 2))
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -3356,8 +3362,8 @@ struct ContentView: View {
     private func collectibleCard(_ item: Collectible) -> some View {
         let unlocked = allOwnedCollectibleIDs.contains(item.id)
         return HStack(spacing: 9) {
-            Text(unlocked ? item.emoji : "❔").font(.system(size: 120))
-                .frame(width: 198, height: 198).background(LinearGradient(colors: [palette.pink, palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+            Text(unlocked ? item.emoji : "❔").font(.system(size: 60))
+                .frame(width: 99, height: 99).background(LinearGradient(colors: [palette.pink, palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(palette.purple.opacity(0.75), lineWidth: 2))
             VStack(alignment: .leading, spacing: 3) {
                 Text(unlocked ? item.title : "Секретная находка").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -3373,20 +3379,20 @@ struct ContentView: View {
             guard !already.contains(item.id) else { return false }
             switch item.id {
             case "first-answer": return store.stats.total >= 1
-            case "ten-correct": return store.stats.correct >= 10
-            case "twenty-correct": return store.stats.correct >= 20
-            case "fifty-correct": return store.stats.correct >= 50
-            case "five-streak": return store.stats.bestStreak >= 5
-            case "fifteen-streak": return store.stats.bestStreak >= 15
-            case "twenty-streak": return store.stats.bestStreak >= 20
-            case "daily-solver": return today.total >= 20
-            case "three-days": return store.stats.days.filter { $0.total > 0 }.count >= 3
-            case "five-days": return store.stats.days.filter { $0.total > 0 }.count >= 5
-            case "perfect-ten": return store.stats.total >= 10 && store.stats.accuracy == 100
-            case "accuracy-90": return store.stats.total >= 50 && store.stats.accuracy >= 90
-            case "hundred-answers": return store.stats.total >= 100
-            case "five-hundred-answers": return store.stats.total >= 500
-            case "diamond-100": return store.stats.diamonds >= 100
+            case "ten-correct": return store.stats.correct >= 25
+            case "twenty-correct": return store.stats.correct >= 50
+            case "fifty-correct": return store.stats.correct >= 100
+            case "five-streak": return store.stats.bestStreak >= 10
+            case "fifteen-streak": return store.stats.bestStreak >= 20
+            case "twenty-streak": return store.stats.bestStreak >= 30
+            case "daily-solver": return today.total >= 30
+            case "three-days": return store.stats.days.filter { $0.total > 0 }.count >= 5
+            case "five-days": return store.stats.days.filter { $0.total > 0 }.count >= 10
+            case "perfect-ten": return store.stats.total >= 25 && store.stats.accuracy == 100
+            case "accuracy-90": return store.stats.total >= 100 && store.stats.accuracy >= 90
+            case "hundred-answers": return store.stats.total >= 250
+            case "five-hundred-answers": return store.stats.total >= 1000
+            case "diamond-100": return store.stats.diamonds >= 150
             default: return isExtraAchievementUnlocked(item.id)
             }
         }
@@ -3459,8 +3465,8 @@ struct ContentView: View {
     }
     private func rewardLarge(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(emoji).font(.system(size: 126))
-                .frame(width: 204, height: 204)
+            Text(emoji).font(.system(size: 63))
+                .frame(width: 102, height: 102)
                 .background(color.opacity(0.6), in: RoundedRectangle(cornerRadius: 20))
             Text(title).font(.system(size: 20, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             Text(detail).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
