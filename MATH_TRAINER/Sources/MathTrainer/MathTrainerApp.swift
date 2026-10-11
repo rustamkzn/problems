@@ -6,41 +6,60 @@ private struct StudyIllustration: View {
     let subject: StudySubject
     let prompt: String
     private var lower: String { prompt.lowercased() }
+
     private var symbol: String {
-        if subject == .logic { return lower.contains("круг") ? "circle.fill" : (lower.contains("угл") || lower.contains("фигур") ? "shapes.fill" : "puzzlepiece.extension.fill") }
-        if subject == .biology {
+        switch subject {
+        case .logic:
+            if lower.contains("круг") { return "circle.fill" }
+            if lower.contains("квадрат") { return "square.fill" }
+            if lower.contains("треуголь") || lower.contains("угл") || lower.contains("фигур") { return "shapes.fill" }
+            if lower.contains("кубик") || lower.contains("куб") { return "cube.fill" }
+            return "puzzlepiece.extension.fill"
+        case .biology:
+            if lower.contains("дыш") || lower.contains("лёгк") { return "lungs.fill" }
             if lower.contains("серд") || lower.contains("кров") { return "heart.fill" }
             if lower.contains("рыб") || lower.contains("жабр") { return "fish.fill" }
-            if lower.contains("бабоч") || lower.contains("гусен") { return "ladybug.fill" }
+            if lower.contains("бабоч") || lower.contains("гусен") || lower.contains("кукол") { return "ladybug.fill" }
             if lower.contains("мозг") || lower.contains("думать") { return "brain.head.profile.fill" }
+            if lower.contains("лягуш") || lower.contains("головаст") { return "water.waves" }
+            if lower.contains("пыльц") || lower.contains("насеком") || lower.contains("цвет") { return "microbe.fill" }
+            if lower.contains("гриб") { return "tree.fill" }
             return "leaf.fill"
+        default:
+            if lower.contains("петри") { return "circle.hexagongrid.fill" }
+            if lower.contains("мензур") || lower.contains("делени") || lower.contains("объём") { return "testtube.2" }
+            if lower.contains("пипет") || lower.contains("капля") || lower.contains("переноса небольш") { return "eyedropper.full" }
+            if lower.contains("ступк") || lower.contains("измельч") { return "circle.bottomhalf.filled" }
+            return "flask.fill"
         }
-        if lower.contains("мензур") { return "ruler.fill" }
-        if lower.contains("петри") { return "circle.hexagongrid.fill" }
-        if lower.contains("пипет") { return "eyedropper.full" }
-        if lower.contains("ступк") { return "circle.bottomhalf.filled" }
-        return "flask.fill"
     }
-    private var colors: [Color] {
+
+    private var tint: Color {
         switch subject {
-        case .logic: return [Color(red: 0.42, green: 0.31, blue: 0.96), Color(red: 0.98, green: 0.34, blue: 0.58), Color(red: 0.20, green: 0.72, blue: 0.98)]
-        case .biology: return [Color(red: 0.12, green: 0.72, blue: 0.48), Color(red: 0.98, green: 0.42, blue: 0.38), Color(red: 0.98, green: 0.72, blue: 0.20)]
-        default: return [Color(red: 0.20, green: 0.62, blue: 0.98), Color(red: 0.63, green: 0.40, blue: 0.96), Color(red: 0.20, green: 0.80, blue: 0.76)]
+        case .logic: return Color(red: 0.48, green: 0.31, blue: 0.94)
+        case .biology: return Color(red: 0.10, green: 0.68, blue: 0.42)
+        default: return Color(red: 0.12, green: 0.55, blue: 0.92)
         }
     }
+
     var body: some View {
-        HStack(spacing: 13) {
-            ForEach(0..<3, id: \.self) { index in
-                ZStack {
-                    RoundedRectangle(cornerRadius: 22, style: .continuous).fill(colors[index].opacity(0.15))
-                    Circle().fill(colors[index].opacity(0.20)).frame(width: 74, height: 74).offset(x: 15, y: -20)
-                    Image(systemName: index == 1 ? symbol : (subject == .logic ? ["circle.grid.3x3.fill", "puzzlepiece.extension.fill", "square.on.circle.fill"][index] : (subject == .biology ? ["leaf.fill", "pawprint.fill", "drop.fill"][index] : ["testtube.2", "flask.fill", "eyedropper.full"][index])))
-                        .font(.system(size: 39, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(colors[index])
-                }
-                .frame(maxWidth: .infinity).frame(height: 112)
-                .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(colors[index].opacity(0.22), lineWidth: 1))
-            }
-        }.accessibilityLabel(subject.rawValue + ": иллюстрация к заданию")
+        ZStack {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(tint.opacity(0.13))
+            Circle()
+                .fill(tint.opacity(0.10))
+                .frame(width: 112, height: 112)
+                .offset(x: 74, y: -24)
+            Image(systemName: symbol)
+                .font(.system(size: 68, weight: .bold))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(tint)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 118)
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(tint.opacity(0.24), lineWidth: 1))
+        .accessibilityLabel(subject.rawValue + ": иллюстрация к заданию")
     }
 }
 
@@ -1936,10 +1955,11 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Логика, биология и пауза в олимпиаде", changes: [
-                "Добавлены учебные предметы «Логика» и «Биология для начинающих» с текстовыми вопросами и вариантами ответов.",
-                "В олимпиаде появилась пауза и продолжение: таймер не уменьшается, пока испытание приостановлено.",
-                "История версий дополнена записью о новых функциях."
+            ReleaseNote(version: appVersion, date: appReleaseDate, title: "Иллюстрации к заданиям и точность истории версий", changes: [
+                "Исправлено отображение иллюстраций: текстовые вопросы по символам химических элементов и формулам больше не сопровождаются изображениями лабораторной посуды.",
+                "Вопросы по химической посуде показывают одну тематическую иллюстрацию вместо набора несвязанных картинок.",
+                "В логике и биологии иллюстрации показываются только для подходящих по смыслу вопросов; заменены универсальные картинки, которые не соответствовали условию.",
+                "Исправлена запись текущей версии в истории: она описывает именно эти изменения, а не функции из более ранних выпусков."
             ]),
             ReleaseNote(version: "1.0.29", date: "11.10.2026", title: "ПДД, орфография, уровни и тёмные темы", changes: [
                 "Добавлены предметы «ПДД» и «Орфография»: тесты по дорожным знакам и разметке, а также поиску орфографических ошибок.",
@@ -2400,8 +2420,8 @@ struct ContentView: View {
                 pddIllustration(for: problem.text).padding(.horizontal, 24).padding(.top, 5)
             } else if selectedSubject == .geography && problem.text.localizedCaseInsensitiveContains("флаг") {
                 geographyFlagIllustration(for: problem).padding(.horizontal, 24).padding(.top, 5)
-            } else if selectedSubject == .logic || selectedSubject == .biology || selectedSubject == .chemistry {
-                StudyIllustration(subject: selectedSubject, prompt: problem.text).frame(maxWidth: .infinity).frame(height: 142).padding(.horizontal, 30).padding(.top, 8)
+            } else if shouldShowStudyIllustration(for: problem, subject: selectedSubject) {
+                StudyIllustration(subject: selectedSubject, prompt: problem.text).frame(maxWidth: .infinity).frame(height: 126).padding(.horizontal, 30).padding(.top, 8)
             }
 
             Spacer(minLength: selectedSubject == .pdd ? 7 : 34)
@@ -4004,6 +4024,25 @@ struct ContentView: View {
             return "Ищи закономерность, внимательно проверь каждое условие и исключи варианты, которые противоречат последовательности."
         case .biology:
             return "Вспомни основные признаки живых организмов, функции органов и потребности растений и животных."
+        }
+    }
+
+    private func shouldShowStudyIllustration(for problem: Problem, subject: StudySubject) -> Bool {
+        let text = problem.text.lowercased()
+        switch subject {
+        case .logic:
+            // Только задания, в которых условие действительно связано с фигурами.
+            return text.contains("фигур") || text.contains("угл") || text.contains("круг") || text.contains("квадрат") || text.contains("кубик") || text.contains("куб")
+        case .biology:
+            // Картинка у биологии показывается лишь для вопросов о конкретном организме,
+            // органе или процессе, для которых можно подобрать соответствующий символ.
+            return text.contains("орган") || text.contains("дыш") || text.contains("живым организм") || text.contains("гриб") || text.contains("лягуш") || text.contains("головаст") || text.contains("пыльц") || text.contains("насеком") || text.contains("бабоч") || text.contains("гусен") || text.contains("серд") || text.contains("рыб") || text.contains("мозг") || text.contains("растени") || text.contains("лист")
+        case .chemistry:
+            // Символы элементов и формулы остаются текстовыми заданиями.
+            // Иллюстрации появляются только в отдельной группе вопросов о лабораторной посуде.
+            return text.contains("колб") || text.contains("мензур") || text.contains("чашк") || text.contains("петри") || text.contains("пипет") || text.contains("сосуд") || text.contains("объём жидкости") || text.contains("по каплям") || text.contains("измельчения твёрдых")
+        default:
+            return false
         }
     }
 
