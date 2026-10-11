@@ -2,6 +2,43 @@ import SwiftUI
 import AppKit
 import Combine
 
+private struct PeriodicElementTile: View {
+    let prompt: String
+    let answer: String
+    private let elements: [(String, String, Int)] = [
+        ("H", "Водород", 1), ("He", "Гелий", 2), ("Li", "Литий", 3), ("Be", "Бериллий", 4), ("B", "Бор", 5), ("C", "Углерод", 6), ("N", "Азот", 7), ("O", "Кислород", 8), ("F", "Фтор", 9), ("Ne", "Неон", 10),
+        ("Na", "Натрий", 11), ("Mg", "Магний", 12), ("Al", "Алюминий", 13), ("Si", "Кремний", 14), ("P", "Фосфор", 15), ("S", "Сера", 16), ("Cl", "Хлор", 17), ("Ar", "Аргон", 18), ("K", "Калий", 19), ("Ca", "Кальций", 20),
+        ("Fe", "Железо", 26), ("Cu", "Медь", 29), ("Zn", "Цинк", 30), ("Ag", "Серебро", 47), ("Sn", "Олово", 50), ("I", "Йод", 53), ("Au", "Золото", 79), ("Hg", "Ртуть", 80), ("Pb", "Свинец", 82), ("U", "Уран", 92),
+        ("Cr", "Хром", 24), ("Mn", "Марганец", 25), ("Co", "Кобальт", 27), ("Ni", "Никель", 28), ("Br", "Бром", 35), ("Ba", "Барий", 56), ("Pt", "Платина", 78), ("W", "Вольфрам", 74), ("Se", "Селен", 34)
+    ]
+    private var element: (String, String, Int) {
+        if let match = elements.first(where: { prompt.localizedCaseInsensitiveContains($0.1) || answer == $0.0 || answer == $0.1 }) { return match }
+        return ("?", "Химический элемент", 0)
+    }
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(element.2)").font(.system(size: 13, weight: .bold, design: .rounded))
+                Spacer(minLength: 0)
+                Text(element.0).font(.system(size: 42, weight: .black, design: .rounded))
+                Text(element.1).font(.system(size: 12, weight: .bold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
+            }
+            .foregroundStyle(Color(red: 0.08, green: 0.25, blue: 0.48))
+            .padding(12).frame(width: 112, height: 106, alignment: .leading)
+            .background(LinearGradient(colors: [Color(red: 0.75, green: 0.92, blue: 1), Color(red: 0.48, green: 0.79, blue: 0.97)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 12))
+            VStack(alignment: .leading, spacing: 6) {
+                Text("ТАБЛИЦА МЕНДЕЛЕЕВА").font(.system(size: 11, weight: .black, design: .rounded)).tracking(0.6)
+                Text("Карточка химического элемента").font(.system(size: 14, weight: .bold, design: .rounded))
+                Text("Атомный номер · символ · название").font(.system(size: 11, weight: .medium, design: .rounded))
+            }.foregroundStyle(Color(red: 0.08, green: 0.25, blue: 0.48))
+            Spacer(minLength: 0)
+        }
+        .padding(10).frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(red: 0.86, green: 0.95, blue: 1), in: RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.blue.opacity(0.28), lineWidth: 1))
+    }
+}
+
 private struct StudyIllustration: View {
     let subject: StudySubject
     let prompt: String
@@ -678,17 +715,17 @@ struct ProblemGenerator {
         let answer: String
         let choices: [String]
         switch type {
-        case 0: answer = item.1; choices = ([answer] + kinds.filter { $0 != answer }.shuffled().prefix(3)).shuffled()
-        case 1: answer = item.2; choices = ([answer] + habitats.filter { $0 != answer }.shuffled().prefix(3)).shuffled()
-        case 2: answer = item.3; choices = ([answer] + foods.filter { $0 != answer }.shuffled().prefix(3)).shuffled()
-        default: answer = item.4; choices = ([answer] + breathing.filter { $0 != answer }.shuffled().prefix(3)).shuffled()
+        case 0: answer = item.1; choices = ([answer] + Array(Set(kinds.filter { $0 != answer })).shuffled().prefix(3)).shuffled()
+        case 1: answer = item.2; choices = ([answer] + Array(Set(habitats.filter { $0 != answer })).shuffled().prefix(3)).shuffled()
+        case 2: answer = item.3; choices = ([answer] + Array(Set(foods.filter { $0 != answer })).shuffled().prefix(3)).shuffled()
+        default: answer = item.4; choices = ([answer] + Array(Set(breathing.filter { $0 != answer })).shuffled().prefix(3)).shuffled()
         }
         let prompt = String(format: forms[type], item.0)
         let variant = illustrated ? "Рассмотри иллюстрацию. " : ""
         // Variants vary wording while retaining the same scientific fact and a single correct answer.
         let phrasing = illustrated
-            ? ["Рассмотри иллюстрацию. %@", "По изображённому организму ответь: %@", "Изучите рисунок и выбери верный ответ: %@", "Что верно для организма на картинке? %@"][Int.random(in: 0...3)]
-            : ["Ответь на вопрос: %@", "Выбери научно верное утверждение: %@", "Проверь свои знания. %@", "Как правильно ответить? %@", "Биологический вопрос: %@"][Int.random(in: 0...4)]
+            ? ["Рассмотри иллюстрацию. %@", "По изображённому организму ответь: %@", "Изучите рисунок и выбери верный ответ: %@", "Что верно для организма на картинке? %@", "Посмотри на рисунок и ответь: %@", "Какой факт соответствует изображённому организму? %@", "Определи по иллюстрации: %@", "Изучи картинку и выбери ответ: %@", "Что можно сказать об организме на рисунке? %@", "Выбери правильное описание по изображению: %@", "Рассмотри изображение и ответь на вопрос: %@", "Как правильно ответить по картинке? %@", "Что показывает эта иллюстрация? %@", "Используй изображение и знания биологии: %@", "Выбери научно верный ответ по рисунку: %@", "Какой ответ подходит к иллюстрации? %@", "Внимательно посмотри на картинку: %@", "Определи верное утверждение по изображению: %@", "Какой факт подходит к картинке? %@", "Рассмотри организм и выбери ответ: %@", "Что важно знать об изображённом организме? %@", "Сопоставь рисунок и биологический факт: %@", "Как верно описать организм на картинке? %@", "Изображение поможет ответить: %@", "Найди ответ по иллюстрации: %@", "Какой вариант верен для этого организма? %@", "Прочитай вопрос и рассмотри рисунок: %@", "Ответь, изучив иллюстрацию: %@", "Выбери правильный биологический факт: %@", "Проверь знания по картинке: %@"][Int.random(in: 0...29)]
+            : ["Ответь на вопрос: %@", "Выбери научно верное утверждение: %@", "Проверь свои знания. %@", "Как правильно ответить? %@", "Биологический вопрос: %@", "Какой ответ верен? %@", "Выбери точный ответ: %@", "Вспомни биологию: %@", "Подумай и ответь: %@", "Что известно об этом организме? %@", "Выбери правильный вариант. %@", "Проверь биологические знания: %@", "Какое утверждение подходит? %@", "Ответь, опираясь на факты: %@", "Найди верный биологический ответ: %@", "Определи верное утверждение: %@", "Что нужно знать об организме? %@", "Какой вариант научно точен? %@", "Выбери ответ без ошибки: %@", "Проверь себя по биологии: %@", "Как верно описать организм? %@", "Какое объяснение правильное? %@", "Выбери подходящий ответ: %@", "Небольшая проверка знаний: %@", "Как ответить на этот вопрос? %@", "Найди правильное описание: %@", "Какой факт соответствует вопросу? %@", "Внимательно прочитай и ответь: %@", "Выбери правильный факт: %@", "Биология вокруг нас: %@"][Int.random(in: 0...29)]
         let finalPrompt = String(format: phrasing, prompt)
         _ = variant
         return Problem(text: finalPrompt, answer: answer, isTatarChoice: true, tatarChoices: Array(choices))
@@ -699,6 +736,43 @@ struct ProblemGenerator {
     }
 
     private static func geographyQuestion(level: Int) -> Problem {
+        let flagCountries = [
+            "Россия", "Германия", "Франция", "Италия", "Испания", "Япония", "Бразилия", "Китай", "Индия", "Польша", "США", "Великобритания", "Украина",
+            "Нидерланды", "Австрия", "Бельгия", "Швейцария", "Швеция", "Норвегия", "Дания", "Финляндия", "Греция", "Ирландия", "Мексика", "Аргентина", "Южная Корея", "Турция", "Саудовская Аравия", "Пакистан", "Индонезия", "Вьетнам", "Таиланд"
+        ]
+        if Bool.random() {
+            let country = flagCountries.randomElement()!
+            let forms = [
+                "Какой флаг изображён на карточке?",
+                "Укажи страну по изображённому флагу.",
+                "Какой стране принадлежит этот флаг?",
+                "Определи страну по её государственному флагу.",
+                "Флаг какой страны показан?",
+                "Выбери название страны, чей флаг ты видишь.",
+                "Как называется государство, представленное этим флагом?",
+                "Найди правильное название страны по флагу.",
+                "Посмотри на изображение и назови страну.",
+                "Какой стране соответствует этот флаг?",
+                "Выбери страну с таким государственным флагом.",
+                "Какой флаг ты видишь на рисунке?",
+                "Определи государство по цветам и символам флага.",
+                "Какое название подходит к изображённому флагу?",
+                "К какой стране относится этот флаг?",
+                "Какую страну представляет изображённый флаг?",
+                "Узнай государство по флагу.",
+                "Выбери страну, флаг которой показан.",
+                "Какой государственный флаг изображён?",
+                "Какая страна обозначена этим флагом?",
+                "Определи, чей флаг показан на карточке.",
+                "Сопоставь изображение флага с названием страны.",
+                "Какое государство использует этот флаг?",
+                "Как правильно назвать страну по её флагу?",
+                "Какой стране принадлежит флаг на картинке?"
+            ]
+            let distractors = flagCountries.filter { $0 != country }.shuffled().prefix(3)
+            return Problem(text: forms.randomElement()!, answer: country, isTatarChoice: true, tatarChoices: ([country] + Array(distractors)).shuffled())
+        }
+
         let basic: [(String, String, [String])] = [
             ("Как называется страна, в которой находится город Казань?", "Россия", ["Россия", "Италия", "Япония", "Бразилия"]),
             ("Какой город является столицей России?", "Москва", ["Москва", "Казань", "Сочи", "Владивосток"]),
@@ -2520,6 +2594,8 @@ struct ContentView: View {
                 pddIllustration(for: problem.text).padding(.horizontal, 24).padding(.top, 5)
             } else if selectedSubject == .geography && problem.text.localizedCaseInsensitiveContains("флаг") {
                 geographyFlagIllustration(for: problem).padding(.horizontal, 24).padding(.top, 5)
+            } else if selectedSubject == .chemistry && (problem.text.localizedCaseInsensitiveContains("символ") || problem.text.localizedCaseInsensitiveContains("элемент с")) {
+                PeriodicElementTile(prompt: problem.text, answer: problem.answer).frame(maxWidth: .infinity).frame(height: 126).padding(.horizontal, 30).padding(.top, 8)
             } else if shouldShowStudyIllustration(for: problem, subject: selectedSubject) {
                 StudyIllustration(subject: selectedSubject, prompt: problem.text).frame(maxWidth: .infinity).frame(height: 126).padding(.horizontal, 30).padding(.top, 8)
             }
