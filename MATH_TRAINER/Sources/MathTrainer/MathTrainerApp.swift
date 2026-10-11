@@ -19,7 +19,8 @@ struct Problem {
 }
 
 struct ProblemGenerator {
-    static func next() -> Problem {
+    static func next(difficulty: Int = 1) -> Problem {
+        if difficulty > 1 && Int.random(in: 0...99) < 75 { return advancedMathQuestion(level: difficulty) }
         // Регулярная практика таблицы умножения для начальной школы.
         if Int.random(in: 0...2) == 0 {
             let a = Int.random(in: 2...9)
@@ -117,6 +118,8 @@ struct ProblemGenerator {
         case .art: hints = ["Вспомни свойства цвета и основные цвета.", "Подумай, какой инструмент или материал подходит для этой задачи.", "Вспомни отличия портрета, пейзажа и натюрморта.", "Обрати внимание на слова о композиции и художественных техниках."]
         case .chemistry: hints = ["Вспомни символы химических элементов.", "Первая буква символа обычно заглавная, вторая — строчная.", "Найди элемент по его месту в таблице Менделеева.", "Попробуй исключить элементы из других групп."]
         case .informatics: hints = ["Вспомни, для чего нужны разные устройства и программы.", "Выбирай самый безопасный вариант действий.", "Прочитай все четыре ответа и найди тот, который подходит точнее.", "Алгоритм — это порядок шагов для выполнения задачи."]
+        case .pdd: hints = ["Вспомни цвет светофора и его значение.", "Обращай внимание на форму и цвет дорожного знака.", "Переходи дорогу только в безопасном, разрешённом месте.", "Выбирай самый безопасный вариант для пешехода."]
+        case .orthography: hints = ["Прочитай слово медленно и вспомни правило.", "Проверь безударную гласную проверочным словом.", "Вспомни жи–ши, ча–ща и чу–щу.", "Прочитай предложение целиком и проверь каждое слово."]
         }
         return hints.randomElement() ?? "Внимательно прочитай условие и проверь ответ."
     }
@@ -531,17 +534,172 @@ struct ProblemGenerator {
         return unique
     }
 
+        private static func advancedMathQuestion(level: Int) -> Problem {
+        switch min(5, max(2, level)) {
+        case 2:
+            let a = Int.random(in: 100...499), b = Int.random(in: 20...min(300, 999 - a))
+            return Bool.random() ? Problem(text: "\(a) + \(b) = ?", answer: String(a + b)) : Problem(text: "\(a + b) − \(b) = ?", answer: String(a))
+        case 3:
+            if Bool.random() { let a = Int.random(in: 12...49), b = Int.random(in: 2...9); return Problem(text: "\(a) × \(b) = ?", answer: String(a * b)) }
+            let d = Int.random(in: 3...9), q = Int.random(in: 12...45)
+            return Problem(text: "\(d * q) : \(d) = ?", answer: String(q))
+        case 4:
+            let a = Int.random(in: 2...9), b = Int.random(in: 2...9), c = Int.random(in: 10...60)
+            return Bool.random() ? Problem(text: "\(a) × \(b) + \(c) = ?", answer: String(a * b + c)) : Problem(text: "(\(c) + \(a * b)) − \(c) = ?", answer: String(a * b))
+        default:
+            let a = Int.random(in: 12...35), b = Int.random(in: 2...8), d = Int.random(in: 2...8), q = Int.random(in: 12...36)
+            return Bool.random() ? Problem(text: "\(a) × \(b) − \(d) = ?", answer: String(a * b - d)) : Problem(text: "(\(q * d) : \(d)) + \(a) = ?", answer: String(q + a))
+        }
+    }
+
+    private static func choiceProblem(_ item: (String, String, [String])) -> Problem {
+        Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled())
+    }
+
+    private static func trafficQuestion(level: Int) -> Problem {
+        let basic: [(String, String, [String])] = [
+            ("Что означает красный сигнал светофора?", "Стой", ["Стой", "Иди быстрее", "Можно играть", "Переходи дорогу"]),
+            ("Что означает зелёный сигнал для пешехода?", "Переход разрешён, если безопасно", ["Переход разрешён, если безопасно", "Нужно бежать не глядя", "Нужно стоять всегда", "Можно играть на дороге"]),
+            ("Где безопаснее переходить улицу?", "По пешеходному переходу", ["По пешеходному переходу", "Между припаркованными машинами", "Из-за автобуса", "В любом месте"]),
+            ("Как называют полосатую разметку для пешеходов?", "Зебра", ["Зебра", "Остановка", "Разделительная линия", "Тротуар"]),
+            ("Где должен идти пешеход, если есть тротуар?", "По тротуару", ["По тротуару", "По середине проезжей части", "По парковке между машинами", "По дороге"]),
+            ("Что сделать перед переходом дороги?", "Остановиться и посмотреть по сторонам", ["Остановиться и посмотреть по сторонам", "Закрыть глаза", "Смотреть только в телефон", "Выбежать из-за машины"]),
+            ("Как обычно выглядит предупреждающий дорожный знак?", "Треугольник с красной каймой", ["Треугольник с красной каймой", "Зелёный круг", "Фиолетовый квадрат", "Жёлтый овал"]),
+            ("Что показывает знак пешеходного перехода?", "Место перехода для пешеходов", ["Место перехода для пешеходов", "Место для купания", "Въезд на парковку", "Игровую площадку"]),
+            ("Для чего нужен тротуар?", "Для движения пешеходов", ["Для движения пешеходов", "Для остановки поездов", "Для игры в мяч на дороге", "Для ремонта машин"]),
+            ("Как вести себя рядом с дорогой?", "Не играть у проезжей части", ["Не играть у проезжей части", "Кататься между машинами", "Выбегать за мячом", "Толкаться у края дороги"]),
+            ("Что помогает быть заметнее в темноте?", "Светоотражатель", ["Светоотражатель", "Тёмная одежда", "Наушники", "Закрытый зонт"]),
+            ("Где нужно ждать автобус?", "На остановке", ["На остановке", "На проезжей части", "На разделительной полосе", "Между машинами"]),
+            ("Что означает жёлтый сигнал светофора?", "Нужно приготовиться остановиться", ["Нужно приготовиться остановиться", "Можно начинать игру", "Пешеходам можно бежать", "Светофор выключен"]),
+            ("Для чего нужна стоп-линия?", "Показывает место остановки транспорта", ["Показывает место остановки транспорта", "Обозначает детскую площадку", "Место парковки велосипеда", "Начало тротуара"]),
+            ("Можно ли выходить на дорогу из-за автобуса?", "Нет, сначала нужен безопасный обзор", ["Нет, сначала нужен безопасный обзор", "Да, сразу", "Да, если бежать", "Да, не глядя"])
+        ]
+        let advanced: [(String, String, [String])] = [
+            ("Что обычно означает круглый знак с красной каймой?", "Есть запрет или ограничение", ["Есть запрет или ограничение", "Место отдыха", "Начало парка всегда", "Название улицы"]),
+            ("Что обычно предписывает синий круглый знак со стрелкой?", "Направление движения", ["Направление движения", "Полный запрет движения", "Место аптеки", "Время суток"]),
+            ("Что означает сплошная линия между полосами?", "Пересекать её обычно нельзя", ["Пересекать её обычно нельзя", "Это место для игр", "Её всегда можно пересечь", "Это зебра"]),
+            ("Почему нельзя выбегать перед близко едущей машиной?", "Водителю может не хватить времени остановиться", ["Водителю может не хватить времени остановиться", "Машины останавливаются мгновенно", "Так быстрее и безопаснее", "Это включает светофор"]),
+            ("Что делать, если рядом с переходом стоит машина и закрывает обзор?", "Найти безопасный обзор и не выходить из-за неё", ["Найти безопасный обзор и не выходить из-за неё", "Выбежать не глядя", "Перелезть через капот", "Закрыть глаза"]),
+            ("Что помогает пассажиру безопасно ехать в автомобиле?", "Пристёгнутый ремень безопасности", ["Пристёгнутый ремень безопасности", "Стоять между сиденьями", "Высовываться в окно", "Отвлекать водителя"])
+        ]
+        return choiceProblem((level <= 1 ? basic : advanced).randomElement()!)
+    }
+
+    private static func orthographyQuestion(level: Int) -> Problem {
+        let basic: [(String, String, [String])] = [
+            ("Какое слово написано правильно?", "собака", ["сабака", "собака", "сабока", "сабакаа"]),
+            ("В каком слове допущена ошибка?", "жыраф", ["жираф", "жыраф", "жераф", "жирап"]),
+            ("Какое слово написано правильно?", "машина", ["машына", "машена", "машина", "машынаа"]),
+            ("В каком слове допущена ошибка?", "чяйка", ["чайка", "чейка", "чяйка", "чайко"]),
+            ("Выбери правильно написанное слово.", "щука", ["щюка", "щука", "шчука", "щюко"]),
+            ("В каком слове ошибка?", "жыли", ["жили", "жыли", "жэли", "жылы"]),
+            ("Выбери правильно написанное слово.", "класс", ["клас", "класс", "класcа", "классс"]),
+            ("Как правильно написать слово?", "деревья", ["деревя", "диревья", "деревья", "деревьяа"]),
+            ("Какое слово написано верно?", "медведь", ["медвед", "мидведь", "медведь", "медвядь"]),
+            ("В каком слове допущена ошибка?", "малако", ["молоко", "молако", "малоко", "малако"]),
+            ("Выбери правильное написание.", "лисица", ["лисица", "лисицца", "лесится", "лысица"]),
+            ("Как правильно написать слово?", "солнце", ["сонце", "солнце", "солнцеа", "сольнце"]),
+            ("Найди слово с ошибкой.", "карова", ["корова", "карова", "короваа", "кароваа"]),
+            ("Выбери правильное написание.", "щенок", ["щенок", "щинок", "щенак", "щинокк"]),
+            ("Выбери слово без ошибки.", "чувство", ["чуство", "чувство", "чювство", "чувсство"]),
+            ("В каком слове ошибка?", "пажалуйста", ["пожалуйста", "пажалуйста", "пожалуста", "пожалуйсто"]),
+            ("Как правильно пишется слово?", "морковь", ["марковь", "морков", "морковь", "моркофь"]),
+            ("В каком слове ошибка?", "каньки", ["коньки", "каньки", "конки", "канькы"])
+        ]
+        let medium: [(String, String, [String])] = [
+            ("Как правильно написать сочетание?", "жи–ши пиши с И", ["жи–ши пиши с И", "жи–ши пиши с Ы", "жи–ши пиши с Я", "жи–ши пиши с Ю"]),
+            ("Выбери проверочное слово: трава — …", "травы", ["травы", "трова", "траво", "трево"]),
+            ("В каком предложении есть ошибка?", "Мышы живут в норе.", ["Мыши живут в норе.", "Мышы живут в норе.", "Кошки спят на ковре.", "На лугу растёт трава."]),
+            ("Выбери правильное написание приставки.", "подбежать", ["патбежать", "подбежать", "падбежать", "подбежеть"]),
+            ("Как пишется слово с разделительным мягким знаком?", "воробьи", ["вороби", "воробьи", "воробъй", "варобьи"]),
+            ("В каком слове пропущена удвоенная согласная?", "группа", ["група", "группа", "групппа", "групаа"])
+        ]
+        let advanced: [(String, String, [String])] = [
+            ("В каком предложении правильно оформлена прямая речь?", "Мама сказала: «Пора домой».", ["Мама сказала: «Пора домой».", "Мама сказала «:Пора домой».", "Мама сказала, «Пора домой».", "Мама: сказала «Пора домой»"]),
+            ("В каком предложении правильно поставлена запятая перед «но»?", "Солнце село, но было ещё светло.", ["Солнце село, но было ещё светло.", "Солнце, село но было ещё светло.", "Солнце село но, было ещё светло.", "Солнце село но было, ещё светло."]),
+            ("Как правильно написать НЕ с глаголом?", "не знал", ["незнал", "не знал", "ни знал", "не-знал"]),
+            ("В каком варианте все слова написаны правильно?", "бережёт, шоссе, лестница", ["бережот, шоссе, лестница", "бережёт, шоссе, лестница", "бережёт, шосэ, лестница", "бережёт, шоссе, лесница"]),
+            ("Как правильно оформить перечисление?", "На столе лежали книги, тетради и карандаши.", ["На столе лежали книги, тетради и карандаши.", "На столе лежали книги тетради, и карандаши.", "На столе, лежали книги тетради и карандаши.", "На столе лежали книги тетради и, карандаши."])
+        ]
+        let choices = level <= 1 ? basic : (level <= 3 ? medium + basic : advanced + medium)
+        return choiceProblem(choices.randomElement()!)
+    }
+
+    fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
+        let bank: [(String, String, [String])]
+        switch subject {
+        case .math: return nil
+        case .pdd: return trafficQuestion(level: level)
+        case .orthography: return orthographyQuestion(level: level)
+        case .world:
+            bank = [
+                ("Как называется превращение воды в пар?", "Испарение", ["Испарение", "Замерзание", "Таяние", "Оседание"]),
+                ("Какой орган перекачивает кровь?", "Сердце", ["Сердце", "Лёгкие", "Желудок", "Кожа"]),
+                ("Почему растениям нужен свет?", "Для образования питательных веществ", ["Для образования питательных веществ", "Чтобы слышать", "Чтобы двигаться", "Чтобы менять породу"])
+            ]
+        case .russian:
+            bank = [
+                ("Какой глагол отвечает на вопрос «что делать?»", "читать", ["читать", "прочитал", "книга", "красивый"]),
+                ("Какое слово является именем прилагательным?", "весёлый", ["весёлый", "бежать", "радость", "быстро"]),
+                ("Какое слово — наречие?", "весело", ["весело", "весёлый", "веселье", "веселиться"]),
+                ("В каком предложении есть обращение?", "Маша, помоги мне, пожалуйста.", ["Маша, помоги мне, пожалуйста.", "Маша помогла мне вчера.", "Я встретил Машу.", "Маша читает книгу."])
+            ]
+        case .english:
+            switch min(level, 5) {
+            case 2: bank = [("Choose the plural of “book”.", "books", ["books", "bookes", "bookies", "book"]), ("Complete: I ___ a student.", "am", ["am", "is", "are", "be"])]
+            case 3: bank = [("Choose the correct sentence.", "She likes cats.", ["She likes cats.", "She like cats.", "She liking cats.", "She liked cats every day now."]), ("Choose the past form of “play”.", "played", ["played", "playd", "plays", "playing"])]
+            case 4: bank = [("Complete: There ___ two apples.", "are", ["are", "is", "am", "be"]), ("Choose the past form of “go”.", "went", ["went", "goed", "goes", "going"])]
+            default: bank = [("Choose the correct sentence.", "Yesterday we went to school.", ["Yesterday we went to school.", "Yesterday we go to school.", "Yesterday we goes to school.", "Yesterday we going school."]), ("Complete: They ___ playing now.", "are", ["are", "is", "am", "be"])]
+            }
+        case .tatar:
+            bank = [
+                ("Как переводится татарское слово «дуслык»?", "Дружба", ["Дружба", "Погода", "Карандаш", "Дорога"]),
+                ("Как по-татарски «семья»?", "Гаилә", ["Гаилә", "Китап", "Яңгыр", "Өстәл"]),
+                ("Что значит «зур»?", "Большой", ["Большой", "Маленький", "Синий", "Тёплый"]),
+                ("Как переводится «Туган көн»?", "День рождения", ["День рождения", "Хороший день", "Новая книга", "Зимняя ночь"])
+            ]
+        case .art:
+            bank = [
+                ("Что такое композиция рисунка?", "Расположение объектов на листе", ["Расположение объектов на листе", "Только выбор карандаша", "Название кисти", "Размер альбома"]),
+                ("Что такое контраст?", "Заметное различие цветов или светлоты", ["Заметное различие цветов или светлоты", "Одинаковость всех цветов", "Название карандаша", "Сгиб бумаги"]),
+                ("Для чего нужна перспектива?", "Показывать глубину пространства", ["Показывать глубину пространства", "Смешивать краски", "Стирать линии", "Скреплять бумагу"])
+            ]
+        case .chemistry:
+            bank = [
+                ("Какой символ у кислорода?", "O", ["O", "H", "C", "N"]),
+                ("Как называется формула H₂O?", "Вода", ["Вода", "Кислород", "Поваренная соль", "Углекислый газ"]),
+                ("Какой символ у натрия?", "Na", ["Na", "N", "S", "Ne"])
+            ]
+        case .informatics:
+            bank = [
+                ("Что нужно сделать перед выключением компьютера?", "Сохранить работу и завершить работу системы", ["Сохранить работу и завершить работу системы", "Выдернуть все провода", "Залить клавиатуру водой", "Удалить все файлы"]),
+                ("Для чего нужна резервная копия?", "Чтобы восстановить данные при потере оригинала", ["Чтобы восстановить данные при потере оригинала", "Чтобы сделать экран ярче", "Чтобы заменить клавиатуру", "Чтобы ускорить набор букв"]),
+                ("Что делает цикл в алгоритме?", "Повторяет команды", ["Повторяет команды", "Удаляет монитор", "Меняет цвет кабеля", "Выключает интернет всегда"])
+            ]
+        }
+        let item = bank.randomElement()!
+        return choiceProblem(item)
+    }
+
     fileprivate static func nextInformatics(excluding seen: Set<String>) -> Problem {
         let unseen = informaticsQuestionBank.filter { !seen.contains($0.text) }
         return unseen.randomElement() ?? informaticsQuestionBank.randomElement()!
     }
 
-    fileprivate static func next(for subject: StudySubject) -> Problem {
-        guard subject != .math else { return next() }
+    fileprivate static func next(for subject: StudySubject, difficulty: Int = 1) -> Problem {
+        if subject == .math { return next(difficulty: difficulty) }
+        if difficulty > 1 && Int.random(in: 0...99) < 70,
+           let advanced = nextAdvancedQuestion(for: subject, level: difficulty) { return advanced }
+        if subject == .pdd { return trafficQuestion(level: 1) }
+        if subject == .orthography { return orthographyQuestion(level: 1) }
         let questions: [(String, String)]
         switch subject {
         case .math:
-            return next()
+            return next(difficulty: difficulty)
+        case .pdd:
+            return trafficQuestion(level: 1)
+        case .orthography:
+            return orthographyQuestion(level: 1)
         case .informatics:
             return informaticsQuestionBank.randomElement() ?? Problem(
                 text: "Какое устройство помогает напечатать текст?",
@@ -1116,6 +1274,8 @@ private enum StudySubject: String, CaseIterable, Identifiable {
     case art = "Рисование"
     case chemistry = "Химия"
     case informatics = "Информатика"
+    case pdd = "ПДД"
+    case orthography = "Орфография"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -1127,6 +1287,8 @@ private enum StudySubject: String, CaseIterable, Identifiable {
         case .art: "paintpalette.fill"
         case .chemistry: "testtube.2"
         case .informatics: "desktopcomputer"
+        case .pdd: "car.side.fill"
+        case .orthography: "character.book.closed.fill"
         }
     }
 }
@@ -1298,7 +1460,8 @@ struct ContentView: View {
     @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
     @AppStorage("MathTrainer.ShopPrices.v3") private var shopPricesStorage = ""
     @AppStorage("MathTrainer.ReleaseNotes.v1") private var releaseNotesStorage = ""
-    @AppStorage("MathTrainer.ScreenContrast.v1") private var screenContrast = 1.0
+    @AppStorage("MathTrainer.ScreenContrast.v1") private var screenContrast = 1.15
+    @AppStorage("MathTrainer.Difficulty.v1") private var difficultyLevel = 1
     @AppStorage("MathTrainer.SubjectPerformance.v1") private var subjectPerformanceStorage = ""
     @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
     @AppStorage("MathTrainer.OlympiadWins.v1") private var olympiadWins = 0
@@ -1701,6 +1864,8 @@ struct ContentView: View {
         case .art: "🎨"
         case .chemistry: "⚗️"
         case .informatics: "💻"
+        case .pdd: "🚦"
+        case .orthography: "🔤"
         }
     }
 
@@ -1912,7 +2077,7 @@ struct ContentView: View {
                         DispatchQueue.main.async { checkAnswer() }
                     } label: {
                         HStack(spacing: 8) {
-                            Text(["А", "Ә", "Б", "В"][index])
+                            Text(["А", "Б", "В", "Г"][index])
                                 .font(.system(size: 13, weight: .black, design: .rounded))
                                 .frame(width: 27, height: 27)
                                 .background(answer == choice ? Color.white.opacity(0.22) : palette.palePink, in: Circle())
@@ -2292,9 +2457,9 @@ struct ContentView: View {
                             .font(.system(size: 31, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 145).padding(15)
                             .background(Color.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
-                        if olympiadProblem.isTatarChoice {
+                        if olympiadProblem.isTatarChoice || olympiadProblem.isComparison {
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                                ForEach(olympiadProblem.tatarChoices, id: \.self) { choice in
+                                ForEach(olympiadProblem.isComparison ? ["<", "=", ">"] : olympiadProblem.tatarChoices, id: \.self) { choice in
                                     Button { submitOlympiadAnswer(choice) } label: {
                                         Text(choice).font(.system(size: 15, weight: .bold, design: .rounded))
                                             .foregroundStyle(palette.ink).multilineTextAlignment(.center)
@@ -2353,7 +2518,7 @@ struct ContentView: View {
 
     private func nextOlympiadProblem() {
         olympiadSubject = StudySubject.allCases.randomElement() ?? .math
-        olympiadProblem = ProblemGenerator.next(for: olympiadSubject)
+        olympiadProblem = ProblemGenerator.next(for: olympiadSubject, difficulty: difficultyLevel)
         olympiadAnswer = ""
         olympiadFeedback = ""
     }
@@ -3078,14 +3243,14 @@ struct ContentView: View {
         let key = subject.rawValue
         var seen = seenQuestionTexts[key, default: []]
         var candidate: Problem
-        if subject == .informatics {
+        if subject == .informatics && difficultyLevel == 1 {
             candidate = ProblemGenerator.nextInformatics(excluding: seen)
             if seen.contains(candidate.text) { seen.removeAll() }
         } else {
-            candidate = ProblemGenerator.next(for: subject)
+            candidate = ProblemGenerator.next(for: subject, difficulty: difficultyLevel)
             for _ in 0..<100 {
                 if !seen.contains(candidate.text) { break }
-                candidate = ProblemGenerator.next(for: subject)
+                candidate = ProblemGenerator.next(for: subject, difficulty: difficultyLevel)
             }
             if seen.contains(candidate.text) { seen.removeAll() }
         }
