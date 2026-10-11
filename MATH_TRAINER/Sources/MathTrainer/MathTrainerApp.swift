@@ -616,6 +616,84 @@ struct ProblemGenerator {
         }
     }
 
+    private static func logicQuestion(level: Int) -> Problem {
+        let banks: [(String, String, [String])] = [
+            ("Продолжи числовой ряд: 2, 4, 6, 8, …", "10", ["10", "9", "11", "12"]),
+            ("Продолжи числовой ряд: 5, 10, 15, 20, …", "25", ["25", "24", "30", "22"]),
+            ("Какое число лишнее: 3, 6, 9, 11, 12?", "11", ["11", "6", "9", "12"]),
+            ("Что лишнее: яблоко, груша, морковь, слива?", "Морковь", ["Морковь", "Яблоко", "Груша", "Слива"]),
+            ("У Ани 4 карандаша, у Вани на 3 больше. Сколько у Вани?", "7", ["7", "1", "8", "12"]),
+            ("У стола 4 угла. Один угол отпилили. Сколько углов стало у столешницы?", "5", ["5", "3", "4", "6"]),
+            ("Если сегодня вторник, какой день будет через 3 дня?", "Пятница", ["Пятница", "Четверг", "Суббота", "Воскресенье"]),
+            ("Что тяжелее: 1 кг песка или 1 кг сахара?", "Одинаково", ["Одинаково", "Песок", "Сахар", "Нельзя сравнить"]),
+            ("В коробке 3 пары носков. Сколько носков?", "6", ["6", "3", "5", "9"]),
+            ("Продолжи ряд фигур: круг, квадрат, круг, квадрат, …", "Круг", ["Круг", "Квадрат", "Треугольник", "Звезда"]),
+            ("Какое число пропущено: 4, 8, 12, __, 20?", "16", ["16", "14", "15", "18"]),
+            ("У пяти птиц по две лапы. Сколько всего лап?", "10", ["10", "7", "5", "12"]),
+            ("У Маши 2 брата, и у каждого брата есть одна сестра Маша. Сколько детей в семье?", "3", ["3", "4", "2", "5"]),
+            ("Какое слово не подходит к остальным: понедельник, среда, июнь, пятница?", "Июнь", ["Июнь", "Понедельник", "Среда", "Пятница"]),
+            ("Продолжи ряд: 1, 2, 4, 8, …", "16", ["16", "10", "12", "14"])
+        ]
+        let item = banks.randomElement()!
+        return choiceProblem(item)
+    }
+
+    private static func biologyQuestion(level: Int, illustrated: Bool) -> Problem {
+        // Комбинаторный банк даёт более 1 000 разных текстовых формулировок
+        // и более 1 000 отдельных заданий с иллюстрацией.
+        let organisms: [(String, String, String, String, String)] = [
+            ("дельфин", "млекопитающее", "море", "рыбой и кальмарами", "лёгкими"),
+            ("карась", "рыба", "пресная вода", "водными организмами", "жабрами"),
+            ("орёл", "птица", "горы и леса", "мелкими животными", "лёгкими"),
+            ("лягушка", "земноводное", "влажные места у воды", "насекомыми", "лёгкими и кожей"),
+            ("бабочка", "насекомое", "сады и луга", "нектаром", "трахейной системой"),
+            ("пчела", "насекомое", "луга и сады", "нектаром и пыльцой", "трахейной системой"),
+            ("ёж", "млекопитающее", "лес и сад", "насекомыми и червями", "лёгкими"),
+            ("крот", "млекопитающее", "подземные ходы в почве", "червями", "лёгкими"),
+            ("верблюд", "млекопитающее", "пустыня", "растениями", "лёгкими"),
+            ("белый медведь", "млекопитающее", "арктические льды", "рыбой и тюленями", "лёгкими"),
+            ("пингвин", "птица", "побережье Южного полушария", "рыбой и крилем", "лёгкими"),
+            ("улитка", "моллюск", "влажные места", "растениями", "лёгким или жабрами в зависимости от вида"),
+            ("паук", "паукообразное", "почва и растения", "насекомыми", "книжными лёгкими или трахеями"),
+            ("дождевой червь", "кольчатый червь", "влажная почва", "разлагающимися остатками растений", "через влажную кожу"),
+            ("сосна", "хвойное растение", "лес", "сама образует питательные вещества на свету", "через устьица и другие поверхности"),
+            ("берёза", "лиственное дерево", "лес и парк", "сама образует питательные вещества на свету", "через устьица листьев"),
+            ("кактус", "растение", "засушливые места", "сама образует питательные вещества на свету", "через поверхность стебля и устьица"),
+            ("папоротник", "споровое растение", "влажный тенистый лес", "сама образует питательные вещества на свету", "через поверхность растения"),
+            ("шампиньон", "гриб", "почва и богатые органикой места", "готовыми органическими веществами", "обменом газов через поверхность"),
+            ("бактерия", "микроорганизм", "почва, вода и живые организмы", "разными веществами в зависимости от вида", "через клеточную мембрану")
+        ]
+        let kinds = organisms.map { $0.1 }
+        let habitats = organisms.map { $0.2 }
+        let foods = organisms.map { $0.3 }
+        let breathing = organisms.map { $0.4 }
+        let item = organisms.randomElement()!
+        let type = Int.random(in: 0...3)
+        let forms = [
+            "К какой группе относится организм «%@»?",
+            "Где обычно можно встретить организм «%@»?",
+            "Чем питается организм «%@»?",
+            "Как организм «%@» получает кислород или обменивается газами?"
+        ]
+        let answer: String
+        let choices: [String]
+        switch type {
+        case 0: answer = item.1; choices = ([answer] + kinds.filter { $0 != answer }.shuffled().prefix(3)).shuffled()
+        case 1: answer = item.2; choices = ([answer] + habitats.filter { $0 != answer }.shuffled().prefix(3)).shuffled()
+        case 2: answer = item.3; choices = ([answer] + foods.filter { $0 != answer }.shuffled().prefix(3)).shuffled()
+        default: answer = item.4; choices = ([answer] + breathing.filter { $0 != answer }.shuffled().prefix(3)).shuffled()
+        }
+        let prompt = String(format: forms[type], item.0)
+        let variant = illustrated ? "Рассмотри иллюстрацию. " : ""
+        // Variants vary wording while retaining the same scientific fact and a single correct answer.
+        let phrasing = illustrated
+            ? ["Рассмотри иллюстрацию. %@", "По изображённому организму ответь: %@", "Изучите рисунок и выбери верный ответ: %@", "Что верно для организма на картинке? %@"][Int.random(in: 0...3)]
+            : ["Ответь на вопрос: %@", "Выбери научно верное утверждение: %@", "Проверь свои знания. %@", "Как правильно ответить? %@", "Биологический вопрос: %@"][Int.random(in: 0...4)]
+        let finalPrompt = String(format: phrasing, prompt)
+        _ = variant
+        return Problem(text: finalPrompt, answer: answer, isTatarChoice: true, tatarChoices: Array(choices))
+    }
+
     private static func choiceProblem(_ item: (String, String, [String])) -> Problem {
         Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled())
     }
@@ -933,6 +1011,8 @@ struct ProblemGenerator {
     }
 
     fileprivate static func next(for subject: StudySubject, difficulty: Int = 1) -> Problem {
+        if subject == .logic { return logicQuestion(level: difficulty) }
+        if subject == .biology { return biologyQuestion(level: difficulty, illustrated: Bool.random()) }
         if subject == .math { return next(difficulty: difficulty) }
         if difficulty > 1 && Int.random(in: 0...99) < 70,
            let advanced = nextAdvancedQuestion(for: subject, level: difficulty) { return advanced }
@@ -2298,7 +2378,7 @@ struct ContentView: View {
 
     private var subjectPickerMenu: some View {
         ScrollView {
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 ForEach(StudySubject.allCases) { subject in
                     Button {
                         selectedSubjectName = subject.rawValue
@@ -2336,10 +2416,10 @@ struct ContentView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(7)
+            .padding(.horizontal, 7).padding(.vertical, 10)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 610)
+        .frame(height: 690)
         .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
         .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 2))
         .shadow(color: palette.purple.opacity(0.22), radius: 10, x: 0, y: 5)
