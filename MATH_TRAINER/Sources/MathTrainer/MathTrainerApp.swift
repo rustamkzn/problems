@@ -1778,77 +1778,47 @@ private struct Collectible3DView: View {
     let title: String
     let size: CGFloat
     var animated: Bool = true
-    @State private var motion = false
-
+    @State private var bounce = false
     private var key: String { (id + " " + title).lowercased() }
-    private var unicorn: Bool { key.contains("единорог") || key.contains("unicorn") }
-    private var pony: Bool { key.contains("пони") || key.contains("pony") || key.contains("принцесс") }
-    private var bunny: Bool { key.contains("крош") || key.contains("bunny") || key.contains("зайч") }
-    private var princess: Bool { key.contains("принцесс") || key.contains("princess") }
-    private var fairy: Bool { key.contains("фея") || key.contains("fairy") || key.contains("русал") }
+    private var symbol: String {
+        if key.contains("единорог") || key.contains("unicorn") { return "sparkles" }
+        if key.contains("пони") || key.contains("pony") || key.contains("принцесс") { return "crown.fill" }
+        if key.contains("крош") || key.contains("bunny") || key.contains("зайч") || key.contains("крол") { return "hare.fill" }
+        if key.contains("дракон") || key.contains("dragon") { return "flame.fill" }
+        if key.contains("кот") || key.contains("cat") { return "cat.fill" }
+        if key.contains("череп") || key.contains("turtle") { return "tortoise.fill" }
+        if key.contains("коал") || key.contains("koala") { return "pawprint.fill" }
+        if key.contains("планет") || key.contains("planet") || key.contains("космос") { return "globe.americas.fill" }
+        if key.contains("робот") || key.contains("robot") { return "cpu.fill" }
+        if key.contains("серд") || key.contains("heart") { return "heart.fill" }
+        if key.contains("радуг") || key.contains("rainbow") { return "rainbow" }
+        return "star.fill"
+    }
     private var colors: [Color] {
-        if unicorn { return [Color(red: 1, green: 0.72, blue: 0.92), Color(red: 0.55, green: 0.36, blue: 0.96), Color(red: 0.25, green: 0.67, blue: 1)] }
-        if pony || princess { return [Color(red: 1, green: 0.66, blue: 0.78), Color(red: 0.96, green: 0.31, blue: 0.64), Color(red: 0.55, green: 0.25, blue: 0.83)] }
-        if bunny { return [Color(red: 0.46, green: 0.83, blue: 1), Color(red: 0.10, green: 0.55, blue: 0.95), Color(red: 0.05, green: 0.27, blue: 0.68)] }
-        if key.contains("dragon") || key.contains("дракон") { return [Color(red: 1, green: 0.69, blue: 0.35), Color(red: 0.91, green: 0.25, blue: 0.25), Color(red: 0.48, green: 0.13, blue: 0.48)] }
-        if key.contains("cat") || key.contains("кот") { return [Color(red: 1, green: 0.86, blue: 0.51), Color(red: 0.96, green: 0.54, blue: 0.34), Color(red: 0.65, green: 0.25, blue: 0.25)] }
-        return [Color(red: 0.75, green: 0.86, blue: 1), Color(red: 0.43, green: 0.56, blue: 0.95), Color(red: 0.30, green: 0.30, blue: 0.73)]
+        let hash = abs(key.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) & 0x7fffffff })
+        let palette: [[Color]] = [
+            [Color(red: 0.99, green: 0.35, blue: 0.55), Color(red: 1.0, green: 0.73, blue: 0.25)],
+            [Color(red: 0.36, green: 0.42, blue: 0.96), Color(red: 0.25, green: 0.78, blue: 0.95)],
+            [Color(red: 0.13, green: 0.72, blue: 0.49), Color(red: 0.66, green: 0.88, blue: 0.35)],
+            [Color(red: 0.65, green: 0.36, blue: 0.94), Color(red: 0.98, green: 0.42, blue: 0.72)],
+            [Color(red: 1.0, green: 0.55, blue: 0.25), Color(red: 0.97, green: 0.31, blue: 0.38)]
+        ]
+        return palette[hash % palette.count]
     }
     var body: some View {
         ZStack {
-            Ellipse().fill(LinearGradient(colors: [colors[1].opacity(0.10), colors[2].opacity(0.28)], startPoint: .top, endPoint: .bottom))
-                .frame(width: size * 0.78, height: size * 0.19).offset(y: size * 0.39).blur(radius: size * 0.035)
-            if fairy {
-                Circle().fill(LinearGradient(colors: [.white.opacity(0.9), colors[0].opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(width: size * 0.34, height: size * 0.45).offset(x: -size * 0.34, y: size * 0.02)
-                Circle().fill(LinearGradient(colors: [.white.opacity(0.9), colors[1].opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(width: size * 0.34, height: size * 0.45).offset(x: size * 0.34, y: size * 0.02)
-            }
-            if bunny {
-                RoundedRectangle(cornerRadius: size * 0.12).fill(LinearGradient(colors: [colors[0], colors[1]], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(width: size * 0.21, height: size * 0.47).rotationEffect(.degrees(-14)).offset(x: -size * 0.22, y: -size * 0.37)
-                RoundedRectangle(cornerRadius: size * 0.12).fill(LinearGradient(colors: [colors[0], colors[1]], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(width: size * 0.21, height: size * 0.47).rotationEffect(.degrees(14)).offset(x: size * 0.22, y: -size * 0.37)
-            } else if pony || unicorn {
-                RoundedRectangle(cornerRadius: size * 0.09).fill(LinearGradient(colors: [colors[0], colors[1]], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(width: size * 0.16, height: size * 0.23).rotationEffect(.degrees(-22)).offset(x: -size * 0.23, y: -size * 0.28)
-                RoundedRectangle(cornerRadius: size * 0.09).fill(LinearGradient(colors: [colors[0], colors[1]], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(width: size * 0.16, height: size * 0.23).rotationEffect(.degrees(22)).offset(x: size * 0.23, y: -size * 0.28)
-            }
-            Circle().fill(LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing))
-                .frame(width: size * 0.72, height: size * 0.72)
-                .overlay(alignment: .topLeading) { Circle().fill(.white.opacity(0.54)).frame(width: size * 0.19, height: size * 0.12).blur(radius: size * 0.015).offset(x: size * 0.14, y: size * 0.12) }
-                .overlay(Circle().stroke(.white.opacity(0.66), lineWidth: max(1, size * 0.018)))
-                .shadow(color: colors[2].opacity(0.37), radius: size * 0.10, x: size * 0.035, y: size * 0.09)
-            if unicorn {
-                Image(systemName: "sparkles").font(.system(size: size * 0.30, weight: .black))
-                    .foregroundStyle(LinearGradient(colors: [.white, Color(red: 1, green: 0.78, blue: 0.28)], startPoint: .top, endPoint: .bottom))
-                    .shadow(color: .white.opacity(0.85), radius: size * 0.05).offset(y: -size * 0.39)
-            } else if princess {
-                Image(systemName: "crown.fill").font(.system(size: size * 0.29, weight: .black))
-                    .foregroundStyle(LinearGradient(colors: [Color(red: 1, green: 0.91, blue: 0.43), Color(red: 1, green: 0.54, blue: 0.12)], startPoint: .top, endPoint: .bottom))
-                    .shadow(color: Color.orange.opacity(0.35), radius: size * 0.05, y: size * 0.025).offset(y: -size * 0.39)
-            }
-            HStack(spacing: size * 0.12) { eye; eye }.offset(y: size * 0.015)
-            Capsule().fill(Color(red: 0.25, green: 0.10, blue: 0.20).opacity(0.85)).frame(width: size * 0.19, height: size * 0.055).offset(y: size * 0.18)
-            if bunny { RoundedRectangle(cornerRadius: size * 0.012).fill(.white).frame(width: size * 0.055, height: size * 0.075).offset(y: size * 0.205) }
-            if pony || unicorn {
-                Circle().fill(colors[0].opacity(0.95)).frame(width: size * 0.26, height: size * 0.28)
-                    .overlay(Circle().stroke(.white.opacity(0.4), lineWidth: 1)).offset(x: size * 0.28, y: -size * 0.20)
-            }
-            if princess { Image(systemName: "sparkle").font(.system(size: size * 0.16, weight: .black)).foregroundStyle(.white).offset(x: -size * 0.24, y: size * 0.25) }
+            RoundedRectangle(cornerRadius: size * 0.23, style: .continuous).fill(colors[0].opacity(0.14))
+            Circle().fill(colors[1].opacity(0.22)).frame(width: size * 0.73, height: size * 0.73).offset(x: size * 0.20, y: -size * 0.20)
+            Circle().fill(colors[0].opacity(0.17)).frame(width: size * 0.62, height: size * 0.62).offset(x: -size * 0.22, y: size * 0.23)
+            Image(systemName: symbol).font(.system(size: size * 0.49, weight: .black)).symbolRenderingMode(.hierarchical).foregroundStyle(colors[0])
+                .padding(size * 0.20).background(colors[1].opacity(0.18), in: RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
+            Image(systemName: "sparkle").font(.system(size: size * 0.16, weight: .bold)).foregroundStyle(colors[1]).offset(x: size * 0.31, y: -size * 0.30)
         }
         .frame(width: size, height: size)
-        .rotation3DEffect(.degrees(animated && motion ? 8 : -5), axis: (x: 0.08, y: 1, z: 0))
-        .scaleEffect(animated && motion ? 1.035 : 0.97).offset(y: animated && motion ? -3 : 3)
-        .onAppear { guard animated else { return }; withAnimation(.easeInOut(duration: 1.35).repeatForever(autoreverses: true)) { motion = true } }
-    }
-    private var eye: some View {
-        ZStack {
-            Circle().fill(.white).frame(width: size * 0.15, height: size * 0.18)
-            Circle().fill(Color(red: 0.10, green: 0.12, blue: 0.26)).frame(width: size * 0.07, height: size * 0.09).offset(x: size * 0.018, y: size * 0.014)
-            Circle().fill(.white).frame(width: size * 0.028, height: size * 0.035).offset(x: size * 0.03, y: -size * 0.014)
-        }
+        .overlay(RoundedRectangle(cornerRadius: size * 0.23, style: .continuous).stroke(colors[0].opacity(0.28), lineWidth: 1.5))
+        .scaleEffect(animated && bounce ? 1.035 : 1.0)
+        .onAppear { guard animated else { return }; withAnimation(.easeInOut(duration: 1.7).repeatForever(autoreverses: true)) { bounce = true } }
+        .accessibilityLabel(title)
     }
 }
 
