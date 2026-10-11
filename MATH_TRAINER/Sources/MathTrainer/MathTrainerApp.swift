@@ -1241,28 +1241,106 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     case denim = "Джинсовая"
     case amber = "Янтарная"
     case berry = "Ягодная"
+    case darkRuby = "Тёмный рубин"
+    case darkForest = "Тёмный лес"
+    case darkOcean = "Тёмный океан"
+    case darkGraphite = "Ночной графит"
+    case darkAmber = "Тёмный янтарь"
     var id: String { rawValue }
+    var isDark: Bool { switch self { case .darkRuby, .darkForest, .darkOcean, .darkGraphite, .darkAmber: true; default: false } }
+    var darkText: Color { Color(red: 0.96, green: 0.97, blue: 1) }
+    var darkAccent: Color {
+        switch self {
+        case .darkRuby: Color(red: 1, green: 0.30, blue: 0.47)
+        case .darkForest: Color(red: 0.30, green: 0.91, blue: 0.62)
+        case .darkOcean: Color(red: 0.28, green: 0.72, blue: 1)
+        case .darkGraphite: Color(red: 0.48, green: 0.77, blue: 1)
+        case .darkAmber: Color(red: 1, green: 0.70, blue: 0.22)
+        default: Color(red: 0.72, green: 0.56, blue: 1)
+        }
+    }
+    var darkPink: Color {
+        switch self {
+        case .darkRuby: Color(red: 1, green: 0.29, blue: 0.49)
+        case .darkForest: Color(red: 0.20, green: 0.75, blue: 0.51)
+        case .darkOcean: Color(red: 0.12, green: 0.55, blue: 0.90)
+        case .darkGraphite: Color(red: 0.33, green: 0.45, blue: 0.64)
+        case .darkAmber: Color(red: 0.91, green: 0.55, blue: 0.12)
+        default: darkAccent
+        }
+    }
+    var darkPanel: Color {
+        switch self {
+        case .darkRuby: Color(red: 0.15, green: 0.055, blue: 0.095)
+        case .darkForest: Color(red: 0.035, green: 0.135, blue: 0.09)
+        case .darkOcean: Color(red: 0.035, green: 0.085, blue: 0.16)
+        case .darkGraphite: Color(red: 0.12, green: 0.13, blue: 0.16)
+        case .darkAmber: Color(red: 0.15, green: 0.095, blue: 0.025)
+        default: Color(red: 0.10, green: 0.09, blue: 0.15)
+        }
+    }
+    var darkLine: Color {
+        switch self {
+        case .darkRuby: Color(red: 0.53, green: 0.16, blue: 0.28)
+        case .darkForest: Color(red: 0.12, green: 0.46, blue: 0.29)
+        case .darkOcean: Color(red: 0.13, green: 0.38, blue: 0.63)
+        case .darkGraphite: Color(red: 0.33, green: 0.37, blue: 0.44)
+        case .darkAmber: Color(red: 0.52, green: 0.32, blue: 0.075)
+        default: darkAccent.opacity(0.5)
+        }
+    }
+    var darkMuted: Color { Color(red: 0.72, green: 0.75, blue: 0.82) }
+    var darkGreen: Color { Color(red: 0.36, green: 0.92, blue: 0.61) }
+    var darkRed: Color { Color(red: 1, green: 0.40, blue: 0.47) }
+    var darkCanvasTop: Color {
+        switch self {
+        case .darkRuby: Color(red: 0.20, green: 0.045, blue: 0.085)
+        case .darkForest: Color(red: 0.025, green: 0.19, blue: 0.105)
+        case .darkOcean: Color(red: 0.025, green: 0.11, blue: 0.23)
+        case .darkGraphite: Color(red: 0.17, green: 0.18, blue: 0.22)
+        case .darkAmber: Color(red: 0.21, green: 0.12, blue: 0.02)
+        default: darkPanel
+        }
+    }
+    var darkCanvasMiddle: Color {
+        switch self {
+        case .darkRuby: Color(red: 0.09, green: 0.035, blue: 0.06)
+        case .darkForest: Color(red: 0.018, green: 0.095, blue: 0.06)
+        case .darkOcean: Color(red: 0.02, green: 0.055, blue: 0.12)
+        case .darkGraphite: Color(red: 0.095, green: 0.10, blue: 0.125)
+        case .darkAmber: Color(red: 0.105, green: 0.065, blue: 0.015)
+        default: darkPanel
+        }
+    }
+    var darkCanvasBottom: Color { darkPanel }
+    var darkSidebarTop: Color { darkPanel }
+    var darkSidebarBottom: Color { darkCanvasBottom }
+    var darkQuizTop: Color { darkPanel }
+    var darkQuizBottom: Color { darkCanvasMiddle }
+    var darkQuizGlow: Color { darkAccent.opacity(0.42) }
 }
 private struct AppPalette {
     let theme: AppTheme
+    var isDark: Bool { theme.isDark }
+    var cardSurface: Color { theme.isDark ? theme.darkPanel : .white }
     private func c(_ r: Double, _ g: Double, _ b: Double) -> Color { Color(red:r, green:g, blue:b) }
-    var ink: Color { switch theme { case .lilac:c(0.20,0.15,0.39); case .ocean:c(0.10,0.22,0.38); case .mint:c(0.12,0.32,0.29); case .peach:c(0.42,0.23,0.24); case .night:c(0.2,0.15,0.39); case .rose:c(0.45,0.19,0.27); case .forest:c(0.08,0.35,0.265); case .sky:c(0.075,0.245,0.415); case .sunshine:c(0.465,0.25,0.2); case .galaxy:c(0.16,0.13,0.3); case .coral:c(0.39,0.15,0.16); case .teal:c(0.09,0.26,0.29); case .denim:c(0.14,0.24,0.38); case .amber:c(0.36,0.24,0.08); case .berry:c(0.39,0.14,0.27) } }
-    var purple: Color { switch theme { case .lilac:c(0.56,0.37,0.83); case .ocean:c(0.23,0.46,0.76); case .mint:c(0.19,0.56,0.48); case .peach:c(0.80,0.42,0.42); case .night:c(0.62,0.48,0.94); case .rose:c(0.83,0.38,0.45); case .forest:c(0.15,0.59,0.455); case .sky:c(0.205,0.485,0.795); case .sunshine:c(0.845,0.44,0.38); case .galaxy:c(0.585,0.495,0.985); case .coral:c(0.73,0.27,0.27); case .teal:c(0.10,0.47,0.50); case .denim:c(0.22,0.41,0.65); case .amber:c(0.70,0.42,0.10); case .berry:c(0.66,0.25,0.43) } }
-    var lilac: Color { switch theme { case .lilac:c(0.76,0.65,0.96); case .ocean:c(0.62,0.82,0.98); case .mint:c(0.58,0.84,0.75); case .peach:c(1,0.70,0.54); case .night:c(0.42,0.30,0.75); case .rose:c(1,0.66,0.57); case .forest:c(0.54,0.87,0.725); case .sky:c(0.595,0.845,1); case .sunshine:c(1,0.72,0.5); case .galaxy:c(0.385,0.315,0.795); case .coral:c(0.94,0.54,0.43); case .teal:c(0.43,0.77,0.75); case .denim:c(0.50,0.70,0.88); case .amber:c(0.94,0.69,0.34); case .berry:c(0.86,0.49,0.67) } }
-    var pink: Color { switch theme { case .lilac:c(0.96,0.70,0.86); case .ocean:c(0.63,0.88,0.94); case .mint:c(0.74,0.92,0.83); case .peach:c(1,0.75,0.66); case .night:c(0.83,0.45,0.75); case .rose:c(1,0.71,0.69); case .forest:c(0.7,0.95,0.805); case .sky:c(0.605,0.905,0.975); case .sunshine:c(1,0.77,0.62); case .galaxy:c(0.795,0.465,0.795); case .coral:c(0.97,0.60,0.50); case .teal:c(0.54,0.82,0.78); case .denim:c(0.59,0.78,0.92); case .amber:c(0.98,0.75,0.43); case .berry:c(0.91,0.57,0.73) } }
-    var palePink: Color { switch theme { case .lilac:c(1,0.92,0.97); case .ocean:c(0.91,0.97,1); case .mint:c(0.91,0.98,0.94); case .peach:c(1,0.94,0.88); case .night:c(0.96,0.93,0.99); case .rose:c(1,0.9,0.91); case .forest:c(0.87,1,0.915); case .sky:c(0.885,0.995,1); case .sunshine:c(1,0.96,0.84); case .galaxy:c(0.96,0.94,1); case .coral:c(0.99,0.89,0.84); case .teal:c(0.88,0.96,0.94); case .denim:c(0.88,0.93,0.98); case .amber:c(1,0.94,0.81); case .berry:c(0.98,0.89,0.93) } }
-    var green: Color { switch theme { case .lilac:c(0.20,0.66,0.43); case .ocean:c(0.15,0.62,0.52); case .mint:c(0.15,0.62,0.42); case .peach:c(0.28,0.61,0.40); case .night:c(0.44,0.82,0.60); case .rose:c(0.31,0.57,0.43); case .forest:c(0.11,0.65,0.395); case .sky:c(0.125,0.645,0.555); case .sunshine:c(0.325,0.63,0.36); case .galaxy:c(0.405,0.835,0.645); case .coral:c(0.22,0.56,0.37); case .teal:c(0.11,0.55,0.46); case .denim:c(0.16,0.53,0.69); case .amber:c(0.39,0.57,0.20); case .berry:c(0.22,0.56,0.40) } }
-    var red: Color { switch theme { case .lilac:c(0.89,0.28,0.42); case .ocean:c(0.84,0.34,0.40); case .mint:c(0.83,0.31,0.44); case .peach:c(0.84,0.28,0.31); case .night:c(0.98,0.46,0.58); case .rose:c(0.87,0.24,0.34); case .forest:c(0.79,0.34,0.415); case .sky:c(0.815,0.365,0.435); case .sunshine:c(0.885,0.3,0.27); case .galaxy:c(0.945,0.475,0.625); case .coral:c(0.79,0.19,0.22); case .teal:c(0.79,0.29,0.31); case .denim:c(0.76,0.29,0.34); case .amber:c(0.79,0.32,0.14); case .berry:c(0.78,0.21,0.39) } }
-    var muted: Color { switch theme { case .lilac:c(0.51,0.47,0.63); case .ocean:c(0.32,0.47,0.62); case .mint:c(0.30,0.50,0.46); case .peach:c(0.56,0.39,0.39); case .night:c(0.36,0.31,0.48); case .rose:c(0.59,0.35,0.42); case .forest:c(0.26,0.53,0.435); case .sky:c(0.295,0.495,0.655); case .sunshine:c(0.605,0.41,0.35); case .galaxy:c(0.34,0.29,0.48); case .coral:c(0.47,0.28,0.26); case .teal:c(0.27,0.43,0.42); case .denim:c(0.28,0.39,0.52); case .amber:c(0.51,0.37,0.21); case .berry:c(0.48,0.29,0.39) } }
-    var line: Color { switch theme { case .lilac:c(0.88,0.82,0.97); case .ocean:c(0.75,0.87,0.98); case .mint:c(0.76,0.91,0.84); case .peach:c(0.97,0.82,0.72); case .night:c(0.39,0.34,0.53); case .rose:c(1,0.78,0.75); case .forest:c(0.72,0.94,0.815); case .sky:c(0.725,0.895,1); case .sunshine:c(1,0.84,0.68); case .galaxy:c(0.355,0.355,0.575); case .coral:c(0.92,0.67,0.60); case .teal:c(0.69,0.88,0.84); case .denim:c(0.70,0.82,0.94); case .amber:c(0.95,0.82,0.60); case .berry:c(0.94,0.73,0.82) } }
-    var canvasTop: Color { switch theme { case .lilac:c(0.88,0.82,0.98); case .ocean:c(0.83,0.92,1); case .mint:c(0.82,0.96,0.89); case .peach:c(1,0.86,0.75); case .night:c(0.9,0.87,0.98); case .rose:c(1,0.82,0.78); case .forest:c(0.78,0.99,0.865); case .sky:c(0.805,0.945,1); case .sunshine:c(1,0.88,0.71); case .galaxy:c(0.88,0.84,0.99); case .coral:c(0.98,0.75,0.65); case .teal:c(0.77,0.93,0.89); case .denim:c(0.78,0.88,0.97); case .amber:c(0.99,0.85,0.60); case .berry:c(0.96,0.79,0.87) } }
-    var canvasMiddle: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.90,0.97,1); case .mint:c(0.94,1,0.96); case .peach:c(1,0.94,0.87); case .night:c(0.98,0.95,1); case .rose:c(1,0.9,0.9); case .forest:c(0.9,1,0.935); case .sky:c(0.875,0.995,1); case .sunshine:c(1,0.96,0.83); case .galaxy:c(0.96,0.94,1); case .coral:c(1,0.90,0.83); case .teal:c(0.91,0.97,0.95); case .denim:c(0.91,0.95,0.99); case .amber:c(1,0.94,0.77); case .berry:c(0.99,0.90,0.94) } }
-    var canvasBottom: Color { switch theme { case .lilac:c(0.96,0.91,1); case .ocean:c(0.88,0.95,1); case .mint:c(0.83,0.95,0.90); case .peach:c(1,0.89,0.81); case .night:c(0.93,0.9,0.99); case .rose:c(1,0.85,0.84); case .forest:c(0.79,0.98,0.875); case .sky:c(0.855,0.975,1); case .sunshine:c(1,0.91,0.77); case .galaxy:c(0.91,0.89,1); case .coral:c(0.97,0.77,0.68); case .teal:c(0.80,0.93,0.89); case .denim:c(0.80,0.89,0.97); case .amber:c(0.99,0.87,0.65); case .berry:c(0.96,0.80,0.88) } }
-    var sidebarTop: Color { switch theme { case .lilac:.white; case .ocean:c(0.96,0.99,1); case .mint:c(0.98,1,0.98); case .peach:c(1,0.99,0.96); case .night:c(0.98,0.97,1); case .rose:c(1,0.95,0.99); case .forest:c(0.94,1,0.955); case .sky:c(0.935,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.97,0.96,1); case .coral:c(1,0.91,0.87); case .teal:c(0.93,0.98,0.96); case .denim:c(0.93,0.96,1); case .amber:c(1,0.96,0.85); case .berry:c(1,0.93,0.96) } }
-    var sidebarBottom: Color { switch theme { case .lilac:c(0.95,0.90,1); case .ocean:c(0.87,0.94,1); case .mint:c(0.86,0.97,0.91); case .peach:c(1,0.90,0.81); case .night:c(0.91,0.88,0.99); case .rose:c(1,0.86,0.84); case .forest:c(0.82,1,0.885); case .sky:c(0.845,0.965,1); case .sunshine:c(1,0.92,0.77); case .galaxy:c(0.9,0.88,0.99); case .coral:c(0.97,0.78,0.69); case .teal:c(0.83,0.94,0.91); case .denim:c(0.82,0.90,0.97); case .amber:c(1,0.88,0.67); case .berry:c(0.97,0.82,0.90) } }
-    var quizTop: Color { switch theme { case .lilac:c(1,0.99,1); case .ocean:c(0.97,1,1); case .mint:c(0.99,1,0.99); case .peach:c(1,0.99,0.96); case .night:c(1,0.98,1); case .rose:c(1,0.95,0.99); case .forest:c(0.95,1,0.965); case .sky:c(0.945,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.99,0.98,1); case .coral:c(1,0.97,0.94); case .teal:c(0.97,1,0.99); case .denim:c(0.97,0.99,1); case .amber:c(1,0.99,0.91); case .berry:c(1,0.97,0.99) } }
-    var quizBottom: Color { switch theme { case .lilac:c(1,0.91,0.96); case .ocean:c(0.87,0.96,1); case .mint:c(0.88,0.98,0.92); case .peach:c(1,0.88,0.78); case .night:c(0.88,0.83,0.98); case .rose:c(1,0.84,0.81); case .forest:c(0.84,1,0.895); case .sky:c(0.845,0.985,1); case .sunshine:c(1,0.9,0.74); case .galaxy:c(0.88,0.84,1); case .coral:c(0.99,0.82,0.75); case .teal:c(0.83,0.95,0.91); case .denim:c(0.82,0.91,0.98); case .amber:c(1,0.90,0.70); case .berry:c(0.98,0.83,0.91) } }
-    var quizGlow: Color { switch theme { case .lilac:c(0.94,0.88,0.98); case .ocean:c(0.66,0.87,0.98); case .mint:c(0.70,0.91,0.82); case .peach:c(1,0.76,0.63); case .night:c(0.42,0.32,0.62); case .rose:c(1,0.72,0.66); case .forest:c(0.66,0.94,0.795); case .sky:c(0.635,0.895,1); case .sunshine:c(1,0.78,0.59); case .galaxy:c(0.385,0.335,0.665); case .coral:c(0.90,0.52,0.43); case .teal:c(0.40,0.72,0.70); case .denim:c(0.42,0.62,0.83); case .amber:c(0.91,0.64,0.25); case .berry:c(0.81,0.40,0.61) } }
+    var ink: Color { if theme.isDark { return theme.darkText }; return switch theme {  case .lilac:c(0.20,0.15,0.39); case .ocean:c(0.10,0.22,0.38); case .mint:c(0.12,0.32,0.29); case .peach:c(0.42,0.23,0.24); case .night:c(0.2,0.15,0.39); case .rose:c(0.45,0.19,0.27); case .forest:c(0.08,0.35,0.265); case .sky:c(0.075,0.245,0.415); case .sunshine:c(0.465,0.25,0.2); case .galaxy:c(0.16,0.13,0.3); case .coral:c(0.39,0.15,0.16); case .teal:c(0.09,0.26,0.29); case .denim:c(0.14,0.24,0.38); case .amber:c(0.36,0.24,0.08); case .berry:c(0.39,0.14,0.27); default: theme.darkText } }
+    var purple: Color { if theme.isDark { return theme.darkAccent }; return switch theme {  case .lilac:c(0.56,0.37,0.83); case .ocean:c(0.23,0.46,0.76); case .mint:c(0.19,0.56,0.48); case .peach:c(0.80,0.42,0.42); case .night:c(0.62,0.48,0.94); case .rose:c(0.83,0.38,0.45); case .forest:c(0.15,0.59,0.455); case .sky:c(0.205,0.485,0.795); case .sunshine:c(0.845,0.44,0.38); case .galaxy:c(0.585,0.495,0.985); case .coral:c(0.73,0.27,0.27); case .teal:c(0.10,0.47,0.50); case .denim:c(0.22,0.41,0.65); case .amber:c(0.70,0.42,0.10); case .berry:c(0.66,0.25,0.43); default: theme.darkAccent } }
+    var lilac: Color { if theme.isDark { return theme.darkAccent }; return switch theme {  case .lilac:c(0.76,0.65,0.96); case .ocean:c(0.62,0.82,0.98); case .mint:c(0.58,0.84,0.75); case .peach:c(1,0.70,0.54); case .night:c(0.42,0.30,0.75); case .rose:c(1,0.66,0.57); case .forest:c(0.54,0.87,0.725); case .sky:c(0.595,0.845,1); case .sunshine:c(1,0.72,0.5); case .galaxy:c(0.385,0.315,0.795); case .coral:c(0.94,0.54,0.43); case .teal:c(0.43,0.77,0.75); case .denim:c(0.50,0.70,0.88); case .amber:c(0.94,0.69,0.34); case .berry:c(0.86,0.49,0.67); default: theme.darkAccent } }
+    var pink: Color { if theme.isDark { return theme.darkPink }; return switch theme {  case .lilac:c(0.96,0.70,0.86); case .ocean:c(0.63,0.88,0.94); case .mint:c(0.74,0.92,0.83); case .peach:c(1,0.75,0.66); case .night:c(0.83,0.45,0.75); case .rose:c(1,0.71,0.69); case .forest:c(0.7,0.95,0.805); case .sky:c(0.605,0.905,0.975); case .sunshine:c(1,0.77,0.62); case .galaxy:c(0.795,0.465,0.795); case .coral:c(0.97,0.60,0.50); case .teal:c(0.54,0.82,0.78); case .denim:c(0.59,0.78,0.92); case .amber:c(0.98,0.75,0.43); case .berry:c(0.91,0.57,0.73); default: theme.darkPink } }
+    var palePink: Color { if theme.isDark { return theme.darkPanel }; return switch theme {  case .lilac:c(1,0.92,0.97); case .ocean:c(0.91,0.97,1); case .mint:c(0.91,0.98,0.94); case .peach:c(1,0.94,0.88); case .night:c(0.96,0.93,0.99); case .rose:c(1,0.9,0.91); case .forest:c(0.87,1,0.915); case .sky:c(0.885,0.995,1); case .sunshine:c(1,0.96,0.84); case .galaxy:c(0.96,0.94,1); case .coral:c(0.99,0.89,0.84); case .teal:c(0.88,0.96,0.94); case .denim:c(0.88,0.93,0.98); case .amber:c(1,0.94,0.81); case .berry:c(0.98,0.89,0.93); default: theme.darkPanel } }
+    var green: Color { if theme.isDark { return theme.darkGreen }; return switch theme {  case .lilac:c(0.20,0.66,0.43); case .ocean:c(0.15,0.62,0.52); case .mint:c(0.15,0.62,0.42); case .peach:c(0.28,0.61,0.40); case .night:c(0.44,0.82,0.60); case .rose:c(0.31,0.57,0.43); case .forest:c(0.11,0.65,0.395); case .sky:c(0.125,0.645,0.555); case .sunshine:c(0.325,0.63,0.36); case .galaxy:c(0.405,0.835,0.645); case .coral:c(0.22,0.56,0.37); case .teal:c(0.11,0.55,0.46); case .denim:c(0.16,0.53,0.69); case .amber:c(0.39,0.57,0.20); case .berry:c(0.22,0.56,0.40); default: theme.darkGreen } }
+    var red: Color { if theme.isDark { return theme.darkRed }; return switch theme {  case .lilac:c(0.89,0.28,0.42); case .ocean:c(0.84,0.34,0.40); case .mint:c(0.83,0.31,0.44); case .peach:c(0.84,0.28,0.31); case .night:c(0.98,0.46,0.58); case .rose:c(0.87,0.24,0.34); case .forest:c(0.79,0.34,0.415); case .sky:c(0.815,0.365,0.435); case .sunshine:c(0.885,0.3,0.27); case .galaxy:c(0.945,0.475,0.625); case .coral:c(0.79,0.19,0.22); case .teal:c(0.79,0.29,0.31); case .denim:c(0.76,0.29,0.34); case .amber:c(0.79,0.32,0.14); case .berry:c(0.78,0.21,0.39); default: theme.darkRed } }
+    var muted: Color { if theme.isDark { return theme.darkMuted }; return switch theme {  case .lilac:c(0.51,0.47,0.63); case .ocean:c(0.32,0.47,0.62); case .mint:c(0.30,0.50,0.46); case .peach:c(0.56,0.39,0.39); case .night:c(0.36,0.31,0.48); case .rose:c(0.59,0.35,0.42); case .forest:c(0.26,0.53,0.435); case .sky:c(0.295,0.495,0.655); case .sunshine:c(0.605,0.41,0.35); case .galaxy:c(0.34,0.29,0.48); case .coral:c(0.47,0.28,0.26); case .teal:c(0.27,0.43,0.42); case .denim:c(0.28,0.39,0.52); case .amber:c(0.51,0.37,0.21); case .berry:c(0.48,0.29,0.39); default: theme.darkMuted } }
+    var line: Color { if theme.isDark { return theme.darkLine }; return switch theme {  case .lilac:c(0.88,0.82,0.97); case .ocean:c(0.75,0.87,0.98); case .mint:c(0.76,0.91,0.84); case .peach:c(0.97,0.82,0.72); case .night:c(0.39,0.34,0.53); case .rose:c(1,0.78,0.75); case .forest:c(0.72,0.94,0.815); case .sky:c(0.725,0.895,1); case .sunshine:c(1,0.84,0.68); case .galaxy:c(0.355,0.355,0.575); case .coral:c(0.92,0.67,0.60); case .teal:c(0.69,0.88,0.84); case .denim:c(0.70,0.82,0.94); case .amber:c(0.95,0.82,0.60); case .berry:c(0.94,0.73,0.82); default: theme.darkLine } }
+    var canvasTop: Color { if theme.isDark { return theme.darkCanvasTop }; return switch theme {  case .lilac:c(0.88,0.82,0.98); case .ocean:c(0.83,0.92,1); case .mint:c(0.82,0.96,0.89); case .peach:c(1,0.86,0.75); case .night:c(0.9,0.87,0.98); case .rose:c(1,0.82,0.78); case .forest:c(0.78,0.99,0.865); case .sky:c(0.805,0.945,1); case .sunshine:c(1,0.88,0.71); case .galaxy:c(0.88,0.84,0.99); case .coral:c(0.98,0.75,0.65); case .teal:c(0.77,0.93,0.89); case .denim:c(0.78,0.88,0.97); case .amber:c(0.99,0.85,0.60); case .berry:c(0.96,0.79,0.87); default: theme.darkCanvasTop } }
+    var canvasMiddle: Color { if theme.isDark { return theme.darkCanvasMiddle }; return switch theme {  case .lilac:c(1,0.91,0.96); case .ocean:c(0.90,0.97,1); case .mint:c(0.94,1,0.96); case .peach:c(1,0.94,0.87); case .night:c(0.98,0.95,1); case .rose:c(1,0.9,0.9); case .forest:c(0.9,1,0.935); case .sky:c(0.875,0.995,1); case .sunshine:c(1,0.96,0.83); case .galaxy:c(0.96,0.94,1); case .coral:c(1,0.90,0.83); case .teal:c(0.91,0.97,0.95); case .denim:c(0.91,0.95,0.99); case .amber:c(1,0.94,0.77); case .berry:c(0.99,0.90,0.94); default: theme.darkCanvasMiddle } }
+    var canvasBottom: Color { if theme.isDark { return theme.darkCanvasBottom }; return switch theme {  case .lilac:c(0.96,0.91,1); case .ocean:c(0.88,0.95,1); case .mint:c(0.83,0.95,0.90); case .peach:c(1,0.89,0.81); case .night:c(0.93,0.9,0.99); case .rose:c(1,0.85,0.84); case .forest:c(0.79,0.98,0.875); case .sky:c(0.855,0.975,1); case .sunshine:c(1,0.91,0.77); case .galaxy:c(0.91,0.89,1); case .coral:c(0.97,0.77,0.68); case .teal:c(0.80,0.93,0.89); case .denim:c(0.80,0.89,0.97); case .amber:c(0.99,0.87,0.65); case .berry:c(0.96,0.80,0.88); default: theme.darkCanvasBottom } }
+    var sidebarTop: Color { if theme.isDark { return theme.darkSidebarTop }; return switch theme {  case .lilac:.white; case .ocean:c(0.96,0.99,1); case .mint:c(0.98,1,0.98); case .peach:c(1,0.99,0.96); case .night:c(0.98,0.97,1); case .rose:c(1,0.95,0.99); case .forest:c(0.94,1,0.955); case .sky:c(0.935,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.97,0.96,1); case .coral:c(1,0.91,0.87); case .teal:c(0.93,0.98,0.96); case .denim:c(0.93,0.96,1); case .amber:c(1,0.96,0.85); case .berry:c(1,0.93,0.96); default: theme.darkSidebarTop } }
+    var sidebarBottom: Color { if theme.isDark { return theme.darkSidebarBottom }; return switch theme {  case .lilac:c(0.95,0.90,1); case .ocean:c(0.87,0.94,1); case .mint:c(0.86,0.97,0.91); case .peach:c(1,0.90,0.81); case .night:c(0.91,0.88,0.99); case .rose:c(1,0.86,0.84); case .forest:c(0.82,1,0.885); case .sky:c(0.845,0.965,1); case .sunshine:c(1,0.92,0.77); case .galaxy:c(0.9,0.88,0.99); case .coral:c(0.97,0.78,0.69); case .teal:c(0.83,0.94,0.91); case .denim:c(0.82,0.90,0.97); case .amber:c(1,0.88,0.67); case .berry:c(0.97,0.82,0.90); default: theme.darkSidebarBottom } }
+    var quizTop: Color { if theme.isDark { return theme.darkQuizTop }; return switch theme {  case .lilac:c(1,0.99,1); case .ocean:c(0.97,1,1); case .mint:c(0.99,1,0.99); case .peach:c(1,0.99,0.96); case .night:c(1,0.98,1); case .rose:c(1,0.95,0.99); case .forest:c(0.95,1,0.965); case .sky:c(0.945,1,1); case .sunshine:c(1,1,0.92); case .galaxy:c(0.99,0.98,1); case .coral:c(1,0.97,0.94); case .teal:c(0.97,1,0.99); case .denim:c(0.97,0.99,1); case .amber:c(1,0.99,0.91); case .berry:c(1,0.97,0.99); default: theme.darkQuizTop } }
+    var quizBottom: Color { if theme.isDark { return theme.darkQuizBottom }; return switch theme {  case .lilac:c(1,0.91,0.96); case .ocean:c(0.87,0.96,1); case .mint:c(0.88,0.98,0.92); case .peach:c(1,0.88,0.78); case .night:c(0.88,0.83,0.98); case .rose:c(1,0.84,0.81); case .forest:c(0.84,1,0.895); case .sky:c(0.845,0.985,1); case .sunshine:c(1,0.9,0.74); case .galaxy:c(0.88,0.84,1); case .coral:c(0.99,0.82,0.75); case .teal:c(0.83,0.95,0.91); case .denim:c(0.82,0.91,0.98); case .amber:c(1,0.90,0.70); case .berry:c(0.98,0.83,0.91); default: theme.darkQuizBottom } }
+    var quizGlow: Color { if theme.isDark { return theme.darkQuizGlow }; return switch theme {  case .lilac:c(0.94,0.88,0.98); case .ocean:c(0.66,0.87,0.98); case .mint:c(0.70,0.91,0.82); case .peach:c(1,0.76,0.63); case .night:c(0.42,0.32,0.62); case .rose:c(1,0.72,0.66); case .forest:c(0.66,0.94,0.795); case .sky:c(0.635,0.895,1); case .sunshine:c(1,0.78,0.59); case .galaxy:c(0.385,0.335,0.665); case .coral:c(0.90,0.52,0.43); case .teal:c(0.40,0.72,0.70); case .denim:c(0.42,0.62,0.83); case .amber:c(0.91,0.64,0.25); case .berry:c(0.81,0.40,0.61); default: theme.darkQuizGlow } }
     static func make(_ theme: AppTheme) -> AppPalette { AppPalette(theme: theme) }
 }
 private enum StudySubject: String, CaseIterable, Identifiable {
@@ -1617,7 +1695,7 @@ struct ContentView: View {
                 Rectangle().fill(palette.line.opacity(0.8)).frame(width: 1)
                 mainContent.frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 25))
+            .background(palette.cardSurface.opacity(palette.isDark ? 0.96 : 0.72), in: RoundedRectangle(cornerRadius: 25))
             .overlay(RoundedRectangle(cornerRadius: 25).stroke(.white.opacity(0.94), lineWidth: 1.2))
             .clipShape(RoundedRectangle(cornerRadius: 25))
             .contrast(screenContrast)
@@ -1662,7 +1740,7 @@ struct ContentView: View {
                         Image(systemName: selectedSubject.icon)
                             .font(.system(size: 19, weight: .heavy))
                             .frame(width: 40, height: 40)
-                            .background(.white.opacity(0.22), in: RoundedRectangle(cornerRadius: 11))
+                            .background(palette.cardSurface.opacity(0.22), in: RoundedRectangle(cornerRadius: 11))
                         VStack(alignment: .leading, spacing: 3) {
                             Text(selectedSubject.rawValue)
                                 .font(.system(size: 14, weight: .heavy, design: .rounded))
@@ -1675,7 +1753,7 @@ struct ContentView: View {
                         Image(systemName: showSubjectPicker ? "chevron.up" : "chevron.down")
                             .font(.system(size: 13, weight: .black))
                             .frame(width: 28, height: 28)
-                            .background(.white.opacity(0.22), in: Circle())
+                            .background(palette.cardSurface.opacity(0.22), in: Circle())
                     }
                     .foregroundStyle(.white)
                     .padding(10)
@@ -1751,7 +1829,7 @@ struct ContentView: View {
                 .foregroundStyle(palette.purple)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(.white.opacity(0.75), in: Capsule())
+                .background(palette.cardSurface.opacity(0.75), in: Capsule())
                 .padding(.leading, 19)
                 .padding(.top, 11)
                 .padding(.bottom, 24)
@@ -1849,7 +1927,7 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 440)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 15))
+        .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
         .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 2))
         .shadow(color: palette.purple.opacity(0.22), radius: 10, x: 0, y: 5)
     }
@@ -1896,7 +1974,7 @@ struct ContentView: View {
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.right").font(.system(size: 11, weight: .heavy)).foregroundStyle(palette.purple)
                 }.padding(.horizontal, 14).frame(maxWidth: .infinity).frame(height: 70)
-                 .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
+                 .background(palette.cardSurface.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
                  .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
             }.buttonStyle(.plain).help("Открыть магазин коллекционных игрушек")
             HStack(spacing: 10) {
@@ -1912,7 +1990,7 @@ struct ContentView: View {
                     }
                 }
             }.padding(.horizontal, 12).frame(maxWidth: .infinity).frame(height: 70)
-             .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
+             .background(palette.cardSurface.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
              .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
         }
     }
@@ -1926,7 +2004,7 @@ struct ContentView: View {
                 .foregroundStyle(palette.purple)
                 .padding(.horizontal, 22)
                 .padding(.vertical, 11)
-                .background(.white.opacity(0.84), in: Capsule())
+                .background(palette.cardSurface.opacity(0.84), in: Capsule())
                 .overlay(Capsule().stroke(.white, lineWidth: 1))
                 .shadow(color: palette.pink.opacity(0.18), radius: 9, y: 3)
 
@@ -1955,7 +2033,7 @@ struct ContentView: View {
                         .textFieldStyle(.plain)
                         .focusEffectDisabled()
                         .frame(height: 74)
-                        .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 21))
+                        .background(palette.cardSurface.opacity(0.9), in: RoundedRectangle(cornerRadius: 21))
                         .overlay(RoundedRectangle(cornerRadius: 21).stroke(answerColor.opacity(0.78), lineWidth: 2))
                         .focused($answerFocused)
                         .onSubmit(checkAnswer)
@@ -2110,7 +2188,7 @@ struct ContentView: View {
                 .foregroundStyle(palette.purple).offset(y: -8)
         }
         .frame(width: 112, height: 150)
-        .background(LinearGradient(colors: [.white, palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing),
+        .background(LinearGradient(colors: [palette.cardSurface, palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing),
                     in: RoundedRectangle(cornerRadius: 27))
         .overlay(RoundedRectangle(cornerRadius: 27).stroke(.white, lineWidth: 2))
         .shadow(color: palette.purple.opacity(0.23), radius: 14, x: 3, y: 5)
@@ -2139,7 +2217,7 @@ struct ContentView: View {
         }
         .padding(.horizontal, 15)
         .padding(.vertical, 12)
-        .background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 19))
+        .background(palette.cardSurface.opacity(0.75), in: RoundedRectangle(cornerRadius: 19))
         .overlay(RoundedRectangle(cornerRadius: 19).stroke(palette.line.opacity(0.75), lineWidth: 1))
     }
 
@@ -2254,7 +2332,7 @@ struct ContentView: View {
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 7)
-                    .background(.white.opacity(0.48), in: RoundedRectangle(cornerRadius: 8))
+                    .background(palette.cardSurface.opacity(0.48), in: RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
@@ -2303,7 +2381,7 @@ struct ContentView: View {
                             }.frame(height: 8)
                             Text("Верно: \(result.correct) · Ошибок: \(result.incorrect) · Всего: \(result.total)")
                                 .font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                        }.padding(11).background(Color.white.opacity(0.56), in: RoundedRectangle(cornerRadius: 12))
+                        }.padding(11).background(palette.cardSurface.opacity(0.56), in: RoundedRectangle(cornerRadius: 12))
                     }
                     Text("Ориентир: меньше 60% — предмет стоит повторить, 60–79% — нужна практика, 80% и выше — хороший уровень.")
                         .font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
@@ -2456,7 +2534,7 @@ struct ContentView: View {
                         Text(olympiadProblem.text)
                             .font(.system(size: 31, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 145).padding(15)
-                            .background(Color.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
+                            .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
                         if olympiadProblem.isTatarChoice || olympiadProblem.isComparison {
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                                 ForEach(olympiadProblem.isComparison ? ["<", "=", ">"] : olympiadProblem.tatarChoices, id: \.self) { choice in
@@ -2464,7 +2542,7 @@ struct ContentView: View {
                                         Text(choice).font(.system(size: 15, weight: .bold, design: .rounded))
                                             .foregroundStyle(palette.ink).multilineTextAlignment(.center)
                                             .frame(maxWidth: .infinity, minHeight: 58)
-                                            .padding(8).background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 15))
+                                            .padding(8).background(palette.cardSurface.opacity(0.88), in: RoundedRectangle(cornerRadius: 15))
                                             .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple.opacity(0.65), lineWidth: 1.5))
                                     }.buttonStyle(.plain)
                                 }
@@ -2474,7 +2552,7 @@ struct ContentView: View {
                                 TextField("Твой ответ", text: $olympiadAnswer)
                                     .font(.system(size: 21, weight: .bold, design: .rounded)).textFieldStyle(.plain)
                                     .multilineTextAlignment(.center).foregroundStyle(palette.ink)
-                                    .frame(height: 60).background(.white, in: RoundedRectangle(cornerRadius: 15))
+                                    .frame(height: 60).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
                                     .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 1.5))
                                     .onSubmit { submitOlympiadAnswer(olympiadAnswer) }
                                 Button { submitOlympiadAnswer(olympiadAnswer) } label: {
@@ -2486,7 +2564,7 @@ struct ContentView: View {
                             Text(olympiadFeedback).font(.system(size: 14, weight: .bold, design: .rounded))
                                 .foregroundStyle(olympiadFeedback.hasPrefix("Верно") ? palette.green : palette.red)
                                 .frame(maxWidth: .infinity, alignment: .center).padding(10)
-                                .background(Color.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 12))
+                                .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 12))
                         }
                         Text("Каждый ответ записывается в статистику предмета. Алмазы за олимпиаду начисляются только после победы.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
@@ -2590,7 +2668,7 @@ struct ContentView: View {
                             }
                             .font(.system(size: 14, weight: .semibold, design: .rounded))
                             .padding(12)
-                            .background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 11))
+                            .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 11))
                         }
                     }
                 }
@@ -2632,7 +2710,7 @@ struct ContentView: View {
                                 .foregroundStyle(palette.muted)
                             }
                             .padding(13)
-                            .background(.white.opacity(0.58), in: RoundedRectangle(cornerRadius: 13))
+                            .background(palette.cardSurface.opacity(0.58), in: RoundedRectangle(cornerRadius: 13))
                         }
                     }
                 }
@@ -2698,7 +2776,7 @@ struct ContentView: View {
     private func medalCard(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
         let earned = progress >= goal
         return VStack(alignment: .leading, spacing: 9) {
-            Text(earned ? emoji : "🔒").font(.system(size: 47)).frame(width: 78, height: 78)
+            Text(earned ? emoji : "🔒").font(.system(size: 141)).frame(width: 234, height: 234)
                 .background(LinearGradient(colors: earned ? [color, palette.pink] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(earned ? color : palette.line, lineWidth: 2))
             Text(title).font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -2791,7 +2869,7 @@ struct ContentView: View {
                     )
                 )
                 Text(owned ? item.emoji : (item.isRare ? "🌠" : "🎁"))
-                    .font(.system(size: item.isRare ? 47 : 43))
+                    .font(.system(size: item.isRare ? 141 : 129))
                     .saturation(owned ? 1 : 0.58)
                     .opacity(owned ? 1 : 0.78)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -2805,7 +2883,7 @@ struct ContentView: View {
                         .padding(7).background(palette.purple, in: Circle()).padding(6)
                 }
             }
-            .frame(height: item.isRare ? 96 : 83)
+            .frame(height: item.isRare ? 288 : 249)
             .overlay(RoundedRectangle(cornerRadius: 17).stroke(item.isRare ? gold : palette.line.opacity(0.7), lineWidth: item.isRare ? 2 : 1))
 
             if item.isRare {
@@ -2880,20 +2958,30 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Настройки", subtitle: "Настрой своё учебное пространство")
                 VStack(alignment: .leading, spacing: 15) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("КОНТРАСТ ЦВЕТОВ", systemImage: "circle.lefthalf.filled")
+                            .font(.system(size: 17, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Передвинь ползунок — внешний вид изменится сразу.")
+                            .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        Slider(value: $screenContrast, in: 0.75...1.55, step: 0.05)
+                            .tint(palette.purple).controlSize(.large).frame(minHeight: 32)
+                        HStack {
+                            Text("75% · мягче").foregroundStyle(palette.muted)
+                            Spacer()
+                            Text("\(Int((screenContrast * 100).rounded()))%")
+                                .font(.system(size: 15, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
+                            Spacer()
+                            Text("155% · ярче").foregroundStyle(palette.muted)
+                        }.font(.system(size: 11, weight: .bold, design: .rounded))
+                    }
+                    .padding(16)
+                    .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 17))
+                    .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.purple, lineWidth: 2))
                     Label("Тема оформления", systemImage: "paintpalette.fill").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Выбери одну из пятнадцати тем. Цвета интерфейса изменятся сразу.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("Выбери одну из двадцати тем. Пять новых тем — тёмные и контрастные.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 10) {
                         ForEach(AppTheme.allCases) { theme in themeSwatch(theme) }
                     }
-                    Divider().overlay(palette.line)
-                    Label("Контрастность экрана", systemImage: "circle.lefthalf.filled").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    HStack(spacing: 10) {
-                        Text("Мягче").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
-                        Slider(value: $screenContrast, in: 0.75...1.45, step: 0.05).tint(palette.purple)
-                        Text("Ярче").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
-                    }
-                    Text("Текущая контрастность: \(Int((screenContrast * 100).rounded()))%. Изменение применяется сразу.")
-                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     Divider().overlay(palette.line)
                     Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     Text("Выбери предмет в левом меню. В рисовании — вопросы о цветах, художественных жанрах, материалах и техниках.")
@@ -2934,7 +3022,7 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity).frame(height: 31)
                     .overlay {
                         if themeName == theme.rawValue {
-                            Image(systemName: "checkmark").font(.system(size: 12, weight: .heavy)).foregroundStyle(theme == .night ? .white : p.ink)
+                            Image(systemName: "checkmark").font(.system(size: 12, weight: .heavy)).foregroundStyle(theme.isDark || theme == .night || theme == .galaxy ? .white : p.ink)
                         }
                     }
                     .overlay(RoundedRectangle(cornerRadius: 9).stroke(p.line, lineWidth: 1))
@@ -3000,7 +3088,7 @@ struct ContentView: View {
             Text(value).font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity, minHeight: 49, alignment: .leading)
-        .padding(7).background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 12))
+        .padding(7).background(palette.cardSurface.opacity(0.75), in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.line.opacity(0.7), lineWidth: 1))
     }
 
@@ -3028,13 +3116,13 @@ struct ContentView: View {
             .foregroundStyle(palette.muted)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
-            .background(.white.opacity(0.56), in: RoundedRectangle(cornerRadius: 11))
+            .background(palette.cardSurface.opacity(0.56), in: RoundedRectangle(cornerRadius: 11))
     }
 
     private func rewardPreview(emoji: String, title: String, subtitle: String, progress: Int, goal: Int) -> some View {
         HStack(spacing: 9) {
-            Text(emoji).font(.system(size: 27))
-                .frame(width: 42, height: 45)
+            Text(emoji).font(.system(size: 81))
+                .frame(width: 126, height: 135)
                 .background(palette.palePink, in: RoundedRectangle(cornerRadius: 12))
             VStack(alignment: .leading, spacing: 3) {
                 Text(title).font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -3044,7 +3132,7 @@ struct ContentView: View {
             Spacer(minLength: 0)
         }
         .padding(7)
-        .background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 13))
+        .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 13))
     }
 
     private func largeStat(_ title: String, value: String, icon: String, color: Color) -> some View {
@@ -3062,8 +3150,8 @@ struct ContentView: View {
     private func achievementCard(_ item: Achievement) -> some View {
         let unlocked = unlockedAchievementIDs.contains(item.id)
         return HStack(alignment: .top, spacing: 10) {
-            Text(unlocked ? item.emoji : "🔒").font(.system(size: 40))
-                .frame(width: 66, height: 66).background(LinearGradient(colors: unlocked ? [palette.pink, palette.lilac] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+            Text(unlocked ? item.emoji : "🔒").font(.system(size: 120))
+                .frame(width: 198, height: 198).background(LinearGradient(colors: unlocked ? [palette.pink, palette.lilac] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(unlocked ? palette.purple : palette.line, lineWidth: 2))
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -3072,14 +3160,14 @@ struct ContentView: View {
             }
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity, minHeight: 92, alignment: .leading).padding(12)
-            .background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 15))
+            .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 15))
             .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.line.opacity(0.7), lineWidth: 1))
     }
     private func collectibleCard(_ item: Collectible) -> some View {
         let unlocked = allOwnedCollectibleIDs.contains(item.id)
         return HStack(spacing: 9) {
-            Text(unlocked ? item.emoji : "❔").font(.system(size: 40))
-                .frame(width: 66, height: 66).background(LinearGradient(colors: [palette.pink, palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+            Text(unlocked ? item.emoji : "❔").font(.system(size: 120))
+                .frame(width: 198, height: 198).background(LinearGradient(colors: [palette.pink, palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(palette.purple.opacity(0.75), lineWidth: 2))
             VStack(alignment: .leading, spacing: 3) {
                 Text(unlocked ? item.title : "Секретная находка").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -3087,7 +3175,7 @@ struct ContentView: View {
             }
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity, minHeight: 84, alignment: .leading).padding(11)
-            .background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 14))
+            .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 14))
     }
     private func unlockEligibleAchievements() -> [Achievement] {
         let already = unlockedAchievementIDs
@@ -3181,8 +3269,8 @@ struct ContentView: View {
     }
     private func rewardLarge(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(emoji).font(.system(size: 42))
-                .frame(width: 68, height: 68)
+            Text(emoji).font(.system(size: 126))
+                .frame(width: 204, height: 204)
                 .background(color.opacity(0.6), in: RoundedRectangle(cornerRadius: 20))
             Text(title).font(.system(size: 20, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             Text(detail).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
@@ -3406,7 +3494,7 @@ private struct CelebrationToken {
 private extension View {
     func cardStyle(_ palette: AppPalette) -> some View {
         self
-            .background(.white.opacity(0.82), in: RoundedRectangle(cornerRadius: 19))
+            .background(palette.cardSurface.opacity(palette.isDark ? 0.97 : 0.82), in: RoundedRectangle(cornerRadius: 19))
             .overlay(RoundedRectangle(cornerRadius: 19).stroke(palette.line.opacity(0.7), lineWidth: 1))
             .shadow(color: palette.purple.opacity(0.035), radius: 8, y: 3)
     }
