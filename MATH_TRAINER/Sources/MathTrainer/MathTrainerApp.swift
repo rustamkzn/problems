@@ -1,27 +1,16 @@
 import SwiftUI
 
-struct ArtChoice: Identifiable {
-    let title: String
-    let symbol: String
-    let caption: String
-    var id: String { title }
-}
-
 struct Problem {
     let text: String
     let answer: String
     let isComparison: Bool
-    let isArtChoice: Bool
-    let artChoices: [ArtChoice]
     let isTatarChoice: Bool
     let tatarChoices: [String]
 
-    init(text: String, answer: String, isComparison: Bool = false, isArtChoice: Bool = false, artChoices: [ArtChoice] = [], isTatarChoice: Bool = false, tatarChoices: [String] = []) {
+    init(text: String, answer: String, isComparison: Bool = false, isTatarChoice: Bool = false, tatarChoices: [String] = []) {
         self.text = text
         self.answer = answer
         self.isComparison = isComparison
-        self.isArtChoice = isArtChoice
-        self.artChoices = artChoices
         self.isTatarChoice = isTatarChoice
         self.tatarChoices = tatarChoices
     }
@@ -123,7 +112,7 @@ struct ProblemGenerator {
         case .russian: hints = ["Подумай о значении слова.", "Вспомни правило и проверь написание.", "Попробуй произнести слово по слогам.", "Подбери похожее по смыслу слово."]
         case .english: hints = ["Вспомни перевод слова в контексте.", "Произнеси слово вслух.", "Подумай, где встречал это слово.", "Проверь написание букв."]
         case .tatar: hints = ["Вспомни перевод татарского слова.", "Произнеси слово вслух.", "Вспомни, как это говорят дома.", "Повтори слово и его значение."]
-        case .art: hints = ["Портрет изображает человека, пейзаж — природу.", "Натюрморт изображает предметы или цветы.", "Граффити часто состоит из ярких букв и рисунков.", "Обрати внимание на главный объект."]
+        case .art: hints = ["Вспомни свойства цвета и основные цвета.", "Подумай, какой инструмент или материал подходит для этой задачи.", "Вспомни отличия портрета, пейзажа и натюрморта.", "Обрати внимание на слова о композиции и художественных техниках."]
         case .chemistry: hints = ["Вспомни символы химических элементов.", "Первая буква символа обычно заглавная, вторая — строчная.", "Найди элемент по его месту в таблице Менделеева.", "Попробуй исключить элементы из других групп."]
         }
         return hints.randomElement() ?? "Внимательно прочитай условие и проверь ответ."
@@ -212,46 +201,67 @@ struct ProblemGenerator {
             let prompt = reverse ? "Как по-татарски «\(item.1)»?" : "Что значит татарское слово «\(item.0)»?"
             return Problem(text: prompt, answer: correct, isTatarChoice: true, tatarChoices: choices)
         case .art:
-            let artForms: [(String, String, String)] = [
-                ("Граффити", "paintbrush.pointed.fill", "Яркие буквы и рисунки на городской стене"),
-                ("Портрет", "person.crop.rectangle", "Изображение человека"),
-                ("Пейзаж", "mountain.2.fill", "Природа: горы, небо, лес или море"),
-                ("Натюрморт", "cup.and.saucer.fill", "Предметы, цветы или фрукты"),
-                ("Иллюстрация", "book.closed.fill", "Рисунок к книге или рассказу"),
-                ("Комикс", "text.book.closed.fill", "История в картинках с кадрами"),
-                ("Карикатура", "face.smiling.inverse", "Смешной рисунок с преувеличенными чертами"),
-                ("Мозаика", "square.grid.3x3.fill", "Изображение из маленьких кусочков"),
-                ("Аппликация", "scissors", "Картинка из вырезанных и наклеенных деталей"),
-                ("Скульптура", "figure.stand", "Объёмная фигура из глины, камня или другого материала"),
-                ("Оригами", "paperplane.fill", "Фигурка, сложенная из бумаги"),
-                ("Орнамент", "circle.grid.3x3.fill", "Повторяющийся узор"),
-                ("Аниме", "sparkles", "Рисунки в стиле японской анимации"),
-                ("Мультфильм", "play.rectangle.fill", "История с движущимися нарисованными героями"),
-                ("Архитектурный рисунок", "building.2.fill", "Изображение здания или дома"),
-                ("Набросок", "pencil.tip.crop.circle", "Быстрый предварительный рисунок"),
-                ("Абстракция", "scribble.variable", "Рисунок из форм и цветов без точного предмета"),
-                ("Фреска", "paintbrush.fill", "Большая настенная роспись"),
-                ("Коллаж", "rectangle.3.group.fill", "Картинка из разных фотографий и деталей"),
-                ("Плакат", "rectangle.portrait.fill", "Яркое изображение с коротким сообщением"),
-                ("Витраж", "sun.max.fill", "Изображение из цветного стекла"),
-                ("Эскиз", "pencil.and.outline", "Предварительный вариант будущей работы"),
-                ("Шарж", "face.smiling", "Шутливый портрет человека"),
-                ("Пиктограмма", "info.circle.fill", "Простой рисунок-значок"),
-                ("Книжная обложка", "book.closed", "Картинка на передней части книги"),
-                ("Рисунок природы", "leaf.fill", "Изображение растений, леса или цветов"),
-                ("Морской пейзаж", "water.waves", "Изображение моря или океана"),
-                ("Автопортрет", "person.crop.square", "Портрет, который художник рисует сам"),
-                ("Набор узоров", "circle.hexagongrid.fill", "Повторяющиеся формы и линии"),
-                ("Фантастический рисунок", "moon.stars.fill", "Придуманные существа и волшебные места")
+            // Разнообразные задания по цветам, материалам, жанрам, техникам и композиции.
+            // Ответы — только текст, четыре варианта отображаются общей сеткой языковых заданий.
+            let artQuestions: [(String, String, [String])] = [
+                ("Какой цвет получится, если смешать жёлтую и синюю краски?", "Зелёный", ["Зелёный", "Оранжевый", "Фиолетовый", "Розовый"]),
+                ("Какой цвет получится из красной и жёлтой красок?", "Оранжевый", ["Оранжевый", "Зелёный", "Синий", "Серый"]),
+                ("Что получится при смешивании синей и красной красок?", "Фиолетовый", ["Фиолетовый", "Жёлтый", "Оранжевый", "Коричневый"]),
+                ("Какой цвет обычно получают, смешивая белый и чёрный?", "Серый", ["Серый", "Зелёный", "Розовый", "Голубой"]),
+                ("Какая группа состоит из основных цветов в традиционной живописи?", "Красный, жёлтый и синий", ["Красный, жёлтый и синий", "Зелёный, оранжевый и фиолетовый", "Чёрный, белый и серый", "Розовый, коричневый и голубой"]),
+                ("Как называют цвета красного, оранжевого и жёлтого оттенков?", "Тёплые", ["Тёплые", "Холодные", "Прозрачные", "Бесцветные"]),
+                ("Синий, голубой и сине-зелёный — это обычно какие цвета?", "Холодные", ["Холодные", "Тёплые", "Основные формы", "Нейтральные линии"]),
+                ("Как называется изображение человека?", "Портрет", ["Портрет", "Пейзаж", "Натюрморт", "Орнамент"]),
+                ("Как называется картина с лесом, рекой или горами?", "Пейзаж", ["Пейзаж", "Портрет", "Натюрморт", "Комикс"]),
+                ("Как называется работа с вазой, фруктами или цветами на столе?", "Натюрморт", ["Натюрморт", "Портрет", "Пейзаж", "Архитектурный план"]),
+                ("Как называется портрет, который художник рисует самого себя?", "Автопортрет", ["Автопортрет", "Натюрморт", "Мозаика", "Иллюстрация"]),
+                ("Как называется рисунок, который сопровождает текст в книге?", "Иллюстрация", ["Иллюстрация", "Орнамент", "Эскиз здания", "Натюрморт"]),
+                ("В каком виде искусства история рассказывается кадрами и репликами в облачках?", "Комикс", ["Комикс", "Пейзаж", "Натюрморт", "Витраж"]),
+                ("Как называется смешной портрет с намеренно преувеличенными чертами лица?", "Карикатура", ["Карикатура", "Пейзаж", "Мозаика", "Натюрморт"]),
+                ("Как называют повторяющийся декоративный узор из линий и фигур?", "Орнамент", ["Орнамент", "Портрет", "Натюрморт", "Автопортрет"]),
+                ("Как называется изображение, собранное из маленьких кусочков стекла, камня или плитки?", "Мозаика", ["Мозаика", "Оригами", "Акварель", "Набросок"]),
+                ("Как называется картинка из вырезанных и наклеенных на основу деталей?", "Аппликация", ["Аппликация", "Скульптура", "Пейзаж", "Гравюра"]),
+                ("Как называется искусство складывания фигурок из бумаги?", "Оригами", ["Оригами", "Мозаика", "Коллаж", "Витраж"]),
+                ("Как называют изображение, составленное из кусочков фотографий, бумаги и разных материалов?", "Коллаж", ["Коллаж", "Натюрморт", "Портрет", "Эскиз"]),
+                ("Как называется объёмная фигура, которую можно рассматривать со всех сторон?", "Скульптура", ["Скульптура", "Плакат", "Иллюстрация", "Орнамент"]),
+                ("Как называется изображение, сделанное цветными стёклами?", "Витраж", ["Витраж", "Акварель", "Коллаж", "Аппликация"]),
+                ("Как называется быстрый предварительный рисунок будущей работы?", "Эскиз", ["Эскиз", "Мозаика", "Витраж", "Натюрморт"]),
+                ("Как называется большой лист с изображением и коротким сообщением для зрителей?", "Плакат", ["Плакат", "Автопортрет", "Натюрморт", "Орнамент"]),
+                ("Как называется простой условный рисунок-значок, который передаёт сообщение?", "Пиктограмма", ["Пиктограмма", "Пейзаж", "Фреска", "Шарж"]),
+                ("Какой инструмент помогает провести ровную прямую линию?", "Линейка", ["Линейка", "Губка", "Палитра", "Ластик"]),
+                ("Чем обычно стирают ненужную линию простого карандаша?", "Ластиком", ["Ластиком", "Кистью", "Ножницами", "Палитрой"]),
+                ("Для чего художнику нужна палитра?", "Смешивать краски", ["Смешивать краски", "Резать бумагу", "Стирать карандаш", "Скреплять листы"]),
+                ("Какой инструмент обычно используют, чтобы наносить акварель на бумагу?", "Кисть", ["Кисть", "Линейка", "Циркуль", "Ножницы"]),
+                ("Какая краска обычно прозрачная и позволяет видеть бумагу сквозь цвет?", "Акварель", ["Акварель", "Гуашь", "Пластилин", "Уголь"]),
+                ("Какая краска чаще всего плотная и хорошо закрывает предыдущий слой?", "Гуашь", ["Гуашь", "Акварель", "Вода", "Графит"]),
+                ("Какой материал подходит для лепки небольшой фигурки?", "Пластилин", ["Пластилин", "Акварель", "Мелкая наждачная бумага", "Линейка"]),
+                ("Чем лучше вырезать бумажные детали для аппликации?", "Ножницами", ["Ножницами", "Кистью", "Палитрой", "Ластиком"]),
+                ("Какой материал помогает приклеить бумажные детали к листу?", "Клей", ["Клей", "Графит", "Уголь", "Акварель"]),
+                ("Как называют самую дальнюю часть изображённого пространства?", "Задний план", ["Задний план", "Передний план", "Контур", "Орнамент"]),
+                ("Как называют часть композиции, которая изображена ближе всего к зрителю?", "Передний план", ["Передний план", "Задний план", "Горизонт", "Фон листа"]),
+                ("Как называется линия, которая отделяет землю или море от неба на пейзаже?", "Линия горизонта", ["Линия горизонта", "Линия сгиба", "Контур лица", "Ось симметрии"]),
+                ("Как называют расположение предметов и частей изображения на листе?", "Композиция", ["Композиция", "Палитра", "Текстура", "Трафарет"]),
+                ("Как называется свойство предмета, которое мы можем представить как гладкое, шероховатое или пушистое?", "Фактура", ["Фактура", "Горизонт", "Автопортрет", "Эскиз"]),
+                ("Как называется совпадение двух половин рисунка относительно центральной линии?", "Симметрия", ["Симметрия", "Контраст", "Перспектива", "Мозаика"]),
+                ("Как называют заметное различие между светлым и тёмным или между разными цветами?", "Контраст", ["Контраст", "Эскиз", "Орнамент", "Аппликация"]),
+                ("Как называется линия, которая показывает внешнюю границу формы предмета?", "Контур", ["Контур", "Палитра", "Пейзаж", "Тон"]),
+                ("Как можно показать тень на рисунке карандашом?", "Штриховкой", ["Штриховкой", "Складыванием бумаги", "Наклеиванием ткани", "Смешиванием воды"]),
+                ("Какой материал оставляет мягкий чёрный след и подходит для выразительных набросков?", "Художественный уголь", ["Художественный уголь", "Прозрачная акварельная вода", "Клей-карандаш", "Линейка"]),
+                ("Что лучше сделать перед тем, как раскрашивать сложный рисунок?", "Наметить лёгкий эскиз", ["Наметить лёгкий эскиз", "Сразу закрасить весь лист чёрным", "Смять бумагу", "Отрезать уголки листа"]),
+                ("Какой приём помогает показать, что один предмет находится ближе, а другой дальше?", "Изменять размер и расположение предметов", ["Изменять размер и расположение предметов", "Рисовать все предметы одинаково", "Убирать линию горизонта всегда", "Использовать только один цвет"]),
+                ("Как называется рисунок, в котором главное — здания и их формы?", "Архитектурный рисунок", ["Архитектурный рисунок", "Натюрморт", "Автопортрет", "Орнамент"]),
+                ("Как называют сочетание нескольких оттенков одного цвета, например светло-синего и тёмно-синего?", "Цветовая гамма", ["Цветовая гамма", "Силуэт", "Комикс", "Аппликация"]),
+                ("Как называется сплошная тёмная форма предмета без мелких деталей внутри?", "Силуэт", ["Силуэт", "Натюрморт", "Палитра", "Пейзаж"]),
+                ("Что важно проверить, если рисунок должен быть хорошо виден издалека на плакате?", "Крупные формы и понятное сообщение", ["Крупные формы и понятное сообщение", "Как можно больше мелких деталей", "Очень бледные буквы", "Только тонкие линии"]),
+                ("Как называется вид искусства, где красками украшают стены зданий?", "Настенная роспись", ["Настенная роспись", "Оригами", "Коллаж", "Гравировка"]),
+                ("Какой способ подойдёт, чтобы повторять одну и ту же форму много раз?", "Использовать трафарет", ["Использовать трафарет", "Смочить лист целиком", "Стереть контур", "Сложить работу пополам"]),
+                ("Какой цвет лучше выбрать для заметного предупреждающего знака?", "Яркий контрастный цвет", ["Яркий контрастный цвет", "Почти незаметный бледный цвет", "Только белый на белом", "Цвет, совпадающий с фоном"]),
+                ("Как называется рисунок, который изображает только природный пейзаж моря?", "Морской пейзаж", ["Морской пейзаж", "Портрет", "Натюрморт", "Шарж"]),
+                ("Что художник обычно делает в первую очередь при планировании большой работы?", "Продумывает идею и композицию", ["Продумывает идею и композицию", "Сразу выбрасывает эскиз", "Закрашивает все детали одним цветом", "Рисует подпись вместо изображения"]),
+                ("Как называется техника, в которой цветные бумажные кусочки складывают в изображение?", "Бумажная мозаика", ["Бумажная мозаика", "Акварельная заливка", "Штриховка", "Автопортрет"])
             ]
-            let target = artForms.randomElement() ?? artForms[0]
-            // Показываем ровно четыре варианта: правильный ответ и три случайных отвлекающих.
-            let distractors = artForms.filter { $0.0 != target.0 }.shuffled().prefix(3)
-            let selectedForms = ([target] + Array(distractors)).shuffled()
-            let choices = selectedForms.map { form in ArtChoice(title: form.0, symbol: form.1, caption: form.2) }
-            let settings = ["в городской галерее", "на выставке", "в альбоме художника", "на стене творческой студии", "среди работ школьников", "в музее", "в журнале", "на конкурсе", "в мастерской", "на открытке", "в художественном каталоге", "на школьной выставке", "в доме культуры", "в арт-пространстве", "в творческом блокноте", "на афише", "в подборке иллюстраций", "в коллекции музея", "на уроке искусства", "в студии дизайна", "на фестивале", "в галерее современного искусства", "на странице альбома", "в выставочном зале", "в подборке работ", "на творческом занятии", "в книге об искусстве", "на плакате", "в мастер-классе", "на тематической экспозиции"]
-            let verbs = ["Найди", "Выбери", "Определи", "Укажи", "Отметь", "Покажи", "Распознай", "Найди среди вариантов", "Выбери подходящий тип —", "Определи жанр:", "Какой это жанр —", "Найди изображение типа", "Укажи вид работы:", "Выбери жанр", "Распознай вид искусства:"]
-            return Problem(text: "\(verbs.randomElement()!) \(target.0.lowercased()) \(settings.randomElement()!)", answer: target.0, isArtChoice: true, artChoices: choices)
+            let item = artQuestions.randomElement()!
+            return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled())
         }
         let question = questions.randomElement() ?? ("Попробуй ещё раз", "")
         let prefixes = ["Задание:", "Проверь себя:", "Подумай:", "Вопрос:", "Мини-вызов:", "Попробуй решить:", "Вспомни и ответь:", "Тренировка:", "Пора подумать:", "Небольшая задача:"]
@@ -595,12 +605,12 @@ struct ContentView: View {
             ReleaseNote(version: appVersion, date: appReleaseDate, title: "Задания для второго класса и новые игрушки", changes: [
                 "В химии убраны задания на порядковые номера элементов: остаётся распознавание названия и химического символа.",
                 "В окружающем мире появились простые вопросы о природе, животных, теле человека и быте с четырьмя вариантами ответа.",
-                "В рисовании теперь ровно четыре варианта ответа: правильный и три случайных.",
+                "Рисование полностью обновлено: разнообразные текстовые вопросы о цветах, жанрах, материалах, техниках и композиции; четыре текстовых варианта ответа без картинок.",
                 "В магазине закрытые призы скрыты за одинаковыми коробочками; название и вид открываются только после получения.",
                 "Повторное получение или покупка уже собранной игрушки заблокированы.",
                 "Таблица умножения теперь встречается примерно в каждом третьем математическом задании."
             ]),
-            ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Математика и выбор предмета", changes: ["Добавлены задания на десятки и единицы, длину, массу и время.", "Переключатель предметов вынесен в левую колонку."]),
+            ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Математика и выбор предмета", changes: ["Добавлены задания на десятки и единицы, длину, массу и время.", "Переключатель предметов открывается поверх нижних вкладок и не меняет высоту страницы."]),
             ReleaseNote(version: "1.0.27", date: "10.10.2026", title: "Задания по рисованию", changes: ["Добавлен выбор иллюстраций: граффити, портрет, пейзаж и натюрморт."]),
             ReleaseNote(version: "1.0.26", date: "10.10.2026", title: "Настройки и интерфейс", changes: ["Упрощён выбор цветовых тем.", "Улучшено расположение элементов главного экрана."]),
             ReleaseNote(version: "1.0.25", date: "10.10.2026", title: "Темы и читаемость", changes: ["Улучшена контрастность текста в темах «Ночное небо» и «Галактика»."]),
@@ -742,54 +752,20 @@ struct ContentView: View {
                     .contentShape(RoundedRectangle(cornerRadius: 15))
                 }
                 .buttonStyle(.plain)
+                .overlay(alignment: .topLeading) {
+                    if showSubjectPicker {
+                        subjectPickerMenu
+                            .offset(y: 66)
+                            .transition(.opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
+                            .zIndex(50)
+                    }
+                }
                 .help("Нажми, чтобы выбрать другой учебный предмет")
 
-                if showSubjectPicker {
-                    VStack(spacing: 6) {
-                        ForEach(StudySubject.allCases) { subject in
-                            Button {
-                                selectedSubjectName = subject.rawValue
-                                selected = .task
-                                answerState = .neutral
-                                answer = ""
-                                problem = makeUniqueProblem(for: subject)
-                                currentTip = ProblemGenerator.tip(for: subject, problem: problem)
-                                showSubjectPicker = false
-                                answerFocused = false
-                            } label: {
-                                HStack(spacing: 10) {
-                                    Image(systemName: subject.icon)
-                                        .font(.system(size: 15, weight: .bold))
-                                        .frame(width: 30, height: 30)
-                                        .foregroundStyle(subject == selectedSubject ? .white : palette.purple)
-                                        .background(subject == selectedSubject ? palette.purple : palette.palePink, in: RoundedRectangle(cornerRadius: 9))
-                                    Text(subject.rawValue)
-                                        .font(.system(size: 12, weight: .bold, design: .rounded))
-                                        .foregroundStyle(palette.ink)
-                                    Spacer()
-                                    if subject == selectedSubject {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .font(.system(size: 16, weight: .heavy))
-                                            .foregroundStyle(palette.purple)
-                                    }
-                                }
-                                .padding(.horizontal, 9).padding(.vertical, 7)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(subject == selectedSubject ? palette.palePink : Color.white, in: RoundedRectangle(cornerRadius: 11))
-                                .overlay(RoundedRectangle(cornerRadius: 11).stroke(subject == selectedSubject ? palette.purple : palette.line, lineWidth: subject == selectedSubject ? 2 : 1))
-                                .contentShape(RoundedRectangle(cornerRadius: 11))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(7)
-                    .background(Color.white, in: RoundedRectangle(cornerRadius: 15))
-                    .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 2))
-                    .shadow(color: palette.purple.opacity(0.18), radius: 7, x: 0, y: 3)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
+
             }
             .padding(.horizontal, 12).padding(.bottom, 18)
+            .zIndex(showSubjectPicker ? 10 : 0)
 
             VStack(spacing: 8) {
                 ForEach(AppSection.allCases) { section in
@@ -894,6 +870,54 @@ struct ContentView: View {
         .padding(28).frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    private var subjectPickerMenu: some View {
+        ScrollView {
+            VStack(spacing: 6) {
+                ForEach(StudySubject.allCases) { subject in
+                    Button {
+                        selectedSubjectName = subject.rawValue
+                        selected = .task
+                        answerState = .neutral
+                        answer = ""
+                        problem = makeUniqueProblem(for: subject)
+                        currentTip = ProblemGenerator.tip(for: subject, problem: problem)
+                        showSubjectPicker = false
+                        answerFocused = false
+                    } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: subject.icon)
+                                .font(.system(size: 15, weight: .bold))
+                                .frame(width: 30, height: 30)
+                                .foregroundStyle(subject == selectedSubject ? .white : palette.purple)
+                                .background(subject == selectedSubject ? palette.purple : palette.palePink, in: RoundedRectangle(cornerRadius: 9))
+                            Text(subject.rawValue)
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundStyle(palette.ink)
+                            Spacer()
+                            if subject == selectedSubject {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 16, weight: .heavy))
+                                    .foregroundStyle(palette.purple)
+                            }
+                        }
+                        .padding(.horizontal, 9).padding(.vertical, 7)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(subject == selectedSubject ? palette.palePink : Color.white, in: RoundedRectangle(cornerRadius: 11))
+                        .overlay(RoundedRectangle(cornerRadius: 11).stroke(subject == selectedSubject ? palette.purple : palette.line, lineWidth: subject == selectedSubject ? 2 : 1))
+                        .contentShape(RoundedRectangle(cornerRadius: 11))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(7)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(maxHeight: 330)
+        .background(Color.white, in: RoundedRectangle(cornerRadius: 15))
+        .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 2))
+        .shadow(color: palette.purple.opacity(0.22), radius: 10, x: 0, y: 5)
+    }
+
     private var subjectEmoji: String {
         switch selectedSubject {
         case .math: "🔢"
@@ -981,9 +1005,7 @@ struct ContentView: View {
 
             Spacer(minLength: 34)
 
-            if problem.isArtChoice {
-                artChoiceGrid
-            } else if problem.isTatarChoice {
+            if problem.isTatarChoice {
                 tatarChoiceGrid
             } else {
                 HStack(spacing: 11) {
@@ -1139,53 +1161,6 @@ struct ContentView: View {
         }
         .padding(.horizontal, 22)
         .padding(.top, 8)
-    }
-
-    private var artChoiceGrid: some View {
-        VStack(spacing: 12) {
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                ForEach(Array(problem.artChoices.enumerated()), id: \.element.id) { index, choice in
-                    Button {
-                        answer = choice.title
-                        answerFocused = false
-                        DispatchQueue.main.async { checkAnswer() }
-                    } label: {
-                        VStack(spacing: 6) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 13).fill([palette.palePink, palette.quizBottom, palette.sidebarBottom, palette.lilac][index % 4])
-                                if choice.title == "Граффити" {
-                                    VStack(spacing: 0) {
-                                        Text("STREET").font(.system(size: 9, weight: .black, design: .rounded)).tracking(1.2)
-                                        Text("ART!").font(.system(size: 29, weight: .black, design: .rounded))
-                                            .foregroundStyle([palette.purple, palette.red, Color.orange][index % 3]).rotationEffect(.degrees(-7))
-                                        HStack(spacing: 3) {
-                                            ForEach(0..<5, id: \.self) { dot in
-                                                Circle().fill([palette.pink, palette.green, palette.purple, Color.orange, palette.red][dot]).frame(width: 6, height: 6)
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    Image(systemName: choice.symbol).resizable().scaledToFit().symbolRenderingMode(.palette)
-                                        .foregroundStyle(palette.purple, palette.pink).padding(17)
-                                }
-                            }.frame(height: 82)
-                                .overlay(RoundedRectangle(cornerRadius: 13).stroke(answer == choice.title ? palette.purple : palette.line, lineWidth: answer == choice.title ? 3 : 1))
-                            Text(choice.title).font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text(choice.caption).font(.system(size: 9, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                                .multilineTextAlignment(.center).lineLimit(2).frame(height: 23)
-                        }.padding(7)
-                            .background(.white.opacity(answer == choice.title ? 0.96 : 0.72), in: RoundedRectangle(cornerRadius: 17))
-                            .overlay(RoundedRectangle(cornerRadius: 17).stroke(answer == choice.title ? palette.purple : palette.line.opacity(0.75), lineWidth: answer == choice.title ? 2 : 1))
-                    }.buttonStyle(.plain).disabled(answerState == .correct)
-                }
-            }
-            Button(action: checkAnswer) {
-                Label("Проверить ответ", systemImage: "checkmark")
-                    .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
-                    .padding(.horizontal, 22).frame(height: 48)
-                    .background(palette.purple, in: RoundedRectangle(cornerRadius: 16))
-            }.buttonStyle(.plain).disabled(answer.isEmpty || answerState == .correct)
-        }.padding(.horizontal, 20).padding(.top, 8)
     }
 
     private var bunnySticker: some View {
