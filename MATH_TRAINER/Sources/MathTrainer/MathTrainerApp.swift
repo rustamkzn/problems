@@ -2231,6 +2231,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.SelectedSubject") private var selectedSubjectName = StudySubject.math.rawValue
     @AppStorage("MathTrainer.UnlockedAchievements") private var unlockedAchievementStorage = ""
     @AppStorage("MathTrainer.AchievementThresholdsVersion") private var achievementThresholdsVersion = 0
+    @AppStorage("MathTrainer.CorrectQuestions") private var correctQuestionStorage = "{}"
     @AppStorage("MathTrainer.RandomCollectibles") private var randomCollectiblesStorage = ""
     @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
     @AppStorage("MathTrainer.ShopPrices.v3") private var shopPricesStorage = ""
@@ -2285,6 +2286,11 @@ struct ContentView: View {
     }
     private var selectedSubject: StudySubject { StudySubject(rawValue: selectedSubjectName) ?? .math }
     private var palette: AppPalette { AppPalette.make(AppTheme(rawValue: themeName) ?? .lilac) }
+    private var decodedCorrectQuestions: [String: Set<String>] {
+        guard let data = correctQuestionStorage.data(using: .utf8),
+              let decoded = try? JSONDecoder().decode([String: [String]].self, from: data) else { return [:] }
+        return decoded.mapValues { Set($0) }
+    }
     private var decodedSubjectPerformance: [String: SubjectPerformance] {
         guard let data = subjectPerformanceStorage.data(using: .utf8), let value = try? JSONDecoder().decode([String: SubjectPerformance].self, from: data) else { return [:] }
         return value
@@ -3953,7 +3959,7 @@ struct ContentView: View {
         let earned = progress >= goal
         return VStack(alignment: .leading, spacing: 9) {
             Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 70, locked: !earned)
-                .frame(width: 117, height: 94, alignment: .leading)
+                .frame(width: 117, height: 94, alignment: .center)
                 .background(LinearGradient(colors: earned ? [color.opacity(0.18), palette.pink.opacity(0.10)] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(earned ? color : palette.line, lineWidth: 1.5))
             Text(title).font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -4011,7 +4017,7 @@ struct ContentView: View {
 
                 if Collectible.all.contains(where: { !$0.isRare }) {
                     VStack(alignment: .leading, spacing: 12) {
-                        sectionTitle("Обычные игрушки", icon: "gift")
+                        sectionTitle("Коллекционные игрушки", icon: "gift")
                         Text("Купленные игрушки остаются в списке с отметкой «Открыта!». Их можно рассмотреть, даже если алмазы уже потрачены.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
@@ -4044,7 +4050,7 @@ struct ContentView: View {
                     LinearGradient(
                         colors: item.isRare
                             ? [Color(red: 1.0, green: 0.97, blue: 0.82), Color(red: 0.98, green: 0.82, blue: 0.48)]
-                            : (owned ? [palette.line.opacity(0.035), palette.palePink.opacity(0.045)] : [palette.line.opacity(0.5), palette.palePink]),
+                            : (owned ? [Color.clear, Color.clear] : [palette.line.opacity(0.5), palette.palePink]),
                         startPoint: .topLeading, endPoint: .bottomTrailing
                     )
                 )
@@ -4074,7 +4080,7 @@ struct ContentView: View {
                 }
             }
             .frame(height: item.isRare ? 144 : 125)
-            .overlay(RoundedRectangle(cornerRadius: 17).stroke(item.isRare ? gold : palette.line.opacity(0.7), lineWidth: item.isRare ? 2 : 1))
+            .overlay(RoundedRectangle(cornerRadius: 17).stroke(item.isRare ? gold : palette.line.opacity(owned ? 0.12 : 0.7), lineWidth: item.isRare ? 2 : 1))
 
             if item.isRare {
                 Label("РЕДКИЙ КОЛЛЕКЦИОННЫЙ", systemImage: "sparkles")
@@ -4661,9 +4667,12 @@ struct ContentView: View {
     }
     private func rewardLarge(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(emoji).font(.system(size: 63))
-                .frame(width: 102, height: 102)
-                .background(color.opacity(0.6), in: RoundedRectangle(cornerRadius: 20))
+            ZStack {
+                RoundedRectangle(cornerRadius: 20).fill(color.opacity(0.14))
+                RoundedRectangle(cornerRadius: 20).stroke(color.opacity(0.58), lineWidth: 1.5)
+                Text(emoji).font(.system(size: 63)).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            }
+            .frame(width: 102, height: 102, alignment: .center)
             Text(title).font(.system(size: 20, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             Text(detail).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 .fixedSize(horizontal: false, vertical: true)
@@ -4693,6 +4702,13 @@ struct ContentView: View {
         let salute = isCorrect ? countCorrectTowardMilestone() : false
 
         if isCorrect {
+            var mastered = decodedCorrectQuestions.mapValues { Array($0) }
+            var subjectMastered = Set(mastered[selectedSubject.rawValue, default: []])
+            subjectMastered.insert(problem.text)
+            mastered[selectedSubject.rawValue] = Array(subjectMastered)
+            if let data = try? JSONEncoder().encode(mastered) {
+                correctQuestionStorage = String(decoding: data, as: UTF8.self)
+            }
             answerState = .correct
             if let reviewID = reviewingMistakeID,
                let reviewed = decodedMistakes.first(where: { $0.id == reviewID }),
@@ -4739,14 +4755,15 @@ struct ContentView: View {
     private func makeUniqueProblem(for subject: StudySubject) -> Problem {
         let key = subject.rawValue
         var seen = seenQuestionTexts[key, default: []]
+        let mastered = decodedCorrectQuestions[key, default: []]
         var candidate: Problem
         if subject == .informatics && difficultyLevel == 1 {
-            candidate = ProblemGenerator.nextInformatics(excluding: seen)
+            candidate = ProblemGenerator.nextInformatics(excluding: seen.union(mastered))
             if seen.contains(candidate.text) { seen.removeAll() }
         } else {
             candidate = ProblemGenerator.next(for: subject, difficulty: difficultyLevel)
-            for _ in 0..<100 {
-                if !seen.contains(candidate.text) { break }
+            for _ in 0..<300 {
+                if !seen.contains(candidate.text) && !mastered.contains(candidate.text) { break }
                 candidate = ProblemGenerator.next(for: subject, difficulty: difficultyLevel)
             }
             if seen.contains(candidate.text) { seen.removeAll() }
