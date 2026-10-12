@@ -1250,7 +1250,7 @@ struct ProblemGenerator {
 
     fileprivate static func next(for subject: StudySubject, difficulty: Int = 1) -> Problem {
         if subject == .logic { return logicQuestion(level: difficulty) }
-        if subject == .biology { return biologyQuestion(level: difficulty, illustrated: Bool.random()) }
+        if subject == .biology { return biologyQuestion(level: difficulty, illustrated: false) }
         if subject == .chemistry { return chemistryQuestionBank().randomElement() ?? Problem(text: "Как называется формула воды?", answer: "H₂O", isTatarChoice: true, tatarChoices: ["H₂O", "CO₂", "O₂", "NaCl"]) }
         if subject == .math { return next(difficulty: difficulty) }
         if difficulty > 1 && Int.random(in: 0...99) < 70,
@@ -2303,6 +2303,21 @@ struct ContentView: View {
                 "ПДД: картинки показываются только для вопросов о конкретных распознаваемых знаках или светофоре; общие вопросы о безопасности больше не получают похожую, но неверную картинку.",
                 "Биология: для пингвина и ряда других организмов добавлены отдельные эмодзи-иллюстрации вместо неподходящего символа птицы."
             ]),
+            ReleaseNote(version: "1.0.81", date: "12.10.2026", title: "Технический выпуск 1.0.81", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.80", date: "12.10.2026", title: "Технический выпуск 1.0.80", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.79", date: "12.10.2026", title: "Технический выпуск 1.0.79", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.78", date: "12.10.2026", title: "Технический выпуск 1.0.78", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.77", date: "12.10.2026", title: "Технический выпуск 1.0.77", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.76", date: "12.10.2026", title: "Технический выпуск 1.0.76", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.75", date: "12.10.2026", title: "Технический выпуск 1.0.75", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.74", date: "12.10.2026", title: "Технический выпуск 1.0.74", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.73", date: "12.10.2026", title: "Технический выпуск 1.0.73", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.72", date: "12.10.2026", title: "Технический выпуск 1.0.72", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.71", date: "12.10.2026", title: "Технический выпуск 1.0.71", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.70", date: "12.10.2026", title: "Технический выпуск 1.0.70", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.69", date: "12.10.2026", title: "Технический выпуск 1.0.69", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.68", date: "12.10.2026", title: "Технический выпуск 1.0.68", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
+            ReleaseNote(version: "1.0.67", date: "12.10.2026", title: "Технический выпуск 1.0.67", changes: ["Сборка приложения с накопленными исправлениями и улучшениями предыдущих выпусков.", "Номер версии сохранён в общей истории обновлений."]),
             ReleaseNote(version: "1.0.66", date: "12.10.2026", title: "История обновлений, точные иллюстрации и химия", changes: [
                 "История обновлений хранится в приложении как встроенный список версий, а не зависит от локального кэша; старые описания сохраняются при последующих обновлениях.",
                 "ПДД: иллюстрация показывается только для вопросов, для которых распознан конкретный знак или разметка; неизвестный вопрос больше не получает случайную картинку.",
@@ -2820,8 +2835,6 @@ struct ContentView: View {
                 pddIllustration(for: problem.text).padding(.horizontal, 24).padding(.top, 5)
             } else if selectedSubject == .geography && problem.text.localizedCaseInsensitiveContains("флаг") {
                 geographyFlagIllustration(for: problem).padding(.horizontal, 24).padding(.top, 5)
-            } else if selectedSubject == .chemistry && (problem.text.localizedCaseInsensitiveContains("символ") || problem.text.localizedCaseInsensitiveContains("элемент с")) {
-                PeriodicElementTile(prompt: problem.text, answer: problem.answer).frame(maxWidth: .infinity).frame(height: 126).padding(.horizontal, 30).padding(.top, 8)
             } else if shouldShowStudyIllustration(for: problem, subject: selectedSubject) {
                 StudyIllustration(subject: selectedSubject, prompt: problem.text).frame(maxWidth: .infinity).frame(height: 126).padding(.horizontal, 30).padding(.top, 8)
             }
@@ -3065,8 +3078,7 @@ struct ContentView: View {
             "скорости 40", "парков", "буквой p", "велосипедная дорожка",
             "круговое движение", "пешеходного перехода", "обгон запрещ",
             "предупреждающий дорожный знак", "дети", "железнодорож",
-            "скользкая дорога", "неровност", "крутой спуск", "крутой подъём",
-            "сужение", "дорожные работы", "падение камней", "движение прямо",
+            "дорожные работы", "движение прямо",
             "поворот направо запрещ", "поворот налево запрещ", "разворот запрещ"
         ]
         return supportedSignDescriptions.contains(where: { q.contains($0) })
@@ -3082,7 +3094,7 @@ struct ContentView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 15).fill(dark)
                 // Each branch draws exactly one sign. No generic base sign is drawn underneath.
-                if q.contains("светофор") || q.contains("сигнал") {
+                if q.contains("светофор") {
                     HStack(spacing: 9) {
                         ForEach([Color(red: 0.96, green: 0.12, blue: 0.16), Color(red: 1, green: 0.73, blue: 0.05), Color(red: 0.10, green: 0.78, blue: 0.30)], id: \.self) { color in
                             Circle().fill(color).frame(width: 31, height: 31).overlay(Circle().stroke(.white.opacity(0.75), lineWidth: 1.5))
@@ -4505,8 +4517,8 @@ struct ContentView: View {
             // Только задания, в которых условие действительно связано с фигурами.
             return text.contains("фигур") || text.contains("угл") || text.contains("круг") || text.contains("квадрат") || text.contains("кубик") || text.contains("куб")
         case .biology:
-            // Режим задаётся генератором: текстовые и иллюстрированные вопросы не смешиваются.
-            return problem.showIllustration
+            // По запросу пользователя биология работает только в текстовом режиме.
+            return false
         case .chemistry:
             // Символы элементов и формулы остаются текстовыми заданиями.
             // Иллюстрации появляются только в отдельной группе вопросов о лабораторной посуде.
