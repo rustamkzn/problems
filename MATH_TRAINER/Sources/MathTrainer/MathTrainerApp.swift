@@ -100,53 +100,6 @@ private struct StudyIllustration: View {
         default: return Color(red: 0.12, green: 0.55, blue: 0.92)
         }
     }
-    private var geometrySourceURL: URL? {
-        // Bundled Wikimedia Commons SVGs; match the figure by the answer appended to the prompt.
-        let name: String
-        if lower.contains("цилиндр") { name = "geometry-cylinder" }
-        else if lower.contains("октаэдр") { name = "geometry-octahedron" }
-        else if lower.contains("тетраэдр") { name = "geometry-tetrahedron" }
-        else if lower.contains("куб") { name = "geometry-cube" }
-        else if lower.contains("конус") { name = "geometry-cone" }
-        else if lower.contains("шар") { name = "geometry-sphere" }
-        else if lower.contains("трапец") { name = "geometry-trapezoid" }
-        else if lower.contains("прямоуголь") { name = "geometry-rectangle" }
-        else if lower.contains("квадрат") { name = "geometry-square" }
-        else if lower.contains("треуголь") { name = "geometry-triangle" }
-        else if lower.contains("круг") || lower.contains("окруж") { name = "geometry-circle" }
-        else if lower.contains("отрез") { name = "geometry-line-segment" }
-        else if lower.contains("перпендикуляр") { name = "geometry-perpendicular-lines" }
-        else if lower.contains("параллель") { name = "geometry-parallel-lines" }
-        else { return nil }
-        return Bundle.main.resourceURL?.appendingPathComponent(name).appendingPathExtension("svg")
-    }
-    private var geometrySymbol: String {
-        // Match the named answer/figure precisely; check rectangle before generic straight-line terms.
-        if lower.contains("перпендикуляр") { return "plus" }
-        if lower.contains("параллель") { return "equal" }
-        if lower.contains("пунктир") { return "ellipsis" }
-        if lower.contains("ломан") { return "point.topleft.down.to.point.bottomright.curvepath" }
-        if lower.contains("крив") { return "scribble.variable" }
-        if lower.contains("трапец") { return "trapezoid.and.line.vertical" }
-        if lower.contains("призма") { return "cube.transparent" }
-        if lower.contains("пирамида") || lower.contains("тетраэдр") { return "pyramid.fill" }
-        if lower.contains("октаэдр") || lower.contains("ромб") { return "diamond.fill" }
-        if lower.contains("цилиндр") { return "cylinder" }
-        if lower.contains("куб") { return "cube.fill" }
-        if lower.contains("конус") { return "cone.fill" }
-        if lower.contains("шар") { return "sphere.fill" }
-        if lower.contains("треуголь") { return "triangle" }
-        if lower.contains("прямоуголь") { return "rectangle" }
-        if lower.contains("квадрат") { return "square" }
-        if lower.contains("овал") { return "oval" }
-        if lower.contains("круг") || lower.contains("окруж") { return "circle" }
-        if lower.contains("точк") { return "circle.fill" }
-        if lower.contains("луч") { return "arrow.right" }
-        if lower.contains("отрез") { return "line.3.horizontal" }
-        if lower.contains("прямая") { return "arrow.left.and.right" }
-        if lower.contains("угол") { return "angle" }
-        return "square.on.circle"
-    }
     private var biologyName: String? {
         guard subject == .biology else { return nil }
         let names = ["дождевой червь", "белый медведь", "дельфин", "карась", "орёл", "лягушка", "бабочка", "пчела", "ёж", "крот", "верблюд", "пингвин", "улитка", "паук", "сосна", "берёза", "кактус", "папоротник", "шампиньон", "бактерия"]
@@ -2925,7 +2878,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: "1.0.130", date: "12.10.2026", title: "Новая геометрия, жизненная математика и моя комната", changes: ["Геометрические рисунки полностью перерисованы в цветном векторном стиле: изображение строится по точному названию фигуры, а не по приблизительному системному значку или непроверенному SVG.", "В математику добавлен отдельный набор задач из реальной жизни: покупки, сдача, время, поездки, пицца, скидки и карманные деньги.", "Добавлен раздел «Моя комната» между магазином и настройками: можно размещать и убирать свои коллекционные игрушки, оформление сохраняется после перезапуска.", "Исправлено соответствие геометрической иллюстрации её правильному ответу для фигур, углов, линий и объёмных тел."]),
+            ReleaseNote(version: "1.0.132", date: "12.10.2026", title: "Новая геометрия, жизненная математика и моя комната", changes: ["Геометрические рисунки полностью перерисованы в цветном векторном стиле: изображение строится по точному названию фигуры, а не по приблизительному системному значку или непроверенному SVG.", "В математику добавлен отдельный набор задач из реальной жизни: покупки, сдача, время, поездки, пицца, скидки и карманные деньги.", "Добавлен раздел «Моя комната» между магазином и настройками: можно размещать и убирать свои коллекционные игрушки, оформление сохраняется после перезапуска.", "Исправлено соответствие геометрической иллюстрации её правильному ответу для фигур, углов, линий и объёмных тел."]),
             ReleaseNote(version: "1.0.129", date: "12.10.2026", title: "Восстановление задания, геометрия и награды", changes: ["После повторного запуска восстанавливается последний выбранный предмет и последнее задание.", "Увеличена доля заданий по геометрии с иллюстрациями; добавлены ромб, параллелограмм и виды углов.", "Исправлена подготовка вариантов ответа в заданиях с рисунками: правильный ответ гарантированно включён в варианты.", "Заголовок «Коллекция достижений» перенесён над восемью карточками наград.", "Исправлена генерация недостающих номеров в истории версий; сохранены подробные описания известных выпусков."]),
             ReleaseNote(version: "1.0.119", date: "12.10.2026", title: "Больше геометрии и ускорение магазина", changes: ["В геометрию добавлено больше заданий-картинок без текстового условия: плоские фигуры, линии, точка, луч, отрезок, кривая, пунктир, параллельные и перпендикулярные прямые, призма и другие объёмные тела.", "Сокращено количество вопросов по дм и см; добавлены простые задачи на периметр квадрата, прямоугольника и треугольника.", "В наградах теперь восемь рубежей накопления алмазов: от 500 до 4000 с шагом 500.", "Упрощён рендер закрытых товаров в магазине, чтобы снизить нагрузку при прокрутке большого каталога.", "Сохранена полная история версий, включая записи 1.0.101–1.0.118."]),
             ReleaseNote(version: "1.0.118", date: "12.10.2026", title: "Исправлена геометрия, история версий и статистика", changes: ["Восстановлена полная история выпусков: сохранены записи 1.0.101–1.0.111 и все более ранние описания.", "Вопросы по объёмным фигурам показывают соответствующие исходные SVG-иллюстрации из Wikimedia Commons, включённые в приложение для работы офлайн.", "Изображение выбирается по правильному ответу; текстовые задания по геометрии не показывают несоответствующие картинки.", "Блок «По дням» удалён со страницы заданий и помещён внутрь «Статистики».", "Добавлены вопросы по геометрии без картинок для начальных классов."]),
