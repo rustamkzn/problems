@@ -2966,7 +2966,6 @@ struct ContentView: View {
     }
 
     @ViewBuilder
-    @ViewBuilder
     private func pddIllustration(for question: String) -> some View {
         let q = question.lowercased()
         let red = Color(red: 0.88, green: 0.07, blue: 0.13)
