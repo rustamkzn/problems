@@ -2936,7 +2936,16 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
-        } else if lower.contains("зебр") || lower.contains("переход") {
+        } else if lower.contains("пешеходный переход") && !lower.contains("запрещено") {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8).fill(Color(red: 0.08, green: 0.34, blue: 0.82)).frame(width: 74, height: 66)
+                RoundedRectangle(cornerRadius: 5).stroke(.white, lineWidth: 2).frame(width: 64, height: 56)
+                Image(systemName: "figure.walk").font(.system(size: 29, weight: .bold)).foregroundStyle(.white)
+            }
+            .frame(maxWidth: .infinity).padding(.vertical, 8)
+            .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
+        } else if lower.contains("зебр") || (lower.contains("переход") && !lower.contains("знак")) {
             VStack(spacing: 7) {
                 HStack(spacing: 8) {
                     ForEach(0..<7, id: \.self) { _ in
@@ -3005,11 +3014,21 @@ struct ContentView: View {
                         Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
                         Text(lower.contains("40") ? "40" : (lower.contains("60") ? "60" : "50")).font(.system(size: 25, weight: .black, design: .rounded)).foregroundStyle(.black)
                     }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
-                } else if lower.contains("круглый") || lower.contains("красной каймой") || lower.contains("запрет") || lower.contains("обгон") || lower.contains("въезд") || lower.contains("стоянк") || lower.contains("остановк") || lower.contains("скорост") || lower.contains("парков") || lower.contains("главная дорога") || lower.contains("движение") || lower.contains("тоннель") || lower.contains("автомагистраль") || lower.contains("круговое") || lower.contains("тупик") || lower.contains("объезд") || lower.contains("ограничение") || lower.contains("подъём") || lower.contains("спуск") || lower.contains("сужение") || lower.contains("животные") || lower.contains("камней") || lower.contains("работы") || lower.contains("железнодорож") || lower.contains("дети") || lower.contains("велосипед") {
+                } else if lower.contains("круглый") || lower.contains("красной каймой") || lower.contains("запрет") || lower.contains("обгон") || lower.contains("въезд") || lower.contains("стоянк") || lower.contains("остановк") || lower.contains("скорост") || lower.contains("парков") || lower.contains("главная дорога") || lower.contains("движение") || lower.contains("тоннель") || lower.contains("автомагистраль") || lower.contains("круговое") || lower.contains("тупик") || lower.contains("объезд") || lower.contains("ограничение") || lower.contains("подъём") || lower.contains("спуск") || lower.contains("сужение") || lower.contains("животные") || lower.contains("камней") || lower.contains("работы") || lower.contains("железнодорож") || lower.contains("дети") || lower.contains("велосипед") || lower.contains("знак") || lower.contains("пешеход") {
                     ZStack {
                         Circle().fill(lower.contains("въезд запрещ") ? Color(red: 0.88, green: 0.06, blue: 0.12) : Color.white).frame(width: 68, height: 68)
                         Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
-                        if lower.contains("въезд запрещ") {
+                        if lower.contains("главная дорога") {
+                            RoundedRectangle(cornerRadius: 4).fill(Color(red: 0.96, green: 0.76, blue: 0.08)).frame(width: 52, height: 52).rotationEffect(.degrees(45)).overlay(RoundedRectangle(cornerRadius: 3).stroke(.white, lineWidth: 5).frame(width: 42, height: 42).rotationEffect(.degrees(45)))
+                        } else if lower.contains("велосипедная дорожка") {
+                            Circle().fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 68, height: 68).overlay(Image(systemName: "bicycle").font(.system(size: 31, weight: .bold)).foregroundStyle(.white))
+                        } else if lower.contains("круговое движение") {
+                            Circle().fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 68, height: 68).overlay(Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 32, weight: .black)).foregroundStyle(.white))
+                        } else if lower.contains("дети") || lower.contains("железнодорож") || lower.contains("дикие животные") || lower.contains("падение камней") || lower.contains("дорожные работы") || lower.contains("крутой подъём") || lower.contains("крутой спуск") || lower.contains("сужение дороги") {
+                            ZStack { TriangleShape().fill(.white).frame(width: 70, height: 64); TriangleShape().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 7).frame(width: 70, height: 64); Image(systemName: lower.contains("дети") ? "figure.2" : (lower.contains("железнодорож") ? "tram.fill" : (lower.contains("дикие животные") ? "pawprint.fill" : "exclamationmark"))).font(.system(size: 24, weight: .black)).foregroundStyle(.black).offset(y: 7) }
+                        } else if lower.contains("парков") || lower.contains("буквой p") {
+                            RoundedRectangle(cornerRadius: 8).fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 68, height: 68).overlay(Text("P").font(.system(size: 37, weight: .black)).foregroundStyle(.white))
+                        } else if lower.contains("въезд запрещ") {
                             Rectangle().fill(.white).frame(width: 45, height: 7)
                         } else if lower.contains("пешеход") {
                             Image(systemName: "figure.walk").font(.system(size: 30, weight: .bold)).foregroundStyle(.black)
