@@ -2630,7 +2630,8 @@ private struct Collectible: Identifiable {
             ("krosh", "Крош", "🐰"), ("nyusha", "Нюша", "🐷"),
             ("barash", "Бараш", "🐑"), ("pin", "Пин", "🐧"),
             ("losyash", "Лосяш", "🫎"), ("kar-karych", "Кар-Карыч", "🐦"),
-            ("princess-pony", "Принцесса пони", "🦄"), ("mermaid", "Русалочка", "🧜")
+            ("princess-pony", "Принцесса пони", "🦄"), ("mermaid", "Русалочка", "🧜"),
+            ("red-panda", "Красная панда", "🐾"), ("axolotl", "Аксолотль", "🦎")
         ]
         let collections: [(id: String, name: String, detail: String)] = [
             ("bronze", "Бронзовый", "Тёплая бронзовая коллекция"),
@@ -5237,18 +5238,23 @@ struct ContentView: View {
     }
     private func collectibleCard(_ item: Collectible) -> some View {
         let unlocked = allOwnedCollectibleIDs.contains(item.id)
-        return HStack(spacing: 9) {
-            Collectible3DView(id: item.id, title: item.title, size: 82, animated: unlocked && item.isRare)
-                .frame(width: 99, height: 99)
-                .background(LinearGradient(colors: [palette.pink.opacity(0.12), palette.palePink.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(palette.purple.opacity(0.75), lineWidth: 1.5))
-            VStack(alignment: .leading, spacing: 3) {
-                Text(unlocked ? item.title : "Секретная находка").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                Text(unlocked ? item.detail : "Шанс найти за верный ответ").font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer(minLength: 0)
-        }.frame(maxWidth: .infinity, minHeight: 84, alignment: .leading).padding(11)
-            .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 14))
+        return VStack(spacing: 6) {
+            Collectible3DView(id: item.id, title: item.title, size: 62, animated: unlocked && item.isRare)
+                .frame(maxWidth: .infinity)
+                .frame(height: 70)
+                .background(LinearGradient(colors: [palette.pink.opacity(0.12), palette.palePink.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 14))
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.purple.opacity(0.75), lineWidth: 1.2))
+            Text(unlocked ? item.title : "Секретная находка")
+                .font(.system(size: 10, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                .multilineTextAlignment(.center).lineLimit(2).frame(maxWidth: .infinity, minHeight: 26, alignment: .top)
+            Text(unlocked ? item.detail : "Шанс найти за верный ответ")
+                .font(.system(size: 9, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                .multilineTextAlignment(.center).lineLimit(3).fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, minHeight: 32, alignment: .top)
+        }
+        .frame(maxWidth: .infinity, minHeight: 145, alignment: .top)
+        .padding(7)
+        .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 14))
     }
     private func unlockEligibleAchievements() -> [Achievement] {
         let already = unlockedAchievementIDs
