@@ -3411,7 +3411,7 @@ struct ContentView: View {
         HStack(spacing: 10) {
             Button { openShop() } label: {
                 HStack(spacing: 12) {
-                    VStack(spacing: 4) {
+                    HStack(spacing: 12) {
                         HStack(spacing: 5) {
                             Text("💎").font(.system(size: 23))
                             Text("\(store.stats.diamonds)").font(.system(size: 20, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
