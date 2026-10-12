@@ -2879,6 +2879,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.134", date: "12.10.2026", title: "Цвет золота и удобные кнопки магазина", changes: ["Золотые монеты выделены ярким золотисто-жёлтым цветом.", "Кнопки покупки получили тёмно-фиолетовый фон и белый контрастный текст.", "Алмазы и золото на главной странице выровнены в одну строку на одном уровне.", "Сетки обычных и редких коллекционных игрушек изменены на пять столбцов."]),
             ReleaseNote(version: "1.0.133", date: "12.10.2026", title: "Золотые монеты и улучшенная комната", changes: ["В магазин добавлен обмен алмазов на золото: 100 монет за 50 алмазов, 200 за 95, 500 за 250. Покупка доступна только при достаточном балансе алмазов.", "В верхнем блоке главного экрана теперь одновременно видны балансы алмазов и золотых монет.", "В разделе «Моя комната» игрушки размещаются в шесть колонок. Баланс золота сохраняется между запусками приложения."]),
             ReleaseNote(version: "1.0.132", date: "12.10.2026", title: "Новая геометрия, жизненная математика и моя комната", changes: ["Геометрические рисунки полностью перерисованы в цветном векторном стиле: изображение строится по точному названию фигуры, а не по приблизительному системному значку или непроверенному SVG.", "В математику добавлен отдельный набор задач из реальной жизни: покупки, сдача, время, поездки, пицца, скидки и карманные деньги.", "Добавлен раздел «Моя комната» между магазином и настройками: можно размещать и убирать свои коллекционные игрушки, оформление сохраняется после перезапуска.", "Исправлено соответствие геометрической иллюстрации её правильному ответу для фигур, углов, линий и объёмных тел."]),
             ReleaseNote(version: "1.0.129", date: "12.10.2026", title: "Восстановление задания, геометрия и награды", changes: ["После повторного запуска восстанавливается последний выбранный предмет и последнее задание.", "Увеличена доля заданий по геометрии с иллюстрациями; добавлены ромб, параллелограмм и виды углов.", "Исправлена подготовка вариантов ответа в заданиях с рисунками: правильный ответ гарантированно включён в варианты.", "Заголовок «Коллекция достижений» перенесён над восемью карточками наград.", "Исправлена генерация недостающих номеров в истории версий; сохранены подробные описания известных выпусков."]),
@@ -3416,8 +3417,8 @@ struct ContentView: View {
                             Text("\(store.stats.diamonds)").font(.system(size: 20, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                         }
                         HStack(spacing: 5) {
-                            Text("🪙").font(.system(size: 21))
-                            Text("\(goldBalance)").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            goldCoinIcon(size: 22)
+                            Text("\(goldBalance)").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(Color(red: 0.83, green: 0.55, blue: 0.02))
                         }
                     }
                     VStack(alignment: .leading, spacing: 2) {
@@ -4616,7 +4617,7 @@ struct ContentView: View {
 
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 10) {
-                        Text("🪙").font(.system(size: 32))
+                        goldCoinIcon(size: 32)
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Золото за алмазы").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             Text("Баланс: \(goldBalance) золотых монет").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
@@ -4645,7 +4646,7 @@ struct ContentView: View {
                         Text("Редкие подарки — вверху страницы. Купленные и уже открытые игрушки остаются видимыми в коллекции.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             .fixedSize(horizontal: false, vertical: true)
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 13) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 13) {
                             ForEach(Collectible.all.filter { $0.isRare }) { item in
                                 shopItemCard(item)
                             }
@@ -4678,7 +4679,7 @@ struct ContentView: View {
                         sectionTitle("Коллекционные игрушки", icon: "gift")
                         Text("Купленные игрушки остаются в списке с отметкой «Открыта!». Их можно рассмотреть, даже если алмазы уже потрачены.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 13) {
                             ForEach(Collectible.all.filter { !$0.isRare }) { item in
                                 shopItemCard(item)
                             }
@@ -4698,10 +4699,18 @@ struct ContentView: View {
         }.scrollIndicators(.hidden)
     }
 
+    private func goldCoinIcon(size: CGFloat) -> some View {
+        ZStack {
+            Circle().fill(LinearGradient(colors: [Color(red: 1.0, green: 0.88, blue: 0.20), Color(red: 0.94, green: 0.62, blue: 0.02)], startPoint: .topLeading, endPoint: .bottomTrailing))
+            Circle().stroke(Color(red: 0.72, green: 0.40, blue: 0.0), lineWidth: max(1, size * 0.07)).padding(size * 0.14)
+            Image(systemName: "star.fill").font(.system(size: size * 0.34, weight: .black)).foregroundStyle(Color(red: 0.62, green: 0.34, blue: 0.0))
+        }.frame(width: size, height: size).accessibilityLabel("Золотая монета")
+    }
+
     private func goldPackCard(gold: Int, cost: Int) -> some View {
         let canBuy = store.stats.diamonds >= cost
         return VStack(spacing: 8) {
-            Text("🪙").font(.system(size: 35))
+            goldCoinIcon(size: 35)
             Text("\(gold)").font(.system(size: 22, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
             Text("золотых монет").font(.system(size: 10, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
             Button {
@@ -4710,13 +4719,15 @@ struct ContentView: View {
             } label: {
                 VStack(spacing: 3) {
                     Text("💎 \(cost)").font(.system(size: 13, weight: .heavy, design: .rounded))
-                    Text(canBuy ? "Купить" : "Не хватает").font(.system(size: 10, weight: .bold, design: .rounded))
+                    Text(canBuy ? "Купить сейчас" : "Не хватает алмазов").font(.system(size: 10, weight: .bold, design: .rounded))
                 }
-                .frame(maxWidth: .infinity).padding(.vertical, 7)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity).padding(.vertical, 8)
+                .background(Color(red: 0.24, green: 0.08, blue: 0.55), in: RoundedRectangle(cornerRadius: 9))
             }
-            .buttonStyle(.borderedProminent)
-            .tint(canBuy ? palette.purple : palette.muted.opacity(0.55))
+            .buttonStyle(.plain)
             .disabled(!canBuy)
+            .opacity(canBuy ? 1 : 0.62)
         }
         .padding(10)
         .frame(maxWidth: .infinity)
