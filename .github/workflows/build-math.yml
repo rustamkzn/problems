@@ -40,6 +40,14 @@ jobs:
           download_geometry "geometry-cube" "https://commons.wikimedia.org/wiki/Special:FilePath/Wikijunior_cube.svg"
           download_geometry "geometry-cone" "https://commons.wikimedia.org/wiki/Special:FilePath/Cone%20(geometry).svg"
           download_geometry "geometry-sphere" "https://commons.wikimedia.org/wiki/Special:FilePath/Sphere.svg"
+          download_geometry "geometry-square" "https://commons.wikimedia.org/wiki/Special:FilePath/Square.svg"
+          download_geometry "geometry-triangle" "https://commons.wikimedia.org/wiki/Special:FilePath/Triangle.svg"
+          download_geometry "geometry-rectangle" "https://commons.wikimedia.org/wiki/Special:FilePath/Rectangle.svg"
+          download_geometry "geometry-trapezoid" "https://commons.wikimedia.org/wiki/Special:FilePath/Trapezoid.svg"
+          download_geometry "geometry-circle" "https://commons.wikimedia.org/wiki/Special:FilePath/Circle.svg"
+          download_geometry "geometry-line-segment" "https://commons.wikimedia.org/wiki/Special:FilePath/Line_segment.svg"
+          download_geometry "geometry-perpendicular-lines" "https://commons.wikimedia.org/wiki/Special:FilePath/Perpendicular_lines.svg"
+          download_geometry "geometry-parallel-lines" "https://commons.wikimedia.org/wiki/Special:FilePath/Parallel_lines.svg"
           cat > "$RES/geometry-sources.txt" <<'SOURCES'
           Геометрические SVG-иллюстрации скачиваются из Wikimedia Commons при сборке и включаются в DMG для офлайн-работы.
           geometry-cylinder.svg — Cylinder geometry.svg — public domain: https://commons.wikimedia.org/wiki/File:Cylinder_geometry.svg
@@ -48,6 +56,14 @@ jobs:
           geometry-cube.svg — Wikijunior cube.svg — public domain: https://commons.wikimedia.org/wiki/File:Wikijunior_cube.svg
           geometry-cone.svg — Cone (geometry).svg — CC BY-SA 3.0: https://commons.wikimedia.org/wiki/File:Cone_(geometry).svg
           geometry-sphere.svg — Sphere.svg — CC BY-SA 3.0: https://commons.wikimedia.org/wiki/File:Sphere.svg
+          geometry-square.svg — Square.svg: https://commons.wikimedia.org/wiki/Special:FilePath/Square.svg
+          geometry-triangle.svg — Triangle.svg: https://commons.wikimedia.org/wiki/Special:FilePath/Triangle.svg
+          geometry-rectangle.svg — Rectangle.svg: https://commons.wikimedia.org/wiki/Special:FilePath/Rectangle.svg
+          geometry-trapezoid.svg — Trapezoid.svg: https://commons.wikimedia.org/wiki/Special:FilePath/Trapezoid.svg
+          geometry-circle.svg — Circle.svg: https://commons.wikimedia.org/wiki/Special:FilePath/Circle.svg
+          geometry-line-segment.svg — Line_segment.svg: https://commons.wikimedia.org/wiki/Special:FilePath/Line_segment.svg
+          geometry-perpendicular-lines.svg — Perpendicular_lines.svg: https://commons.wikimedia.org/wiki/Special:FilePath/Perpendicular_lines.svg
+          geometry-parallel-lines.svg — Parallel_lines.svg: https://commons.wikimedia.org/wiki/Special:FilePath/Parallel_lines.svg
           SOURCES
           cp ".build/release/MathTrainer" "$APP_BUNDLE/Contents/MacOS/MathTrainer"
           chmod +x "$APP_BUNDLE/Contents/MacOS/MathTrainer"
