@@ -100,19 +100,18 @@ private struct StudyIllustration: View {
         default: return Color(red: 0.12, green: 0.55, blue: 0.92)
         }
     }
-    private var geometryArt: String {
-        if lower.contains("цилиндр") { return "◯\\n│   │\\n◯" }
-        if lower.contains("октаэдр") { return "◇\\n╱╲\\n◇" }
-        if lower.contains("тетраэдр") { return "△\\n╱ ╲\\n△" }
-        if lower.contains("куб") { return "□\\n╲□" }
-        if lower.contains("конус") { return "△\\n◡" }
-        if lower.contains("шар") { return "◯" }
-        if lower.contains("луч") { return "•━━━━→" }
-        if lower.contains("отрез") { return "•━━━━•" }
-        if lower.contains("точк") { return "•" }
-        if lower.contains("прям") { return "←━━━━→" }
-        if lower.contains("угол") { return "∠" }
-        return "◇"
+    private var geometrySymbol: String {
+        // Use native SF Symbols rather than font glyphs, which may render as tofu/garbled characters.
+        if lower.contains("цилиндр") { return "cylinder" }
+        if lower.contains("октаэдр") || lower.contains("тетраэдр") { return "pyramid" }
+        if lower.contains("куб") { return "cube.transparent" }
+        if lower.contains("конус") { return "cone" }
+        if lower.contains("шар") || lower.contains("круг") || lower.contains("точк") { return "circle" }
+        if lower.contains("луч") { return "arrow.right" }
+        if lower.contains("отрез") { return "line.3.horizontal" }
+        if lower.contains("прям") { return "arrow.left.and.right" }
+        if lower.contains("угол") { return "angle" }
+        return "square.on.circle"
     }
     private var biologyName: String? {
         guard subject == .biology else { return nil }
@@ -126,7 +125,7 @@ private struct StudyIllustration: View {
             Circle().fill(tint.opacity(0.10)).frame(width: 112, height: 112).offset(x: 74, y: -24)
             if subject == .geometry {
                 VStack(spacing: 3) {
-                    Text(geometryArt).font(.system(size: 42, weight: .regular, design: .monospaced)).foregroundStyle(.black).multilineTextAlignment(.center).lineSpacing(-8)
+                    Image(systemName: geometrySymbol).font(.system(size: 62, weight: .regular)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(height: 92).accessibilityLabel("Геометрическая фигура")
                     Text("ГЕОМЕТРИЧЕСКАЯ ФИГУРА").font(.system(size: 11, weight: .black, design: .rounded)).foregroundStyle(.black)
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if subject == .biology {
@@ -1461,10 +1460,20 @@ struct ProblemGenerator {
             ("Как называется точное положение без размера?", "Точка", ["Точка", "Прямая", "Отрезок", "Угол"]),
             ("Как называется линия, продолжающаяся в обе стороны?", "Прямая", ["Прямая", "Луч", "Отрезок", "Точка"]),
             ("Сколько концов у отрезка?", "Два", ["Два", "Один", "Ни одного", "Три"]),
-            ("Как называется фигура из двух лучей с общим началом?", "Угол", ["Угол", "Отрезок", "Точка", "Круг"])
+            ("Как называется фигура из двух лучей с общим началом?", "Угол", ["Угол", "Отрезок", "Точка", "Круг"]),
+            ("Сколько сторон у треугольника?", "Три", ["Три", "Две", "Четыре", "Пять"]),
+            ("Сколько углов у квадрата?", "Четыре", ["Четыре", "Три", "Пять", "Шесть"]),
+            ("Какая фигура не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
+            ("У какой фигуры все стороны равны и четыре угла?", "Квадрат", ["Квадрат", "Треугольник", "Круг", "Овал"]),
+            ("Как называется фигура с тремя сторонами?", "Треугольник", ["Треугольник", "Квадрат", "Круг", "Прямоугольник"]),
+            ("Сколько вершин у прямоугольника?", "Четыре", ["Четыре", "Две", "Три", "Шесть"]),
+            ("Что длиннее: 1 метр или 50 сантиметров?", "1 метр", ["1 метр", "50 сантиметров", "Одинаково", "Нельзя сравнить"]),
+            ("Какая фигура похожа на колесо?", "Круг", ["Круг", "Квадрат", "Треугольник", "Ромб"]),
+            ("Сколько углов у треугольника?", "Три", ["Три", "Четыре", "Два", "Пять"])
         ]
-        let item = (level == 1 || Bool.random() ? solids : lines).randomElement()!
-        return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: true)
+        let useIllustration = Bool.random() && level >= 2
+        let item = (useIllustration ? solids : lines).randomElement()!
+        return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: useIllustration)
     }
 
     fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
@@ -2665,6 +2674,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.102", date: "12.10.2026", title: "Исправления геометрии и заданий", changes: ["Геометрические иллюстрации больше не используют проблемные текстовые символы: отображение переведено на системные векторные значки.", "Добавлены задания по геометрии без иллюстраций для начальных классов.", "Сохранены предыдущие записи истории версий."]),
             ReleaseNote(version: "1.0.101", date: "12.10.2026", title: "Удобнее статистика и коллекция", changes: ["Блок «По дням» перенесён внутрь общей статистики на главной странице.", "Версия приложения теперь находится под названием в верхней части левой панели.", "Коллекционные игрушки в наградах и магазине размещены в четыре колонки.", "Для закрытых игрушек убран дополнительный маленький замок; основной крупный замок оставлен.", "Иллюстрации геометрии переведены в чёрно-белый учебный стиль."]),
             ReleaseNote(version: "1.0.100", date: "12.10.2026", title: "Геометрия и улучшенные коллекционные игрушки", changes: ["Добавлен предмет «Геометрия» с картинками объёмных тел и заданиями о точке, прямой, луче и отрезке.", "Замок увеличен втрое, закрытые игрушки затемнены сильнее.", "Выпадающий список предметов стал выше."]),
             ReleaseNote(version: "1.0.99", date: "12.10.2026", title: "Сохраняем историю и обновляем коллекционные игрушки", changes: ["История обновлений закреплена как единый список: новая запись добавляется отдельной версией, а описания предыдущих выпусков не заменяются.", "Убраны повторяющиеся изображения игрушек и обновлены редкие коллекционные персонажи уникальными значками.", "Закрытые игрушки сильнее затемнены и скрыты за замком, но остаются различимыми по силуэту."]),
