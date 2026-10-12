@@ -3112,105 +3112,81 @@ struct ContentView: View {
     @ViewBuilder
     private func pddIllustration(for question: String) -> some View {
         let q = question.lowercased()
-        let red = Color(red: 0.88, green: 0.07, blue: 0.13)
-        let blue = Color(red: 0.05, green: 0.31, blue: 0.78)
-        let dark = Color(red: 0.12, green: 0.14, blue: 0.18)
+        let signCode: String? = {
+            // Use reference PNGs of Russian road signs rather than hand-drawn approximations.
+            // Source: Team6hakaton/Road_signs, directory "8. Эталонные знаки".
+            if q.contains("стоянка запрещена") { return "3.28" }
+            if q.contains("остановка запрещена") { return "3.27" }
+            if q.contains("въезд запрещ") { return "3.1" }
+            if q.contains("главная дорога") { return "2.1" }
+            if q.contains("уступите дорогу") { return "2.4" }
+            if q.contains("числом 40") || q.contains("число 40") || q.contains("скорости 40") || q.contains("ограничение максимальной скорости") { return "3.24" }
+            if q.contains("парков") || q.contains("буквой p") { return "6.4" }
+            if q.contains("велосипедная дорожка") { return "4.4.1" }
+            if q.contains("круговое движение") { return "4.3" }
+            if q.contains("пешеходного перехода") || q.contains("знак пешеходного перехода") { return "5.19.1" }
+            if q.contains("обгон запрещ") { return "3.20" }
+            if q.contains("предупреждающий дорожный знак") || q.contains("прочие опасности") { return "1.33" }
+            if q.contains("дети") { return "1.23" }
+            if q.contains("железнодорож") { return "1.1" }
+            if q.contains("дорожные работы") { return "1.25" }
+            if q.contains("движение прямо") { return "4.1.1" }
+            if q.contains("поворот направо запрещ") { return "3.18.1" }
+            if q.contains("поворот налево запрещ") { return "3.18.2" }
+            if q.contains("разворот запрещ") { return "3.19" }
+            if q.contains("скользкая дорога") || q.contains("скользкая") { return "1.15" }
+            if q.contains("неровност") { return "1.16" }
+            if q.contains("конец ограничения скорости") { return "3.25" }
+            if q.contains("движение пешеходов запрещено") { return "3.10" }
+            if q.contains("крутой спуск") { return "1.13" }
+            if q.contains("падение камней") { return "1.28" }
+            if q.contains("сужение") { return "1.20.1" }
+            return nil
+        }()
         VStack(spacing: 7) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 15).fill(dark)
-                // Each branch draws exactly one sign. No generic base sign is drawn underneath.
-                if q.contains("светофор") {
-                    HStack(spacing: 9) {
-                        ForEach([Color(red: 0.96, green: 0.12, blue: 0.16), Color(red: 1, green: 0.73, blue: 0.05), Color(red: 0.10, green: 0.78, blue: 0.30)], id: \.self) { color in
-                            Circle().fill(color).frame(width: 31, height: 31).overlay(Circle().stroke(.white.opacity(0.75), lineWidth: 1.5))
-                        }
-                    }
-                } else if q.contains("стоянка запрещена") {
-                    Circle().fill(.white).frame(width: 72, height: 72)
-                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
-                    Rectangle().fill(red).frame(width: 60, height: 7).rotationEffect(.degrees(-45))
-                } else if q.contains("остановка запрещена") {
-                    Circle().fill(.white).frame(width: 72, height: 72)
-                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
-                    Rectangle().fill(red).frame(width: 61, height: 7)
-                    Rectangle().fill(red).frame(width: 7, height: 61)
-                } else if q.contains("въезд запрещ") {
-                    Circle().fill(red).frame(width: 72, height: 72)
-                    Rectangle().fill(.white).frame(width: 47, height: 8)
-                } else if q.contains("главная дорога") {
-                    RoundedRectangle(cornerRadius: 3).fill(.white).frame(width: 59, height: 59)
-                    RoundedRectangle(cornerRadius: 2).fill(Color(red: 0.98, green: 0.78, blue: 0.08)).frame(width: 48, height: 48).rotationEffect(.degrees(45))
-                    RoundedRectangle(cornerRadius: 2).stroke(.white, lineWidth: 2).frame(width: 36, height: 36).rotationEffect(.degrees(45))
-                } else if q.contains("уступите дорогу") {
-                    TriangleShape().fill(red).frame(width: 78, height: 72).rotationEffect(.degrees(180))
-                        .overlay(TriangleShape().fill(.white).frame(width: 59, height: 53).rotationEffect(.degrees(180)))
-                } else if q.contains("скорост") || q.contains("числом 40") || q.contains("число 40") {
-                    Circle().fill(.white).frame(width: 72, height: 72)
-                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
-                    let speed = ["20", "30", "40", "50", "60", "70", "80", "90", "100"].first(where: { q.contains($0) }) ?? "40"
-                    Text(speed).font(.system(size: 24, weight: .black, design: .rounded)).foregroundStyle(.black)
-                } else if q.contains("парков") || q.contains("буквой p") {
-                    RoundedRectangle(cornerRadius: 7).fill(blue).frame(width: 72, height: 72)
-                    Text("P").font(.system(size: 44, weight: .black, design: .rounded)).foregroundStyle(.white)
-                } else if q.contains("велосипед") {
-                    Circle().fill(blue).frame(width: 72, height: 72)
-                    Image(systemName: "bicycle").font(.system(size: 36, weight: .bold)).foregroundStyle(.white)
-                } else if q.contains("круговое движение") {
-                    Circle().fill(blue).frame(width: 72, height: 72)
-                    Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 37, weight: .black)).foregroundStyle(.white)
-                } else if q.contains("пешеход") && (q.contains("запрещ") || q.contains("нельзя")) {
-                    Circle().fill(.white).frame(width: 72, height: 72)
-                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
-                    Image(systemName: "figure.walk").font(.system(size: 32, weight: .bold)).foregroundStyle(.black)
-                    Rectangle().fill(red).frame(width: 63, height: 7).rotationEffect(.degrees(-45))
-                } else if q.contains("пешеходный переход") || q.contains("пешеходного перехода") || q.contains("знак пешеходного перехода") {
-                    RoundedRectangle(cornerRadius: 6).fill(blue).frame(width: 76, height: 76)
-                    RoundedRectangle(cornerRadius: 3).stroke(.white, lineWidth: 2).frame(width: 64, height: 64)
-                    Image(systemName: "figure.walk").font(.system(size: 35, weight: .bold)).foregroundStyle(.white)
-                } else if q.contains("обгон запрещ") {
-                    Circle().fill(.white).frame(width: 72, height: 72)
-                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
-                    HStack(spacing: 1) {
-                        Image(systemName: "car.side.fill").foregroundStyle(.black)
-                        Image(systemName: "car.side.fill").foregroundStyle(red)
-                    }.font(.system(size: 20, weight: .black))
-                } else if q.contains("предупреждающий дорожный знак") {
-                    TriangleShape().fill(.white).frame(width: 79, height: 72)
-                    TriangleShape().stroke(red, lineWidth: 7).frame(width: 79, height: 72)
-                    Image(systemName: "exclamationmark").font(.system(size: 32, weight: .black)).foregroundStyle(.black).offset(y: 7)
-                } else if q.contains("дети") || q.contains("железнодорож") || q.contains("дикие животные") || q.contains("скользкая") || q.contains("неровност") || q.contains("крутой спуск") || q.contains("крутой подъём") || q.contains("сужение") || q.contains("дорожные работы") || q.contains("падение камней") {
-                    TriangleShape().fill(.white).frame(width: 79, height: 72)
-                    TriangleShape().stroke(red, lineWidth: 7).frame(width: 79, height: 72)
-                    let symbol = q.contains("дети") ? "figure.2" : (q.contains("железнодорож") ? "tram.fill" : (q.contains("животные") ? "pawprint.fill" : (q.contains("неровност") ? "car.side.fill" : (q.contains("работ") ? "figure.construction" : "exclamationmark"))))
-                    Image(systemName: symbol).font(.system(size: 29, weight: .black)).foregroundStyle(.black).offset(y: 7)
-                } else if q.contains("движение прямо") {
-                    Circle().fill(blue).frame(width: 72, height: 72)
-                    Image(systemName: "arrow.up").font(.system(size: 39, weight: .black)).foregroundStyle(.white)
-                } else if q.contains("поворот направо запрещ") || q.contains("поворот налево запрещ") || q.contains("разворот запрещ") {
-                    Circle().fill(.white).frame(width: 72, height: 72)
-                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
-                    Image(systemName: q.contains("направо") ? "arrow.turn.up.right" : (q.contains("налево") ? "arrow.turn.up.left" : "arrow.uturn.backward")).font(.system(size: 28, weight: .black)).foregroundStyle(.black)
-                    Rectangle().fill(red).frame(width: 64, height: 6).rotationEffect(.degrees(-45))
-                } else if q.contains("размет") || q.contains("зебр") || (q.contains("переход") && !q.contains("знак")) {
-                    HStack(spacing: 7) { ForEach(0..<6, id: \.self) { _ in RoundedRectangle(cornerRadius: 2).fill(.white).frame(width: 17, height: 51) } }
-                } else {
-                    // For non-sign safety questions show a crossing scene, never a question-mark placeholder.
-                    HStack(spacing: 16) {
-                        Image(systemName: "figure.walk").font(.system(size: 38, weight: .bold)).foregroundStyle(.white)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("БЕЗОПАСНОСТЬ").font(.system(size: 12, weight: .black, design: .rounded)).foregroundStyle(.white)
-                            Text("Смотри по сторонам").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(.white.opacity(0.85))
-                        }
+            if let signCode {
+                let encodedFolder = "8.%20%D0%AD%D1%82%D0%B0%D0%BB%D0%BE%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%B7%D0%BD%D0%B0%D0%BA%D0%B8"
+                AsyncImage(url: URL(string: "https://raw.githubusercontent.com/Team6hakaton/Road_signs/main/\(encodedFolder)/\(signCode).png")) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image.resizable().scaledToFit()
+                    case .empty:
+                        ProgressView().controlSize(.large)
+                    case .failure:
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .resizable().scaledToFit().foregroundStyle(.orange)
+                    @unknown default:
+                        Image(systemName: "road.lanes")
+                            .resizable().scaledToFit()
                     }
                 }
+                .frame(width: 104, height: 104)
+                .padding(8)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
+                Text("ОФИЦИАЛЬНОЕ ИЗОБРАЖЕНИЕ ДОРОЖНОГО ЗНАКА")
+                    .font(.system(size: 9, weight: .black, design: .rounded))
+                    .tracking(0.3)
+                    .foregroundStyle(palette.muted)
+            } else {
+                HStack(spacing: 16) {
+                    Image(systemName: q.contains("светофор") ? "trafficlight.fill" : (q.contains("размет") || q.contains("зебр") ? "road.lanes" : "figure.walk"))
+                        .font(.system(size: 44, weight: .bold))
+                        .foregroundStyle(palette.purple)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(q.contains("светофор") ? "СВЕТОФОР" : "БЕЗОПАСНОСТЬ")
+                            .font(.system(size: 12, weight: .black, design: .rounded))
+                            .foregroundStyle(palette.ink)
+                        Text("Смотри по сторонам")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(palette.muted)
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: 104)
             }
-            .frame(height: 104)
-            .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color.white.opacity(0.22), lineWidth: 1))
-            Text("ИЛЛЮСТРАЦИЯ К ЗАДАНИЮ").font(.system(size: 10, weight: .black, design: .rounded)).tracking(0.5).foregroundStyle(palette.muted)
         }
         .padding(8)
-        .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(palette.line, lineWidth: 1))
+        .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 19))
+        .overlay(RoundedRectangle(cornerRadius: 19).stroke(palette.line, lineWidth: 1))
     }
 
     private var tatarChoiceGrid: some View {
