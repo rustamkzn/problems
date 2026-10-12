@@ -3891,10 +3891,12 @@ struct ContentView: View {
                     Text("До уровня \(levelNumber + 1): ещё \(25 - levelProgress) ответов").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(18).cardStyle(palette)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    medalCard("🥉", title: "Бронзовая медаль", detail: "10 правильных ответов", progress: min(store.stats.correct, 10), goal: 10, color: Color(red: 0.78, green: 0.49, blue: 0.30))
-                    medalCard("🥈", title: "Серебряная медаль", detail: "50 правильных ответов", progress: min(store.stats.correct, 50), goal: 50, color: Color(red: 0.68, green: 0.73, blue: 0.80))
-                    medalCard("🥇", title: "Золотая медаль", detail: "100 правильных ответов", progress: min(store.stats.correct, 100), goal: 100, color: Color(red: 0.95, green: 0.72, blue: 0.22))
-                    medalCard("💠", title: "Алмазный кубок", detail: "250 правильных ответов", progress: min(store.stats.correct, 250), goal: 250, color: palette.lilac)
+                    medalCard("🥉", title: "500 алмазов", detail: "Накопи 500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(500) ? 500 : min(store.stats.diamonds, 500), goal: 500, color: Color(red: 0.78, green: 0.49, blue: 0.30))
+                    medalCard("🥈", title: "1000 алмазов", detail: "Накопи 1000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(1000) ? 1000 : min(store.stats.diamonds, 1000), goal: 1000, color: Color(red: 0.68, green: 0.73, blue: 0.80))
+                    medalCard("🥇", title: "1500 алмазов", detail: "Накопи 1500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(1500) ? 1500 : min(store.stats.diamonds, 1500), goal: 1500, color: Color(red: 0.95, green: 0.72, blue: 0.22))
+                    medalCard("💠", title: "2000 алмазов", detail: "Накопи 2000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(2000) ? 2000 : min(store.stats.diamonds, 2000), goal: 2000, color: palette.lilac)
+                    medalCard("🏅", title: "2500 алмазов", detail: "Накопи 2500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(2500) ? 2500 : min(store.stats.diamonds, 2500), goal: 2500, color: Color(red: 0.84, green: 0.62, blue: 0.18))
+                    medalCard("🏆", title: "3000 алмазов", detail: "Накопи 3000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(3000) ? 3000 : min(store.stats.diamonds, 3000), goal: 3000, color: Color(red: 0.55, green: 0.42, blue: 0.88))
                 }
                 Button { openShop() } label: {
                     Label("Открыть магазин коллекционных игрушек", systemImage: "storefront.fill")
@@ -3989,7 +3991,7 @@ struct ContentView: View {
                         sectionTitle("Обычные игрушки", icon: "gift")
                         Text("Купленные игрушки остаются в списке с отметкой «Открыта!». Их можно рассмотреть, даже если алмазы уже потрачены.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
                             ForEach(Collectible.all.filter { !$0.isRare }) { item in
                                 shopItemCard(item)
                             }
@@ -4399,21 +4401,21 @@ struct ContentView: View {
         let newly = AchievementCatalog.all.filter { item in
             guard !already.contains(item.id) else { return false }
             switch item.id {
-            case "first-answer": return store.stats.total >= 1
-            case "ten-correct": return store.stats.correct >= 25
-            case "twenty-correct": return store.stats.correct >= 50
-            case "fifty-correct": return store.stats.correct >= 100
-            case "five-streak": return store.stats.bestStreak >= 10
-            case "fifteen-streak": return store.stats.bestStreak >= 20
-            case "twenty-streak": return store.stats.bestStreak >= 30
-            case "daily-solver": return today.total >= 30
-            case "three-days": return store.stats.days.filter { $0.total > 0 }.count >= 5
-            case "five-days": return store.stats.days.filter { $0.total > 0 }.count >= 10
-            case "perfect-ten": return store.stats.total >= 25 && store.stats.accuracy == 100
-            case "accuracy-90": return store.stats.total >= 100 && store.stats.accuracy >= 90
-            case "hundred-answers": return store.stats.total >= 250
-            case "five-hundred-answers": return store.stats.total >= 1000
-            case "diamond-100": return store.stats.diamonds >= 150
+            case "first-answer": return store.stats.total >= 2
+            case "ten-correct": return store.stats.correct >= 50
+            case "twenty-correct": return store.stats.correct >= 100
+            case "fifty-correct": return store.stats.correct >= 200
+            case "five-streak": return store.stats.bestStreak >= 20
+            case "fifteen-streak": return store.stats.bestStreak >= 40
+            case "twenty-streak": return store.stats.bestStreak >= 60
+            case "daily-solver": return today.total >= 60
+            case "three-days": return store.stats.days.filter { $0.total > 0 }.count >= 10
+            case "five-days": return store.stats.days.filter { $0.total > 0 }.count >= 20
+            case "perfect-ten": return store.stats.total >= 50 && store.stats.accuracy == 100
+            case "accuracy-90": return store.stats.total >= 200 && store.stats.accuracy >= 90
+            case "hundred-answers": return store.stats.total >= 500
+            case "five-hundred-answers": return store.stats.total >= 2000
+            case "diamond-100": return store.stats.diamonds >= 300
             default: return isExtraAchievementUnlocked(item.id)
             }
         }
@@ -4617,7 +4619,7 @@ struct ContentView: View {
     }
 
     private func maybeUnlockRandomCollectible() -> Collectible? {
-        guard Double.random(in: 0..<1) < 0.08 else { return nil }
+        guard Double.random(in: 0..<1) < 0.04 else { return nil }
         let owned = allOwnedCollectibleIDs
         guard let item = Collectible.all.filter({ !$0.isRare && !owned.contains($0.id) }).randomElement() else { return nil }
         randomCollectiblesStorage = unlockedCollectibleIDs.union([item.id]).sorted().joined(separator: ",")
