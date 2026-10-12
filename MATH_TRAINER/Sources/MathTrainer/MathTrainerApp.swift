@@ -2901,6 +2901,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.135", date: "12.10.2026", title: "Единый дизайн коллекции и новые рубежи наград", changes: ["Карточки коллекционных игрушек в разделе «Награды» оформлены в том же стиле, что и карточки магазина: крупная иллюстрация сверху, подписи ниже, золотое оформление редких игрушек.", "Добавлены новые рубежи наград за накопление 5500 и 6000 алмазов.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.134", date: "12.10.2026", title: "Цвет золота и удобные кнопки магазина", changes: ["Золотые монеты выделены ярким золотисто-жёлтым цветом.", "Кнопки покупки получили тёмно-фиолетовый фон и белый контрастный текст.", "Алмазы и золото на главной странице выровнены в одну строку на одном уровне.", "Сетки обычных и редких коллекционных игрушек изменены на пять столбцов."]),
             ReleaseNote(version: "1.0.133", date: "12.10.2026", title: "Золотые монеты и улучшенная комната", changes: ["В магазин добавлен обмен алмазов на золото: 100 монет за 50 алмазов, 200 за 95, 500 за 250. Покупка доступна только при достаточном балансе алмазов.", "В верхнем блоке главного экрана теперь одновременно видны балансы алмазов и золотых монет.", "В разделе «Моя комната» игрушки размещаются в шесть колонок. Баланс золота сохраняется между запусками приложения."]),
             ReleaseNote(version: "1.0.132", date: "12.10.2026", title: "Новая геометрия, жизненная математика и моя комната", changes: ["Геометрические рисунки полностью перерисованы в цветном векторном стиле: изображение строится по точному названию фигуры, а не по приблизительному системному значку или непроверенному SVG.", "В математику добавлен отдельный набор задач из реальной жизни: покупки, сдача, время, поездки, пицца, скидки и карманные деньги.", "Добавлен раздел «Моя комната» между магазином и настройками: можно размещать и убирать свои коллекционные игрушки, оформление сохраняется после перезапуска.", "Исправлено соответствие геометрической иллюстрации её правильному ответу для фигур, углов, линий и объёмных тел."]),
@@ -4591,6 +4592,8 @@ struct ContentView: View {
                     medalCard("👑", title: "4000 алмазов", detail: "Накопи 4000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(4000) ? 4000 : min(store.stats.diamonds, 4000), goal: 4000, color: Color(red: 0.92, green: 0.58, blue: 0.25))
                     medalCard("🌟", title: "4500 алмазов", detail: "Накопи 4500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(4500) ? 4500 : min(store.stats.diamonds, 4500), goal: 4500, color: Color(red: 0.35, green: 0.72, blue: 0.55))
                     medalCard("💎", title: "5000 алмазов", detail: "Накопи 5000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(5000) ? 5000 : min(store.stats.diamonds, 5000), goal: 5000, color: Color(red: 0.32, green: 0.62, blue: 0.95))
+                    medalCard("🌈", title: "5500 алмазов", detail: "Накопи 5500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(5500) ? 5500 : min(store.stats.diamonds, 5500), goal: 5500, color: Color(red: 0.72, green: 0.43, blue: 0.88))
+                    medalCard("🏆", title: "6000 алмазов", detail: "Накопи 6000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(6000) ? 6000 : min(store.stats.diamonds, 6000), goal: 6000, color: Color(red: 0.98, green: 0.66, blue: 0.22))
                     }
                 }
                 Button { openShop() } label: {
@@ -5238,23 +5241,56 @@ struct ContentView: View {
     }
     private func collectibleCard(_ item: Collectible) -> some View {
         let unlocked = allOwnedCollectibleIDs.contains(item.id)
-        return VStack(spacing: 6) {
-            Collectible3DView(id: item.id, title: item.title, size: 62, animated: unlocked && item.isRare)
-                .frame(maxWidth: .infinity)
-                .frame(height: 70)
-                .background(LinearGradient(colors: [palette.pink.opacity(0.12), palette.palePink.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 14))
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.purple.opacity(0.75), lineWidth: 1.2))
-            Text(unlocked ? item.title : "Секретная находка")
-                .font(.system(size: 10, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                .multilineTextAlignment(.center).lineLimit(2).frame(maxWidth: .infinity, minHeight: 26, alignment: .top)
-            Text(unlocked ? item.detail : "Шанс найти за верный ответ")
-                .font(.system(size: 9, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                .multilineTextAlignment(.center).lineLimit(3).fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, minHeight: 32, alignment: .top)
+        let gold = Color(red: 0.82, green: 0.58, blue: 0.12)
+        return VStack(alignment: .leading, spacing: 9) {
+            ZStack(alignment: .topTrailing) {
+                RoundedRectangle(cornerRadius: 17).fill(
+                    LinearGradient(
+                        colors: item.isRare
+                            ? [Color(red: 1.0, green: 0.97, blue: 0.82), Color(red: 0.98, green: 0.82, blue: 0.48)]
+                            : [palette.line.opacity(0.5), palette.palePink],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    )
+                )
+                Collectible3DView(id: item.id, title: item.title, size: item.isRare ? 112 : 94, animated: item.isRare)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture { if item.isRare { triggerCelebration("rare:\(item.id)") } }
+                if item.isRare {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 18, weight: .black))
+                        .foregroundStyle(gold)
+                        .padding(7)
+                }
+            }
+            .frame(height: item.isRare ? 144 : 125)
+            .overlay(RoundedRectangle(cornerRadius: 17).stroke(item.isRare ? gold : palette.line.opacity(0.12), lineWidth: item.isRare ? 2 : 1))
+
+            if item.isRare {
+                Label("РЕДКИЙ КОЛЛЕКЦИОННЫЙ", systemImage: "sparkles")
+                    .font(.system(size: 9, weight: .black, design: .rounded))
+                    .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.80, blue: 0.30) : Color(red: 0.52, green: 0.31, blue: 0.02))
+                    .lineLimit(1).minimumScaleFactor(0.7)
+            }
+            Text(item.title)
+                .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
+            Text(item.detail)
+                .font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
+
+            Label("Открыта!", systemImage: "checkmark.seal.fill")
+                .font(.system(size: 11, weight: .heavy, design: .rounded))
+                .foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
         }
-        .frame(maxWidth: .infinity, minHeight: 145, alignment: .top)
-        .padding(7)
-        .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 14))
+        .padding(11)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(
+            item.isRare && !palette.isDark
+                ? LinearGradient(colors: [Color(red: 1.0, green: 0.985, blue: 0.91), Color(red: 1.0, green: 0.94, blue: 0.77)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                : LinearGradient(colors: [palette.cardSurface.opacity(0.98), palette.cardSurface.opacity(0.92)], startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 19)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 19).stroke(item.isRare ? gold.opacity(0.8) : palette.line.opacity(0.7), lineWidth: item.isRare ? 2 : 1))
+        .shadow(color: item.isRare ? gold.opacity(0.16) : palette.purple.opacity(0.035), radius: item.isRare ? 10 : 8, y: 3)
     }
     private func unlockEligibleAchievements() -> [Achievement] {
         let already = unlockedAchievementIDs
