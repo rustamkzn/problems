@@ -2410,6 +2410,24 @@ private struct Collectible3DView: View {
         return "star.fill"
     }
     private var emoji: String {
+        // Distinct rare characters first: rare rewards must never fall back to a repeated mascot.
+        if key.contains("rare-krosh") { return "🐇✨" }
+        if key.contains("rare-rainbow-unicorn") { return "🪽🌈" }
+        if key.contains("rare-princess-pony") { return "👑🦢" }
+        if key.contains("rainbow-princess-pony") { return "🦄💎" }
+        if key.contains("cosmic-mermaid") { return "🧜‍♀️🌙" }
+        if key.contains("gold-princess") { return "👸💛" }
+        if key.contains("rainbow-dragon") { return "🐲🌈" }
+        if key.contains("cosmic-unicorn") { return "🦄🪐" }
+        if key.contains("heart-gem") { return "💎💖" }
+        if key.contains("magic-star") { return "🌠" }
+        if key.contains("rainbow") { return "🌈" }
+        if key.contains("dragon") { return "🐉" }
+        if key.contains("princess-pony") || key.contains("pony") { return "🐴🌸" }
+        if key.contains("unicorn") || key.contains("единорог") { return "🦄" }
+        if key.contains("heart") || key.contains("серд") { return "💗" }
+        if key.contains("magic-star") { return "🪄" }
+        if key.contains("bunny-friend") { return "🐰🌷" }
         if key.contains("медвед") || key.contains("мишка") || key.contains("bear") || key.contains("teddy") { return "🧸" }
         if key.contains("бабоч") || key.contains("butterfly") { return "🦋" }
         if key.contains("зай") || key.contains("крол") || key.contains("bunny") || key.contains("rabbit") { return "🐰" }
@@ -2417,7 +2435,6 @@ private struct Collectible3DView: View {
         if key.contains("собак") || key.contains("щен") || key.contains("dog") { return "🐶" }
         if key.contains("лиса") || key.contains("fox") { return "🦊" }
         if key.contains("панд") || key.contains("panda") { return "🐼" }
-        if key.contains("единорог") || key.contains("unicorn") { return "🦄" }
         if key.contains("динозав") || key.contains("dino") { return "🦕" }
         if key.contains("лягуш") || key.contains("frog") { return "🐸" }
         if key.contains("пчел") || key.contains("bee") { return "🐝" }
@@ -2426,14 +2443,12 @@ private struct Collectible3DView: View {
         if key.contains("коал") || key.contains("koala") { return "🐨" }
         if key.contains("слон") || key.contains("elephant") { return "🐘" }
         if key.contains("жираф") || key.contains("giraffe") { return "🦒" }
-        if key.contains("дракон") || key.contains("dragon") { return "🐉" }
         if key.contains("рыб") || key.contains("fish") { return "🐠" }
-        if key.contains("радуг") || key.contains("rainbow") { return "🌈" }
         if key.contains("звезд") || key.contains("star") { return "⭐️" }
-        if key.contains("серд") || key.contains("heart") { return "💖" }
         if key.contains("планет") || key.contains("космос") || key.contains("planet") { return "🪐" }
         if key.contains("робот") || key.contains("robot") { return "🤖" }
         if key.contains("цвет") || key.contains("flower") { return "🌸" }
+        if key.contains("planet") { return "🪐" }
         return "🧸"
     }
     private var colors: [Color] {
@@ -2588,6 +2603,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.99", date: "12.10.2026", title: "Сохраняем историю и обновляем коллекционные игрушки", changes: ["История обновлений закреплена как единый список: новая запись добавляется отдельной версией, а описания предыдущих выпусков не заменяются.", "Убраны повторяющиеся изображения игрушек и обновлены редкие коллекционные персонажи уникальными значками.", "Закрытые игрушки сильнее затемнены и скрыты за замком, но остаются различимыми по силуэту."]),
             ReleaseNote(version: "1.0.98", date: "12.10.2026", title: "Коллекционные игрушки, копирование и химия в быту", changes: ["Игрушки получили единый современный стиль с яркими персонажами и более прозрачным фоном; закрытые игрушки видны под замком.", "В журнале версий можно выделять и копировать текст, а у задания есть кнопка копирования вопроса и вариантов ответа.", "В химию добавлены вопросы о железе, кислороде, алюминии, меди и других элементах в бытовых предметах."]),
             ReleaseNote(version: "1.0.97", date: "12.10.2026", title: "Химия: исправление банка элементов", changes: ["Список вопросов о символах элементов помещён внутрь банка химии; каждый вопрос предлагает четыре русских названия.", "Исправлены разделители массива химических заданий." ]),
             ReleaseNote(version: "1.0.96", date: "12.10.2026", title: "Химия: структура вопросов по символам", changes: ["Добавлены задания вида Fe → Железо, Au → Золото и Na → Натрий.", "Список химических вопросов инициализируется корректно; финальная проверка продолжается в следующих сборках."]),
@@ -4324,13 +4340,15 @@ struct ContentView: View {
                 } else {
                     ZStack {
                         Collectible3DView(id: item.id, title: item.title, size: item.isRare ? 112 : 94, animated: false)
-                            .opacity(0.62)
+                            .saturation(0.25)
+                            .opacity(0.28)
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 17, weight: .black))
+                            .font(.system(size: 21, weight: .black))
                             .foregroundStyle(.white)
-                            .padding(9)
-                            .background(palette.purple.opacity(0.92), in: Circle())
-                            .overlay(Circle().stroke(.white.opacity(0.85), lineWidth: 1.5))
+                            .padding(11)
+                            .background(palette.purple.opacity(0.98), in: Circle())
+                            .overlay(Circle().stroke(.white.opacity(0.95), lineWidth: 1.8))
+                            .shadow(color: .black.opacity(0.18), radius: 4, y: 2)
                             .offset(x: item.isRare ? 42 : 36, y: item.isRare ? 48 : 39)
                     }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -4340,8 +4358,8 @@ struct ContentView: View {
                         .foregroundStyle(gold)
                         .padding(7)
                 } else if !owned {
-                    Image(systemName: "lock.fill").font(.system(size: 11, weight: .black)).foregroundStyle(.white)
-                        .padding(7).background(palette.purple, in: Circle()).padding(6)
+                    Image(systemName: "lock.fill").font(.system(size: 12, weight: .black)).foregroundStyle(.white)
+                        .padding(8).background(palette.purple.opacity(0.98), in: Circle()).overlay(Circle().stroke(.white.opacity(0.9), lineWidth: 1)).padding(6)
                 }
             }
             .frame(height: item.isRare ? 144 : 125)
