@@ -24,6 +24,31 @@ jobs:
           APP_BUNDLE="Тренировка мозга.app"
           rm -rf "$APP_BUNDLE" "BrainTraining.dmg" "BrainTraining.iconset" "icon-1024.png"
           mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources" "BrainTraining.iconset"
+          # Educational geometry SVGs are downloaded from Wikimedia Commons and bundled offline.
+          RES="$APP_BUNDLE/Contents/Resources"
+          download_geometry() {
+            local name="$1"
+            local url="$2"
+            curl -fLsS --retry 2 --max-time 30 "$url" -o "$RES/$name.svg" || {
+              echo "Warning: could not download $name; the app will use its native fallback symbol."
+              rm -f "$RES/$name.svg"
+            }
+          }
+          download_geometry "geometry-cylinder" "https://commons.wikimedia.org/wiki/Special:FilePath/Cylinder_geometry.svg"
+          download_geometry "geometry-octahedron" "https://commons.wikimedia.org/wiki/Special:FilePath/Octahedron.svg"
+          download_geometry "geometry-tetrahedron" "https://commons.wikimedia.org/wiki/Special:FilePath/Basic_tetrahedron.svg"
+          download_geometry "geometry-cube" "https://commons.wikimedia.org/wiki/Special:FilePath/Wikijunior_cube.svg"
+          download_geometry "geometry-cone" "https://commons.wikimedia.org/wiki/Special:FilePath/Cone%20(geometry).svg"
+          download_geometry "geometry-sphere" "https://commons.wikimedia.org/wiki/Special:FilePath/Sphere.svg"
+          cat > "$RES/geometry-sources.txt" <<'SOURCES'
+          Геометрические SVG-иллюстрации скачиваются из Wikimedia Commons при сборке и включаются в DMG для офлайн-работы.
+          geometry-cylinder.svg — Cylinder geometry.svg — public domain: https://commons.wikimedia.org/wiki/File:Cylinder_geometry.svg
+          geometry-octahedron.svg — Octahedron.svg — CC BY-SA 3.0: https://commons.wikimedia.org/wiki/File:Octahedron.svg
+          geometry-tetrahedron.svg — Basic tetrahedron.svg — CC0 1.0: https://commons.wikimedia.org/wiki/File:Basic_tetrahedron.svg
+          geometry-cube.svg — Wikijunior cube.svg — public domain: https://commons.wikimedia.org/wiki/File:Wikijunior_cube.svg
+          geometry-cone.svg — Cone (geometry).svg — CC BY-SA 3.0: https://commons.wikimedia.org/wiki/File:Cone_(geometry).svg
+          geometry-sphere.svg — Sphere.svg — CC BY-SA 3.0: https://commons.wikimedia.org/wiki/File:Sphere.svg
+          SOURCES
           cp ".build/release/MathTrainer" "$APP_BUNDLE/Contents/MacOS/MathTrainer"
           chmod +x "$APP_BUNDLE/Contents/MacOS/MathTrainer"
           swift - <<'SWIFT'
