@@ -4699,7 +4699,7 @@ struct ContentView: View {
         case "milestone:50": return "🎉 Вот это серия! Цветной салют за 50 правильных ответов."
         case "diamonds:20": return "Салют из разноцветных мягких игрушек!"
         case "diamonds:50": return "Птички и бабочки летают вокруг!"
-        case "olympiad:win": return "Все 50 заданий пройдены. Начислено 100 алмазов!"
+        case "olympiad:win": return "Все \(olympiadTargetCount) заданий пройдены. Начислено 100 алмазов!"
         default:
             if let reward = celebration, reward.hasPrefix("achievement:") {
                 let id = String(reward.dropFirst("achievement:".count))
