@@ -224,27 +224,27 @@ private struct GeometryFigureView: View {
                 Gradient(colors: [Color(red: 0.47, green: 0.76, blue: 1), Color(red: 0.53, green: 0.43, blue: 0.96)]),
                 startPoint: CGPoint(x: w * 0.2, y: h * 0.15),
                 endPoint: CGPoint(x: w * 0.8, y: h * 0.9))
-            func polygon(_ points: [CGPoint], color: GraphicsContext.Shading = fillStyle) {
+            func polygon(_ points: [CGPoint], color: GraphicsContext.Shading? = nil) {
                 guard let first = points.first else { return }
                 var path = Path()
                 path.move(to: first)
                 for point in points.dropFirst() { path.addLine(to: point) }
                 path.closeSubpath()
-                context.fill(path, with: color)
+                context.fill(path, with: color ?? fillStyle)
                 context.stroke(path, with: .color(ink), lineWidth: 2.8)
             }
             func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * w, y: y * h) }
-            func line(_ points: [CGPoint], color: Color = ink, width: CGFloat = 4, dash: [CGFloat] = []) {
+            func line(_ points: [CGPoint], color: Color? = nil, width: CGFloat = 4, dash: [CGFloat] = []) {
                 guard let first = points.first else { return }
                 var path = Path()
                 path.move(to: first)
                 for p in points.dropFirst() { path.addLine(to: p) }
-                context.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round, dash: dash))
+                context.stroke(path, with: .color(color ?? ink), style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round, dash: dash))
             }
-            func ellipse(_ rect: CGRect, color: Color, stroke: Color = ink, width: CGFloat = 2.8) {
-                var path = Path(ellipseIn: rect)
+            func ellipse(_ rect: CGRect, color: Color, stroke: Color? = nil, width: CGFloat = 2.8) {
+                let path = Path(ellipseIn: rect)
                 context.fill(path, with: .color(color))
-                context.stroke(path, with: .color(stroke), lineWidth: width)
+                context.stroke(path, with: .color(stroke ?? ink), lineWidth: width)
             }
             if lower.contains("прямой угол") || lower.contains("острый угол") || lower.contains("тупой угол") || lower == "угол" {
                 let v = point(0.30, 0.78)
