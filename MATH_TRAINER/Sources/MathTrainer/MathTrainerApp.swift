@@ -3925,25 +3925,31 @@ struct ContentView: View {
                             Text("Верно: \(result.correct) · Ошибок: \(result.incorrect) · Всего: \(result.total)")
                                 .font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
 
-                            if !subjectMistakes.isEmpty {
-                                Button {
-                                    expandedMistakeSubject = expandedMistakeSubject == subject.rawValue ? nil : subject.rawValue
-                                } label: {
-                                    HStack(spacing: 7) {
-                                        Image(systemName: "exclamationmark.triangle.fill")
-                                        Text("Ошибки для повторения: \(subjectMistakes.count)")
-                                        Spacer()
-                                        Image(systemName: expandedMistakeSubject == subject.rawValue ? "chevron.up" : "chevron.down")
-                                    }
-                                    .font(.system(size: 12, weight: .heavy, design: .rounded))
-                                    .foregroundStyle(palette.red)
-                                    .padding(10)
-                                    .background(palette.red.opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
-                                }.buttonStyle(.plain)
-                                if expandedMistakeSubject == subject.rawValue {
+                            Button {
+                                expandedMistakeSubject = expandedMistakeSubject == subject.rawValue ? nil : subject.rawValue
+                            } label: {
+                                HStack(spacing: 7) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                    Text("Ошибки для повторения: \(subjectMistakes.count)")
+                                    Spacer()
+                                    Image(systemName: expandedMistakeSubject == subject.rawValue ? "chevron.up" : "chevron.down")
+                                }
+                                .font(.system(size: 12, weight: .heavy, design: .rounded))
+                                .foregroundStyle(subjectMistakes.isEmpty ? palette.muted : palette.red)
+                                .padding(10)
+                                .background((subjectMistakes.isEmpty ? palette.line : palette.red).opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
+                            }.buttonStyle(.plain)
+                            if expandedMistakeSubject == subject.rawValue {
+                                if subjectMistakes.isEmpty {
+                                    Text("Пока нет ошибок для повторения по этому предмету. Ошибочные ответы будут сохраняться здесь автоматически.")
+                                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                                        .foregroundStyle(palette.muted)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                        .padding(10)
+                                } else {
                                     ForEach(subjectMistakes) { mistake in
                                         VStack(alignment: .leading, spacing: 7) {
-                                            Text(mistake.question)
+                                            Text(mistake.question.isEmpty ? "Задание по иллюстрации" : mistake.question)
                                                 .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                                                 .fixedSize(horizontal: false, vertical: true)
                                             Text("Твой ответ: \(mistake.selectedAnswer)")
@@ -4374,7 +4380,7 @@ struct ContentView: View {
                     ProgressView(value: Double(levelProgress), total: 25).tint(palette.purple)
                     Text("До уровня \(levelNumber + 1): ещё \(25 - levelProgress) ответов").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(18).cardStyle(palette)
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 10) {
                     medalCard("🥉", title: "500 алмазов", detail: "Накопи 500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(500) ? 500 : min(store.stats.diamonds, 500), goal: 500, color: Color(red: 0.78, green: 0.49, blue: 0.30))
                     medalCard("🥈", title: "1000 алмазов", detail: "Накопи 1000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(1000) ? 1000 : min(store.stats.diamonds, 1000), goal: 1000, color: Color(red: 0.68, green: 0.73, blue: 0.80))
                     medalCard("🥇", title: "1500 алмазов", detail: "Накопи 1500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(1500) ? 1500 : min(store.stats.diamonds, 1500), goal: 1500, color: Color(red: 0.95, green: 0.72, blue: 0.22))
@@ -5058,7 +5064,7 @@ struct ContentView: View {
         let record = MistakeRecord(
             id: UUID().uuidString,
             subject: subject.rawValue,
-            question: item.text,
+            question: item.text.isEmpty ? "Определи фигуру на рисунке: \(item.answer)" : item.text,
             selectedAnswer: selectedAnswer,
             correctAnswer: item.answer,
             choices: mistakeChoices(for: item, selectedAnswer: selectedAnswer),
