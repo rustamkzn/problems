@@ -1018,7 +1018,8 @@ struct ProblemGenerator {
         let item = questions.randomElement()!
         if item.0.localizedCaseInsensitiveContains("ошиб") || item.0.localizedCaseInsensitiveContains("неправильно") {
             let cleanWords = ["собака", "машина", "жираф", "чайка", "щука", "класс", "деревья", "медведь", "лисица", "солнце", "корова", "щенок", "чувство", "пожалуйста", "морковь", "воробей", "искусство", "берёза", "молоко", "праздник", "апельсин", "ученик", "здравствуйте", "лестница", "снеговик", "аккуратно"]
-            let distractors = cleanWords.filter { $0 != item.1 }.shuffled().prefix(3)
+            let sentenceDistractors = ["На ветке сидит воробей.", "На столе лежит тетрадь.", "Дети читают интересную книгу.", "За окном светит солнце."]
+            let distractors = (item.0.localizedCaseInsensitiveContains("предложении") ? sentenceDistractors : cleanWords).filter { $0 != item.1 }.shuffled().prefix(3)
             let prompt = item.0 + " Выбери только один вариант."
             return Problem(text: prompt, answer: item.1, isTatarChoice: true, tatarChoices: ([item.1] + Array(distractors)).shuffled())
         }
@@ -3440,15 +3441,24 @@ struct ContentView: View {
                             Label("Информатика", systemImage: "desktopcomputer")
                         }.font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                         HStack(spacing: 10) {
-                            ForEach([(10, 20), (20, 40), (30, 60)], id: \.0) { option in
-                                Button { olympiadDurationMinutes = option.0; olympiadTargetCount = option.1 } label: {
-                                    VStack(spacing: 4) { Text("\(option.0) минут").font(.system(size: 15, weight: .heavy, design: .rounded)); Text("\(option.1) заданий").font(.system(size: 12, weight: .semibold, design: .rounded)) }
-                                        .frame(maxWidth: .infinity).padding(.vertical, 13)
-                                        .foregroundStyle(olympiadDurationMinutes == option.0 ? .white : palette.ink)
-                                        .background(olympiadDurationMinutes == option.0 ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
-                                        .overlay(RoundedRectangle(cornerRadius: 13).stroke(olympiadDurationMinutes == option.0 ? palette.purple : palette.line, lineWidth: 1))
-                                }.buttonStyle(.plain)
-                            }
+                            Button { olympiadDurationMinutes = 10; olympiadTargetCount = 20 } label: {
+                                VStack(spacing: 4) { Text("10 минут").font(.system(size: 15, weight: .heavy, design: .rounded)); Text("20 заданий").font(.system(size: 12, weight: .semibold, design: .rounded)) }
+                                    .frame(maxWidth: .infinity).padding(.vertical, 13).foregroundStyle(olympiadDurationMinutes == 10 ? .white : palette.ink)
+                                    .background(olympiadDurationMinutes == 10 ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                    .overlay(RoundedRectangle(cornerRadius: 13).stroke(olympiadDurationMinutes == 10 ? palette.purple : palette.line, lineWidth: 1))
+                            }.buttonStyle(.plain)
+                            Button { olympiadDurationMinutes = 20; olympiadTargetCount = 40 } label: {
+                                VStack(spacing: 4) { Text("20 минут").font(.system(size: 15, weight: .heavy, design: .rounded)); Text("40 заданий").font(.system(size: 12, weight: .semibold, design: .rounded)) }
+                                    .frame(maxWidth: .infinity).padding(.vertical, 13).foregroundStyle(olympiadDurationMinutes == 20 ? .white : palette.ink)
+                                    .background(olympiadDurationMinutes == 20 ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                    .overlay(RoundedRectangle(cornerRadius: 13).stroke(olympiadDurationMinutes == 20 ? palette.purple : palette.line, lineWidth: 1))
+                            }.buttonStyle(.plain)
+                            Button { olympiadDurationMinutes = 30; olympiadTargetCount = 60 } label: {
+                                VStack(spacing: 4) { Text("30 минут").font(.system(size: 15, weight: .heavy, design: .rounded)); Text("60 заданий").font(.system(size: 12, weight: .semibold, design: .rounded)) }
+                                    .frame(maxWidth: .infinity).padding(.vertical, 13).foregroundStyle(olympiadDurationMinutes == 30 ? .white : palette.ink)
+                                    .background(olympiadDurationMinutes == 30 ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                    .overlay(RoundedRectangle(cornerRadius: 13).stroke(olympiadDurationMinutes == 30 ? palette.purple : palette.line, lineWidth: 1))
+                            }.buttonStyle(.plain)
                         }
                         Button { startOlympiad() } label: {
                             Label("Начать олимпиаду", systemImage: "play.fill")
@@ -3566,7 +3576,7 @@ struct ContentView: View {
         olympiadFinished = false
         olympiadWon = false
         olympiadCompleted = 0
-        olympiadSecondsRemaining = 1800
+        olympiadSecondsRemaining = olympiadDurationMinutes * 60
         olympiadAnswer = ""
         olympiadFeedback = ""
     }
