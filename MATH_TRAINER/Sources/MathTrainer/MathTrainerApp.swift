@@ -162,6 +162,29 @@ private struct StudyIllustration: View {
                     if let url = geometrySourceURL, let sourceImage = NSImage(contentsOf: url) {
                         Image(nsImage: sourceImage).resizable().scaledToFit().grayscale(1).contrast(2.2).frame(maxWidth: 190, maxHeight: 112)
                             .accessibilityLabel("Геометрическая фигура")
+                    } else if lower.contains("угол") {
+                        GeometryReader { geo in
+                            Path { path in
+                                let w = geo.size.width
+                                let h = geo.size.height
+                                let vertex = CGPoint(x: w * 0.46, y: h * 0.78)
+                                path.move(to: CGPoint(x: w * 0.12, y: h * 0.78))
+                                path.addLine(to: vertex)
+                                if lower.contains("прямой угол") {
+                                    path.addLine(to: CGPoint(x: w * 0.46, y: h * 0.16))
+                                } else if lower.contains("острый угол") {
+                                    path.addLine(to: CGPoint(x: w * 0.84, y: h * 0.43))
+                                } else if lower.contains("тупой угол") {
+                                    path.addLine(to: CGPoint(x: w * 0.80, y: h * 0.12))
+                                } else {
+                                    path.addLine(to: CGPoint(x: w * 0.72, y: h * 0.20))
+                                }
+                            }
+                            .stroke(Color.black, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                        .frame(width: 190, height: 112)
+                        .accessibilityLabel("Рисунок угла")
                     } else {
                         Image(systemName: geometrySymbol).font(.system(size: 68, weight: .regular)).symbolRenderingMode(.monochrome).foregroundStyle(.black).frame(height: 100)
                             .accessibilityLabel("Геометрическая фигура")
