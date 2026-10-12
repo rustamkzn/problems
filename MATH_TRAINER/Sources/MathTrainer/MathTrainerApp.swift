@@ -2780,6 +2780,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.CorrectQuestions") private var correctQuestionStorage = "{}"
     @AppStorage("MathTrainer.RandomCollectibles") private var randomCollectiblesStorage = ""
     @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
+    @AppStorage("MathTrainer.GoldBalance.v1") private var goldBalance = 0
     @AppStorage("MathTrainer.RoomPlacedItems.v1") private var roomPlacedItemsStorage = ""
     @AppStorage("MathTrainer.ShopPrices.v3") private var shopPricesStorage = ""
     @AppStorage("MathTrainer.ReleaseNotes.v1") private var releaseNotesStorage = ""
@@ -2878,6 +2879,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.133", date: "12.10.2026", title: "Золотые монеты и улучшенная комната", changes: ["В магазин добавлен обмен алмазов на золото: 100 монет за 50 алмазов, 200 за 95, 500 за 250. Покупка доступна только при достаточном балансе алмазов.", "В верхнем блоке главного экрана теперь одновременно видны балансы алмазов и золотых монет.", "В разделе «Моя комната» игрушки размещаются в шесть колонок. Баланс золота сохраняется между запусками приложения."]),
             ReleaseNote(version: "1.0.132", date: "12.10.2026", title: "Новая геометрия, жизненная математика и моя комната", changes: ["Геометрические рисунки полностью перерисованы в цветном векторном стиле: изображение строится по точному названию фигуры, а не по приблизительному системному значку или непроверенному SVG.", "В математику добавлен отдельный набор задач из реальной жизни: покупки, сдача, время, поездки, пицца, скидки и карманные деньги.", "Добавлен раздел «Моя комната» между магазином и настройками: можно размещать и убирать свои коллекционные игрушки, оформление сохраняется после перезапуска.", "Исправлено соответствие геометрической иллюстрации её правильному ответу для фигур, углов, линий и объёмных тел."]),
             ReleaseNote(version: "1.0.129", date: "12.10.2026", title: "Восстановление задания, геометрия и награды", changes: ["После повторного запуска восстанавливается последний выбранный предмет и последнее задание.", "Увеличена доля заданий по геометрии с иллюстрациями; добавлены ромб, параллелограмм и виды углов.", "Исправлена подготовка вариантов ответа в заданиях с рисунками: правильный ответ гарантированно включён в варианты.", "Заголовок «Коллекция достижений» перенесён над восемью карточками наград.", "Исправлена генерация недостающих номеров в истории версий; сохранены подробные описания известных выпусков."]),
             ReleaseNote(version: "1.0.119", date: "12.10.2026", title: "Больше геометрии и ускорение магазина", changes: ["В геометрию добавлено больше заданий-картинок без текстового условия: плоские фигуры, линии, точка, луч, отрезок, кривая, пунктир, параллельные и перпендикулярные прямые, призма и другие объёмные тела.", "Сокращено количество вопросов по дм и см; добавлены простые задачи на периметр квадрата, прямоугольника и треугольника.", "В наградах теперь восемь рубежей накопления алмазов: от 500 до 4000 с шагом 500.", "Упрощён рендер закрытых товаров в магазине, чтобы снизить нагрузку при прокрутке большого каталога.", "Сохранена полная история версий, включая записи 1.0.101–1.0.118."]),
@@ -3408,17 +3410,26 @@ struct ContentView: View {
         HStack(spacing: 10) {
             Button { openShop() } label: {
                 HStack(spacing: 12) {
-                    Text("💎").font(.system(size: 32))
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Алмазы · магазин").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                        Text("\(store.stats.diamonds)").font(.system(size: 26, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    VStack(spacing: 4) {
+                        HStack(spacing: 5) {
+                            Text("💎").font(.system(size: 23))
+                            Text("\(store.stats.diamonds)").font(.system(size: 20, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        }
+                        HStack(spacing: 5) {
+                            Text("🪙").font(.system(size: 21))
+                            Text("\(goldBalance)").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        }
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Баланс").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("Алмазы и золото").font(.system(size: 10, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                     }
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.right").font(.system(size: 11, weight: .heavy)).foregroundStyle(palette.purple)
                 }.padding(.horizontal, 14).frame(maxWidth: .infinity).frame(height: 70)
                  .background(palette.cardSurface.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
                  .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
-            }.buttonStyle(.plain).help("Открыть магазин коллекционных игрушек")
+            }.buttonStyle(.plain).help("Открыть магазин: алмазы, золото и игрушки")
             HStack(spacing: 10) {
                 Text("🔥").font(.system(size: 30))
                 VStack(alignment: .leading, spacing: 2) {
@@ -4601,7 +4612,24 @@ struct ContentView: View {
     private var shopPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                pageHeading("Магазин игрушек", subtitle: "Собирай алмазы и открывай подарки 🎁")
+                pageHeading("Магазин", subtitle: "Обменивай алмазы на золото и открывай подарки 🎁")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 10) {
+                        Text("🪙").font(.system(size: 32))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Золото за алмазы").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("Баланс: \(goldBalance) золотых монет").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        }
+                        Spacer()
+                        Text("💎 \(store.stats.diamonds)").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                    }
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        goldPackCard(gold: 100, cost: 50)
+                        goldPackCard(gold: 200, cost: 95)
+                        goldPackCard(gold: 500, cost: 250)
+                    }
+                }.padding(16).cardStyle(palette)
 
                 // Rare collectible block deliberately stays at the top. Owned items remain visible here.
                 if Collectible.all.contains(where: { $0.isRare }) {
@@ -4663,11 +4691,37 @@ struct ContentView: View {
                         .font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
                         .frame(maxWidth: .infinity).padding(22)
                 }
-                Text("Редкие 3D-игрушки стоят 500 алмазов. Обычные цены идут по порядку: 25, 26, 27, 28 и далее.")
+                Text("Золотые монеты можно обменять из алмазов выше. Редкие 3D-игрушки стоят 500 алмазов. Обычные цены идут по порядку: 25, 26, 27, 28 и далее.")
                     .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }.padding(25)
         }.scrollIndicators(.hidden)
+    }
+
+    private func goldPackCard(gold: Int, cost: Int) -> some View {
+        let canBuy = store.stats.diamonds >= cost
+        return VStack(spacing: 8) {
+            Text("🪙").font(.system(size: 35))
+            Text("\(gold)").font(.system(size: 22, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+            Text("золотых монет").font(.system(size: 10, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+            Button {
+                guard store.spendDiamonds(cost) else { return }
+                goldBalance += gold
+            } label: {
+                VStack(spacing: 3) {
+                    Text("💎 \(cost)").font(.system(size: 13, weight: .heavy, design: .rounded))
+                    Text(canBuy ? "Купить" : "Не хватает").font(.system(size: 10, weight: .bold, design: .rounded))
+                }
+                .frame(maxWidth: .infinity).padding(.vertical, 7)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(canBuy ? palette.purple : palette.muted.opacity(0.55))
+            .disabled(!canBuy)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
     }
 
     private func shopItemCard(_ item: Collectible) -> some View {
@@ -4837,7 +4891,7 @@ struct ContentView: View {
                         Text("Заработай алмазы и открой первую игрушку в магазине — она появится здесь.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).multilineTextAlignment(.center)
                     }.frame(maxWidth: .infinity).padding(28).cardStyle(palette)
                 } else {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 12) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6), spacing: 8) {
                         ForEach(roomItems) { item in
                             VStack(spacing: 8) {
                                 ZStack {
