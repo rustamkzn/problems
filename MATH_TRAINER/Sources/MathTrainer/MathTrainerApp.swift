@@ -2431,6 +2431,9 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.97", date: "12.10.2026", title: "Химия: исправление банка элементов", changes: ["Список вопросов о символах элементов помещён внутрь банка химии; каждый вопрос предлагает четыре русских названия.", "Исправлены разделители массива химических заданий." ]),
+            ReleaseNote(version: "1.0.96", date: "12.10.2026", title: "Химия: структура вопросов по символам", changes: ["Добавлены задания вида Fe → Железо, Au → Золото и Na → Натрий.", "Список химических вопросов инициализируется корректно; финальная проверка продолжается в следующих сборках."]),
+            ReleaseNote(version: "1.0.95", date: "12.10.2026", title: "Химия и восстановление истории выпусков", changes: ["Добавлены задания на определение элемента по латинскому символу и восстановлены записи истории выпусков.", "Первая попытка сборки завершилась ошибкой структуры массива; исправление вошло в следующие версии."]),
             ReleaseNote(version: "1.0.94", date: "12.10.2026", title: "Сборка 1.0.94", changes: ["Изменение по журналу разработки: Keep biology question identity stable to prevent repeated mastered facts.", "Сборка GitHub Actions завершилась успешно."]),
             ReleaseNote(version: "1.0.93", date: "12.10.2026", title: "Сборка 1.0.93", changes: ["Изменение по журналу разработки: Add 80 biology organisms for 320 more question variants.", "Сборка GitHub Actions завершилась успешно."]),
             ReleaseNote(version: "1.0.92", date: "12.10.2026", title: "Сборка 1.0.92", changes: ["Изменение по журналу разработки: Fix collectible shop background and center reward icons; reduce repeated correct questions.", "Сборка GitHub Actions завершилась успешно."]),
