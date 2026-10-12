@@ -3146,6 +3146,7 @@ struct ContentView: View {
         case .geography: "🌎"
         case .logic: "🧩"
         case .biology: "🧬"
+        case .geometry: "📐"
         }
     }
 
