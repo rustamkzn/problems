@@ -158,38 +158,9 @@ private struct StudyIllustration: View {
             RoundedRectangle(cornerRadius: 24, style: .continuous).fill(tint.opacity(0.13))
             Circle().fill(tint.opacity(0.10)).frame(width: 112, height: 112).offset(x: 74, y: -24)
             if subject == .geometry {
-                Group {
-                    if let url = geometrySourceURL, let sourceImage = NSImage(contentsOf: url) {
-                        Image(nsImage: sourceImage).resizable().scaledToFit().grayscale(1).contrast(2.2).frame(maxWidth: 190, maxHeight: 112)
-                            .accessibilityLabel("Геометрическая фигура")
-                    } else if lower.contains("угол") {
-                        GeometryReader { geo in
-                            Path { path in
-                                let w = geo.size.width
-                                let h = geo.size.height
-                                let vertex = CGPoint(x: w * 0.46, y: h * 0.78)
-                                path.move(to: CGPoint(x: w * 0.12, y: h * 0.78))
-                                path.addLine(to: vertex)
-                                if lower.contains("прямой угол") {
-                                    path.addLine(to: CGPoint(x: w * 0.46, y: h * 0.16))
-                                } else if lower.contains("острый угол") {
-                                    path.addLine(to: CGPoint(x: w * 0.84, y: h * 0.43))
-                                } else if lower.contains("тупой угол") {
-                                    path.addLine(to: CGPoint(x: w * 0.80, y: h * 0.12))
-                                } else {
-                                    path.addLine(to: CGPoint(x: w * 0.72, y: h * 0.20))
-                                }
-                            }
-                            .stroke(Color.black, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
-                        .frame(width: 190, height: 112)
-                        .accessibilityLabel("Рисунок угла")
-                    } else {
-                        Image(systemName: geometrySymbol).font(.system(size: 68, weight: .regular)).symbolRenderingMode(.monochrome).foregroundStyle(.black).frame(height: 100)
-                            .accessibilityLabel("Геометрическая фигура")
-                    }
-                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                GeometryFigureView(name: prompt)
+                    .frame(width: 220, height: 126)
+                    .accessibilityLabel("Цветная геометрическая иллюстрация: \(prompt)")
             } else if subject == .biology {
                 HStack(spacing: 18) {
                     if lower.contains("пингвин") {
@@ -236,6 +207,151 @@ private struct StudyIllustration: View {
     }
 }
 
+private struct GeometryFigureView: View {
+    let name: String
+    private var title: String { name.trimmingCharacters(in: .whitespacesAndNewlines) }
+    private var lower: String { title.lowercased() }
+
+    var body: some View {
+        Canvas { context, size in
+            let w = size.width, h = size.height
+            let ink = Color(red: 0.20, green: 0.27, blue: 0.42)
+            let blue = Color(red: 0.18, green: 0.53, blue: 0.96)
+            let violet = Color(red: 0.47, green: 0.36, blue: 0.92)
+            let pink = Color(red: 0.97, green: 0.36, blue: 0.64)
+            let mint = Color(red: 0.16, green: 0.72, blue: 0.62)
+            let fillStyle = GraphicsContext.Shading.linearGradient(
+                Gradient(colors: [Color(red: 0.47, green: 0.76, blue: 1), Color(red: 0.53, green: 0.43, blue: 0.96)]),
+                startPoint: CGPoint(x: w * 0.2, y: h * 0.15),
+                endPoint: CGPoint(x: w * 0.8, y: h * 0.9))
+            func polygon(_ points: [CGPoint], color: GraphicsContext.Shading = fillStyle) {
+                guard let first = points.first else { return }
+                var path = Path()
+                path.move(to: first)
+                for point in points.dropFirst() { path.addLine(to: point) }
+                path.closeSubpath()
+                context.fill(path, with: color)
+                context.stroke(path, with: .color(ink), lineWidth: 2.8)
+            }
+            func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * w, y: y * h) }
+            func line(_ points: [CGPoint], color: Color = ink, width: CGFloat = 4, dash: [CGFloat] = []) {
+                guard let first = points.first else { return }
+                var path = Path()
+                path.move(to: first)
+                for p in points.dropFirst() { path.addLine(to: p) }
+                context.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round, dash: dash))
+            }
+            func ellipse(_ rect: CGRect, color: Color, stroke: Color = ink, width: CGFloat = 2.8) {
+                var path = Path(ellipseIn: rect)
+                context.fill(path, with: .color(color))
+                context.stroke(path, with: .color(stroke), lineWidth: width)
+            }
+            if lower.contains("прямой угол") || lower.contains("острый угол") || lower.contains("тупой угол") || lower == "угол" {
+                let v = point(0.30, 0.78)
+                let left = point(0.07, 0.78)
+                let end: CGPoint = lower.contains("прямой угол") ? point(0.30, 0.17) : (lower.contains("острый угол") ? point(0.82, 0.36) : (lower.contains("тупой угол") ? point(0.83, 0.18) : point(0.72, 0.20)))
+                line([left, v, end], color: blue, width: 6)
+                if lower.contains("прямой угол") {
+                    polygon([point(0.30,0.68),point(0.40,0.68),point(0.40,0.78),point(0.30,0.78)], color: .color(mint.opacity(0.85)))
+                } else {
+                    var arc = Path()
+                    let radius: CGFloat = 0.13 * min(w,h)
+                    let angle: CGFloat = lower.contains("острый угол") ? -.pi/4 : (lower.contains("тупой угол") ? -2.2 : -0.9)
+                    arc.addArc(center: v, radius: radius, startAngle: .degrees(180), endAngle: .radians(angle), clockwise: true)
+                    context.stroke(arc, with: .color(pink), lineWidth: 4)
+                }
+                ellipse(CGRect(x: v.x-4, y: v.y-4, width: 8, height: 8), color: pink, stroke: pink, width: 1)
+            } else if lower.contains("параллельные прямые") {
+                line([point(0.12,0.32),point(0.88,0.32)],color:blue,width:6)
+                line([point(0.12,0.68),point(0.88,0.68)],color:violet,width:6)
+                for x in [0.42,0.58] { line([point(x,0.25),point(x+0.06,0.39)],color:pink,width:3) }
+            } else if lower.contains("перпендикулярные прямые") {
+                line([point(0.12,0.50),point(0.88,0.50)],color:blue,width:6)
+                line([point(0.50,0.14),point(0.50,0.86)],color:violet,width:6)
+                polygon([point(0.50,0.50),point(0.60,0.50),point(0.60,0.40),point(0.50,0.40)],color:.color(mint))
+            } else if lower.contains("пунктир") {
+                line([point(0.12,0.52),point(0.88,0.52)],color:blue,width:5,dash:[7,7])
+            } else if lower.contains("ломан") {
+                line([point(0.12,0.78),point(0.35,0.25),point(0.57,0.65),point(0.84,0.18)],color:violet,width:6)
+            } else if lower.contains("крив") {
+                var path = Path()
+                path.move(to: point(0.10,0.72))
+                path.addCurve(to: point(0.90,0.32), control1: point(0.18,0.08), control2: point(0.74,0.94))
+                context.stroke(path, with: .color(pink), lineWidth: 6)
+            } else if lower == "точка" {
+                ellipse(CGRect(x:w*0.43,y:h*0.34,width:w*0.14,height:w*0.14),color:pink,stroke:violet,width:2)
+            } else if lower == "прямая" || lower == "луч" || lower == "отрезок" {
+                line([point(0.12,0.52),point(lower == "луч" ? 0.88 : 0.78,0.52)],color:blue,width:6)
+                if lower == "прямая" {
+                    line([point(0.12,0.52),point(0.22,0.43)],color:blue,width:3)
+                    line([point(0.12,0.52),point(0.22,0.61)],color:blue,width:3)
+                    line([point(0.88,0.52),point(0.78,0.43)],color:blue,width:3)
+                    line([point(0.88,0.52),point(0.78,0.61)],color:blue,width:3)
+                } else if lower == "луч" {
+                    line([point(0.88,0.52),point(0.76,0.43)],color:blue,width:3)
+                    line([point(0.88,0.52),point(0.76,0.61)],color:blue,width:3)
+                    ellipse(CGRect(x:w*0.09,y:h*0.52-4,width:8,height:8),color:pink,stroke:pink,width:1)
+                } else {
+                    ellipse(CGRect(x:w*0.10,y:h*0.52-4,width:8,height:8),color:pink,stroke:pink,width:1)
+                    ellipse(CGRect(x:w*0.77,y:h*0.52-4,width:8,height:8),color:pink,stroke:pink,width:1)
+                }
+            } else if lower.contains("цилиндр") {
+                var bodyPath = Path()
+                bodyPath.addRoundedRect(in: CGRect(x:w*0.28,y:h*0.28,width:w*0.44,height:h*0.48), cornerSize: CGSize(width:w*0.22,height:h*0.09))
+                context.fill(bodyPath, with: fillStyle)
+                context.stroke(bodyPath, with: .color(ink), lineWidth: 2.8)
+                ellipse(CGRect(x:w*0.28,y:h*0.20,width:w*0.44,height:h*0.18),color:Color(red:0.65,green:0.85,blue:1))
+                line([point(0.28,0.29),point(0.28,0.70)],color:ink,width:2)
+                line([point(0.72,0.29),point(0.72,0.70)],color:ink,width:2)
+            } else if lower.contains("конус") {
+                polygon([point(0.50,0.13),point(0.22,0.76),point(0.78,0.76)],color:fillStyle)
+                ellipse(CGRect(x:w*0.22,y:h*0.68,width:w*0.56,height:h*0.20),color:Color(red:0.64,green:0.80,blue:1))
+            } else if lower.contains("шар") {
+                ellipse(CGRect(x:w*0.28,y:h*0.15,width:w*0.44,height:h*0.70),color:Color(red:0.37,green:0.72,blue:1),stroke:violet,width:3)
+                var shine = Path(); shine.addEllipse(in:CGRect(x:w*0.38,y:h*0.25,width:w*0.13,height:h*0.18))
+                context.fill(shine,with:.color(.white.opacity(0.7)))
+            } else if lower.contains("куб") {
+                polygon([point(0.26,0.34),point(0.56,0.18),point(0.83,0.34),point(0.53,0.50)],color:.color(Color(red:0.65,green:0.82,blue:1)))
+                polygon([point(0.26,0.34),point(0.53,0.50),point(0.53,0.84),point(0.26,0.67)],color:.color(blue.opacity(0.9)))
+                polygon([point(0.53,0.50),point(0.83,0.34),point(0.83,0.67),point(0.53,0.84)],color:.color(violet.opacity(0.8)))
+            } else if lower.contains("призма") || lower.contains("пирамида") || lower.contains("тетраэдр") || lower.contains("октаэдр") {
+                if lower.contains("пирамида") || lower.contains("тетраэдр") {
+                    polygon([point(0.50,0.12),point(0.20,0.80),point(0.82,0.80)],color:.color(Color(red:0.61,green:0.78,blue:1)))
+                    line([point(0.50,0.12),point(0.51,0.79),point(0.20,0.80)],color:ink,width:2)
+                } else {
+                    polygon([point(0.25,0.33),point(0.47,0.20),point(0.76,0.34),point(0.54,0.49)],color:.color(Color(red:0.62,green:0.82,blue:1)))
+                    polygon([point(0.25,0.33),point(0.54,0.49),point(0.54,0.80),point(0.25,0.64)],color:.color(blue))
+                    polygon([point(0.54,0.49),point(0.76,0.34),point(0.76,0.65),point(0.54,0.80)],color:.color(violet))
+                }
+            } else {
+                var vertices: [CGPoint] = []
+                if lower.contains("треуголь") { vertices = [point(0.50,0.12),point(0.84,0.80),point(0.16,0.80)] }
+                else if lower.contains("прямоуголь") { vertices = [point(0.20,0.24),point(0.80,0.24),point(0.80,0.76),point(0.20,0.76)] }
+                else if lower.contains("квадрат") { vertices = [point(0.28,0.18),point(0.72,0.18),point(0.72,0.82),point(0.28,0.82)] }
+                else if lower.contains("ромб") { vertices = [point(0.50,0.12),point(0.82,0.50),point(0.50,0.88),point(0.18,0.50)] }
+                else if lower.contains("параллелограмм") { vertices = [point(0.32,0.22),point(0.84,0.22),point(0.68,0.78),point(0.16,0.78)] }
+                else if lower.contains("трапец") { vertices = [point(0.32,0.20),point(0.68,0.20),point(0.86,0.80),point(0.14,0.80)] }
+                else if lower.contains("пятиуголь") || lower.contains("шестиуголь") {
+                    let n = lower.contains("пятиуголь") ? 5 : 6
+                    vertices = (0..<n).map { i in
+                        let angle = -CGFloat.pi/2 + CGFloat(i) * 2 * CGFloat.pi / CGFloat(n)
+                        return point(0.5 + 0.34 * cos(angle), 0.5 + 0.38 * sin(angle))
+                    }
+                }
+                if !vertices.isEmpty { polygon(vertices) }
+                else if lower.contains("овал") { ellipse(CGRect(x:w*0.17,y:h*0.28,width:w*0.66,height:h*0.44),color:Color(red:0.53,green:0.77,blue:1)) }
+                else { ellipse(CGRect(x:w*0.26,y:h*0.18,width:w*0.48,height:h*0.64),color:Color(red:0.53,green:0.77,blue:1)) }
+            }
+        }
+        .padding(8)
+        .background(
+            LinearGradient(colors: [Color(red: 0.94, green: 0.97, blue: 1), Color(red: 0.97, green: 0.93, blue: 1)],
+                           startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color(red: 0.72, green: 0.79, blue: 0.96), lineWidth: 1.2))
+    }
+}
+
 struct Problem: Codable {
     let text: String
     let answer: String
@@ -256,6 +372,7 @@ struct Problem: Codable {
 
 struct ProblemGenerator {
     static func next(difficulty: Int = 1) -> Problem {
+        if Int.random(in: 0..<5) == 0 { return realLifeMathQuestion(level: difficulty) }
         if difficulty > 1 && Int.random(in: 0...99) < 75 { return advancedMathQuestion(level: difficulty) }
         // Регулярная практика таблицы умножения для начальной школы.
         if Int.random(in: 0...2) == 0 {
@@ -332,6 +449,33 @@ struct ProblemGenerator {
             let sign = a > b ? ">" : (a < b ? "<" : "=")
             return Problem(text: "Сравни: \(a)  ?  \(b)", answer: sign, isComparison: true)
         }
+    }
+
+    private static func realLifeMathQuestion(level: Int) -> Problem {
+        let bank: [(String, String)] = [
+            ("В магазине яблоки стоят 35 ₽, а сок — 48 ₽. Сколько нужно заплатить за оба товара?", "83"),
+            ("Ты купил булочку за 27 ₽ и дал кассиру 100 ₽. Сколько рублей сдачи нужно получить?", "73"),
+            ("У тебя было 150 ₽. Ты купил тетрадь за 42 ₽ и ручку за 28 ₽. Сколько денег осталось?", "80"),
+            ("Билет на автобус стоит 32 ₽. Сколько стоят 2 билета?", "64"),
+            ("Поезд отправился в 10:20 и ехал 2 часа. Во сколько он прибыл?", "12:20"),
+            ("Мультфильм начался в 17:15 и длился 45 минут. Во сколько он закончился?", "18:00"),
+            ("Пиццу разделили на 8 одинаковых кусочков. Съели 3 кусочка. Сколько кусочков осталось?", "5"),
+            ("Одна пицца стоит 420 ₽. Сколько стоят две такие пиццы?", "840"),
+            ("Игрушка стоит 200 ₽. На неё скидка 50 ₽. Сколько она стоит со скидкой?", "150"),
+            ("Рюкзак стоил 600 ₽, а после скидки стал дешевле на 100 ₽. Сколько он стоит теперь?", "500"),
+            ("Тебе дают 40 ₽ карманных денег каждый день. Сколько ты накопишь за 5 дней?", "200"),
+            ("У тебя 250 ₽. Ты потратил 90 ₽ на книгу. Сколько денег осталось?", "160"),
+            ("Машина проехала 30 км утром и 25 км днём. Сколько километров она проехала всего?", "55"),
+            ("До парка 2 км. Ты прошёл 700 м. Сколько метров осталось пройти?", "1300"),
+            ("В коробке 6 рядов по 4 конфеты. Сколько всего конфет в коробке?", "24"),
+            ("Семья купила 3 пакета молока по 75 ₽ каждый. Сколько заплатили?", "225"),
+            ("У тебя 500 ₽. Ты купил игру за 180 ₽ и мороженое за 70 ₽. Сколько осталось?", "250"),
+            ("Урок начался в 9:00 и закончился в 9:40. Сколько минут длился урок?", "40"),
+            ("На столе 12 долек шоколада. Ты съел четверть шоколада. Сколько долек съел?", "3"),
+            ("В кино билет стоит 180 ₽. Сколько стоят 3 билета?", "540")
+        ]
+        let item = bank.randomElement()!
+        return Problem(text: item.0, answer: item.1)
     }
 
     fileprivate static func tip(for subject: StudySubject, problem: Problem) -> String {
@@ -2225,6 +2369,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
     case days = "По дням"
     case rewards = "Награды"
     case shop = "Магазин"
+    case room = "Моя комната"
     case settings = "Настройки"
     case versionHistory = "Версии и изменения"
 
@@ -2237,6 +2382,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
         case .days: return "calendar"
         case .rewards: return "trophy.fill"
         case .shop: return "storefront.fill"
+        case .room: return "house.fill"
         case .settings: return "gearshape.fill"
         case .versionHistory: return "doc.text.magnifyingglass"
         }
@@ -2681,6 +2827,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.CorrectQuestions") private var correctQuestionStorage = "{}"
     @AppStorage("MathTrainer.RandomCollectibles") private var randomCollectiblesStorage = ""
     @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
+    @AppStorage("MathTrainer.RoomPlacedItems.v1") private var roomPlacedItemsStorage = ""
     @AppStorage("MathTrainer.ShopPrices.v3") private var shopPricesStorage = ""
     @AppStorage("MathTrainer.ReleaseNotes.v1") private var releaseNotesStorage = ""
     @AppStorage("MathTrainer.ScreenContrast.v1") private var screenContrast = 1.15
@@ -2756,6 +2903,15 @@ struct ContentView: View {
     private var unlockedCollectibleIDs: Set<String> { Set(randomCollectiblesStorage.split(separator: ",").map(String.init)) }
     private var shopOwnedIDs: Set<String> { Set(shopPurchasesStorage.split(separator: ",").map(String.init)) }
     private var allOwnedCollectibleIDs: Set<String> { unlockedCollectibleIDs.union(shopOwnedIDs) }
+    private var roomPlacedIDs: Set<String> { Set(roomPlacedItemsStorage.split(separator: ",").map(String.init)) }
+    private func toggleRoomItem(_ id: String) {
+        var placed = roomPlacedIDs
+        if placed.contains(id) { placed.remove(id) } else if allOwnedCollectibleIDs.contains(id) { placed.insert(id) }
+        roomPlacedItemsStorage = placed.sorted().joined(separator: ",")
+    }
+    private var roomItems: [Collectible] {
+        Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }
+    }
     private var shopPrices: [String: Int] {
         var result: [String: Int] = [:]
         for entry in shopPricesStorage.split(separator: ",") {
@@ -2769,6 +2925,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.130", date: "12.10.2026", title: "Новая геометрия, жизненная математика и моя комната", changes: ["Геометрические рисунки полностью перерисованы в цветном векторном стиле: изображение строится по точному названию фигуры, а не по приблизительному системному значку или непроверенному SVG.", "В математику добавлен отдельный набор задач из реальной жизни: покупки, сдача, время, поездки, пицца, скидки и карманные деньги.", "Добавлен раздел «Моя комната» между магазином и настройками: можно размещать и убирать свои коллекционные игрушки, оформление сохраняется после перезапуска.", "Исправлено соответствие геометрической иллюстрации её правильному ответу для фигур, углов, линий и объёмных тел."]),
             ReleaseNote(version: "1.0.129", date: "12.10.2026", title: "Восстановление задания, геометрия и награды", changes: ["После повторного запуска восстанавливается последний выбранный предмет и последнее задание.", "Увеличена доля заданий по геометрии с иллюстрациями; добавлены ромб, параллелограмм и виды углов.", "Исправлена подготовка вариантов ответа в заданиях с рисунками: правильный ответ гарантированно включён в варианты.", "Заголовок «Коллекция достижений» перенесён над восемью карточками наград.", "Исправлена генерация недостающих номеров в истории версий; сохранены подробные описания известных выпусков."]),
             ReleaseNote(version: "1.0.119", date: "12.10.2026", title: "Больше геометрии и ускорение магазина", changes: ["В геометрию добавлено больше заданий-картинок без текстового условия: плоские фигуры, линии, точка, луч, отрезок, кривая, пунктир, параллельные и перпендикулярные прямые, призма и другие объёмные тела.", "Сокращено количество вопросов по дм и см; добавлены простые задачи на периметр квадрата, прямоугольника и треугольника.", "В наградах теперь восемь рубежей накопления алмазов: от 500 до 4000 с шагом 500.", "Упрощён рендер закрытых товаров в магазине, чтобы снизить нагрузку при прокрутке большого каталога.", "Сохранена полная история версий, включая записи 1.0.101–1.0.118."]),
             ReleaseNote(version: "1.0.118", date: "12.10.2026", title: "Исправлена геометрия, история версий и статистика", changes: ["Восстановлена полная история выпусков: сохранены записи 1.0.101–1.0.111 и все более ранние описания.", "Вопросы по объёмным фигурам показывают соответствующие исходные SVG-иллюстрации из Wikimedia Commons, включённые в приложение для работы офлайн.", "Изображение выбирается по правильному ответу; текстовые задания по геометрии не показывают несоответствующие картинки.", "Блок «По дням» удалён со страницы заданий и помещён внутрь «Статистики».", "Добавлены вопросы по геометрии без картинок для начальных классов."]),
@@ -3178,6 +3335,7 @@ struct ContentView: View {
         case .days: daysPage
         case .rewards: rewardsPage
         case .shop: shopPage
+        case .room: roomPage
         case .settings: settingsPage
         case .versionHistory: versionHistoryPage
         }
@@ -4678,6 +4836,77 @@ struct ContentView: View {
         guard store.spendDiamonds(price) else { return }
         shopPurchasesStorage = shopOwnedIDs.union([item.id]).sorted().joined(separator: ",")
         triggerCelebration(item.isRare ? "rare:\(item.id)" : "bonus:\(item.id)")
+    }
+
+    private var roomPage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                pageHeading("Моя комната", subtitle: "Обустраивай своё пространство игрушками, которые ты заработал и купил")
+                ZStack(alignment: .bottom) {
+                    LinearGradient(colors: [Color(red: 0.83, green: 0.91, blue: 1.0), Color(red: 0.96, green: 0.84, blue: 0.93)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    VStack(spacing: 0) {
+                        HStack {
+                            Image(systemName: "cloud.fill").font(.system(size: 26)).foregroundStyle(.white.opacity(0.9))
+                            Spacer()
+                            Image(systemName: "sun.max.fill").font(.system(size: 29)).foregroundStyle(Color(red: 1, green: 0.75, blue: 0.25))
+                        }.padding(.horizontal, 24).padding(.top, 18)
+                        Spacer(minLength: 12)
+                        HStack(alignment: .bottom, spacing: 12) {
+                            RoundedRectangle(cornerRadius: 8).fill(Color(red: 0.66, green: 0.43, blue: 0.30)).frame(width: 72, height: 70)
+                                .overlay(VStack(spacing: 4) { RoundedRectangle(cornerRadius: 4).fill(Color(red: 0.93, green: 0.72, blue: 0.53)).frame(height: 8); Spacer(); RoundedRectangle(cornerRadius: 4).fill(Color(red: 0.93, green: 0.72, blue: 0.53)).frame(height: 8) }.padding(8))
+                            Spacer()
+                            VStack(spacing: 4) {
+                                Text("МОЯ КОЛЛЕКЦИЯ").font(.system(size: 10, weight: .black, design: .rounded)).tracking(1).foregroundStyle(Color(red: 0.32, green: 0.25, blue: 0.45))
+                                Text("\(roomPlacedIDs.count) украшений").font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(Color(red: 0.32, green: 0.25, blue: 0.45))
+                            }.padding(12).background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 14))
+                            Spacer()
+                            RoundedRectangle(cornerRadius: 9).fill(Color(red: 0.54, green: 0.70, blue: 0.90)).frame(width: 70, height: 64)
+                                .overlay(RoundedRectangle(cornerRadius: 5).stroke(.white.opacity(0.9), lineWidth: 4))
+                        }.padding(.horizontal, 22).padding(.bottom, 18)
+                        Rectangle().fill(Color(red: 0.80, green: 0.64, blue: 0.55)).frame(height: 18)
+                    }
+                }
+                .frame(height: 190).clipShape(RoundedRectangle(cornerRadius: 22))
+                .overlay(RoundedRectangle(cornerRadius: 22).stroke(palette.line, lineWidth: 1))
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Расставь любимые игрушки").font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Нажми «Поставить в комнату», чтобы украсить комнату.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                    Spacer()
+                    Button { openShop() } label: { Label("В магазин", systemImage: "storefront.fill").font(.system(size: 12, weight: .bold, design: .rounded)) }
+                        .buttonStyle(.borderedProminent).tint(palette.purple)
+                }
+                if roomItems.isEmpty {
+                    VStack(spacing: 10) {
+                        Text("🧸").font(.system(size: 48))
+                        Text("Комната пока пустая").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Заработай алмазы и открой первую игрушку в магазине — она появится здесь.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).multilineTextAlignment(.center)
+                    }.frame(maxWidth: .infinity).padding(28).cardStyle(palette)
+                } else {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 12) {
+                        ForEach(roomItems) { item in
+                            VStack(spacing: 8) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 17).fill(roomPlacedIDs.contains(item.id) ? Color(red: 0.87, green: 0.94, blue: 1) : palette.cardSurface)
+                                    Collectible3DView(id: item.id, title: item.title, size: 86, animated: false).padding(8)
+                                    if roomPlacedIDs.contains(item.id) {
+                                        Image(systemName: "checkmark.seal.fill").font(.system(size: 19, weight: .bold)).foregroundStyle(.green).padding(6).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                                    }
+                                }.frame(height: 118)
+                                Text(item.title).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).multilineTextAlignment(.center).frame(height: 30)
+                                Button { toggleRoomItem(item.id) } label: {
+                                    Label(roomPlacedIDs.contains(item.id) ? "Убрать" : "Поставить в комнату",
+                                          systemImage: roomPlacedIDs.contains(item.id) ? "minus.circle" : "plus.circle")
+                                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                                        .frame(maxWidth: .infinity)
+                                }.buttonStyle(.bordered).tint(palette.purple)
+                            }.padding(10).cardStyle(palette)
+                        }
+                    }
+                }
+            }.padding(24)
+        }.scrollIndicators(.hidden)
     }
 
     private var settingsPage: some View {
