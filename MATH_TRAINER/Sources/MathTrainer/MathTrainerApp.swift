@@ -2642,7 +2642,12 @@ private struct Collectible: Identifiable {
         let themed = collections.flatMap { collection in
             mascots.map { mascot in
                 Collectible(id: "\(collection.id)-\(mascot.id)",
-                            title: "\(collection.name) \(mascot.title)",
+                            title: collection.id == "rainbow" ? (
+                                mascot.id == "panda" ? "Радужная панда" :
+                                mascot.id == "hedgehog" ? "Радужный ёжик" :
+                                mascot.id == "fairy" ? "Радужная фея" :
+                                "\(collection.name) \(mascot.title)"
+                            ) : "\(collection.name) \(mascot.title)",
                             detail: collection.detail,
                             emoji: mascot.emoji)
             }
@@ -2684,6 +2689,13 @@ private struct Collectible3DView: View {
         if key.contains("cosmic-unicorn") { return "🦄" }
         if key.contains("heart-gem") { return "💎" }
         if key.contains("magic-star") { return "🌠" }
+        // Радужные животные показывают самого персонажа, а не одну радугу.
+        if key.contains("rainbow") && (key.contains("panda") || key.contains("панд")) { return "🐼" }
+        if key.contains("rainbow") && (key.contains("hedgehog") || key.contains("ёжик") || key.contains("ежик")) { return "🦔" }
+        if key.contains("rainbow") && (key.contains("fairy") || key.contains("фея")) { return "🧚" }
+        if key.contains("rainbow") && (key.contains("dragon") || key.contains("дракон")) { return "🐉" }
+        if key.contains("rainbow") && (key.contains("pony") || key.contains("пони")) { return "🦄" }
+        if key.contains("rainbow") && (key.contains("unicorn") || key.contains("единорог")) { return "🦄" }
         if key.contains("rainbow") { return "🌈" }
         if key.contains("dragon") { return "🐉" }
         if key.contains("princess-pony") || key.contains("pony") { return "🐴" }
@@ -2732,6 +2744,12 @@ private struct Collectible3DView: View {
             Circle().fill(colors[0].opacity(0.085)).frame(width: size * 0.62, height: size * 0.62).offset(x: -size * 0.22, y: size * 0.23)
             Text(emoji).font(.system(size: size * 0.62)).shadow(color: colors[0].opacity(0.13), radius: 3, y: 2)
                 .padding(size * 0.12).background(colors[1].opacity(0.09), in: RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
+            if key.contains("rainbow") && (key.contains("panda") || key.contains("панд") || key.contains("hedgehog") || key.contains("ёжик") || key.contains("ежик") || key.contains("fairy") || key.contains("фея")) {
+                Text("🌈").font(.system(size: size * 0.25)).rotationEffect(.degrees(-12))
+                    .padding(3).background(.white.opacity(0.9), in: Circle())
+                    .overlay(Circle().stroke(colors[0].opacity(0.35), lineWidth: 1))
+                    .offset(x: size * 0.31, y: size * 0.28)
+            }
             Image(systemName: "sparkle").font(.system(size: size * 0.16, weight: .bold)).foregroundStyle(colors[1].opacity(0.8)).offset(x: size * 0.31, y: -size * 0.30)
         }
         .frame(width: size, height: size)
@@ -4615,6 +4633,28 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 18) {
                 pageHeading("Магазин", subtitle: "Обменивай алмазы на золото и открывай подарки 🎁")
 
+                HStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Твой баланс").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        HStack(spacing: 7) {
+                            Text("💎").font(.system(size: 25))
+                            Text("\(store.stats.diamonds)").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("алмазов").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        }
+                        HStack(spacing: 7) {
+                            goldCoinIcon(size: 24)
+                            Text("\(goldBalance)").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("золота").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        }
+                    }
+                    Spacer(minLength: 4)
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("\(Collectible.all.filter { !allOwnedCollectibleIDs.contains($0.id) }.count)")
+                            .font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                        Text("призов осталось").font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                }.padding(17).cardStyle(palette)
+
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 10) {
                         goldCoinIcon(size: 32)
@@ -4646,7 +4686,7 @@ struct ContentView: View {
                         Text("Редкие подарки — вверху страницы. Купленные и уже открытые игрушки остаются видимыми в коллекции.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             .fixedSize(horizontal: false, vertical: true)
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 13) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 13) {
                             ForEach(Collectible.all.filter { $0.isRare }) { item in
                                 shopItemCard(item)
                             }
@@ -4663,23 +4703,12 @@ struct ContentView: View {
                     .shadow(color: palette.purple.opacity(0.13), radius: 10, y: 4)
                 }
 
-                HStack(spacing: 12) {
-                    Text("💎").font(.system(size: 33))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Твой баланс").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                        Text("\(store.stats.diamonds) алмазов").font(.system(size: 23, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    }
-                    Spacer()
-                    Text("\(Collectible.all.filter { !allOwnedCollectibleIDs.contains($0.id) }.count) призов осталось")
-                        .font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
-                }.padding(17).cardStyle(palette)
-
                 if Collectible.all.contains(where: { !$0.isRare }) {
                     VStack(alignment: .leading, spacing: 12) {
                         sectionTitle("Коллекционные игрушки", icon: "gift")
                         Text("Купленные игрушки остаются в списке с отметкой «Открыта!». Их можно рассмотреть, даже если алмазы уже потрачены.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 13) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 13) {
                             ForEach(Collectible.all.filter { !$0.isRare }) { item in
                                 shopItemCard(item)
                             }
