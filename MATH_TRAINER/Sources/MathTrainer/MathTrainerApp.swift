@@ -2409,6 +2409,33 @@ private struct Collectible3DView: View {
         if key.contains("радуг") || key.contains("rainbow") { return "rainbow" }
         return "star.fill"
     }
+    private var emoji: String {
+        if key.contains("медвед") || key.contains("мишка") || key.contains("bear") || key.contains("teddy") { return "🧸" }
+        if key.contains("бабоч") || key.contains("butterfly") { return "🦋" }
+        if key.contains("зай") || key.contains("крол") || key.contains("bunny") || key.contains("rabbit") { return "🐰" }
+        if key.contains("кот") || key.contains("cat") { return "🐱" }
+        if key.contains("собак") || key.contains("щен") || key.contains("dog") { return "🐶" }
+        if key.contains("лиса") || key.contains("fox") { return "🦊" }
+        if key.contains("панд") || key.contains("panda") { return "🐼" }
+        if key.contains("единорог") || key.contains("unicorn") { return "🦄" }
+        if key.contains("динозав") || key.contains("dino") { return "🦕" }
+        if key.contains("лягуш") || key.contains("frog") { return "🐸" }
+        if key.contains("пчел") || key.contains("bee") { return "🐝" }
+        if key.contains("пингвин") || key.contains("penguin") { return "🐧" }
+        if key.contains("черепах") || key.contains("turtle") { return "🐢" }
+        if key.contains("коал") || key.contains("koala") { return "🐨" }
+        if key.contains("слон") || key.contains("elephant") { return "🐘" }
+        if key.contains("жираф") || key.contains("giraffe") { return "🦒" }
+        if key.contains("дракон") || key.contains("dragon") { return "🐉" }
+        if key.contains("рыб") || key.contains("fish") { return "🐠" }
+        if key.contains("радуг") || key.contains("rainbow") { return "🌈" }
+        if key.contains("звезд") || key.contains("star") { return "⭐️" }
+        if key.contains("серд") || key.contains("heart") { return "💖" }
+        if key.contains("планет") || key.contains("космос") || key.contains("planet") { return "🪐" }
+        if key.contains("робот") || key.contains("robot") { return "🤖" }
+        if key.contains("цвет") || key.contains("flower") { return "🌸" }
+        return "🧸"
+    }
     private var colors: [Color] {
         let hash = abs(key.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) & 0x7fffffff })
         let palette: [[Color]] = [
@@ -2422,12 +2449,12 @@ private struct Collectible3DView: View {
     }
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: size * 0.23, style: .continuous).fill(colors[0].opacity(0.14))
-            Circle().fill(colors[1].opacity(0.22)).frame(width: size * 0.73, height: size * 0.73).offset(x: size * 0.20, y: -size * 0.20)
-            Circle().fill(colors[0].opacity(0.17)).frame(width: size * 0.62, height: size * 0.62).offset(x: -size * 0.22, y: size * 0.23)
-            Image(systemName: symbol).font(.system(size: size * 0.49, weight: .black)).symbolRenderingMode(.hierarchical).foregroundStyle(colors[0])
-                .padding(size * 0.20).background(colors[1].opacity(0.18), in: RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
-            Image(systemName: "sparkle").font(.system(size: size * 0.16, weight: .bold)).foregroundStyle(colors[1]).offset(x: size * 0.31, y: -size * 0.30)
+            RoundedRectangle(cornerRadius: size * 0.23, style: .continuous).fill(colors[0].opacity(0.07))
+            Circle().fill(colors[1].opacity(0.11)).frame(width: size * 0.73, height: size * 0.73).offset(x: size * 0.20, y: -size * 0.20)
+            Circle().fill(colors[0].opacity(0.085)).frame(width: size * 0.62, height: size * 0.62).offset(x: -size * 0.22, y: size * 0.23)
+            Text(emoji).font(.system(size: size * 0.62)).shadow(color: colors[0].opacity(0.13), radius: 3, y: 2)
+                .padding(size * 0.12).background(colors[1].opacity(0.09), in: RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
+            Image(systemName: "sparkle").font(.system(size: size * 0.16, weight: .bold)).foregroundStyle(colors[1].opacity(0.8)).offset(x: size * 0.31, y: -size * 0.30)
         }
         .frame(width: size, height: size)
         .overlay(RoundedRectangle(cornerRadius: size * 0.23, style: .continuous).stroke(colors[0].opacity(0.28), lineWidth: 1.5))
@@ -2561,6 +2588,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.98", date: "12.10.2026", title: "Коллекционные игрушки, копирование и химия в быту", changes: ["Игрушки получили единый современный стиль с яркими персонажами и более прозрачным фоном; закрытые игрушки видны под замком.", "В журнале версий можно выделять и копировать текст, а у задания есть кнопка копирования вопроса и вариантов ответа.", "В химию добавлены вопросы о железе, кислороде, алюминии, меди и других элементах в бытовых предметах."]),
             ReleaseNote(version: "1.0.97", date: "12.10.2026", title: "Химия: исправление банка элементов", changes: ["Список вопросов о символах элементов помещён внутрь банка химии; каждый вопрос предлагает четыре русских названия.", "Исправлены разделители массива химических заданий." ]),
             ReleaseNote(version: "1.0.96", date: "12.10.2026", title: "Химия: структура вопросов по символам", changes: ["Добавлены задания вида Fe → Железо, Au → Золото и Na → Натрий.", "Список химических вопросов инициализируется корректно; финальная проверка продолжается в следующих сборках."]),
             ReleaseNote(version: "1.0.95", date: "12.10.2026", title: "Химия и восстановление истории выпусков", changes: ["Добавлены задания на определение элемента по латинскому символу и восстановлены записи истории выпусков.", "Первая попытка сборки завершилась ошибкой структуры массива; исправление вошло в следующие версии."]),
@@ -3104,7 +3132,21 @@ struct ContentView: View {
 
             Spacer(minLength: 24)
 
+            HStack {
+                Spacer()
+                Button {
+                    var textToCopy = problem.text
+                    if problem.isTatarChoice { textToCopy += "\nВарианты: " + problem.tatarChoices.joined(separator: " | ") }
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(textToCopy, forType: .string)
+                } label: {
+                    Label("Копировать вопрос", systemImage: "doc.on.doc")
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundStyle(palette.purple)
+                }.buttonStyle(.plain).help("Скопировать вопрос и варианты ответов")
+            }.padding(.horizontal, 25)
             Text(problem.text)
+                .textSelection(.enabled)
                 .font(.system(size: selectedSubject == .math ? 62 : 38, weight: .heavy, design: .rounded))
                 .foregroundStyle(palette.ink)
                 .multilineTextAlignment(.center)
@@ -4281,12 +4323,15 @@ struct ContentView: View {
                         .onTapGesture { if item.isRare { triggerCelebration("rare:\(item.id)") } }
                 } else {
                     ZStack {
-                        Circle().fill(LinearGradient(colors: [Color.white.opacity(0.92), palette.lilac.opacity(0.85)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(width: item.isRare ? 75 : 68, height: item.isRare ? 75 : 68)
-                            .shadow(color: palette.purple.opacity(0.2), radius: 8, y: 4)
-                        Image(systemName: item.isRare ? "sparkles" : "gift.fill")
-                            .font(.system(size: item.isRare ? 37 : 31, weight: .black))
-                            .foregroundStyle(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        Collectible3DView(id: item.id, title: item.title, size: item.isRare ? 112 : 94, animated: false)
+                            .opacity(0.62)
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 17, weight: .black))
+                            .foregroundStyle(.white)
+                            .padding(9)
+                            .background(palette.purple.opacity(0.92), in: Circle())
+                            .overlay(Circle().stroke(.white.opacity(0.85), lineWidth: 1.5))
+                            .offset(x: item.isRare ? 42 : 36, y: item.isRare ? 48 : 39)
                     }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 if item.isRare {
@@ -4466,8 +4511,8 @@ struct ContentView: View {
                             Image(systemName: "app.badge.checkmark").font(.system(size: 23, weight: .bold)).foregroundStyle(palette.purple)
                                 .frame(width: 42, height: 42).background(palette.palePink, in: RoundedRectangle(cornerRadius: 13))
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Версия \(note.version)").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                Text(note.title).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                                Text("Версия \(note.version)").textSelection(.enabled).font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                Text(note.title).textSelection(.enabled).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                             }
                             Spacer()
                             Text(note.date).font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
@@ -4477,9 +4522,18 @@ struct ContentView: View {
                         ForEach(note.changes, id: \.self) { change in
                             HStack(alignment: .top, spacing: 9) {
                                 Image(systemName: "checkmark.circle.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(palette.green).padding(.top, 2)
-                                Text(change).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                Text(change).textSelection(.enabled).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                             }
                         }
+                        Button {
+                            let entry = "Версия \(note.version) · \(note.date)\n\(note.title)\n" + note.changes.map { "• " + $0 }.joined(separator: "\n")
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(entry, forType: .string)
+                        } label: {
+                            Label("Копировать изменения", systemImage: "doc.on.doc")
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .foregroundStyle(palette.purple)
+                        }.buttonStyle(.plain)
                     }.padding(20).cardStyle(palette)
                 }
             }.padding(25)
