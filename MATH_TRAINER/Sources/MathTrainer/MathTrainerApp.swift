@@ -1251,6 +1251,7 @@ struct ProblemGenerator {
     fileprivate static func next(for subject: StudySubject, difficulty: Int = 1) -> Problem {
         if subject == .logic { return logicQuestion(level: difficulty) }
         if subject == .biology { return biologyQuestion(level: difficulty, illustrated: Bool.random()) }
+        if subject == .chemistry { return chemistryQuestionBank().randomElement() ?? Problem(text: "Как называется формула воды?", answer: "H₂O", isTatarChoice: true, tatarChoices: ["H₂O", "CO₂", "O₂", "NaCl"]) }
         if subject == .math { return next(difficulty: difficulty) }
         if difficulty > 1 && Int.random(in: 0...99) < 70,
            let advanced = nextAdvancedQuestion(for: subject, level: difficulty) { return advanced }
@@ -2296,6 +2297,12 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.82", date: "12.10.2026", title: "Химия: 300 вопросов, исправление ПДД и истории", changes: [
+                "История: добавлено описание именно версии 1.0.82; предыдущие записи сохранены ниже в хронологическом списке.",
+                "Химия: банк из 300 формулировок подключён к основному генератору заданий для всех уровней, а не только к дополнительному режиму.",
+                "ПДД: картинки показываются только для вопросов о конкретных распознаваемых знаках или светофоре; общие вопросы о безопасности больше не получают похожую, но неверную картинку.",
+                "Биология: для пингвина и ряда других организмов добавлены отдельные эмодзи-иллюстрации вместо неподходящего символа птицы."
+            ]),
             ReleaseNote(version: "1.0.66", date: "12.10.2026", title: "История обновлений, точные иллюстрации и химия", changes: [
                 "История обновлений хранится в приложении как встроенный список версий, а не зависит от локального кэша; старые описания сохраняются при последующих обновлениях.",
                 "ПДД: иллюстрация показывается только для вопросов, для которых распознан конкретный знак или разметка; неизвестный вопрос больше не получает случайную картинку.",
@@ -3049,17 +3056,20 @@ struct ContentView: View {
 
     private func shouldShowPDDIllustration(for question: String) -> Bool {
         let q = question.lowercased()
-        let visualTopics = [
-            "светофор", "сигнал", "стоянка запрещена", "остановка запрещена", "въезд запрещ",
-            "главная дорога", "уступите дорогу", "скорост", "числом 40", "число 40",
-            "парков", "буквой p", "велосипед", "круговое движение", "пешеход",
-            "пешеходный переход", "обгон запрещ", "предупреждающий дорожный знак",
-            "дорожный знак", "знак пешеходного перехода", "движение прямо", "поворот направо запрещ",
-            "поворот налево запрещ", "разворот запрещ", "размет", "зебр", "дети",
-            "железнодорож", "дикие животные", "скользкая", "неровност", "крутой спуск",
-            "крутой подъём", "сужение", "дорожные работы", "падение камней"
+        // General road-safety questions should not receive a random-looking sign.
+        if q.contains("светофор") { return true }
+        guard q.contains("знак") else { return false }
+        let supportedSignDescriptions = [
+            "стоянка запрещена", "остановка запрещена", "въезд запрещ",
+            "главная дорога", "уступите дорогу", "числом 40", "число 40",
+            "скорости 40", "парков", "буквой p", "велосипедная дорожка",
+            "круговое движение", "пешеходного перехода", "обгон запрещ",
+            "предупреждающий дорожный знак", "дети", "железнодорож",
+            "скользкая дорога", "неровност", "крутой спуск", "крутой подъём",
+            "сужение", "дорожные работы", "падение камней", "движение прямо",
+            "поворот направо запрещ", "поворот налево запрещ", "разворот запрещ"
         ]
-        return visualTopics.contains(where: { q.contains($0) })
+        return supportedSignDescriptions.contains(where: { q.contains($0) })
     }
 
     @ViewBuilder
@@ -3116,7 +3126,7 @@ struct ContentView: View {
                     Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
                     Image(systemName: "figure.walk").font(.system(size: 32, weight: .bold)).foregroundStyle(.black)
                     Rectangle().fill(red).frame(width: 63, height: 7).rotationEffect(.degrees(-45))
-                } else if q.contains("пешеходный переход") || q.contains("знак пешеходного перехода") {
+                } else if q.contains("пешеходный переход") || q.contains("пешеходного перехода") || q.contains("знак пешеходного перехода") {
                     RoundedRectangle(cornerRadius: 6).fill(blue).frame(width: 76, height: 76)
                     RoundedRectangle(cornerRadius: 3).stroke(.white, lineWidth: 2).frame(width: 64, height: 64)
                     Image(systemName: "figure.walk").font(.system(size: 35, weight: .bold)).foregroundStyle(.white)
