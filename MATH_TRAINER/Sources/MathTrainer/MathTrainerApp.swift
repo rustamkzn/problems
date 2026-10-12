@@ -142,15 +142,14 @@ private struct StudyIllustration: View {
             RoundedRectangle(cornerRadius: 24, style: .continuous).fill(tint.opacity(0.13))
             Circle().fill(tint.opacity(0.10)).frame(width: 112, height: 112).offset(x: 74, y: -24)
             if subject == .geometry {
-                VStack(spacing: 3) {
+                Group {
                     if let url = geometrySourceURL, let sourceImage = NSImage(contentsOf: url) {
-                        Image(nsImage: sourceImage).resizable().scaledToFit().grayscale(1).contrast(2.2).frame(maxWidth: 170, maxHeight: 96)
-                            .accessibilityLabel("Иллюстрация геометрической фигуры из Wikimedia Commons")
+                        Image(nsImage: sourceImage).resizable().scaledToFit().grayscale(1).contrast(2.2).frame(maxWidth: 190, maxHeight: 112)
+                            .accessibilityLabel("Геометрическая фигура")
                     } else {
-                        Image(systemName: geometrySymbol).font(.system(size: 62, weight: .regular)).symbolRenderingMode(.monochrome).foregroundStyle(.black).frame(height: 92)
+                        Image(systemName: geometrySymbol).font(.system(size: 68, weight: .regular)).symbolRenderingMode(.monochrome).foregroundStyle(.black).frame(height: 100)
                             .accessibilityLabel("Геометрическая фигура")
                     }
-                    Text("ГЕОМЕТРИЧЕСКАЯ ФИГУРА").font(.system(size: 11, weight: .black, design: .rounded)).foregroundStyle(.black)
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if subject == .biology {
                 HStack(spacing: 18) {
@@ -1469,46 +1468,35 @@ struct ProblemGenerator {
 
 
     private static func geometryQuestion(level: Int) -> Problem {
-        // Age 8–9: simple concepts, counting sides/corners, shapes and easy measurements.
-        // 500 text-only question entries are generated below; picture questions remain separate.
+        // Геометрия для 2 класса: простые фигуры, стороны, углы, вершины и единицы длины.
         let textBank: [(String, String, [String])] = {
             var bank: [(String, String, [String])] = []
-            for variant in 0..<5 {
-                for n in 1...10 {
-                    let a = ((n + variant - 1) % 10) + 1
-                    let b = ((n + variant) % 10) + 1
-                    let squarePerimeter = 4 * a
-                    let trianglePerimeter = 3 * a
-                    let rectanglePerimeter = 2 * (a + b)
-                    let questions: [(String, String, [String])] = [
-                        ("Сколько сторон у треугольника?", "3", ["3", "2", "4", "5"]),
-                        ("Сколько углов у квадрата?", "4", ["4", "3", "5", "6"]),
-                        ("Сколько вершин у прямоугольника?", "4", ["4", "2", "3", "6"]),
-                        ("Какая фигура не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
-                        ("Как называется фигура с тремя сторонами?", "Треугольник", ["Треугольник", "Круг", "Квадрат", "Прямоугольник"]),
-                        ("Сколько сантиметров в \(a) дециметрах?", "\(a * 10) см", ["\(a * 10) см", "\(a) см", "\(a * 100) см", "\(a + 10) см"]),
-                        ("Сторона квадрата \(a) см. Найди периметр.", "\(squarePerimeter) см", ["\(squarePerimeter) см", "\(squarePerimeter + 2) см", "\(2 * a) см", "\(squarePerimeter + 4) см"]),
-                        ("У равностороннего треугольника сторона \(a) см. Найди периметр.", "\(trianglePerimeter) см", ["\(trianglePerimeter) см", "\(2 * a) см", "\(4 * a) см", "\(a + 3) см"]),
-                        ("У прямоугольника стороны \(a) см и \(b) см. Найди периметр.", "\(rectanglePerimeter) см", ["\(rectanglePerimeter) см", "\(a + b) см", "\(rectanglePerimeter + 2) см", "\(2 * a) см"]),
-                        ("Что длиннее: \(a * 10) см или \(a) дм?", "Одинаково", ["Одинаково", "\(a * 10) см", "\(a) дм", "Нельзя сравнить"])
-                    ]
-                    bank.append(contentsOf: questions)
-                }
+            for n in 1...10 {
+                let questions: [(String, String, [String])] = [
+                    ("Сколько сторон у треугольника?", "3", ["3", "2", "4", "5"]),
+                    ("Сколько углов у квадрата?", "4", ["4", "3", "5", "6"]),
+                    ("Сколько вершин у прямоугольника?", "4", ["4", "2", "3", "6"]),
+                    ("Какая фигура круглая и не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
+                    ("Какая фигура имеет три стороны?", "Треугольник", ["Треугольник", "Круг", "Квадрат", "Прямоугольник"]),
+                    ("Сколько сторон у пятиугольника?", "5", ["5", "3", "4", "6"]),
+                    ("Сколько сантиметров в \(n) дм?", "\(n * 10) см", ["\(n * 10) см", "\(n) см", "\(n * 100) см", "\(n + 10) см"]),
+                    ("Сколько дециметров в \(n * 10) сантиметрах?", "\(n) дм", ["\(n) дм", "\(n * 10) дм", "\(n + 1) дм", "\(n) см"]),
+                    ("Что короче: отрезок 3 см или отрезок 5 см?", "3 см", ["3 см", "5 см", "Одинаковые", "Нельзя узнать"]),
+                    ("У квадрата все стороны…", "Равны", ["Равны", "Разной длины", "Только две равны", "Без длины"])
+                ]
+                bank.append(contentsOf: questions)
             }
             return bank
         }()
-        let illustrated: [(String, String, [String])] = [
-            ("Как называется объёмная фигура, изображённая на рисунке?", "Цилиндр", ["Цилиндр", "Куб", "Конус", "Шар"]),
-            ("Как называется объёмная фигура, изображённая на рисунке?", "Октаэдр", ["Октаэдр", "Тетраэдр", "Цилиндр", "Куб"]),
-            ("Как называется объёмная фигура, изображённая на рисунке?", "Тетраэдр", ["Тетраэдр", "Октаэдр", "Конус", "Шар"]),
-            ("Как называется объёмная фигура, изображённая на рисунке?", "Куб", ["Куб", "Цилиндр", "Шар", "Тетраэдр"]),
-            ("Как называется объёмная фигура, изображённая на рисунке?", "Конус", ["Конус", "Цилиндр", "Куб", "Октаэдр"]),
-            ("Как называется объёмная фигура, изображённая на рисунке?", "Шар", ["Шар", "Куб", "Тетраэдр", "Конус"])
+        let illustrated: [(String, [String])] = [
+            ("Цилиндр", ["Цилиндр", "Куб", "Конус", "Шар"]),
+            ("Куб", ["Куб", "Цилиндр", "Шар", "Конус"]),
+            ("Конус", ["Конус", "Цилиндр", "Куб", "Шар"]),
+            ("Шар", ["Шар", "Куб", "Цилиндр", "Конус"])
         ]
-        // Keep picture-based recognition, but never reveal the name in the prompt.
-        if level == 1 && Int.random(in: 0..<3) == 0 {
+        if Int.random(in: 0..<3) == 0 {
             let item = illustrated.randomElement()!
-            return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: true)
+            return Problem(text: "", answer: item.0, isTatarChoice: true, tatarChoices: item.1.shuffled(), showIllustration: true)
         }
         let item = textBank.randomElement()!
         return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: false)
@@ -3271,29 +3259,33 @@ struct ContentView: View {
 
             Spacer(minLength: 24)
 
-            HStack {
-                Spacer()
-                Button {
-                    var textToCopy = problem.text
-                    if problem.isTatarChoice { textToCopy += "\nВарианты: " + problem.tatarChoices.joined(separator: " | ") }
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(textToCopy, forType: .string)
-                } label: {
-                    Label("Копировать вопрос", systemImage: "doc.on.doc")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                        .foregroundStyle(palette.purple)
-                }.buttonStyle(.plain).help("Скопировать вопрос и варианты ответов")
-            }.padding(.horizontal, 25)
-            Text(problem.text)
-                .textSelection(.enabled)
-                .font(.system(size: selectedSubject == .math ? 62 : 38, weight: .heavy, design: .rounded))
-                .foregroundStyle(palette.ink)
-                .multilineTextAlignment(.center)
-                .contentTransition(.numericText())
-                .minimumScaleFactor(0.42)
-                .lineLimit(2)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 12)
+            if !(selectedSubject == .geometry && problem.showIllustration) {
+                HStack {
+                    Spacer()
+                    Button {
+                        var textToCopy = problem.text
+                        if problem.isTatarChoice { textToCopy += "\nВарианты: " + problem.tatarChoices.joined(separator: " | ") }
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(textToCopy, forType: .string)
+                    } label: {
+                        Label("Копировать вопрос", systemImage: "doc.on.doc")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(palette.purple)
+                    }.buttonStyle(.plain).help("Скопировать вопрос и варианты ответов")
+                }.padding(.horizontal, 25)
+            }
+            if !(selectedSubject == .geometry && problem.showIllustration) {
+                Text(problem.text)
+                    .textSelection(.enabled)
+                    .font(.system(size: selectedSubject == .math ? 62 : 38, weight: .heavy, design: .rounded))
+                    .foregroundStyle(palette.ink)
+                    .multilineTextAlignment(.center)
+                    .contentTransition(.numericText())
+                    .minimumScaleFactor(0.42)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 12)
+            }
 
             if selectedSubject == .pdd && shouldShowPDDIllustration(for: problem.text) {
                 pddIllustration(for: problem.text).padding(.horizontal, 24).padding(.top, 5)
@@ -3864,7 +3856,6 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Твои успехи", subtitle: "Каждый пример помогает стать увереннее 💜")
-                dailyHistorySection
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
                     largeStat("Всего ответов", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
                     largeStat("Правильных ответов", value: "\(store.stats.correct)", icon: "checkmark.circle.fill", color: palette.green)
@@ -3883,6 +3874,7 @@ struct ContentView: View {
                     Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
                         .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                 }.padding(18).cardStyle(palette)
+                dailyHistorySection
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
                     ForEach(StudySubject.allCases) { subject in
@@ -5010,7 +5002,7 @@ struct ContentView: View {
         case .biology:
             return false
         case .geometry:
-            return true
+            return problem.showIllustration
         case .chemistry:
             // Символы элементов и формулы остаются текстовыми заданиями.
             // Иллюстрации появляются только в отдельной группе вопросов о лабораторной посуде.
