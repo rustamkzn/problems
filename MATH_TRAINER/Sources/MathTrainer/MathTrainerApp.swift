@@ -4378,10 +4378,11 @@ struct ContentView: View {
     private func achievementCard(_ item: Achievement) -> some View {
         let unlocked = unlockedAchievementIDs.contains(item.id)
         return HStack(alignment: .top, spacing: 10) {
-            Reward3DBadge(symbol: achievementSymbol(for: item.id), tint: unlocked ? rewardTint(for: item.id) : Color.gray, size: 64, locked: !unlocked)
+            Text(item.emoji)
+                .font(.system(size: 43))
                 .frame(width: 82, height: 82)
-                .background(LinearGradient(colors: unlocked ? [rewardTint(for: item.id).opacity(0.38), rewardTint(for: item.id).opacity(0.10)] : [Color.gray.opacity(0.12), palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(unlocked ? rewardTint(for: item.id) : Color.gray.opacity(0.35), lineWidth: unlocked ? 2.2 : 1.2))
+                .background(LinearGradient(colors: unlocked ? [rewardTint(for: item.id).opacity(0.38), rewardTint(for: item.id).opacity(0.10)] : [Color.gray.opacity(0.12), palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 19))
+                .overlay(RoundedRectangle(cornerRadius: 19).stroke(unlocked ? rewardTint(for: item.id) : Color.gray.opacity(0.35), lineWidth: unlocked ? 2.2 : 1.2))
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text(item.detail).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
@@ -4389,8 +4390,8 @@ struct ContentView: View {
             }
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity, minHeight: 92, alignment: .leading).padding(12)
-            .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 15))
-            .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.line.opacity(0.7), lineWidth: 1))
+            .background(palette.cardSurface.opacity(0.94), in: RoundedRectangle(cornerRadius: 19))
+            .overlay(RoundedRectangle(cornerRadius: 19).stroke(palette.line.opacity(0.7), lineWidth: 1))
     }
     private func collectibleCard(_ item: Collectible) -> some View {
         let unlocked = allOwnedCollectibleIDs.contains(item.id)
@@ -4435,9 +4436,9 @@ struct ContentView: View {
     }
     private func isExtraAchievementUnlocked(_ id: String) -> Bool {
         func number(after prefix: String) -> Int? { Int(id.dropFirst(prefix.count)) }
-        if id.hasPrefix("extra-total-") { return (number(after: "extra-total-") ?? Int.max) <= store.stats.total }
-        if id.hasPrefix("extra-correct-") { return (number(after: "extra-correct-") ?? Int.max) <= store.stats.correct }
-        if id.hasPrefix("extra-streak-") { return (number(after: "extra-streak-") ?? Int.max) <= store.stats.bestStreak }
+        if id.hasPrefix("extra-total-") { return ((number(after: "extra-total-") ?? Int.max) <= store.stats.total / 2) }
+        if id.hasPrefix("extra-correct-") { return ((number(after: "extra-correct-") ?? Int.max) <= store.stats.correct / 2) }
+        if id.hasPrefix("extra-streak-") { return ((number(after: "extra-streak-") ?? Int.max) <= store.stats.bestStreak / 2) }
         if id.hasPrefix("extra-active-minutes-") { return (number(after: "extra-active-minutes-") ?? Int.max) * 60 <= lifetimeActiveSeconds }
         if id.hasPrefix("extra-olympiad-wins-") { return (number(after: "extra-olympiad-wins-") ?? Int.max) <= olympiadWins }
         if id.hasPrefix("extra-accuracy-") {
