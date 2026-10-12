@@ -2229,21 +2229,21 @@ private struct Achievement: Identifiable {
 private enum AchievementCatalog {
     static let all: [Achievement] = {
         let base: [Achievement] = [
-            Achievement(id: "first-answer", title: "Первый шаг", detail: "Реши свой первый пример", emoji: "🌱"),
-            Achievement(id: "ten-correct", title: "Первые 25", detail: "25 правильных ответов", emoji: "🔟"),
-            Achievement(id: "twenty-correct", title: "Полсотни", detail: "50 правильных ответов", emoji: "🌟"),
-            Achievement(id: "fifty-correct", title: "Сотня знатока", detail: "100 правильных ответов", emoji: "🎖️"),
-            Achievement(id: "five-streak", title: "Десять подряд", detail: "10 верных ответов подряд", emoji: "🔥"),
-            Achievement(id: "fifteen-streak", title: "Серия из 20", detail: "20 верных ответов подряд", emoji: "⚡️"),
-            Achievement(id: "twenty-streak", title: "Серия из 30", detail: "30 верных ответов подряд", emoji: "🚀"),
-            Achievement(id: "daily-solver", title: "Учебный марафон", detail: "30 ответов за один день", emoji: "🏃"),
-            Achievement(id: "three-days", title: "Пять учебных дней", detail: "Занимайся в 5 разных дней", emoji: "📅"),
-            Achievement(id: "five-days", title: "Десять учебных дней", detail: "Занимайся в 10 разных дней", emoji: "🗓️"),
-            Achievement(id: "perfect-ten", title: "Без ошибок", detail: "25 ответов без ошибок", emoji: "💎"),
-            Achievement(id: "accuracy-90", title: "Меткий ответ", detail: "Точность не ниже 90% после 100 ответов", emoji: "🎯"),
-            Achievement(id: "hundred-answers", title: "Четверть тысячи", detail: "250 решённых примеров", emoji: "🏆"),
-            Achievement(id: "five-hundred-answers", title: "Большой ум", detail: "1000 решённых примеров", emoji: "🧠"),
-            Achievement(id: "diamond-100", title: "Алмазный запас", detail: "Накопи 150 алмазов", emoji: "💠")
+            Achievement(id: "first-answer", title: "Первый шаг", detail: "Реши свой первый пример", emoji: "🧸"),
+            Achievement(id: "ten-correct", title: "Первые 25", detail: "25 правильных ответов", emoji: "🎁"),
+            Achievement(id: "twenty-correct", title: "Полсотни", detail: "50 правильных ответов", emoji: "🪀"),
+            Achievement(id: "fifty-correct", title: "Сотня знатока", detail: "100 правильных ответов", emoji: "🪇"),
+            Achievement(id: "five-streak", title: "Десять подряд", detail: "10 верных ответов подряд", emoji: "🪈"),
+            Achievement(id: "fifteen-streak", title: "Серия из 20", detail: "20 верных ответов подряд", emoji: "🪕"),
+            Achievement(id: "twenty-streak", title: "Серия из 30", detail: "30 верных ответов подряд", emoji: "🪗"),
+            Achievement(id: "daily-solver", title: "Учебный марафон", detail: "30 ответов за один день", emoji: "🪘"),
+            Achievement(id: "three-days", title: "Пять учебных дней", detail: "Занимайся в 5 разных дней", emoji: "🪙"),
+            Achievement(id: "five-days", title: "Десять учебных дней", detail: "Занимайся в 10 разных дней", emoji: "🧶"),
+            Achievement(id: "perfect-ten", title: "Без ошибок", detail: "25 ответов без ошибок", emoji: "🧵"),
+            Achievement(id: "accuracy-90", title: "Меткий ответ", detail: "Точность не ниже 90% после 100 ответов", emoji: "🪡"),
+            Achievement(id: "hundred-answers", title: "Четверть тысячи", detail: "250 решённых примеров", emoji: "🧷"),
+            Achievement(id: "five-hundred-answers", title: "Большой ум", detail: "1000 решённых примеров", emoji: "🧺"),
+            Achievement(id: "diamond-100", title: "Алмазный запас", detail: "Накопи 150 алмазов", emoji: "🪣")
         ]
         let extra: [Achievement] = (1...100).map { number in
             let id: String
