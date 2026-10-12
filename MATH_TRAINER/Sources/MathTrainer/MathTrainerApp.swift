@@ -1469,73 +1469,52 @@ struct ProblemGenerator {
 
 
     private static func geometryQuestion(level: Int) -> Problem {
-        // 500+ automatically composed text-only tasks. Each question has its own matching answer
-        // choices and explicitly disables illustrations, so an unrelated shape can never appear.
+        // Age 8–9: simple concepts, counting sides/corners, shapes and easy measurements.
+        // 500 text-only question entries are generated below; picture questions remain separate.
         let textBank: [(String, String, [String])] = {
             var bank: [(String, String, [String])] = []
-            let words = ["один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять"]
-            let distractors = { (correct: Int, offsets: [Int]) -> [String] in
-                Array(Set([correct] + offsets.map { max(0, correct + $0) })).sorted().map(String.init)
+            for variant in 0..<5 {
+                for n in 1...10 {
+                    let a = ((n + variant - 1) % 10) + 1
+                    let b = ((n + variant) % 10) + 1
+                    let squarePerimeter = 4 * a
+                    let trianglePerimeter = 3 * a
+                    let rectanglePerimeter = 2 * (a + b)
+                    let questions: [(String, String, [String])] = [
+                        ("Сколько сторон у треугольника?", "3", ["3", "2", "4", "5"]),
+                        ("Сколько углов у квадрата?", "4", ["4", "3", "5", "6"]),
+                        ("Сколько вершин у прямоугольника?", "4", ["4", "2", "3", "6"]),
+                        ("Какая фигура не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
+                        ("Как называется фигура с тремя сторонами?", "Треугольник", ["Треугольник", "Круг", "Квадрат", "Прямоугольник"]),
+                        ("Сколько сантиметров в \(a) дециметрах?", "\(a * 10) см", ["\(a * 10) см", "\(a) см", "\(a * 100) см", "\(a + 10) см"]),
+                        ("Сторона квадрата \(a) см. Найди периметр.", "\(squarePerimeter) см", ["\(squarePerimeter) см", "\(squarePerimeter + 2) см", "\(2 * a) см", "\(squarePerimeter + 4) см"]),
+                        ("У равностороннего треугольника сторона \(a) см. Найди периметр.", "\(trianglePerimeter) см", ["\(trianglePerimeter) см", "\(2 * a) см", "\(4 * a) см", "\(a + 3) см"]),
+                        ("У прямоугольника стороны \(a) см и \(b) см. Найди периметр.", "\(rectanglePerimeter) см", ["\(rectanglePerimeter) см", "\(a + b) см", "\(rectanglePerimeter + 2) см", "\(2 * a) см"]),
+                        ("Что длиннее: \(a * 10) см или \(a) дм?", "Одинаково", ["Одинаково", "\(a * 10) см", "\(a) дм", "Нельзя сравнить"])
+                    ]
+                    bank.append(contentsOf: questions)
+                }
             }
-            for n in 1...50 {
-                let squarePerimeter = 4 * n
-                bank.append(("Сторона квадрата равна \(n) см. Чему равен периметр?", "\(squarePerimeter) см", ["\(squarePerimeter) см", "\(squarePerimeter + 2) см", "\(max(1, squarePerimeter - 2)) см", "\(n * 2) см"]))
-                let rectPerimeter = 2 * (n + 2)
-                bank.append(("Длина прямоугольника \(n) см, ширина 2 см. Найди периметр.", "\(rectPerimeter) см", ["\(rectPerimeter) см", "\(n + 2) см", "\(n * 2) см", "\(rectPerimeter + 2) см"]))
-                bank.append(("У равностороннего треугольника сторона \(n) см. Найди периметр.", "\(3 * n) см", ["\(3 * n) см", "\(2 * n) см", "\(4 * n) см", "\(n + 3) см"]))
-                bank.append(("Периметр квадрата равен \(4 * n) см. Чему равна его сторона?", "\(n) см", ["\(n) см", "\(2 * n) см", "\(4 * n) см", "\(n + 4) см"]))
-                bank.append(("Сколько сантиметров в \(n) дм?", "\(n * 10) см", ["\(n * 10) см", "\(n) см", "\(n * 100) см", "\(n + 10) см"]))
-                bank.append(("Сколько миллиметров составляют \(n) сантиметров?", "\(n * 10) мм", ["\(n * 10) мм", "\(n) мм", "\(n * 100) мм", "\(n + 10) мм"]))
-                bank.append(("У многоугольника \(n) вершин. Сколько у него углов?", "\(n)", ["\(n)", "\(max(0, n - 1))", "\(n + 1)", "\(n + 2)"]))
-                bank.append(("Отрезок длиной \(n * 10) см разделили на 10 равных частей. Длина одной части?", "\(n) см", ["\(n) см", "\(n * 10) см", "\(n + 10) см", "\(max(1, n - 1)) см"]))
-                bank.append(("Одна сторона прямоугольника \(n) см, соседняя на 1 см длиннее. Чему равен периметр?", "\(4 * n + 2) см", ["\(4 * n + 2) см", "\(2 * n + 1) см", "\(4 * n) см", "\(2 * n + 2) см"]))
-                bank.append(("Сколько прямых углов у \(n) квадратов вместе?", "\(4 * n)", ["\(4 * n)", "\(2 * n)", "\(n)", "\(3 * n)"]))
-            }
-            // Add clear foundational concept questions, still with no pictures.
-            let concepts: [(String, String, [String])] = [
-                ("Как называется часть прямой с двумя концами?", "Отрезок", ["Отрезок", "Луч", "Прямая", "Окружность"]),
-                ("Как называется линия с началом, но без конца?", "Луч", ["Луч", "Отрезок", "Прямая", "Точка"]),
-                ("Как называется линия, продолжающаяся в обе стороны без конца?", "Прямая", ["Прямая", "Луч", "Отрезок", "Угол"]),
-                ("Как называется фигура из двух лучей с общим началом?", "Угол", ["Угол", "Отрезок", "Круг", "Треугольник"]),
-                ("Сколько сторон у треугольника?", "3", ["3", "2", "4", "5"]),
-                ("Сколько углов у квадрата?", "4", ["4", "3", "5", "6"]),
-                ("Какая фигура не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
-                ("У какой фигуры четыре равные стороны и четыре прямых угла?", "Квадрат", ["Квадрат", "Ромб", "Треугольник", "Круг"]),
-                ("Как называется фигура с тремя сторонами?", "Треугольник", ["Треугольник", "Квадрат", "Круг", "Прямоугольник"]),
-                ("Сколько вершин у прямоугольника?", "4", ["4", "2", "3", "6"]),
-                ("Что длиннее: 1 метр или 50 сантиметров?", "1 метр", ["1 метр", "50 сантиметров", "Одинаково", "Нельзя сравнить"]),
-                ("Какая фигура похожа на колесо, если смотреть прямо?", "Круг", ["Круг", "Квадрат", "Треугольник", "Ромб"]),
-                ("Сколько граней у куба?", "6", ["6", "4", "8", "12"]),
-                ("Сколько вершин у куба?", "8", ["8", "6", "4", "12"]),
-                ("Сколько вершин у треугольной пирамиды (тетраэдра)?", "4", ["4", "3", "5", "6"]),
-                ("Сколько оснований у цилиндра?", "2", ["2", "1", "3", "4"]),
-                ("Как называется объёмная фигура с круглым основанием и одной вершиной?", "Конус", ["Конус", "Цилиндр", "Куб", "Шар"]),
-                ("Как называется объёмная фигура без рёбер и вершин, похожая на мяч?", "Шар", ["Шар", "Куб", "Конус", "Цилиндр"]),
-                ("Какая фигура имеет шесть одинаковых квадратных граней?", "Куб", ["Куб", "Конус", "Цилиндр", "Шар"]),
-                ("Как называется объёмная фигура с двумя круглыми основаниями?", "Цилиндр", ["Цилиндр", "Конус", "Куб", "Пирамида"])
-            ]
-            bank.append(contentsOf: concepts)
             return bank
         }()
-        // The 500 generated tasks are text-only. Illustrated tasks are limited to six exact,
-        // supported solids and use the same solid name in the prompt and correct answer.
-        let solids: [(String, String, [String])] = [
-            ("На рисунке изображён цилиндр. Как называется эта фигура?", "Цилиндр", ["Цилиндр", "Куб", "Конус", "Шар"]),
-            ("На рисунке изображён октаэдр. Как называется эта фигура?", "Октаэдр", ["Октаэдр", "Тетраэдр", "Цилиндр", "Куб"]),
-            ("На рисунке изображён тетраэдр. Как называется эта фигура?", "Тетраэдр", ["Тетраэдр", "Октаэдр", "Конус", "Шар"]),
-            ("На рисунке изображён куб. Как называется эта фигура?", "Куб", ["Куб", "Цилиндр", "Шар", "Тетраэдр"]),
-            ("На рисунке изображён конус. Как называется эта фигура?", "Конус", ["Конус", "Цилиндр", "Куб", "Октаэдр"]),
-            ("На рисунке изображён шар. Как называется эта фигура?", "Шар", ["Шар", "Куб", "Тетраэдр", "Конус"])
+        let illustrated: [(String, String, [String])] = [
+            ("Как называется объёмная фигура, изображённая на рисунке?", "Цилиндр", ["Цилиндр", "Куб", "Конус", "Шар"]),
+            ("Как называется объёмная фигура, изображённая на рисунке?", "Октаэдр", ["Октаэдр", "Тетраэдр", "Цилиндр", "Куб"]),
+            ("Как называется объёмная фигура, изображённая на рисунке?", "Тетраэдр", ["Тетраэдр", "Октаэдр", "Конус", "Шар"]),
+            ("Как называется объёмная фигура, изображённая на рисунке?", "Куб", ["Куб", "Цилиндр", "Шар", "Тетраэдр"]),
+            ("Как называется объёмная фигура, изображённая на рисунке?", "Конус", ["Конус", "Цилиндр", "Куб", "Октаэдр"]),
+            ("Как называется объёмная фигура, изображённая на рисунке?", "Шар", ["Шар", "Куб", "Тетраэдр", "Конус"])
         ]
-        if level == 1 && Int.random(in: 0..<5) == 0 {
-            let item = solids.randomElement()!
+        // Keep picture-based recognition, but never reveal the name in the prompt.
+        if level == 1 && Int.random(in: 0..<3) == 0 {
+            let item = illustrated.randomElement()!
             return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: true)
         }
         let item = textBank.randomElement()!
         return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: false)
     }
 
-    fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
+        fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
         let bank: [(String, String, [String])]
         switch subject {
         case .math: return nil
@@ -3068,7 +3047,7 @@ struct ContentView: View {
             .zIndex(showSubjectPicker ? 10 : 0)
 
             VStack(spacing: 8) {
-                ForEach(AppSection.allCases) { section in
+                ForEach(AppSection.allCases.filter { $0 != .days }) { section in
                     Button {
                         selected = section
                         if section == .task {
@@ -3784,12 +3763,6 @@ struct ContentView: View {
     private var dailyHistorySection: some View {
         VStack(alignment: .leading, spacing: 14) {
             sectionTitle("По дням", icon: "calendar")
-            HStack(spacing: 10) {
-                miniStat("Всего ответов", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
-                miniStat("Верных", value: "\(store.stats.correct)", icon: "checkmark.circle.fill", color: palette.green)
-                miniStat("Ошибок", value: "\(store.stats.incorrect)", icon: "xmark.circle.fill", color: palette.red)
-                miniStat("Точность", value: "\(store.stats.accuracy)%", icon: "percent", color: palette.purple)
-            }
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     tableHead("Дата занятия", align: .leading)
