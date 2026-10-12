@@ -2678,6 +2678,9 @@ private struct Collectible3DView: View {
         return "star.fill"
     }
     private var emoji: String {
+        if key.contains("совён") || key.contains("совен") || key.contains("owl") { return "🦉" }
+        if key.contains("крош") || key.contains("krosh") { return "🐰" }
+        if key.contains("львён") || key.contains("львен") || key.contains("lion") { return "🦁" }
         // Distinct rare characters first: rare rewards must never fall back to a repeated mascot.
         if key.contains("rare-krosh") { return "🐰" }
         if key.contains("rare-rainbow-unicorn") { return "🦄" }
@@ -4576,7 +4579,7 @@ struct ContentView: View {
                 }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Коллекция достижений", icon: "rosette")
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 10) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6), spacing: 10) {
                     medalCard("🥉", title: "500 алмазов", detail: "Накопи 500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(500) ? 500 : min(store.stats.diamonds, 500), goal: 500, color: Color(red: 0.78, green: 0.49, blue: 0.30))
                     medalCard("🥈", title: "1000 алмазов", detail: "Накопи 1000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(1000) ? 1000 : min(store.stats.diamonds, 1000), goal: 1000, color: Color(red: 0.68, green: 0.73, blue: 0.80))
                     medalCard("🥇", title: "1500 алмазов", detail: "Накопи 1500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(1500) ? 1500 : min(store.stats.diamonds, 1500), goal: 1500, color: Color(red: 0.95, green: 0.72, blue: 0.22))
@@ -4585,6 +4588,8 @@ struct ContentView: View {
                     medalCard("🏆", title: "3000 алмазов", detail: "Накопи 3000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(3000) ? 3000 : min(store.stats.diamonds, 3000), goal: 3000, color: Color(red: 0.55, green: 0.42, blue: 0.88))
                     medalCard("💎", title: "3500 алмазов", detail: "Накопи 3500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(3500) ? 3500 : min(store.stats.diamonds, 3500), goal: 3500, color: Color(red: 0.25, green: 0.72, blue: 0.91))
                     medalCard("👑", title: "4000 алмазов", detail: "Накопи 4000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(4000) ? 4000 : min(store.stats.diamonds, 4000), goal: 4000, color: Color(red: 0.92, green: 0.58, blue: 0.25))
+                    medalCard("🌟", title: "4500 алмазов", detail: "Накопи 4500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(4500) ? 4500 : min(store.stats.diamonds, 4500), goal: 4500, color: Color(red: 0.35, green: 0.72, blue: 0.55))
+                    medalCard("💎", title: "5000 алмазов", detail: "Накопи 5000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(5000) ? 5000 : min(store.stats.diamonds, 5000), goal: 5000, color: Color(red: 0.32, green: 0.62, blue: 0.95))
                     }
                 }
                 Button { openShop() } label: {
@@ -4603,7 +4608,7 @@ struct ContentView: View {
                     sectionTitle("Коллекционные игрушки", icon: "sparkles")
                     Text("\(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }.count) из \(Collectible.all.count) игрушек открыто")
                         .font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 12) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 12) {
                         ForEach(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }) { item in collectibleCard(item) }
                     }
                     if !Collectible.all.contains(where: { allOwnedCollectibleIDs.contains($0.id) }) {
