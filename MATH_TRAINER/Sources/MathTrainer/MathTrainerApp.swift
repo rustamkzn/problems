@@ -109,6 +109,14 @@ private struct StudyIllustration: View {
         else if lower.contains("куб") { name = "geometry-cube" }
         else if lower.contains("конус") { name = "geometry-cone" }
         else if lower.contains("шар") { name = "geometry-sphere" }
+        else if lower.contains("трапец") { name = "geometry-trapezoid" }
+        else if lower.contains("прямоуголь") { name = "geometry-rectangle" }
+        else if lower.contains("квадрат") { name = "geometry-square" }
+        else if lower.contains("треуголь") { name = "geometry-triangle" }
+        else if lower.contains("круг") || lower.contains("окруж") { name = "geometry-circle" }
+        else if lower.contains("отрез") { name = "geometry-line-segment" }
+        else if lower.contains("перпендикуляр") { name = "geometry-perpendicular-lines" }
+        else if lower.contains("параллель") { name = "geometry-parallel-lines" }
         else { return nil }
         return Bundle.main.resourceURL?.appendingPathComponent(name).appendingPathExtension("svg")
     }
