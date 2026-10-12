@@ -5060,19 +5060,20 @@ struct ContentView: View {
     }
 
     private func recordMistake(subject: StudySubject, item: Problem, selectedAnswer: String) {
+        let questionText = item.text.isEmpty ? "Определи фигуру на рисунке: \(item.answer)" : item.text
         if let reviewID = reviewingMistakeID {
             let reviewed = decodedMistakes.first(where: { $0.id == reviewID })
-            if reviewed?.subject != subject.rawValue || reviewed?.question != item.text {
+            if reviewed?.subject != subject.rawValue || reviewed?.question != questionText {
                 reviewingMistakeID = nil
             }
         }
         guard reviewingMistakeID == nil else { return }
         var items = decodedMistakes
-        guard !items.contains(where: { $0.subject == subject.rawValue && $0.question == item.text }) else { return }
+        guard !items.contains(where: { $0.subject == subject.rawValue && $0.question == questionText }) else { return }
         let record = MistakeRecord(
             id: UUID().uuidString,
             subject: subject.rawValue,
-            question: item.text.isEmpty ? "Определи фигуру на рисунке: \(item.answer)" : item.text,
+            question: questionText,
             selectedAnswer: selectedAnswer,
             correctAnswer: item.answer,
             choices: mistakeChoices(for: item, selectedAnswer: selectedAnswer),
