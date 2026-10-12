@@ -126,8 +126,8 @@ private struct StudyIllustration: View {
             Circle().fill(tint.opacity(0.10)).frame(width: 112, height: 112).offset(x: 74, y: -24)
             if subject == .geometry {
                 VStack(spacing: 3) {
-                    Text(geometryArt).font(.system(size: 62, weight: .bold)).shadow(color: tint.opacity(0.22), radius: 5, y: 2)
-                    Text(geometryArt == "💎" ? "МНОГОГРАННИК" : "ГЕОМЕТРИЧЕСКАЯ ФИГУРА").font(.system(size: 11, weight: .black, design: .rounded)).foregroundStyle(tint)
+                    Text(geometryArt).font(.system(size: 42, weight: .regular, design: .monospaced)).foregroundStyle(.black).multilineTextAlignment(.center).lineSpacing(-8)
+                    Text("ГЕОМЕТРИЧЕСКАЯ ФИГУРА").font(.system(size: 11, weight: .black, design: .rounded)).foregroundStyle(.black)
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if subject == .biology {
                 HStack(spacing: 18) {
@@ -3655,6 +3655,39 @@ struct ContentView: View {
                         miniStat("Ошибок", value: "\(store.stats.incorrect)", icon: "xmark.circle.fill", color: palette.red)
                         miniStat("Точность", value: "\(store.stats.accuracy)%", icon: "percent", color: Color(red: 0.29, green: 0.57, blue: 0.87))
                     }
+                    Divider().overlay(palette.line).padding(.vertical, 3)
+                                VStack(alignment: .leading, spacing: 9) {
+                                    HStack {
+                                        sectionTitle("По дням", icon: "calendar")
+                                        Spacer()
+                                        Button("Все") { selected = .days }
+                                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                                            .foregroundStyle(palette.purple).buttonStyle(.plain)
+                                    }
+                                    if store.stats.days.isEmpty {
+                                        emptyHint("Результаты появятся после первых примеров.")
+                                    } else {
+                                        HStack(spacing: 4) {
+                                            tableHead("Дата занятия", align: .leading)
+                                            tableHead("✓", align: .trailing).frame(width: 26)
+                                            tableHead("×", align: .trailing).frame(width: 26)
+                                            tableHead("Всего", align: .trailing).frame(width: 34)
+                                            tableHead("%", align: .trailing).frame(width: 30)
+                                        }
+                                        ForEach(Array(store.stats.days.prefix(4))) { day in
+                                            HStack(spacing: 4) {
+                                                Text(StatsStore.displayDate(day.date)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.65).frame(maxWidth: .infinity, alignment: .leading)
+                                                Text("\(day.correct)").foregroundStyle(palette.green).frame(width: 26, alignment: .trailing)
+                                                Text("\(day.incorrect)").foregroundStyle(palette.red).frame(width: 26, alignment: .trailing)
+                                                Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 34, alignment: .trailing)
+                                                Text("\(day.accuracy)%").foregroundStyle(palette.purple).frame(width: 30, alignment: .trailing)
+                                            }
+                                            .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                            .padding(.vertical, 5)
+                                        }
+                                    }
+                                }
+                
                 }.padding(9).cardStyle(palette)
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -3675,37 +3708,6 @@ struct ContentView: View {
                 .padding(13)
                 .cardStyle(palette)
 
-                VStack(alignment: .leading, spacing: 9) {
-                    HStack {
-                        sectionTitle("По дням", icon: "calendar")
-                        Spacer()
-                        Button("Все") { selected = .days }
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                            .foregroundStyle(palette.purple).buttonStyle(.plain)
-                    }
-                    if store.stats.days.isEmpty {
-                        emptyHint("Результаты появятся после первых примеров.")
-                    } else {
-                        HStack(spacing: 4) {
-                            tableHead("Дата занятия", align: .leading)
-                            tableHead("✓", align: .trailing).frame(width: 26)
-                            tableHead("×", align: .trailing).frame(width: 26)
-                            tableHead("Всего", align: .trailing).frame(width: 34)
-                            tableHead("%", align: .trailing).frame(width: 30)
-                        }
-                        ForEach(Array(store.stats.days.prefix(4))) { day in
-                            HStack(spacing: 4) {
-                                Text(StatsStore.displayDate(day.date)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.65).frame(maxWidth: .infinity, alignment: .leading)
-                                Text("\(day.correct)").foregroundStyle(palette.green).frame(width: 26, alignment: .trailing)
-                                Text("\(day.incorrect)").foregroundStyle(palette.red).frame(width: 26, alignment: .trailing)
-                                Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 34, alignment: .trailing)
-                                Text("\(day.accuracy)%").foregroundStyle(palette.purple).frame(width: 30, alignment: .trailing)
-                            }
-                            .font(.system(size: 10, weight: .semibold, design: .rounded))
-                            .padding(.vertical, 5)
-                        }
-                    }
-                }
                 .padding(13)
                 .cardStyle(palette)
 
