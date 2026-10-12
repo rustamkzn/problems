@@ -2482,23 +2482,23 @@ private struct Collectible3DView: View {
     }
     private var emoji: String {
         // Distinct rare characters first: rare rewards must never fall back to a repeated mascot.
-        if key.contains("rare-krosh") { return "🐇✨" }
-        if key.contains("rare-rainbow-unicorn") { return "🪽🌈" }
-        if key.contains("rare-princess-pony") { return "👑🦢" }
-        if key.contains("rainbow-princess-pony") { return "🦄💎" }
-        if key.contains("cosmic-mermaid") { return "🧜‍♀️🌙" }
-        if key.contains("gold-princess") { return "👸💛" }
-        if key.contains("rainbow-dragon") { return "🐲🌈" }
-        if key.contains("cosmic-unicorn") { return "🦄🪐" }
-        if key.contains("heart-gem") { return "💎💖" }
+        if key.contains("rare-krosh") { return "🐰" }
+        if key.contains("rare-rainbow-unicorn") { return "🦄" }
+        if key.contains("rare-princess-pony") { return "🐴" }
+        if key.contains("rainbow-princess-pony") { return "🦄" }
+        if key.contains("cosmic-mermaid") { return "🧜" }
+        if key.contains("gold-princess") { return "👸" }
+        if key.contains("rainbow-dragon") { return "🐉" }
+        if key.contains("cosmic-unicorn") { return "🦄" }
+        if key.contains("heart-gem") { return "💎" }
         if key.contains("magic-star") { return "🌠" }
         if key.contains("rainbow") { return "🌈" }
         if key.contains("dragon") { return "🐉" }
-        if key.contains("princess-pony") || key.contains("pony") { return "🐴🌸" }
+        if key.contains("princess-pony") || key.contains("pony") { return "🐴" }
         if key.contains("unicorn") || key.contains("единорог") { return "🦄" }
         if key.contains("heart") || key.contains("серд") { return "💗" }
         if key.contains("magic-star") { return "🪄" }
-        if key.contains("bunny-friend") { return "🐰🌷" }
+        if key.contains("bunny-friend") { return "🐰" }
         if key.contains("медвед") || key.contains("мишка") || key.contains("bear") || key.contains("teddy") { return "🧸" }
         if key.contains("бабоч") || key.contains("butterfly") { return "🦋" }
         if key.contains("зай") || key.contains("крол") || key.contains("bunny") || key.contains("rabbit") { return "🐰" }
