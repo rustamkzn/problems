@@ -2854,10 +2854,10 @@ struct ContentView: View {
                 sidebar.frame(width: 238)
                 Rectangle().fill(palette.line.opacity(0.8)).frame(width: 1)
                 mainContent.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onTapGesture { if showSubjectPicker { showSubjectPicker = false } }
             }
             .background(palette.cardSurface.opacity(palette.isDark ? 0.96 : 0.72), in: RoundedRectangle(cornerRadius: 25))
             .overlay(RoundedRectangle(cornerRadius: 25).stroke(.white.opacity(0.94), lineWidth: 1.2))
-            .onTapGesture { if showSubjectPicker { showSubjectPicker = false } }
             .clipShape(RoundedRectangle(cornerRadius: 25))
             .contrast(screenContrast)
             .padding(13)
