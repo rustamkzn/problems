@@ -114,20 +114,28 @@ private struct StudyIllustration: View {
     }
     private var geometrySymbol: String {
         // Match the named answer/figure precisely; check rectangle before generic straight-line terms.
-        if lower.contains("октаэдр") { return "diamond.fill" }
-        if lower.contains("тетраэдр") { return "pyramid.fill" }
+        if lower.contains("перпендикуляр") { return "plus" }
+        if lower.contains("параллель") { return "equal" }
+        if lower.contains("пунктир") { return "ellipsis" }
+        if lower.contains("ломан") { return "point.topleft.down.to.point.bottomright.curvepath" }
+        if lower.contains("крив") { return "scribble.variable" }
+        if lower.contains("трапец") { return "trapezoid.and.line.vertical" }
+        if lower.contains("призма") { return "cube.transparent" }
+        if lower.contains("пирамида") || lower.contains("тетраэдр") { return "pyramid.fill" }
+        if lower.contains("октаэдр") || lower.contains("ромб") { return "diamond.fill" }
         if lower.contains("цилиндр") { return "cylinder" }
         if lower.contains("куб") { return "cube.fill" }
         if lower.contains("конус") { return "cone.fill" }
-        if lower.contains("шар") { return "circle.fill" }
+        if lower.contains("шар") { return "sphere.fill" }
         if lower.contains("треуголь") { return "triangle" }
         if lower.contains("прямоуголь") { return "rectangle" }
         if lower.contains("квадрат") { return "square" }
-        if lower.contains("ромб") { return "diamond" }
-        if lower.contains("круг") || lower.contains("окруж") || lower.contains("точк") { return "circle" }
+        if lower.contains("овал") { return "oval" }
+        if lower.contains("круг") || lower.contains("окруж") { return "circle" }
+        if lower.contains("точк") { return "circle.fill" }
         if lower.contains("луч") { return "arrow.right" }
         if lower.contains("отрез") { return "line.3.horizontal" }
-        if lower.contains("прямая") || lower.contains("прямую") { return "arrow.left.and.right" }
+        if lower.contains("прямая") { return "arrow.left.and.right" }
         if lower.contains("угол") { return "angle" }
         return "square.on.circle"
     }
@@ -1468,33 +1476,53 @@ struct ProblemGenerator {
 
 
     private static func geometryQuestion(level: Int) -> Problem {
-        // Геометрия для 2 класса: простые фигуры, стороны, углы, вершины и единицы длины.
-        let textBank: [(String, String, [String])] = {
-            var bank: [(String, String, [String])] = []
-            for n in 1...10 {
-                let questions: [(String, String, [String])] = [
-                    ("Сколько сторон у треугольника?", "3", ["3", "2", "4", "5"]),
-                    ("Сколько углов у квадрата?", "4", ["4", "3", "5", "6"]),
-                    ("Сколько вершин у прямоугольника?", "4", ["4", "2", "3", "6"]),
-                    ("Какая фигура круглая и не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
-                    ("Какая фигура имеет три стороны?", "Треугольник", ["Треугольник", "Круг", "Квадрат", "Прямоугольник"]),
-                    ("Сколько сторон у пятиугольника?", "5", ["5", "3", "4", "6"]),
-                    ("Сколько сантиметров в \(n) дм?", "\(n * 10) см", ["\(n * 10) см", "\(n) см", "\(n * 100) см", "\(n + 10) см"]),
-                    ("Сколько дециметров в \(n * 10) сантиметрах?", "\(n) дм", ["\(n) дм", "\(n * 10) дм", "\(n + 1) дм", "\(n) см"]),
-                    ("Что короче: отрезок 3 см или отрезок 5 см?", "3 см", ["3 см", "5 см", "Одинаковые", "Нельзя узнать"]),
-                    ("У квадрата все стороны…", "Равны", ["Равны", "Разной длины", "Только две равны", "Без длины"])
-                ]
-                bank.append(contentsOf: questions)
-            }
-            return bank
-        }()
+        // Геометрия начальной школы: больше визуального распознавания, единицы длины встречаются редко.
+        let textBank: [(String, String, [String])] = [
+            ("Сколько сторон у треугольника?", "3", ["3", "2", "4", "5"]),
+            ("Сколько углов у квадрата?", "4", ["4", "3", "5", "6"]),
+            ("Сколько вершин у прямоугольника?", "4", ["4", "2", "3", "6"]),
+            ("Какая фигура круглая и не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
+            ("Какая фигура имеет три стороны?", "Треугольник", ["Треугольник", "Круг", "Квадрат", "Прямоугольник"]),
+            ("Сколько сторон у пятиугольника?", "5", ["5", "3", "4", "6"]),
+            ("У квадрата все стороны…", "Равны", ["Равны", "Разной длины", "Только две равны", "Без длины"]),
+            ("У какой фигуры четыре прямых угла?", "Прямоугольник", ["Прямоугольник", "Круг", "Треугольник", "Линия"]),
+            ("Как называется фигура из нескольких соединённых отрезков?", "Ломаная", ["Ломаная", "Кривая", "Точка", "Луч"]),
+            ("Сколько сторон у шестиугольника?", "6", ["6", "5", "4", "8"]),
+            ("Периметр квадрата со сторонами по 2 см равен…", "8 см", ["8 см", "4 см", "6 см", "10 см"]),
+            ("Периметр прямоугольника со сторонами 3 см и 2 см равен…", "10 см", ["10 см", "5 см", "6 см", "12 см"]),
+            ("У треугольника стороны 2 см, 2 см и 3 см. Периметр равен…", "7 см", ["7 см", "5 см", "6 см", "8 см"]),
+            ("Периметр квадрата со стороной 3 см равен…", "12 см", ["12 см", "9 см", "6 см", "15 см"]),
+            ("Сколько сантиметров в 2 дм?", "20 см", ["20 см", "2 см", "12 см", "200 см"]),
+            ("Что короче: отрезок 3 см или отрезок 5 см?", "3 см", ["3 см", "5 см", "Одинаковые", "Нельзя узнать"])
+        ]
+        // У визуальных заданий нет текстового условия: только рисунок и четыре варианта ответа.
         let illustrated: [(String, [String])] = [
+            ("Квадрат", ["Квадрат", "Круг", "Треугольник", "Прямоугольник"]),
+            ("Треугольник", ["Треугольник", "Квадрат", "Круг", "Трапеция"]),
+            ("Прямоугольник", ["Прямоугольник", "Квадрат", "Ромб", "Круг"]),
+            ("Трапеция", ["Трапеция", "Треугольник", "Квадрат", "Овал"]),
+            ("Круг", ["Круг", "Овал", "Квадрат", "Треугольник"]),
+            ("Овал", ["Овал", "Круг", "Ромб", "Трапеция"]),
+            ("Прямая", ["Прямая", "Луч", "Отрезок", "Кривая"]),
+            ("Луч", ["Луч", "Прямая", "Отрезок", "Точка"]),
+            ("Отрезок", ["Отрезок", "Прямая", "Луч", "Кривая"]),
+            ("Точка", ["Точка", "Отрезок", "Прямая", "Угол"]),
+            ("Кривая", ["Кривая", "Пунктирная линия", "Прямая", "Отрезок"]),
+            ("Пунктирная линия", ["Пунктирная линия", "Прямая", "Кривая", "Луч"]),
+            ("Ломаная", ["Ломаная", "Кривая", "Прямая", "Точка"]),
+            ("Перпендикулярные прямые", ["Перпендикулярные прямые", "Параллельные прямые", "Кривая", "Луч"]),
+            ("Параллельные прямые", ["Параллельные прямые", "Перпендикулярные прямые", "Отрезок", "Кривая"]),
+            ("Угол", ["Угол", "Круг", "Точка", "Овал"]),
+            ("Пятиугольник", ["Пятиугольник", "Шестиугольник", "Треугольник", "Квадрат"]),
+            ("Шестиугольник", ["Шестиугольник", "Пятиугольник", "Круг", "Трапеция"]),
+            ("Призма", ["Призма", "Куб", "Конус", "Цилиндр"]),
             ("Цилиндр", ["Цилиндр", "Куб", "Конус", "Шар"]),
             ("Куб", ["Куб", "Цилиндр", "Шар", "Конус"]),
             ("Конус", ["Конус", "Цилиндр", "Куб", "Шар"]),
-            ("Шар", ["Шар", "Куб", "Цилиндр", "Конус"])
+            ("Шар", ["Шар", "Куб", "Цилиндр", "Конус"]),
+            ("Пирамида", ["Пирамида", "Призма", "Цилиндр", "Шар"])
         ]
-        if Int.random(in: 0..<3) == 0 {
+        if Int.random(in: 0..<2) == 0 {
             let item = illustrated.randomElement()!
             return Problem(text: "", answer: item.0, isTatarChoice: true, tatarChoices: item.1.shuffled(), showIllustration: true)
         }
@@ -1502,7 +1530,7 @@ struct ProblemGenerator {
         return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: false)
     }
 
-        fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
+    fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
         let bank: [(String, String, [String])]
         switch subject {
         case .math: return nil
@@ -2700,6 +2728,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.119", date: "12.10.2026", title: "Больше геометрии и ускорение магазина", changes: ["В геометрию добавлено больше заданий-картинок без текстового условия: плоские фигуры, линии, точка, луч, отрезок, кривая, пунктир, параллельные и перпендикулярные прямые, призма и другие объёмные тела.", "Сокращено количество вопросов по дм и см; добавлены простые задачи на периметр квадрата, прямоугольника и треугольника.", "В наградах теперь восемь рубежей накопления алмазов: от 500 до 4000 с шагом 500.", "Упрощён рендер закрытых товаров в магазине, чтобы снизить нагрузку при прокрутке большого каталога.", "Сохранена полная история версий, включая записи 1.0.101–1.0.118."]),
             ReleaseNote(version: "1.0.118", date: "12.10.2026", title: "Исправлена геометрия, история версий и статистика", changes: ["Восстановлена полная история выпусков: сохранены записи 1.0.101–1.0.111 и все более ранние описания.", "Вопросы по объёмным фигурам показывают соответствующие исходные SVG-иллюстрации из Wikimedia Commons, включённые в приложение для работы офлайн.", "Изображение выбирается по правильному ответу; текстовые задания по геометрии не показывают несоответствующие картинки.", "Блок «По дням» удалён со страницы заданий и помещён внутрь «Статистики».", "Добавлены вопросы по геометрии без картинок для начальных классов."]),
             ReleaseNote(version: "1.0.117", date: "12.10.2026", title: "Восстановление истории версий", changes: ["Восстановлены записи версий 1.0.100 и ниже из предыдущего исходного кода.", "Исправлена структура встроенного списка истории, из-за которой одна из промежуточных сборок не компилировалась.", "Сборка запущена повторно после исправления."]),
             ReleaseNote(version: "1.0.116", date: "12.10.2026", title: "Неудачная попытка обновления истории", changes: ["Попытка добавить подробные записи 1.0.101–1.0.112 и переместить дневную статистику.", "Сборка завершилась ошибкой компиляции из-за некорректной структуры списка версий; установщик не выпускался."]),
@@ -4352,6 +4381,8 @@ struct ContentView: View {
                     medalCard("💠", title: "2000 алмазов", detail: "Накопи 2000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(2000) ? 2000 : min(store.stats.diamonds, 2000), goal: 2000, color: palette.lilac)
                     medalCard("🏅", title: "2500 алмазов", detail: "Накопи 2500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(2500) ? 2500 : min(store.stats.diamonds, 2500), goal: 2500, color: Color(red: 0.84, green: 0.62, blue: 0.18))
                     medalCard("🏆", title: "3000 алмазов", detail: "Накопи 3000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(3000) ? 3000 : min(store.stats.diamonds, 3000), goal: 3000, color: Color(red: 0.55, green: 0.42, blue: 0.88))
+                    medalCard("💎", title: "3500 алмазов", detail: "Накопи 3500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(3500) ? 3500 : min(store.stats.diamonds, 3500), goal: 3500, color: Color(red: 0.25, green: 0.72, blue: 0.91))
+                    medalCard("👑", title: "4000 алмазов", detail: "Накопи 4000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(4000) ? 4000 : min(store.stats.diamonds, 4000), goal: 4000, color: Color(red: 0.92, green: 0.58, blue: 0.25))
                 }
                 Button { openShop() } label: {
                     Label("Открыть магазин коллекционных игрушек", systemImage: "storefront.fill")
@@ -4487,10 +4518,12 @@ struct ContentView: View {
                         .onTapGesture { if item.isRare { triggerCelebration("rare:\(item.id)") } }
                 } else {
                     ZStack {
-                        Collectible3DView(id: item.id, title: item.title, size: item.isRare ? 112 : 94, animated: false)
-                            .saturation(0.05)
-                            .opacity(0.10)
-                            .blur(radius: 1.5)
+                        // Лёгкая заглушка вместо декоративного 3D-рендера для закрытых товаров.
+                        // Это снижает нагрузку при прокрутке длинного каталога.
+                        Text("🎁")
+                            .font(.system(size: item.isRare ? 62 : 52))
+                            .opacity(0.16)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                         Image(systemName: "lock.fill")
                             .font(.system(size: 63, weight: .black))
                             .foregroundStyle(.white)
