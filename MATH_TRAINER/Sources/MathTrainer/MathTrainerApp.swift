@@ -56,7 +56,7 @@ private struct StudyIllustration: View {
             // First match the named organism, not words from the question such as "питается рыбой".
             if lower.contains("дельфин") { return "water.waves" }
             if lower.contains("карась") || lower.contains("рыба") || lower.contains("рыб ") { return "fish.fill" }
-            if lower.contains("орёл") || lower.contains("пингвин") || lower.contains("птиц") { return "bird.fill" }
+            if lower.contains("орёл") || lower.contains("птиц") { return "bird.fill" }
             if lower.contains("бабоч") || lower.contains("пчел") { return "ladybug.fill" }
             if lower.contains("ёж") || lower.contains("крот") || lower.contains("верблюд") || lower.contains("медвед") { return "pawprint.fill" }
             if lower.contains("лягуш") { return "figure.frog" }
@@ -99,7 +99,33 @@ private struct StudyIllustration: View {
             Circle().fill(tint.opacity(0.10)).frame(width: 112, height: 112).offset(x: 74, y: -24)
             if subject == .biology {
                 HStack(spacing: 18) {
-                    Image(systemName: symbol).font(.system(size: 58, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(width: 82)
+                    if lower.contains("пингвин") {
+                        Text("🐧").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("дельфин") {
+                        Text("🐬").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("карась") || lower.contains("рыба") {
+                        Text("🐟").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("бабоч") {
+                        Text("🦋").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("пчел") {
+                        Text("🐝").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("лягуш") {
+                        Text("🐸").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("белый медвед") {
+                        Text("🐻‍❄️").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("верблюд") {
+                        Text("🐪").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("ёж") {
+                        Text("🦔").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("сосна") || lower.contains("берёз") {
+                        Text("🌳").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("кактус") {
+                        Text("🌵").font(.system(size: 58)).frame(width: 82)
+                    } else if lower.contains("шампиньон") || lower.contains("гриб") {
+                        Text("🍄").font(.system(size: 58)).frame(width: 82)
+                    } else {
+                        Image(systemName: symbol).font(.system(size: 58, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(width: 82)
+                    }
                     VStack(alignment: .leading, spacing: 5) {
                         Text(biologyName ?? "ОБЪЕКТ ИЗУЧЕНИЯ").font(.system(size: 15, weight: .black, design: .rounded)).foregroundStyle(tint).lineLimit(2)
                         Text("Иллюстрация к этому организму").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(tint.opacity(0.78))
@@ -750,6 +776,78 @@ struct ProblemGenerator {
         return Problem(text: finalPrompt, answer: answer, isTatarChoice: true, tatarChoices: Array(choices), showIllustration: illustrated)
     }
 
+    private static func chemistryQuestionBank() -> [Problem] {
+        // 50 simple facts × 6 different prompts = 300 questions. All distractors are age-appropriate.
+        let facts: [(String, String, [String])] = [
+            ("Как называется формула воды?", "H₂O", ["CO₂", "O₂", "NaCl"]),
+            ("Какой газ нужен человеку для дыхания?", "Кислород", ["Гелий", "Водород", "Азот"]),
+            ("Какой газ выделяют растения при фотосинтезе?", "Кислород", ["Гелий", "Неон", "Водород"]),
+            ("Как называется поваренная соль?", "Хлорид натрия", ["Сахароза", "Кислород", "Железо"]),
+            ("Какой символ у кислорода?", "O", ["H", "C", "N"]),
+            ("Какой символ у водорода?", "H", ["O", "He", "Na"]),
+            ("Какой символ у углерода?", "C", ["Ca", "Cl", "Cu"]),
+            ("Какой символ у железа?", "Fe", ["F", "Fr", "I"]),
+            ("Какой символ у золота?", "Au", ["Ag", "O", "G"]),
+            ("Какой символ у натрия?", "Na", ["N", "Ne", "Ni"]),
+            ("Что обозначает CO₂?", "Углекислый газ", ["Вода", "Кислород", "Поваренная соль"]),
+            ("Что обозначает O₂?", "Кислород", ["Вода", "Водород", "Углекислый газ"]),
+            ("Из чего состоит лёд?", "Из воды", ["Из соли", "Из железа", "Из кислорода"]),
+            ("Что происходит с водой при замерзании?", "Она превращается в лёд", ["Она становится солью", "Она превращается в металл", "Она исчезает"]),
+            ("Как называется переход льда в жидкую воду?", "Плавление", ["Замерзание", "Горение", "Ржавление"]),
+            ("Как называется превращение воды в пар?", "Испарение", ["Замерзание", "Ржавление", "Дробление"]),
+            ("Как называется превращение пара в капли воды?", "Конденсация", ["Горение", "Плавление металла", "Растворение"]),
+            ("Что обычно растворяется в воде?", "Сахар", ["Песок полностью", "Мелкие камни", "Масло полностью"]),
+            ("Что хорошо растворяется в воде?", "Поваренная соль", ["Галька", "Пластик", "Железный гвоздь"]),
+            ("Какое вещество придаёт сладкий вкус чаю?", "Сахар", ["Песок", "Мел", "Ржавчина"]),
+            ("Как называется смесь соли и воды?", "Раствор", ["Металл", "Газ", "Кристалл льда"]),
+            ("Можно ли увидеть чистый кислород без приборов?", "Нет, это бесцветный газ", ["Да, он ярко-синий", "Да, он всегда красный", "Да, он похож на песок"]),
+            ("Какой материал притягивается обычным магнитом?", "Железо", ["Дерево", "Стекло", "Бумага"]),
+            ("Что появляется на железе при ржавлении?", "Ржавчина", ["Сахар", "Лёд", "Соль"]),
+            ("Какой материал обычно проводят электричество лучше?", "Медь", ["Резина", "Сухое дерево", "Пластик"]),
+            ("Почему провода часто покрывают пластиком?", "Пластик плохо проводит электричество", ["Пластик превращается в медь", "Пластик притягивает молнии", "Пластик делает ток видимым"]),
+            ("Какое состояние вещества имеет лёд?", "Твёрдое", ["Жидкое", "Газообразное", "Плазменное"]),
+            ("Какое состояние вещества имеет пар?", "Газообразное", ["Твёрдое", "Жидкое", "Кристаллическое"]),
+            ("Какое состояние вещества имеет вода в стакане?", "Жидкое", ["Твёрдое", "Газообразное", "Металлическое"]),
+            ("Из чего состоят все вещества?", "Из частиц", ["Из звука", "Из света", "Из пустоты без частиц"]),
+            ("Как называется мельчайшая частица химического элемента?", "Атом", ["Капля", "Кристалл соли", "Пузырёк"]),
+            ("Как называется группа связанных атомов?", "Молекула", ["Термометр", "Колба", "Мензурка"]),
+            ("Какая частица атома имеет отрицательный заряд?", "Электрон", ["Протон", "Нейтрон", "Молекула"]),
+            ("Какая частица атома имеет положительный заряд?", "Протон", ["Электрон", "Нейтрон", "Фотон"]),
+            ("Какая частица атома не имеет электрического заряда?", "Нейтрон", ["Электрон", "Протон", "Ион"]),
+            ("Как называется таблица химических элементов?", "Периодическая таблица", ["Карта погоды", "Таблица умножения", "Карта мира"]),
+            ("Что показывает химический символ O?", "Кислород", ["Золото", "Воду", "Соль"]),
+            ("Как называется вещество, из которого сделан стеклянный стакан?", "Стекло", ["Бумага", "Хлопок", "Дерево"]),
+            ("Из какого материала часто делают оконное стекло?", "Из стекла на основе песка", ["Из сахара", "Из соли", "Из воска"]),
+            ("Какой природный материал используют для изготовления бумаги?", "Древесину", ["Железо", "Стекло", "Медь"]),
+            ("Какой материал обычно водонепроницаем?", "Пластик", ["Промокательная бумага", "Вата", "Салфетка"]),
+            ("Что происходит с сахаром при растворении в чае?", "Он распределяется в воде", ["Он превращается в железо", "Он становится песком", "Он замерзает сразу"]),
+            ("Что быстрее растворяет сахар: холодная или тёплая вода?", "Обычно тёплая вода", ["Лёд без воды", "Сухой песок", "Воздух"]),
+            ("Как называется вещество, ускоряющее растворение при перемешивании?", "Перемешивание не вещество, а действие", ["Кислород", "Железо", "Гелий"]),
+            ("Какой прибор измеряет температуру?", "Термометр", ["Мензурка", "Пипетка", "Весы"]),
+            ("Какой прибор помогает измерить массу?", "Весы", ["Термометр", "Пипетка", "Лупа"]),
+            ("Для чего нужна мензурка?", "Для измерения объёма жидкости", ["Для измерения времени", "Для взвешивания", "Для резки бумаги"]),
+            ("Для чего используют пипетку?", "Чтобы переносить жидкость по каплям", ["Чтобы измерять массу", "Чтобы нагревать металл", "Чтобы резать стекло"]),
+            ("Для чего нужна пробирка?", "Для работы с небольшим количеством вещества", ["Для измерения роста", "Для хранения одежды", "Для измерения скорости"]),
+            ("Что нужно надеть при работе с химическими опытами в школе?", "Защитные очки по указанию учителя", ["Солнечные очки вместо защиты", "Наушники вместо очков", "Ничего не нужно никогда"])
+        ]
+        let framings = [
+            "Вопрос по химии: %@",
+            "Выбери правильный ответ: %@",
+            "Проверь себя. %@",
+            "Как правильно ответить? %@",
+            "Подумай и ответь: %@",
+            "Мини-викторина: %@"
+        ]
+        var bank: [Problem] = []
+        for (question, answer, distractors) in facts {
+            let choices = ([answer] + distractors).shuffled()
+            for framing in framings {
+                bank.append(Problem(text: String(format: framing, question), answer: answer, isTatarChoice: true, tatarChoices: choices))
+            }
+        }
+        return bank
+    }
+
     private static func choiceProblem(_ item: (String, String, [String])) -> Problem {
         Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled())
     }
@@ -1129,25 +1227,7 @@ struct ProblemGenerator {
                 bank = [("Что такое цветовой круг?", "Схема взаимосвязи оттенков", ["Схема взаимосвязи оттенков", "Линейка", "Список художников", "Бумажный шаблон"]), ("Как называется рисунок, выполненный точками?", "Пуантилизм", ["Пуантилизм", "Оригами", "Коллаж", "Витраж"])]
             }
         case .chemistry:
-            // Два независимых набора: вопросы об элементах/формулах и вопросы о посуде.
-            // Один вопрос выбирается только из одной темы за раз.
-            let elementQuestions: [(String, String, [String])]
-            let equipmentQuestions: [(String, String, [String])]
-            switch level {
-            case 2:
-                elementQuestions = [("Какой символ у кислорода?", "O", ["O", "H", "C", "N"]), ("Как называется формула H₂O?", "Вода", ["Вода", "Кислород", "Поваренная соль", "Углекислый газ"]), ("Какая частица имеет отрицательный заряд?", "Электрон", ["Электрон", "Протон", "Нейтрон", "Молекула воды"])]
-                equipmentQuestions = [("Как называется стеклянный сосуд с узким горлышком для реакций?", "Колба", ["Колба", "Чашка Петри", "Ступка", "Пипетка"]), ("Для чего используют чашку Петри?", "Для выращивания культур и наблюдений", ["Для выращивания культур и наблюдений", "Для нагрева металла", "Для измерения массы", "Для перемешивания газа"])]
-            case 3:
-                elementQuestions = [("Какой символ у натрия?", "Na", ["Na", "N", "S", "Ne"]), ("Что обозначает символ Fe?", "Железо", ["Железо", "Фтор", "Фосфор", "Франций"]), ("Какие частицы имеют отрицательный заряд?", "Электроны", ["Электроны", "Протоны", "Нейтроны", "Молекулы воды"])]
-                equipmentQuestions = [("Какой сосуд имеет деления для измерения объёма?", "Мензурка", ["Мензурка", "Колба Эрленмейера", "Чашка Петри", "Пробирка без делений"]), ("Как называется инструмент для переноса небольшого количества жидкости по каплям?", "Пипетка", ["Пипетка", "Стеклянная палочка", "Штатив", "Чашка Петри"])]
-            case 4:
-                elementQuestions = [("Как называется переход жидкости в газ?", "Испарение", ["Испарение", "Замерзание", "Кристаллизация", "Плавление"]), ("Какое изменение обычно является химическим?", "Ржавление железа", ["Ржавление железа", "Таяние льда", "Разрезание бумаги", "Растворение сахара без реакции"])]
-                equipmentQuestions = [("В каком сосуде удобно проводить реакцию с перемешиванием раствора?", "Колба Эрленмейера", ["Колба Эрленмейера", "Чашка Петри", "Часовое стекло", "Пипетка"]), ("Какой предмет используют для измельчения твёрдых веществ?", "Ступка с пестиком", ["Ступка с пестиком", "Мензурка", "Термометр", "Чашка Петри"])]
-            default:
-                elementQuestions = [("Как записывают две молекулы воды?", "2H₂O", ["2H₂O", "H₂O₂", "H₂", "HO₂"]), ("Что показывает нижний индекс в химической формуле?", "Количество атомов данного элемента", ["Количество атомов данного элемента", "Цвет вещества", "Температуру кипения", "Размер пробирки"])]
-                equipmentQuestions = [("Какой предмет используют для переноса нескольких капель жидкости?", "Пипетка", ["Пипетка", "Мензурка", "Ступка", "Чашка Петри"]), ("Для чего нужна мензурка?", "Для измерения объёма жидкости", ["Для измерения объёма жидкости", "Для измерения температуры", "Для измельчения вещества", "Для выращивания культур"])]
-            }
-            bank = (Bool.random() ? elementQuestions : equipmentQuestions)
+            return chemistryQuestionBank().randomElement() ?? Problem(text: "Как называется формула воды?", answer: "H₂O", isTatarChoice: true, tatarChoices: ["H₂O", "CO₂", "O₂", "NaCl"])
         case .informatics:
             switch level {
             case 2:
@@ -2216,6 +2296,12 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.66", date: "12.10.2026", title: "История обновлений, точные иллюстрации и химия", changes: [
+                "История обновлений хранится в приложении как встроенный список версий, а не зависит от локального кэша; старые описания сохраняются при последующих обновлениях.",
+                "ПДД: иллюстрация показывается только для вопросов, для которых распознан конкретный знак или разметка; неизвестный вопрос больше не получает случайную картинку.",
+                "Биология: пингвин и другие организмы получают отдельные узнаваемые иллюстрации; изображение птицы в полёте не используется для пингвина.",
+                "Химия: добавлен банк из 300+ простых вопросов для детей 8–10 лет по веществам, материалам, формулам, элементам и безопасной работе."
+            ]),
             ReleaseNote(version: "1.0.65", date: "12.10.2026", title: "Исправления иллюстраций и ответов", changes: [
                 "ПДД: дорожные знаки рисуются по одному, без наложения друг на друга и без случайного знака-вопроса; исправлены повороты и соответствие формы знака вопросу.",
                 "Орфография: генератор вариантов ответа проверяется на единственный правильный ответ; для заданий на поиск ошибки отдельно создаются правильные и ошибочные варианты.",
@@ -2301,13 +2387,9 @@ struct ContentView: View {
         ]
     }
     private var releaseNotes: [ReleaseNote] {
-        var merged = builtInReleaseNotes
-        if let data = releaseNotesStorage.data(using: .utf8),
-           let saved = try? JSONDecoder().decode([ReleaseNote].self, from: data) {
-            for note in saved where !merged.contains(where: { $0.version == note.version }) {
-                merged.append(note)
-            }
-        }
+        // The bundled list is the source of truth. Local storage is never allowed to replace
+        // or hide release descriptions, so an app update cannot erase the visible history.
+        let merged = builtInReleaseNotes
         // Для одного номера версии всегда оставляем встроенное описание текущего выпуска.
         var byVersion: [String: ReleaseNote] = [:]
         for note in merged { if byVersion[note.version] == nil { byVersion[note.version] = note } }
@@ -2727,7 +2809,7 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 12)
 
-            if selectedSubject == .pdd {
+            if selectedSubject == .pdd && shouldShowPDDIllustration(for: problem.text) {
                 pddIllustration(for: problem.text).padding(.horizontal, 24).padding(.top, 5)
             } else if selectedSubject == .geography && problem.text.localizedCaseInsensitiveContains("флаг") {
                 geographyFlagIllustration(for: problem).padding(.horizontal, 24).padding(.top, 5)
@@ -2965,6 +3047,21 @@ struct ContentView: View {
         }
     }
 
+    private func shouldShowPDDIllustration(for question: String) -> Bool {
+        let q = question.lowercased()
+        let visualTopics = [
+            "светофор", "сигнал", "стоянка запрещена", "остановка запрещена", "въезд запрещ",
+            "главная дорога", "уступите дорогу", "скорост", "числом 40", "число 40",
+            "парков", "буквой p", "велосипед", "круговое движение", "пешеход",
+            "пешеходный переход", "обгон запрещ", "предупреждающий дорожный знак",
+            "дорожный знак", "знак пешеходного перехода", "движение прямо", "поворот направо запрещ",
+            "поворот налево запрещ", "разворот запрещ", "размет", "зебр", "дети",
+            "железнодорож", "дикие животные", "скользкая", "неровност", "крутой спуск",
+            "крутой подъём", "сужение", "дорожные работы", "падение камней"
+        ]
+        return visualTopics.contains(where: { q.contains($0) })
+    }
+
     @ViewBuilder
     private func pddIllustration(for question: String) -> some View {
         let q = question.lowercased()
@@ -3030,6 +3127,10 @@ struct ContentView: View {
                         Image(systemName: "car.side.fill").foregroundStyle(.black)
                         Image(systemName: "car.side.fill").foregroundStyle(red)
                     }.font(.system(size: 20, weight: .black))
+                } else if q.contains("предупреждающий дорожный знак") {
+                    TriangleShape().fill(.white).frame(width: 79, height: 72)
+                    TriangleShape().stroke(red, lineWidth: 7).frame(width: 79, height: 72)
+                    Image(systemName: "exclamationmark").font(.system(size: 32, weight: .black)).foregroundStyle(.black).offset(y: 7)
                 } else if q.contains("дети") || q.contains("железнодорож") || q.contains("дикие животные") || q.contains("скользкая") || q.contains("неровност") || q.contains("крутой спуск") || q.contains("крутой подъём") || q.contains("сужение") || q.contains("дорожные работы") || q.contains("падение камней") {
                     TriangleShape().fill(.white).frame(width: 79, height: 72)
                     TriangleShape().stroke(red, lineWidth: 7).frame(width: 79, height: 72)
@@ -3539,7 +3640,7 @@ struct ContentView: View {
                             .font(.system(size: 31, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 100).padding(15)
                             .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
-                        if olympiadSubject == .pdd {
+                        if olympiadSubject == .pdd && shouldShowPDDIllustration(for: olympiadProblem.text) {
                             pddIllustration(for: olympiadProblem.text)
                         } else if olympiadSubject == .geography && olympiadProblem.text.localizedCaseInsensitiveContains("флаг") {
                             geographyFlagIllustration(for: olympiadProblem)
