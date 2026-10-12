@@ -113,15 +113,21 @@ private struct StudyIllustration: View {
         return Bundle.main.resourceURL?.appendingPathComponent(name).appendingPathExtension("svg")
     }
     private var geometrySymbol: String {
+        // Match the named answer/figure precisely; check rectangle before generic straight-line terms.
         if lower.contains("октаэдр") { return "diamond.fill" }
         if lower.contains("тетраэдр") { return "pyramid.fill" }
         if lower.contains("цилиндр") { return "cylinder" }
         if lower.contains("куб") { return "cube.fill" }
         if lower.contains("конус") { return "cone.fill" }
-        if lower.contains("шар") || lower.contains("круг") || lower.contains("точк") { return "circle.fill" }
+        if lower.contains("шар") { return "circle.fill" }
+        if lower.contains("треуголь") { return "triangle" }
+        if lower.contains("прямоуголь") { return "rectangle" }
+        if lower.contains("квадрат") { return "square" }
+        if lower.contains("ромб") { return "diamond" }
+        if lower.contains("круг") || lower.contains("окруж") || lower.contains("точк") { return "circle" }
         if lower.contains("луч") { return "arrow.right" }
         if lower.contains("отрез") { return "line.3.horizontal" }
-        if lower.contains("прям") { return "arrow.left.and.right" }
+        if lower.contains("прямая") || lower.contains("прямую") { return "arrow.left.and.right" }
         if lower.contains("угол") { return "angle" }
         return "square.on.circle"
     }
@@ -1489,7 +1495,9 @@ struct ProblemGenerator {
             ("Какая фигура похожа на колесо?", "Круг", ["Круг", "Квадрат", "Треугольник", "Ромб"]),
             ("Сколько углов у треугольника?", "Три", ["Три", "Четыре", "Два", "Пять"])
         ]
-        let useIllustration = Bool.random() && level >= 2
+        // Level 1 always introduces 3D solids with a matching picture. Text-only geometry questions
+        // come from the lines bank and never show an unrelated placeholder illustration.
+        let useIllustration = level == 1 || Bool.random()
         let item = (useIllustration ? solids : lines).randomElement()!
         return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: useIllustration)
     }
