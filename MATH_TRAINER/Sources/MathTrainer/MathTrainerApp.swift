@@ -102,7 +102,7 @@ private struct StudyIllustration: View {
                     Image(systemName: symbol).font(.system(size: 58, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(width: 82)
                     VStack(alignment: .leading, spacing: 5) {
                         Text(biologyName ?? "ОБЪЕКТ ИЗУЧЕНИЯ").font(.system(size: 15, weight: .black, design: .rounded)).foregroundStyle(tint).lineLimit(2)
-                        Text("Иллюстрация к этому организму").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(paletteMuted)
+                        Text("Иллюстрация к этому организму").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(tint.opacity(0.78))
                     }
                     Spacer(minLength: 4)
                 }.padding(.horizontal, 14)
@@ -1044,7 +1044,7 @@ struct ProblemGenerator {
                     answer.replacingOccurrences(of: ".", with: ","),
                     answer.replacingOccurrences(of: ":", with: ",")
                 ].filter { $0 != answer }
-                choices = ([answer] + Array(wrongSentences + ["Ошибка: " + answer]).prefix(3)).shuffled()
+                choices = ([answer] + Array(Array(wrongSentences + ["Ошибка: " + answer]).prefix(3))).shuffled()
             } else if answer.count > 3 && !answer.contains(" ") {
                 let chars = Array(answer)
                 let wrong1 = String(chars.enumerated().map { idx, ch in idx == max(0, chars.count / 2) ? (ch == "а" ? "о" : "а") : ch })
@@ -1061,7 +1061,8 @@ struct ProblemGenerator {
             let uniqueWrong = Array(Set(item.2).filter { $0 != answer }).shuffled()
             choices = ([answer] + Array(uniqueWrong.prefix(3))).shuffled()
         }
-        let finalChoices = Array(Set(choices)).count == 4 ? choices : ([answer] + Array(Set(choices).filter { $0 != answer }).prefix(3)).shuffled()
+        let uniqueWrongChoices = Array(Set(choices).filter { $0 != answer }.sorted()).prefix(3)
+        let finalChoices = ([answer] + Array(uniqueWrongChoices)).shuffled()
         return Problem(text: item.0, answer: answer, isTatarChoice: true, tatarChoices: finalChoices)
     }
 
