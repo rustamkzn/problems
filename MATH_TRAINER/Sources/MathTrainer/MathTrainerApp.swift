@@ -144,10 +144,10 @@ private struct StudyIllustration: View {
             if subject == .geometry {
                 VStack(spacing: 3) {
                     if let url = geometrySourceURL, let sourceImage = NSImage(contentsOf: url) {
-                        Image(nsImage: sourceImage).resizable().scaledToFit().frame(maxWidth: 170, maxHeight: 96)
+                        Image(nsImage: sourceImage).resizable().scaledToFit().grayscale(1).contrast(2.2).frame(maxWidth: 170, maxHeight: 96)
                             .accessibilityLabel("Иллюстрация геометрической фигуры из Wikimedia Commons")
                     } else {
-                        Image(systemName: geometrySymbol).font(.system(size: 62, weight: .regular)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(height: 92)
+                        Image(systemName: geometrySymbol).font(.system(size: 62, weight: .regular)).symbolRenderingMode(.monochrome).foregroundStyle(.black).frame(height: 92)
                             .accessibilityLabel("Геометрическая фигура")
                     }
                     Text("ГЕОМЕТРИЧЕСКАЯ ФИГУРА").font(.system(size: 11, weight: .black, design: .rounded)).foregroundStyle(.black)
@@ -1469,37 +1469,70 @@ struct ProblemGenerator {
 
 
     private static func geometryQuestion(level: Int) -> Problem {
+        // 500+ automatically composed text-only tasks. Each question has its own matching answer
+        // choices and explicitly disables illustrations, so an unrelated shape can never appear.
+        let textBank: [(String, String, [String])] = {
+            var bank: [(String, String, [String])] = []
+            let words = ["один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять"]
+            let distractors = { (correct: Int, offsets: [Int]) -> [String] in
+                Array(Set([correct] + offsets.map { max(0, correct + $0) })).sorted().map(String.init)
+            }
+            for n in 1...50 {
+                let squarePerimeter = 4 * n
+                bank.append(("Сторона квадрата равна \(n) см. Чему равен периметр?", "\(squarePerimeter) см", ["\(squarePerimeter) см", "\(squarePerimeter + 2) см", "\(max(1, squarePerimeter - 2)) см", "\(n * 2) см"]))
+                let rectPerimeter = 2 * (n + 2)
+                bank.append(("Длина прямоугольника \(n) см, ширина 2 см. Найди периметр.", "\(rectPerimeter) см", ["\(rectPerimeter) см", "\(n + 2) см", "\(n * 2) см", "\(rectPerimeter + 2) см"]))
+                bank.append(("У равностороннего треугольника сторона \(n) см. Найди периметр.", "\(3 * n) см", ["\(3 * n) см", "\(2 * n) см", "\(4 * n) см", "\(n + 3) см"]))
+                bank.append(("Периметр квадрата равен \(4 * n) см. Чему равна его сторона?", "\(n) см", ["\(n) см", "\(2 * n) см", "\(4 * n) см", "\(n + 4) см"]))
+                bank.append(("Сколько сантиметров в \(n) дм?", "\(n * 10) см", ["\(n * 10) см", "\(n) см", "\(n * 100) см", "\(n + 10) см"]))
+                bank.append(("Сколько миллиметров составляют \(n) сантиметров?", "\(n * 10) мм", ["\(n * 10) мм", "\(n) мм", "\(n * 100) мм", "\(n + 10) мм"]))
+                bank.append(("У многоугольника \(n) вершин. Сколько у него углов?", "\(n)", ["\(n)", "\(max(0, n - 1))", "\(n + 1)", "\(n + 2)"]))
+                bank.append(("Отрезок длиной \(n * 10) см разделили на 10 равных частей. Длина одной части?", "\(n) см", ["\(n) см", "\(n * 10) см", "\(n + 10) см", "\(max(1, n - 1)) см"]))
+                bank.append(("Одна сторона прямоугольника \(n) см, соседняя на 1 см длиннее. Чему равен периметр?", "\(4 * n + 2) см", ["\(4 * n + 2) см", "\(2 * n + 1) см", "\(4 * n) см", "\(2 * n + 2) см"]))
+                bank.append(("Сколько прямых углов у \(n) квадратов вместе?", "\(4 * n)", ["\(4 * n)", "\(2 * n)", "\(n)", "\(3 * n)"]))
+            }
+            // Add clear foundational concept questions, still with no pictures.
+            let concepts: [(String, String, [String])] = [
+                ("Как называется часть прямой с двумя концами?", "Отрезок", ["Отрезок", "Луч", "Прямая", "Окружность"]),
+                ("Как называется линия с началом, но без конца?", "Луч", ["Луч", "Отрезок", "Прямая", "Точка"]),
+                ("Как называется линия, продолжающаяся в обе стороны без конца?", "Прямая", ["Прямая", "Луч", "Отрезок", "Угол"]),
+                ("Как называется фигура из двух лучей с общим началом?", "Угол", ["Угол", "Отрезок", "Круг", "Треугольник"]),
+                ("Сколько сторон у треугольника?", "3", ["3", "2", "4", "5"]),
+                ("Сколько углов у квадрата?", "4", ["4", "3", "5", "6"]),
+                ("Какая фигура не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
+                ("У какой фигуры четыре равные стороны и четыре прямых угла?", "Квадрат", ["Квадрат", "Ромб", "Треугольник", "Круг"]),
+                ("Как называется фигура с тремя сторонами?", "Треугольник", ["Треугольник", "Квадрат", "Круг", "Прямоугольник"]),
+                ("Сколько вершин у прямоугольника?", "4", ["4", "2", "3", "6"]),
+                ("Что длиннее: 1 метр или 50 сантиметров?", "1 метр", ["1 метр", "50 сантиметров", "Одинаково", "Нельзя сравнить"]),
+                ("Какая фигура похожа на колесо, если смотреть прямо?", "Круг", ["Круг", "Квадрат", "Треугольник", "Ромб"]),
+                ("Сколько граней у куба?", "6", ["6", "4", "8", "12"]),
+                ("Сколько вершин у куба?", "8", ["8", "6", "4", "12"]),
+                ("Сколько вершин у треугольной пирамиды (тетраэдра)?", "4", ["4", "3", "5", "6"]),
+                ("Сколько оснований у цилиндра?", "2", ["2", "1", "3", "4"]),
+                ("Как называется объёмная фигура с круглым основанием и одной вершиной?", "Конус", ["Конус", "Цилиндр", "Куб", "Шар"]),
+                ("Как называется объёмная фигура без рёбер и вершин, похожая на мяч?", "Шар", ["Шар", "Куб", "Конус", "Цилиндр"]),
+                ("Какая фигура имеет шесть одинаковых квадратных граней?", "Куб", ["Куб", "Конус", "Цилиндр", "Шар"]),
+                ("Как называется объёмная фигура с двумя круглыми основаниями?", "Цилиндр", ["Цилиндр", "Конус", "Куб", "Пирамида"])
+            ]
+            bank.append(contentsOf: concepts)
+            return bank
+        }()
+        // The 500 generated tasks are text-only. Illustrated tasks are limited to six exact,
+        // supported solids and use the same solid name in the prompt and correct answer.
         let solids: [(String, String, [String])] = [
-            ("Как называется объёмная фигура на картинке?", "Цилиндр", ["Цилиндр", "Куб", "Конус", "Шар"]),
-            ("Как называется объёмная фигура на картинке?", "Октаэдр", ["Октаэдр", "Тетраэдр", "Цилиндр", "Куб"]),
-            ("Как называется объёмная фигура на картинке?", "Тетраэдр", ["Тетраэдр", "Октаэдр", "Конус", "Призма"]),
-            ("Как называется объёмная фигура на картинке?", "Куб", ["Куб", "Цилиндр", "Шар", "Тетраэдр"]),
-            ("Как называется объёмная фигура на картинке?", "Конус", ["Конус", "Цилиндр", "Куб", "Октаэдр"]),
-            ("Как называется объёмная фигура на картинке?", "Шар", ["Шар", "Куб", "Тетраэдр", "Конус"]),
-            ("Сколько граней у куба?", "6", ["6", "4", "8", "12"]), ("Сколько вершин у тетраэдра?", "4", ["4", "6", "8", "12"])
+            ("На рисунке изображён цилиндр. Как называется эта фигура?", "Цилиндр", ["Цилиндр", "Куб", "Конус", "Шар"]),
+            ("На рисунке изображён октаэдр. Как называется эта фигура?", "Октаэдр", ["Октаэдр", "Тетраэдр", "Цилиндр", "Куб"]),
+            ("На рисунке изображён тетраэдр. Как называется эта фигура?", "Тетраэдр", ["Тетраэдр", "Октаэдр", "Конус", "Шар"]),
+            ("На рисунке изображён куб. Как называется эта фигура?", "Куб", ["Куб", "Цилиндр", "Шар", "Тетраэдр"]),
+            ("На рисунке изображён конус. Как называется эта фигура?", "Конус", ["Конус", "Цилиндр", "Куб", "Октаэдр"]),
+            ("На рисунке изображён шар. Как называется эта фигура?", "Шар", ["Шар", "Куб", "Тетраэдр", "Конус"])
         ]
-        let lines: [(String, String, [String])] = [
-            ("Как называется часть прямой с двумя концами?", "Отрезок", ["Отрезок", "Луч", "Точка", "Плоскость"]),
-            ("Как называется линия с началом, но без конца?", "Луч", ["Луч", "Отрезок", "Точка", "Окружность"]),
-            ("Как называется точное положение без размера?", "Точка", ["Точка", "Прямая", "Отрезок", "Угол"]),
-            ("Как называется линия, продолжающаяся в обе стороны?", "Прямая", ["Прямая", "Луч", "Отрезок", "Точка"]),
-            ("Сколько концов у отрезка?", "Два", ["Два", "Один", "Ни одного", "Три"]),
-            ("Как называется фигура из двух лучей с общим началом?", "Угол", ["Угол", "Отрезок", "Точка", "Круг"]),
-            ("Сколько сторон у треугольника?", "Три", ["Три", "Две", "Четыре", "Пять"]),
-            ("Сколько углов у квадрата?", "Четыре", ["Четыре", "Три", "Пять", "Шесть"]),
-            ("Какая фигура не имеет углов?", "Круг", ["Круг", "Квадрат", "Треугольник", "Прямоугольник"]),
-            ("У какой фигуры все стороны равны и четыре угла?", "Квадрат", ["Квадрат", "Треугольник", "Круг", "Овал"]),
-            ("Как называется фигура с тремя сторонами?", "Треугольник", ["Треугольник", "Квадрат", "Круг", "Прямоугольник"]),
-            ("Сколько вершин у прямоугольника?", "Четыре", ["Четыре", "Две", "Три", "Шесть"]),
-            ("Что длиннее: 1 метр или 50 сантиметров?", "1 метр", ["1 метр", "50 сантиметров", "Одинаково", "Нельзя сравнить"]),
-            ("Какая фигура похожа на колесо?", "Круг", ["Круг", "Квадрат", "Треугольник", "Ромб"]),
-            ("Сколько углов у треугольника?", "Три", ["Три", "Четыре", "Два", "Пять"])
-        ]
-        // Level 1 always introduces 3D solids with a matching picture. Text-only geometry questions
-        // come from the lines bank and never show an unrelated placeholder illustration.
-        let useIllustration = level == 1 || Bool.random()
-        let item = (useIllustration ? solids : lines).randomElement()!
-        return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: useIllustration)
+        if level == 1 && Int.random(in: 0..<5) == 0 {
+            let item = solids.randomElement()!
+            return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: true)
+        }
+        let item = textBank.randomElement()!
+        return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: false)
     }
 
     fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
@@ -3709,38 +3742,7 @@ struct ContentView: View {
                         miniStat("Точность", value: "\(store.stats.accuracy)%", icon: "percent", color: Color(red: 0.29, green: 0.57, blue: 0.87))
                     }
                     Divider().overlay(palette.line).padding(.vertical, 3)
-                                VStack(alignment: .leading, spacing: 9) {
-                                    HStack {
-                                        sectionTitle("По дням", icon: "calendar")
-                                        Spacer()
-                                        Button("Все") { selected = .days }
-                                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                                            .foregroundStyle(palette.purple).buttonStyle(.plain)
-                                    }
-                                    if store.stats.days.isEmpty {
-                                        emptyHint("Результаты появятся после первых примеров.")
-                                    } else {
-                                        HStack(spacing: 4) {
-                                            tableHead("Дата занятия", align: .leading)
-                                            tableHead("✓", align: .trailing).frame(width: 26)
-                                            tableHead("×", align: .trailing).frame(width: 26)
-                                            tableHead("Всего", align: .trailing).frame(width: 34)
-                                            tableHead("%", align: .trailing).frame(width: 30)
-                                        }
-                                        ForEach(Array(store.stats.days.prefix(4))) { day in
-                                            HStack(spacing: 4) {
-                                                Text(StatsStore.displayDate(day.date)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.65).frame(maxWidth: .infinity, alignment: .leading)
-                                                Text("\(day.correct)").foregroundStyle(palette.green).frame(width: 26, alignment: .trailing)
-                                                Text("\(day.incorrect)").foregroundStyle(palette.red).frame(width: 26, alignment: .trailing)
-                                                Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 34, alignment: .trailing)
-                                                Text("\(day.accuracy)%").foregroundStyle(palette.purple).frame(width: 30, alignment: .trailing)
-                                            }
-                                            .font(.system(size: 10, weight: .semibold, design: .rounded))
-                                            .padding(.vertical, 5)
-                                        }
-                                    }
-                                }
-                
+
                 }.padding(9).cardStyle(palette)
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -3777,6 +3779,73 @@ struct ContentView: View {
             }
         }
         .scrollIndicators(.hidden)
+    }
+
+    private var dailyHistorySection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            sectionTitle("По дням", icon: "calendar")
+            HStack(spacing: 10) {
+                miniStat("Всего ответов", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
+                miniStat("Верных", value: "\(store.stats.correct)", icon: "checkmark.circle.fill", color: palette.green)
+                miniStat("Ошибок", value: "\(store.stats.incorrect)", icon: "xmark.circle.fill", color: palette.red)
+                miniStat("Точность", value: "\(store.stats.accuracy)%", icon: "percent", color: palette.purple)
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    tableHead("Дата занятия", align: .leading)
+                    tableHead("Верных", align: .trailing).frame(width: 58)
+                    tableHead("Ошибок", align: .trailing).frame(width: 58)
+                    tableHead("Всего", align: .trailing).frame(width: 52)
+                    tableHead("%", align: .trailing).frame(width: 42)
+                }
+                if store.stats.days.isEmpty {
+                    emptyHint("Пока занятий нет. Реши первый пример — здесь появятся результаты по каждому дню.")
+                } else {
+                    ForEach(store.stats.days) { day in
+                        HStack(spacing: 8) {
+                            Text(StatsStore.displayDate(day.date)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.65).frame(maxWidth: .infinity, alignment: .leading)
+                            Text("\(day.correct)").foregroundStyle(palette.green).frame(width: 58, alignment: .trailing)
+                            Text("\(day.incorrect)").foregroundStyle(palette.red).frame(width: 58, alignment: .trailing)
+                            Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 52, alignment: .trailing)
+                            Text("\(day.accuracy)%").foregroundStyle(palette.purple).frame(width: 42, alignment: .trailing)
+                        }
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .padding(.horizontal, 8).padding(.vertical, 7)
+                        .background(palette.cardSurface.opacity(0.55), in: RoundedRectangle(cornerRadius: 9))
+                    }
+                }
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                sectionTitle("История по месяцам", icon: "calendar")
+                if store.monthSummaries.isEmpty {
+                    emptyHint("История появится после первых занятий; завершённые месяцы сохраняются отдельно.")
+                } else {
+                    ForEach(store.monthSummaries) { month in
+                        VStack(alignment: .leading, spacing: 7) {
+                            HStack {
+                                Text(StatsStore.displayMonth(month.monthKey)).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                Spacer()
+                                Text("\(month.accuracy)%").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                            }
+                            HStack(spacing: 10) {
+                                Text("\(month.correct) верно").foregroundStyle(palette.green)
+                                Text("\(month.incorrect) ошибок").foregroundStyle(palette.red)
+                                Spacer(minLength: 0)
+                                Text("Всего: \(month.total)").foregroundStyle(palette.ink)
+                            }.font(.system(size: 10, weight: .semibold, design: .rounded))
+                            HStack {
+                                Text("Лучшая серия: \(month.bestStreak)")
+                                Spacer()
+                                Text("Дней с занятиями: \(month.days.filter { $0.total > 0 }.count)")
+                            }.font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        }
+                        .padding(11).background(palette.cardSurface.opacity(0.55), in: RoundedRectangle(cornerRadius: 11))
+                    }
+                }
+            }
+        }
+        .padding(14)
+        .cardStyle(palette)
     }
 
     private var dailyPreview: some View {
@@ -3822,7 +3891,7 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Твои успехи", subtitle: "Каждый пример помогает стать увереннее 💜")
-                dailyPreview
+                dailyHistorySection
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
                     largeStat("Всего ответов", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
                     largeStat("Правильных ответов", value: "\(store.stats.correct)", icon: "checkmark.circle.fill", color: palette.green)
