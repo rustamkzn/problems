@@ -1630,6 +1630,12 @@ final class StatsStore: ObservableObject {
         if isCorrect {
             stats.correct += 1
             if grantDiamond { stats.diamonds += 1 }
+            if grantDiamond {
+                for milestone in [500, 1000, 1500, 2000, 2500, 3000]
+                    where stats.diamonds >= milestone && !stats.celebratedDiamondMilestones.contains(milestone) {
+                    stats.celebratedDiamondMilestones.append(milestone)
+                }
+            }
             stats.currentStreak += 1
             stats.bestStreak = max(stats.bestStreak, stats.currentStreak)
 
@@ -1658,6 +1664,10 @@ final class StatsStore: ObservableObject {
     func addDiamonds(_ amount: Int) {
         guard amount > 0 else { return }
         stats.diamonds += amount
+        for milestone in [500, 1000, 1500, 2000, 2500, 3000]
+            where stats.diamonds >= milestone && !stats.celebratedDiamondMilestones.contains(milestone) {
+            stats.celebratedDiamondMilestones.append(milestone)
+        }
         persistStats()
     }
 
