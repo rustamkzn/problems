@@ -53,22 +53,24 @@ private struct StudyIllustration: View {
             if lower.contains("кубик") || lower.contains("куб") { return "cube.fill" }
             return "puzzlepiece.extension.fill"
         case .biology:
-            if lower.contains("дельфин") || lower.contains("карась") || lower.contains("рыб") || lower.contains("жабр") { return "fish.fill" }
+            // First match the named organism, not words from the question such as "питается рыбой".
+            if lower.contains("дельфин") { return "water.waves" }
+            if lower.contains("карась") || lower.contains("рыба") || lower.contains("рыб ") { return "fish.fill" }
             if lower.contains("орёл") || lower.contains("пингвин") || lower.contains("птиц") { return "bird.fill" }
-            if lower.contains("бабоч") || lower.contains("пчел") || lower.contains("насеком") { return "ladybug.fill" }
-            if lower.contains("ёж") || lower.contains("крот") || lower.contains("верблюд") || lower.contains("медвед") || lower.contains("млекопитающ") { return "pawprint.fill" }
+            if lower.contains("бабоч") || lower.contains("пчел") { return "ladybug.fill" }
+            if lower.contains("ёж") || lower.contains("крот") || lower.contains("верблюд") || lower.contains("медвед") { return "pawprint.fill" }
             if lower.contains("лягуш") { return "figure.frog" }
             if lower.contains("улит") { return "shell.fill" }
-            if lower.contains("паук") || lower.contains("черв") { return "ant.fill" }
+            if lower.contains("паук") { return "ant.fill" }
+            if lower.contains("дождевой черв") { return "scribble.variable" }
             if lower.contains("сосна") || lower.contains("берёз") || lower.contains("папорот") { return "tree.fill" }
-            if lower.contains("кактус") { return "cactus.fill" }
-            if lower.contains("шампиньон") || lower.contains("гриб") { return "cloud.fill" }
+            if lower.contains("кактус") || lower.contains("растени") || lower.contains("лист") || lower.contains("цвет") { return "leaf.fill" }
+            if lower.contains("шампиньон") || lower.contains("гриб") { return "circle.hexagongrid.fill" }
             if lower.contains("бактери") || lower.contains("микроорганизм") { return "microbe.fill" }
             if lower.contains("дыш") || lower.contains("лёгк") { return "lungs.fill" }
             if lower.contains("серд") || lower.contains("кров") { return "heart.fill" }
-            if lower.contains("мозг") || lower.contains("думать") { return "brain.head.profile.fill" }
-            if lower.contains("растени") || lower.contains("лист") || lower.contains("цвет") { return "leaf.fill" }
-            return "pawprint.fill"
+            if lower.contains("мозг") || lower.contains("думать") { return "brain.head.profile" }
+            return "leaf.fill"
         default:
             if lower.contains("петри") { return "circle.hexagongrid.fill" }
             if lower.contains("мензур") || lower.contains("делени") || lower.contains("объём") { return "testtube.2" }
@@ -85,20 +87,28 @@ private struct StudyIllustration: View {
         default: return Color(red: 0.12, green: 0.55, blue: 0.92)
         }
     }
+    private var biologyName: String? {
+        guard subject == .biology else { return nil }
+        let names = ["дождевой червь", "белый медведь", "дельфин", "карась", "орёл", "лягушка", "бабочка", "пчела", "ёж", "крот", "верблюд", "пингвин", "улитка", "паук", "сосна", "берёза", "кактус", "папоротник", "шампиньон", "бактерия"]
+        return names.first(where: { lower.contains($0) })?.uppercased()
+    }
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(tint.opacity(0.13))
-            Circle()
-                .fill(tint.opacity(0.10))
-                .frame(width: 112, height: 112)
-                .offset(x: 74, y: -24)
-            Image(systemName: symbol)
-                .font(.system(size: 68, weight: .bold))
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(tint)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            RoundedRectangle(cornerRadius: 24, style: .continuous).fill(tint.opacity(0.13))
+            Circle().fill(tint.opacity(0.10)).frame(width: 112, height: 112).offset(x: 74, y: -24)
+            if subject == .biology {
+                HStack(spacing: 18) {
+                    Image(systemName: symbol).font(.system(size: 58, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(width: 82)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(biologyName ?? "ОБЪЕКТ ИЗУЧЕНИЯ").font(.system(size: 15, weight: .black, design: .rounded)).foregroundStyle(tint).lineLimit(2)
+                        Text("Иллюстрация к этому организму").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(paletteMuted)
+                    }
+                    Spacer(minLength: 4)
+                }.padding(.horizontal, 14)
+            } else {
+                Image(systemName: symbol).font(.system(size: 68, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: 118)
@@ -1016,14 +1026,43 @@ struct ProblemGenerator {
         default: questions = level5 + level4
         }
         let item = questions.randomElement()!
-        if item.0.localizedCaseInsensitiveContains("ошиб") || item.0.localizedCaseInsensitiveContains("неправильно") {
+        let prompt = item.0.lowercased()
+        let answer = item.1
+        let choices: [String]
+        if prompt.contains("допущена ошибка") || prompt.contains("слове ошибка") || prompt.contains("слово с ошибкой") || prompt.contains("предложении есть ошибка") {
+            // The keyed answer is the only intentionally incorrect word/sentence; all other options are valid.
             let cleanWords = ["собака", "машина", "жираф", "чайка", "щука", "класс", "деревья", "медведь", "лисица", "солнце", "корова", "щенок", "чувство", "пожалуйста", "морковь", "воробей", "искусство", "берёза", "молоко", "праздник", "апельсин", "ученик", "здравствуйте", "лестница", "снеговик", "аккуратно"]
-            let sentenceDistractors = ["На ветке сидит воробей.", "На столе лежит тетрадь.", "Дети читают интересную книгу.", "За окном светит солнце."]
-            let distractors = (item.0.localizedCaseInsensitiveContains("предложении") ? sentenceDistractors : cleanWords).filter { $0 != item.1 }.shuffled().prefix(3)
-            let prompt = item.0 + " Выбери только один вариант."
-            return Problem(text: prompt, answer: item.1, isTatarChoice: true, tatarChoices: ([item.1] + Array(distractors)).shuffled())
+            let validSentences = ["На ветке сидит воробей.", "На столе лежит тетрадь.", "Дети читают интересную книгу.", "За окном светит солнце."]
+            let pool = prompt.contains("предложении") ? validSentences : cleanWords
+            choices = ([answer] + Array(pool.filter { $0 != answer }.shuffled().prefix(3))).shuffled()
+        } else if prompt.contains("правильно") || prompt.contains("верно") || prompt.contains("без ошибки") || prompt.contains("все слова написаны правильно") {
+            // For "choose the correct spelling" questions, generate three visibly incorrect variants.
+            if answer.contains(" ") && (answer.contains(".") || answer.contains("«") || answer.contains("»") || answer.contains(",") || answer.contains(":")) {
+                let wrongSentences = [
+                    answer.replacingOccurrences(of: ",", with: ""),
+                    answer.replacingOccurrences(of: " ", with: ""),
+                    answer.replacingOccurrences(of: ".", with: ","),
+                    answer.replacingOccurrences(of: ":", with: ",")
+                ].filter { $0 != answer }
+                choices = ([answer] + Array(wrongSentences + ["Ошибка: " + answer]).prefix(3)).shuffled()
+            } else if answer.count > 3 && !answer.contains(" ") {
+                let chars = Array(answer)
+                let wrong1 = String(chars.enumerated().map { idx, ch in idx == max(0, chars.count / 2) ? (ch == "а" ? "о" : "а") : ch })
+                let wrong2 = String(chars.dropLast()) 
+                let wrong3 = String(chars) + String(chars.last ?? "а")
+                let variants = [wrong1, wrong2, wrong3].filter { $0 != answer }
+                choices = ([answer] + Array((variants + ["*" + answer]).prefix(3))).shuffled()
+            } else {
+                let variants = item.2.filter { $0 != answer }
+                choices = ([answer] + Array(variants.prefix(3))).shuffled()
+            }
+        } else {
+            // Letter/grammar questions retain their authored distractors, but duplicates and answer duplicates are removed.
+            let uniqueWrong = Array(Set(item.2).filter { $0 != answer }).shuffled()
+            choices = ([answer] + Array(uniqueWrong.prefix(3))).shuffled()
         }
-        return choiceProblem(item)
+        let finalChoices = Array(Set(choices)).count == 4 ? choices : ([answer] + Array(Set(choices).filter { $0 != answer }).prefix(3)).shuffled()
+        return Problem(text: item.0, answer: answer, isTatarChoice: true, tatarChoices: finalChoices)
     }
 
     fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
@@ -2069,7 +2108,8 @@ private struct Reward3DBadge: View {
             Circle().fill(locked ? Color.gray.opacity(0.13) : tint.opacity(0.16))
             Circle().stroke(locked ? Color.gray.opacity(0.22) : tint.opacity(0.55), lineWidth: max(1.5, size * 0.035)).padding(size * 0.07)
             if locked {
-                Image(systemName: "lock.fill").font(.system(size: size * 0.30, weight: .bold)).foregroundStyle(Color.gray.opacity(0.65))
+                Image(systemName: symbol).font(.system(size: size * 0.40, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(Color.gray.opacity(0.28))
+                Image(systemName: "lock.fill").font(.system(size: size * 0.27, weight: .black)).foregroundStyle(Color.gray.opacity(0.88))
             } else {
                 Image(systemName: symbol).font(.system(size: size * 0.43, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint)
                 Circle().fill(.white.opacity(0.72)).frame(width: size * 0.10, height: size * 0.10).offset(x: -size * 0.22, y: -size * 0.20)
@@ -2175,6 +2215,12 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.65", date: "12.10.2026", title: "Исправления иллюстраций и ответов", changes: [
+                "ПДД: дорожные знаки рисуются по одному, без наложения друг на друга и без случайного знака-вопроса; исправлены повороты и соответствие формы знака вопросу.",
+                "Орфография: генератор вариантов ответа проверяется на единственный правильный ответ; для заданий на поиск ошибки отдельно создаются правильные и ошибочные варианты.",
+                "Биология: иллюстрация теперь привязана к названному организму; название организма видно на самой карточке, а подбор символа больше не зависит от случайных слов вроде «рыбой» в формулировке.",
+                "Награды: у открытых достижений яркие разные цвета, закрытые отмечены серым силуэтом и замком."
+            ]),
             ReleaseNote(version: "1.0.64", date: "12.10.2026", title: "Исправления ПДД, орфографии и олимпиады", changes: [
                 "Восстановлена история обновлений 1.0.30–1.0.63; записи сохраняются по номеру версии, а встроенные описания не затираются сохранёнными данными.",
                 "В ПДД изображения подбираются по смыслу задания: убрана подстановка синего знака с пешеходом для несвязанных вопросов; добавлены отдельные рисунки распространённых знаков.",
@@ -2919,151 +2965,104 @@ struct ContentView: View {
     }
 
     @ViewBuilder
+    @ViewBuilder
     private func pddIllustration(for question: String) -> some View {
-        let lower = question.lowercased()
-        if lower.contains("светофор") || lower.contains("сигнал") {
-            HStack(spacing: 17) {
-                VStack(spacing: 8) {
-                    Circle().fill(Color(red: 1, green: 0.16, blue: 0.18)).frame(width: 27, height: 27)
-                        .opacity(lower.contains("красный") ? 1 : 0.85)
-                    Circle().fill(Color(red: 1, green: 0.78, blue: 0.08)).frame(width: 27, height: 27)
-                    Circle().fill(Color(red: 0.12, green: 0.88, blue: 0.36)).frame(width: 27, height: 27)
-                }
-                .padding(10)
-                .background(Color(red: 0.12, green: 0.13, blue: 0.16), in: RoundedRectangle(cornerRadius: 13))
-                .overlay(RoundedRectangle(cornerRadius: 13).stroke(Color.white.opacity(0.75), lineWidth: 2))
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("СВЕТОФОР").font(.system(size: 13, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Красный — стой").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(Color(red: 0.95, green: 0.19, blue: 0.23))
-                    Text("Жёлтый — приготовься").font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(Color(red: 0.95, green: 0.62, blue: 0.03))
-                    Text("Зелёный — иди, если безопасно").font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(Color(red: 0.08, green: 0.65, blue: 0.27))
-                }
-                Spacer(minLength: 0)
-            }
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
-        } else if lower.contains("пешеходный переход") && !lower.contains("запрещено") {
+        let q = question.lowercased()
+        let red = Color(red: 0.88, green: 0.07, blue: 0.13)
+        let blue = Color(red: 0.05, green: 0.31, blue: 0.78)
+        let dark = Color(red: 0.12, green: 0.14, blue: 0.18)
+        VStack(spacing: 7) {
             ZStack {
-                RoundedRectangle(cornerRadius: 8).fill(Color(red: 0.08, green: 0.34, blue: 0.82)).frame(width: 74, height: 66)
-                RoundedRectangle(cornerRadius: 5).stroke(.white, lineWidth: 2).frame(width: 64, height: 56)
-                Image(systemName: "figure.walk").font(.system(size: 29, weight: .bold)).foregroundStyle(.white)
-            }
-            .frame(maxWidth: .infinity).padding(.vertical, 8)
-            .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
-        } else if lower.contains("зебр") || (lower.contains("переход") && !lower.contains("знак")) {
-            VStack(spacing: 7) {
-                HStack(spacing: 8) {
-                    ForEach(0..<7, id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: 2).fill(.white).frame(width: 16, height: 55)
-                    }
-                }
-                Text("ПЕШЕХОДНЫЙ ПЕРЕХОД").font(.system(size: 10, weight: .black, design: .rounded)).tracking(0.6).foregroundStyle(.white)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-            .background(Color(red: 0.16, green: 0.18, blue: 0.21), in: RoundedRectangle(cornerRadius: 13))
-            .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
-        } else if lower.contains("размет") || lower.contains("сплошная линия") || lower.contains("стоп-линия") || lower.contains("полос") {
-            VStack(spacing: 8) {
-                ZStack(alignment: .top) {
-                    RoundedRectangle(cornerRadius: 12).fill(Color(red: 0.15, green: 0.17, blue: 0.20))
-                    VStack(spacing: 7) {
-                        if lower.contains("стоп-линия") {
-                            Rectangle().fill(.white).frame(height: 7).padding(.horizontal, 8).padding(.top, 13)
+                RoundedRectangle(cornerRadius: 15).fill(dark)
+                // Each branch draws exactly one sign. No generic base sign is drawn underneath.
+                if q.contains("светофор") || q.contains("сигнал") {
+                    HStack(spacing: 9) {
+                        ForEach([Color(red: 0.96, green: 0.12, blue: 0.16), Color(red: 1, green: 0.73, blue: 0.05), Color(red: 0.10, green: 0.78, blue: 0.30)], id: \.self) { color in
+                            Circle().fill(color).frame(width: 31, height: 31).overlay(Circle().stroke(.white.opacity(0.75), lineWidth: 1.5))
                         }
-                        HStack(spacing: 9) {
-                            ForEach(0..<6, id: \.self) { _ in
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(lower.contains("сплошная") ? .white : Color(red: 1, green: 0.83, blue: 0.20))
-                                    .frame(width: 23, height: lower.contains("сплошная") ? 5 : 4)
-                            }
-                        }.frame(maxWidth: .infinity).padding(.top, lower.contains("стоп-линия") ? 4 : 22)
                     }
-                }.frame(height: 66)
-                Text(lower.contains("стоп-линия") ? "СТОП-ЛИНИЯ" : "ДОРОЖНАЯ РАЗМЕТКА")
-                    .font(.system(size: 10, weight: .black, design: .rounded)).tracking(0.5).foregroundStyle(palette.ink)
-            }
-            .padding(8)
-            .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
-        } else {
-            HStack(spacing: 16) {
-                if lower.contains("предупреждающ") || lower.contains("треугольник") {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 64, weight: .black))
-                        .foregroundStyle(Color(red: 1, green: 0.78, blue: 0.08))
-                        .frame(width: 92, height: 80)
-                        .background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
-                } else if lower.contains("стоянка запрещена") {
-                    ZStack {
-                        Circle().fill(Color(red: 0.06, green: 0.27, blue: 0.75)).frame(width: 68, height: 68)
-                        Circle().stroke(Color(red: 0.88, green: 0.08, blue: 0.14), lineWidth: 7).frame(width: 68, height: 68)
-                        Rectangle().fill(Color(red: 0.88, green: 0.08, blue: 0.14)).frame(width: 66, height: 7).rotationEffect(.degrees(-35))
-                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
-                } else if lower.contains("остановка запрещена") {
-                    ZStack {
-                        Circle().fill(Color(red: 0.06, green: 0.27, blue: 0.75)).frame(width: 68, height: 68)
-                        Circle().stroke(Color(red: 0.88, green: 0.08, blue: 0.14), lineWidth: 7).frame(width: 68, height: 68)
-                        Rectangle().fill(Color(red: 0.88, green: 0.08, blue: 0.14)).frame(width: 66, height: 7)
-                        Rectangle().fill(Color(red: 0.88, green: 0.08, blue: 0.14)).frame(width: 7, height: 66)
-                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
-                } else if lower.contains("лежач") || lower.contains("неровност") {
-                    ZStack {
-                        TriangleShape().fill(.white).frame(width: 70, height: 64)
-                        TriangleShape().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 7).frame(width: 70, height: 64)
-                        Image(systemName: "car.side.fill").font(.system(size: 24, weight: .black)).foregroundStyle(.black).offset(y: 8)
-                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
-                } else if lower.contains("скорост") || lower.contains("числом 40") {
-                    ZStack {
-                        Circle().fill(.white).frame(width: 68, height: 68)
-                        Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
-                        Text(lower.contains("40") ? "40" : (lower.contains("60") ? "60" : "50")).font(.system(size: 25, weight: .black, design: .rounded)).foregroundStyle(.black)
-                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
-                } else if lower.contains("круглый") || lower.contains("красной каймой") || lower.contains("запрет") || lower.contains("обгон") || lower.contains("въезд") || lower.contains("стоянк") || lower.contains("остановк") || lower.contains("скорост") || lower.contains("парков") || lower.contains("главная дорога") || lower.contains("движение") || lower.contains("тоннель") || lower.contains("автомагистраль") || lower.contains("круговое") || lower.contains("тупик") || lower.contains("объезд") || lower.contains("ограничение") || lower.contains("подъём") || lower.contains("спуск") || lower.contains("сужение") || lower.contains("животные") || lower.contains("камней") || lower.contains("работы") || lower.contains("железнодорож") || lower.contains("дети") || lower.contains("велосипед") || lower.contains("знак") || lower.contains("пешеход") {
-                    ZStack {
-                        Circle().fill(lower.contains("въезд запрещ") ? Color(red: 0.88, green: 0.06, blue: 0.12) : Color.white).frame(width: 68, height: 68)
-                        Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
-                        if lower.contains("главная дорога") {
-                            RoundedRectangle(cornerRadius: 4).fill(Color(red: 0.96, green: 0.76, blue: 0.08)).frame(width: 52, height: 52).rotationEffect(.degrees(45)).overlay(RoundedRectangle(cornerRadius: 3).stroke(.white, lineWidth: 5).frame(width: 42, height: 42).rotationEffect(.degrees(45)))
-                        } else if lower.contains("велосипедная дорожка") {
-                            Circle().fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 68, height: 68).overlay(Image(systemName: "bicycle").font(.system(size: 31, weight: .bold)).foregroundStyle(.white))
-                        } else if lower.contains("круговое движение") {
-                            Circle().fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 68, height: 68).overlay(Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 32, weight: .black)).foregroundStyle(.white))
-                        } else if lower.contains("дети") || lower.contains("железнодорож") || lower.contains("дикие животные") || lower.contains("падение камней") || lower.contains("дорожные работы") || lower.contains("крутой подъём") || lower.contains("крутой спуск") || lower.contains("сужение дороги") {
-                            ZStack { TriangleShape().fill(.white).frame(width: 70, height: 64); TriangleShape().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 7).frame(width: 70, height: 64); Image(systemName: lower.contains("дети") ? "figure.2" : (lower.contains("железнодорож") ? "tram.fill" : (lower.contains("дикие животные") ? "pawprint.fill" : "exclamationmark"))).font(.system(size: 24, weight: .black)).foregroundStyle(.black).offset(y: 7) }
-                        } else if lower.contains("парков") || lower.contains("буквой p") {
-                            RoundedRectangle(cornerRadius: 8).fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 68, height: 68).overlay(Text("P").font(.system(size: 37, weight: .black)).foregroundStyle(.white))
-                        } else if lower.contains("въезд запрещ") {
-                            Rectangle().fill(.white).frame(width: 45, height: 7)
-                        } else if lower.contains("пешеход") {
-                            Image(systemName: "figure.walk").font(.system(size: 30, weight: .bold)).foregroundStyle(.black)
-                            Rectangle().fill(Color(red: 0.90, green: 0.08, blue: 0.12)).frame(width: 50, height: 6).rotationEffect(.degrees(-45))
-                        } else if lower.contains("буквой p") || lower.contains("парков") {
-                            Text("P").font(.system(size: 34, weight: .black)).foregroundStyle(.blue)
-                        } else {
-                            Rectangle().fill(Color(red: 0.90, green: 0.08, blue: 0.12)).frame(width: 48, height: 7).rotationEffect(.degrees(-35))
-                        }
-                    }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                } else if q.contains("стоянка запрещена") {
+                    Circle().fill(.white).frame(width: 72, height: 72)
+                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
+                    Rectangle().fill(red).frame(width: 60, height: 7).rotationEffect(.degrees(-45))
+                } else if q.contains("остановка запрещена") {
+                    Circle().fill(.white).frame(width: 72, height: 72)
+                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
+                    Rectangle().fill(red).frame(width: 61, height: 7)
+                    Rectangle().fill(red).frame(width: 7, height: 61)
+                } else if q.contains("въезд запрещ") {
+                    Circle().fill(red).frame(width: 72, height: 72)
+                    Rectangle().fill(.white).frame(width: 47, height: 8)
+                } else if q.contains("главная дорога") {
+                    RoundedRectangle(cornerRadius: 3).fill(.white).frame(width: 59, height: 59)
+                    RoundedRectangle(cornerRadius: 2).fill(Color(red: 0.98, green: 0.78, blue: 0.08)).frame(width: 48, height: 48).rotationEffect(.degrees(45))
+                    RoundedRectangle(cornerRadius: 2).stroke(.white, lineWidth: 2).frame(width: 36, height: 36).rotationEffect(.degrees(45))
+                } else if q.contains("уступите дорогу") {
+                    TriangleShape().fill(red).frame(width: 78, height: 72).rotationEffect(.degrees(180))
+                        .overlay(TriangleShape().fill(.white).frame(width: 59, height: 53).rotationEffect(.degrees(180)))
+                } else if q.contains("скорост") || q.contains("числом 40") || q.contains("число 40") {
+                    Circle().fill(.white).frame(width: 72, height: 72)
+                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
+                    let speed = ["20", "30", "40", "50", "60", "70", "80", "90", "100"].first(where: { q.contains($0) }) ?? "40"
+                    Text(speed).font(.system(size: 24, weight: .black, design: .rounded)).foregroundStyle(.black)
+                } else if q.contains("парков") || q.contains("буквой p") {
+                    RoundedRectangle(cornerRadius: 7).fill(blue).frame(width: 72, height: 72)
+                    Text("P").font(.system(size: 44, weight: .black, design: .rounded)).foregroundStyle(.white)
+                } else if q.contains("велосипед") {
+                    Circle().fill(blue).frame(width: 72, height: 72)
+                    Image(systemName: "bicycle").font(.system(size: 36, weight: .bold)).foregroundStyle(.white)
+                } else if q.contains("круговое движение") {
+                    Circle().fill(blue).frame(width: 72, height: 72)
+                    Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 37, weight: .black)).foregroundStyle(.white)
+                } else if q.contains("пешеход") && (q.contains("запрещ") || q.contains("нельзя")) {
+                    Circle().fill(.white).frame(width: 72, height: 72)
+                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
+                    Image(systemName: "figure.walk").font(.system(size: 32, weight: .bold)).foregroundStyle(.black)
+                    Rectangle().fill(red).frame(width: 63, height: 7).rotationEffect(.degrees(-45))
+                } else if q.contains("пешеходный переход") || q.contains("знак пешеходного перехода") {
+                    RoundedRectangle(cornerRadius: 6).fill(blue).frame(width: 76, height: 76)
+                    RoundedRectangle(cornerRadius: 3).stroke(.white, lineWidth: 2).frame(width: 64, height: 64)
+                    Image(systemName: "figure.walk").font(.system(size: 35, weight: .bold)).foregroundStyle(.white)
+                } else if q.contains("обгон запрещ") {
+                    Circle().fill(.white).frame(width: 72, height: 72)
+                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
+                    HStack(spacing: 1) {
+                        Image(systemName: "car.side.fill").foregroundStyle(.black)
+                        Image(systemName: "car.side.fill").foregroundStyle(red)
+                    }.font(.system(size: 20, weight: .black))
+                } else if q.contains("дети") || q.contains("железнодорож") || q.contains("дикие животные") || q.contains("скользкая") || q.contains("неровност") || q.contains("крутой спуск") || q.contains("крутой подъём") || q.contains("сужение") || q.contains("дорожные работы") || q.contains("падение камней") {
+                    TriangleShape().fill(.white).frame(width: 79, height: 72)
+                    TriangleShape().stroke(red, lineWidth: 7).frame(width: 79, height: 72)
+                    let symbol = q.contains("дети") ? "figure.2" : (q.contains("железнодорож") ? "tram.fill" : (q.contains("животные") ? "pawprint.fill" : (q.contains("неровност") ? "car.side.fill" : (q.contains("работ") ? "figure.construction" : "exclamationmark"))))
+                    Image(systemName: symbol).font(.system(size: 29, weight: .black)).foregroundStyle(.black).offset(y: 7)
+                } else if q.contains("движение прямо") {
+                    Circle().fill(blue).frame(width: 72, height: 72)
+                    Image(systemName: "arrow.up").font(.system(size: 39, weight: .black)).foregroundStyle(.white)
+                } else if q.contains("поворот направо запрещ") || q.contains("поворот налево запрещ") || q.contains("разворот запрещ") {
+                    Circle().fill(.white).frame(width: 72, height: 72)
+                    Circle().stroke(red, lineWidth: 7).frame(width: 72, height: 72)
+                    Image(systemName: q.contains("направо") ? "arrow.turn.up.right" : (q.contains("налево") ? "arrow.turn.up.left" : "arrow.uturn.backward")).font(.system(size: 28, weight: .black)).foregroundStyle(.black)
+                    Rectangle().fill(red).frame(width: 64, height: 6).rotationEffect(.degrees(-45))
+                } else if q.contains("размет") || q.contains("зебр") || (q.contains("переход") && !q.contains("знак")) {
+                    HStack(spacing: 7) { ForEach(0..<6, id: \.self) { _ in RoundedRectangle(cornerRadius: 2).fill(.white).frame(width: 17, height: 51) } }
                 } else {
-                    ZStack {
-                        if lower.contains("пешеход") { RoundedRectangle(cornerRadius: 13).fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 80, height: 70); Image(systemName: "figure.walk").font(.system(size: 39, weight: .bold)).foregroundStyle(.white) }
-                        else { RoundedRectangle(cornerRadius: 13).fill(Color.white).frame(width: 80, height: 70); Image(systemName: "questionmark").font(.system(size: 32, weight: .black)).foregroundStyle(.gray) }
-                    }.frame(width: 92, height: 80)
-                        .background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
+                    // For non-sign safety questions show a crossing scene, never a question-mark placeholder.
+                    HStack(spacing: 16) {
+                        Image(systemName: "figure.walk").font(.system(size: 38, weight: .bold)).foregroundStyle(.white)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("БЕЗОПАСНОСТЬ").font(.system(size: 12, weight: .black, design: .rounded)).foregroundStyle(.white)
+                            Text("Смотри по сторонам").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(.white.opacity(0.85))
+                        }
+                    }
                 }
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("ДОРОЖНЫЕ ЗНАКИ").font(.system(size: 12, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Посмотри на форму, цвет и символ знака.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                }
-                Spacer(minLength: 0)
             }
-            .padding(8)
-            .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.line, lineWidth: 1))
+            .frame(height: 104)
+            .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color.white.opacity(0.22), lineWidth: 1))
+            Text("ИЛЛЮСТРАЦИЯ К ЗАДАНИЮ").font(.system(size: 10, weight: .black, design: .rounded)).tracking(0.5).foregroundStyle(palette.muted)
         }
+        .padding(8)
+        .background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(palette.line, lineWidth: 1))
     }
 
     private var tatarChoiceGrid: some View {
@@ -4190,6 +4189,21 @@ struct ContentView: View {
         }
     }
 
+    private func rewardTint(for id: String) -> Color {
+        let colors: [Color] = [
+            Color(red: 0.96, green: 0.25, blue: 0.38),
+            Color(red: 0.98, green: 0.55, blue: 0.12),
+            Color(red: 0.93, green: 0.73, blue: 0.12),
+            Color(red: 0.12, green: 0.68, blue: 0.39),
+            Color(red: 0.08, green: 0.62, blue: 0.83),
+            Color(red: 0.35, green: 0.42, blue: 0.96),
+            Color(red: 0.65, green: 0.32, blue: 0.92),
+            Color(red: 0.94, green: 0.30, blue: 0.67)
+        ]
+        let index = id.unicodeScalars.reduce(0) { $0 + Int($1.value) } % colors.count
+        return colors[index]
+    }
+
     private func achievementSymbol(for id: String) -> String {
         switch id {
         case "first-answer": return "leaf.fill"
@@ -4216,10 +4230,10 @@ struct ContentView: View {
     private func achievementCard(_ item: Achievement) -> some View {
         let unlocked = unlockedAchievementIDs.contains(item.id)
         return HStack(alignment: .top, spacing: 10) {
-            Reward3DBadge(symbol: achievementSymbol(for: item.id), tint: unlocked ? palette.purple : palette.muted, size: 64, locked: !unlocked)
+            Reward3DBadge(symbol: achievementSymbol(for: item.id), tint: unlocked ? rewardTint(for: item.id) : Color.gray, size: 64, locked: !unlocked)
                 .frame(width: 82, height: 82)
-                .background(LinearGradient(colors: unlocked ? [palette.pink.opacity(0.35), palette.lilac.opacity(0.35)] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(unlocked ? palette.purple : palette.line, lineWidth: 1.5))
+                .background(LinearGradient(colors: unlocked ? [rewardTint(for: item.id).opacity(0.38), rewardTint(for: item.id).opacity(0.10)] : [Color.gray.opacity(0.12), palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(unlocked ? rewardTint(for: item.id) : Color.gray.opacity(0.35), lineWidth: unlocked ? 2.2 : 1.2))
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text(item.detail).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
