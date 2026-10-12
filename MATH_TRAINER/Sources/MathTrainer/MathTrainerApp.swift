@@ -20,8 +20,8 @@ private struct PeriodicElementTile: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(element.2)").font(.system(size: 13, weight: .bold, design: .rounded))
                 Spacer(minLength: 0)
-                Text(element.0).font(.system(size: 42, weight: .black, design: .rounded))
-                Text(element.1).font(.system(size: 12, weight: .bold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
+                Text(prompt.localizedCaseInsensitiveContains("символ у элемента") ? "?" : element.0).font(.system(size: 42, weight: .black, design: .rounded))
+                Text(prompt.localizedCaseInsensitiveContains("символ у элемента") ? "Символ скрыт" : (prompt.localizedCaseInsensitiveContains("элемент с символом") ? "Название скрыто" : element.1)).font(.system(size: 12, weight: .bold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
             }
             .foregroundStyle(Color(red: 0.08, green: 0.25, blue: 0.48))
             .padding(12).frame(width: 112, height: 106, alignment: .leading)
@@ -737,7 +737,7 @@ struct ProblemGenerator {
             : ["Ответь на вопрос: %@", "Выбери научно верное утверждение: %@", "Проверь свои знания. %@", "Как правильно ответить? %@", "Биологический вопрос: %@", "Какой ответ верен? %@", "Выбери точный ответ: %@", "Вспомни биологию: %@", "Подумай и ответь: %@", "Что известно об этом организме? %@", "Выбери правильный вариант. %@", "Проверь биологические знания: %@", "Какое утверждение подходит? %@", "Ответь, опираясь на факты: %@", "Найди верный биологический ответ: %@", "Определи верное утверждение: %@", "Что нужно знать об организме? %@", "Какой вариант научно точен? %@", "Выбери ответ без ошибки: %@", "Проверь себя по биологии: %@", "Как верно описать организм? %@", "Какое объяснение правильное? %@", "Выбери подходящий ответ: %@", "Небольшая проверка знаний: %@", "Как ответить на этот вопрос? %@", "Найди правильное описание: %@", "Какой факт соответствует вопросу? %@", "Внимательно прочитай и ответь: %@", "Выбери правильный факт: %@", "Биология вокруг нас: %@"][Int.random(in: 0...29)]
         let finalPrompt = String(format: phrasing, prompt)
         _ = variant
-        return Problem(text: finalPrompt, answer: answer, isTatarChoice: true, tatarChoices: Array(choices))
+        return Problem(text: finalPrompt, answer: answer, isTatarChoice: true, tatarChoices: Array(choices), showIllustration: illustrated)
     }
 
     private static func choiceProblem(_ item: (String, String, [String])) -> Problem {
@@ -3010,6 +3010,9 @@ struct ContentView: View {
                         Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
                         if lower.contains("въезд запрещ") {
                             Rectangle().fill(.white).frame(width: 45, height: 7)
+                        } else if lower.contains("пешеход") {
+                            Image(systemName: "figure.walk").font(.system(size: 30, weight: .bold)).foregroundStyle(.black)
+                            Rectangle().fill(Color(red: 0.90, green: 0.08, blue: 0.12)).frame(width: 50, height: 6).rotationEffect(.degrees(-45))
                         } else if lower.contains("буквой p") || lower.contains("парков") {
                             Text("P").font(.system(size: 34, weight: .black)).foregroundStyle(.blue)
                         } else {
@@ -3401,7 +3404,7 @@ struct ContentView: View {
                             Text("💎 +100 алмазов 💎")
                                 .font(.system(size: 30, weight: .heavy, design: .rounded))
                                 .foregroundStyle(palette.purple)
-                            Text("Ты решил все 50 заданий за отведённое время. Большая награда уже добавлена в магазин!")
+                            Text("Ты решил все \(olympiadTargetCount) заданий за отведённое время. Большая награда уже добавлена в магазин!")
                                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                                 .foregroundStyle(palette.muted).multilineTextAlignment(.center)
                         } else {
