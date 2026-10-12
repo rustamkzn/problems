@@ -2419,9 +2419,27 @@ struct ContentView: View {
         // The bundled list is the source of truth. Local storage is never allowed to replace
         // or hide release descriptions, so an app update cannot erase the visible history.
         let merged = builtInReleaseNotes
-        // Для одного номера версии всегда оставляем встроенное описание текущего выпуска.
+        // Сохраняем все известные описания, затем гарантированно добавляем каждый номер сборки
+        // от 1.0.1 до установленной версии. Для старых пропусков честно отмечаем, что описание
+        // не сохранилось, вместо того чтобы придумывать содержание обновления.
         var byVersion: [String: ReleaseNote] = [:]
         for note in merged { if byVersion[note.version] == nil { byVersion[note.version] = note } }
+        let installedVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.1"
+        let versionParts = installedVersion.split(separator: ".").compactMap { Int($0) }
+        let currentBuild = versionParts.count >= 3 && versionParts[0] == 1 && versionParts[1] == 0 ? versionParts[2] : 1
+        if currentBuild >= 1 {
+            for build in 1...currentBuild {
+                let version = "1.0.\\(build)"
+                if byVersion[version] == nil {
+                    byVersion[version] = ReleaseNote(
+                        version: version,
+                        date: "—",
+                        title: "История выпуска",
+                        changes: ["Номер версии сохранён, чтобы история была полной.", "Подробное описание изменений этого выпуска не сохранилось в текущем списке релизов."]
+                    )
+                }
+            }
+        }
         let sorted = Array(byVersion.values).sorted { lhs, rhs in
             let l = lhs.version.split(separator: ".").compactMap { Int($0) }
             let r = rhs.version.split(separator: ".").compactMap { Int($0) }
