@@ -213,7 +213,7 @@ private struct StudyIllustration: View {
     }
 }
 
-struct Problem {
+struct Problem: Codable {
     let text: String
     let answer: String
     let isComparison: Bool
@@ -1521,6 +1521,11 @@ struct ProblemGenerator {
             ("Перпендикулярные прямые", ["Перпендикулярные прямые", "Параллельные прямые", "Кривая", "Луч"]),
             ("Параллельные прямые", ["Параллельные прямые", "Перпендикулярные прямые", "Отрезок", "Кривая"]),
             ("Угол", ["Угол", "Круг", "Точка", "Овал"]),
+            ("Прямой угол", ["Прямой угол", "Острый угол", "Тупой угол", "Круг"]),
+            ("Острый угол", ["Острый угол", "Прямой угол", "Тупой угол", "Отрезок"]),
+            ("Тупой угол", ["Тупой угол", "Острый угол", "Прямой угол", "Прямая"]),
+            ("Ромб", ["Ромб", "Квадрат", "Трапеция", "Овал"]),
+            ("Параллелограмм", ["Параллелограмм", "Трапеция", "Круг", "Треугольник"]),
             ("Пятиугольник", ["Пятиугольник", "Шестиугольник", "Треугольник", "Квадрат"]),
             ("Шестиугольник", ["Шестиугольник", "Пятиугольник", "Круг", "Трапеция"]),
             ("Призма", ["Призма", "Куб", "Конус", "Цилиндр"]),
@@ -1530,9 +1535,12 @@ struct ProblemGenerator {
             ("Шар", ["Шар", "Куб", "Цилиндр", "Конус"]),
             ("Пирамида", ["Пирамида", "Призма", "Цилиндр", "Шар"])
         ]
-        if Int.random(in: 0..<2) == 0 {
+        // Примерно 3 из 4 заданий — визуальные; правильный ответ принудительно входит в варианты.
+        if Int.random(in: 0..<4) != 0 {
             let item = illustrated.randomElement()!
-            return Problem(text: "", answer: item.0, isTatarChoice: true, tatarChoices: item.1.shuffled(), showIllustration: true)
+            let wrong = Array(Set(item.1).filter { $0 != item.0 }).shuffled()
+            let choices = ([item.0] + Array(wrong.prefix(3))).shuffled()
+            return Problem(text: "", answer: item.0, isTatarChoice: true, tatarChoices: choices, showIllustration: true)
         }
         let item = textBank.randomElement()!
         return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: false)
@@ -2643,6 +2651,8 @@ private struct ReleaseNote: Codable, Identifiable {
 struct ContentView: View {
     @AppStorage("MathTrainer.Theme") private var themeName = AppTheme.lilac.rawValue
     @AppStorage("MathTrainer.SelectedSubject") private var selectedSubjectName = StudySubject.math.rawValue
+    @AppStorage("MathTrainer.CurrentProblem.v1") private var savedProblemJSON = ""
+    @AppStorage("MathTrainer.CurrentProblemSubject.v1") private var savedProblemSubject = ""
     @AppStorage("MathTrainer.UnlockedAchievements") private var unlockedAchievementStorage = ""
     @AppStorage("MathTrainer.AchievementThresholdsVersion") private var achievementThresholdsVersion = 0
     @AppStorage("MathTrainer.CorrectQuestions") private var correctQuestionStorage = "{}"
@@ -2736,6 +2746,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.120", date: "12.10.2026", title: "Восстановление задания, геометрия и награды", changes: ["После повторного запуска восстанавливается последний выбранный предмет и последнее задание.", "Увеличена доля заданий по геометрии с иллюстрациями; добавлены ромб, параллелограмм и виды углов.", "Исправлена подготовка вариантов ответа в заданиях с рисунками: правильный ответ гарантированно включён в варианты.", "Заголовок «Коллекция достижений» перенесён над восемью карточками наград.", "Исправлена генерация недостающих номеров в истории версий; сохранены подробные описания известных выпусков."]),
             ReleaseNote(version: "1.0.119", date: "12.10.2026", title: "Больше геометрии и ускорение магазина", changes: ["В геометрию добавлено больше заданий-картинок без текстового условия: плоские фигуры, линии, точка, луч, отрезок, кривая, пунктир, параллельные и перпендикулярные прямые, призма и другие объёмные тела.", "Сокращено количество вопросов по дм и см; добавлены простые задачи на периметр квадрата, прямоугольника и треугольника.", "В наградах теперь восемь рубежей накопления алмазов: от 500 до 4000 с шагом 500.", "Упрощён рендер закрытых товаров в магазине, чтобы снизить нагрузку при прокрутке большого каталога.", "Сохранена полная история версий, включая записи 1.0.101–1.0.118."]),
             ReleaseNote(version: "1.0.118", date: "12.10.2026", title: "Исправлена геометрия, история версий и статистика", changes: ["Восстановлена полная история выпусков: сохранены записи 1.0.101–1.0.111 и все более ранние описания.", "Вопросы по объёмным фигурам показывают соответствующие исходные SVG-иллюстрации из Wikimedia Commons, включённые в приложение для работы офлайн.", "Изображение выбирается по правильному ответу; текстовые задания по геометрии не показывают несоответствующие картинки.", "Блок «По дням» удалён со страницы заданий и помещён внутрь «Статистики».", "Добавлены вопросы по геометрии без картинок для начальных классов."]),
             ReleaseNote(version: "1.0.117", date: "12.10.2026", title: "Восстановление истории версий", changes: ["Восстановлены записи версий 1.0.100 и ниже из предыдущего исходного кода.", "Исправлена структура встроенного списка истории, из-за которой одна из промежуточных сборок не компилировалась.", "Сборка запущена повторно после исправления."]),
@@ -2885,7 +2896,7 @@ struct ContentView: View {
         let currentBuild = versionParts.count >= 3 && versionParts[0] == 1 && versionParts[1] == 0 ? versionParts[2] : 1
         if currentBuild >= 1 {
             for build in 1...currentBuild {
-                let version = "1.0.\\(build)"
+                let version = "1.0.\(build)"
                 if byVersion[version] == nil {
                     byVersion[version] = ReleaseNote(
                         version: version,
@@ -2960,7 +2971,18 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 1180, minHeight: 760)
-        .onAppear { prepareShopPrices(); prepareAchievementThresholds(); persistReleaseNotes(); store.refreshMonthIfNeeded(); lastMouseLocation = NSEvent.mouseLocation; lastMouseMovementAt = Date(); answerFocused = true }
+        .onAppear { prepareShopPrices(); prepareAchievementThresholds(); persistReleaseNotes(); restoreCurrentProblem(); store.refreshMonthIfNeeded(); lastMouseLocation = NSEvent.mouseLocation; lastMouseMovementAt = Date(); answerFocused = true }
+        .onChange(of: problem.answer) { _, _ in persistCurrentProblem() }
+        .onChange(of: problem.text) { _, _ in persistCurrentProblem() }
+        .onChange(of: problem.tatarChoices) { _, _ in persistCurrentProblem() }
+        .onChange(of: selectedSubjectName) { _, newValue in
+            guard savedProblemSubject != newValue, let subject = StudySubject(rawValue: newValue) else { return }
+            problem = makeUniqueProblem(for: subject)
+            currentTip = ProblemGenerator.tip(for: subject, problem: problem)
+            answer = ""
+            answerState = .neutral
+            persistCurrentProblem()
+        }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in tickTimers() }
         .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
             store.refreshMonthIfNeeded()
@@ -4388,7 +4410,9 @@ struct ContentView: View {
                     ProgressView(value: Double(levelProgress), total: 25).tint(palette.purple)
                     Text("До уровня \(levelNumber + 1): ещё \(25 - levelProgress) ответов").font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(18).cardStyle(palette)
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 10) {
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("Коллекция достижений", icon: "rosette")
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 10) {
                     medalCard("🥉", title: "500 алмазов", detail: "Накопи 500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(500) ? 500 : min(store.stats.diamonds, 500), goal: 500, color: Color(red: 0.78, green: 0.49, blue: 0.30))
                     medalCard("🥈", title: "1000 алмазов", detail: "Накопи 1000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(1000) ? 1000 : min(store.stats.diamonds, 1000), goal: 1000, color: Color(red: 0.68, green: 0.73, blue: 0.80))
                     medalCard("🥇", title: "1500 алмазов", detail: "Накопи 1500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(1500) ? 1500 : min(store.stats.diamonds, 1500), goal: 1500, color: Color(red: 0.95, green: 0.72, blue: 0.22))
@@ -4397,6 +4421,7 @@ struct ContentView: View {
                     medalCard("🏆", title: "3000 алмазов", detail: "Накопи 3000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(3000) ? 3000 : min(store.stats.diamonds, 3000), goal: 3000, color: Color(red: 0.55, green: 0.42, blue: 0.88))
                     medalCard("💎", title: "3500 алмазов", detail: "Накопи 3500 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(3500) ? 3500 : min(store.stats.diamonds, 3500), goal: 3500, color: Color(red: 0.25, green: 0.72, blue: 0.91))
                     medalCard("👑", title: "4000 алмазов", detail: "Накопи 4000 алмазов", progress: store.stats.celebratedDiamondMilestones.contains(4000) ? 4000 : min(store.stats.diamonds, 4000), goal: 4000, color: Color(red: 0.92, green: 0.58, blue: 0.25))
+                    }
                 }
                 Button { openShop() } label: {
                     Label("Открыть магазин коллекционных игрушек", systemImage: "storefront.fill")
@@ -4405,7 +4430,7 @@ struct ContentView: View {
                         .background(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .leading, endPoint: .trailing), in: Capsule())
                 }.buttonStyle(.plain)
                 VStack(alignment: .leading, spacing: 12) {
-                    sectionTitle("Коллекция достижений", icon: "rosette")
+                    sectionTitle("Полученные достижения", icon: "rosette")
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(AchievementCatalog.all.filter { unlockedAchievementIDs.contains($0.id) }) { item in achievementCard(item) }
                     }
@@ -5257,6 +5282,29 @@ struct ContentView: View {
         answer = ""
         answerState = .neutral
         answerFocused = true
+        persistCurrentProblem()
+    }
+
+    private func persistCurrentProblem() {
+        guard let data = try? JSONEncoder().encode(problem),
+              let json = String(data: data, encoding: .utf8) else { return }
+        savedProblemJSON = json
+        savedProblemSubject = selectedSubjectName
+    }
+
+    private func restoreCurrentProblem() {
+        if savedProblemSubject == selectedSubjectName,
+           let data = savedProblemJSON.data(using: .utf8),
+           let saved = try? JSONDecoder().decode(Problem.self, from: data) {
+            problem = saved
+            currentTip = ProblemGenerator.tip(for: selectedSubject, problem: saved)
+        } else {
+            problem = makeUniqueProblem(for: selectedSubject)
+            currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
+            persistCurrentProblem()
+        }
+        answer = ""
+        answerState = .neutral
     }
 
     private func triggerCelebration(_ reward: String) {
