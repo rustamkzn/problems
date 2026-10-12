@@ -939,6 +939,126 @@ struct ProblemGenerator {
             ("Какой химический элемент обозначен символом Br?", "Бром", ["Бор","Бериллий","Барий"]),
             ("Какой химический элемент обозначен символом Mn?", "Марганец", ["Магний","Медь","Молибден"]),
         ]
+        let periodicElements: [(String, String)] = [
+            ("H", "Водород"),
+            ("He", "Гелий"),
+            ("Li", "Литий"),
+            ("Be", "Бериллий"),
+            ("B", "Бор"),
+            ("C", "Углерод"),
+            ("N", "Азот"),
+            ("O", "Кислород"),
+            ("F", "Фтор"),
+            ("Ne", "Неон"),
+            ("Na", "Натрий"),
+            ("Mg", "Магний"),
+            ("Al", "Алюминий"),
+            ("Si", "Кремний"),
+            ("P", "Фосфор"),
+            ("S", "Сера"),
+            ("Cl", "Хлор"),
+            ("Ar", "Аргон"),
+            ("K", "Калий"),
+            ("Ca", "Кальций"),
+            ("Sc", "Скандий"),
+            ("Ti", "Титан"),
+            ("V", "Ванадий"),
+            ("Cr", "Хром"),
+            ("Mn", "Марганец"),
+            ("Fe", "Железо"),
+            ("Co", "Кобальт"),
+            ("Ni", "Никель"),
+            ("Cu", "Медь"),
+            ("Zn", "Цинк"),
+            ("Ga", "Галлий"),
+            ("Ge", "Германий"),
+            ("As", "Мышьяк"),
+            ("Se", "Селен"),
+            ("Br", "Бром"),
+            ("Kr", "Криптон"),
+            ("Rb", "Рубидий"),
+            ("Sr", "Стронций"),
+            ("Y", "Иттрий"),
+            ("Zr", "Цирконий"),
+            ("Nb", "Ниобий"),
+            ("Mo", "Молибден"),
+            ("Tc", "Технеций"),
+            ("Ru", "Рутений"),
+            ("Rh", "Родий"),
+            ("Pd", "Палладий"),
+            ("Ag", "Серебро"),
+            ("Cd", "Кадмий"),
+            ("In", "Индий"),
+            ("Sn", "Олово"),
+            ("Sb", "Сурьма"),
+            ("Te", "Теллур"),
+            ("I", "Йод"),
+            ("Xe", "Ксенон"),
+            ("Cs", "Цезий"),
+            ("Ba", "Барий"),
+            ("La", "Лантан"),
+            ("Ce", "Церий"),
+            ("Pr", "Празеодим"),
+            ("Nd", "Неодим"),
+            ("Pm", "Прометий"),
+            ("Sm", "Самарий"),
+            ("Eu", "Европий"),
+            ("Gd", "Гадолиний"),
+            ("Tb", "Тербий"),
+            ("Dy", "Диспрозий"),
+            ("Ho", "Гольмий"),
+            ("Er", "Эрбий"),
+            ("Tm", "Тулий"),
+            ("Yb", "Иттербий"),
+            ("Lu", "Лютеций"),
+            ("Hf", "Гафний"),
+            ("Ta", "Тантал"),
+            ("W", "Вольфрам"),
+            ("Re", "Рений"),
+            ("Os", "Осмий"),
+            ("Ir", "Иридий"),
+            ("Pt", "Платина"),
+            ("Au", "Золото"),
+            ("Hg", "Ртуть"),
+            ("Tl", "Таллий"),
+            ("Pb", "Свинец"),
+            ("Bi", "Висмут"),
+            ("Po", "Полоний"),
+            ("At", "Астат"),
+            ("Rn", "Радон"),
+            ("Fr", "Франций"),
+            ("Ra", "Радий"),
+            ("Ac", "Актиний"),
+            ("Th", "Торий"),
+            ("Pa", "Протактиний"),
+            ("U", "Уран"),
+            ("Np", "Нептуний"),
+            ("Pu", "Плутоний"),
+            ("Am", "Америций"),
+            ("Cm", "Кюрий"),
+            ("Bk", "Берклий"),
+            ("Cf", "Калифорний"),
+            ("Es", "Эйнштейний"),
+            ("Fm", "Фермий"),
+            ("Md", "Менделевий"),
+            ("No", "Нобелий"),
+            ("Lr", "Лоуренсий"),
+            ("Rf", "Резерфордий"),
+            ("Db", "Дубний"),
+            ("Sg", "Сиборгий"),
+            ("Bh", "Борий"),
+            ("Hs", "Хассий"),
+            ("Mt", "Мейтнерий"),
+            ("Ds", "Дармштадтий"),
+            ("Rg", "Рентгений"),
+            ("Cn", "Коперниций"),
+            ("Nh", "Нихоний"),
+            ("Fl", "Флеровий"),
+            ("Mc", "Московий"),
+            ("Lv", "Ливерморий"),
+            ("Ts", "Теннессин"),
+            ("Og", "Оганесон")
+        ]
         let framings = [
             "Вопрос по химии: %@",
             "Выбери правильный ответ: %@",
@@ -954,13 +1074,11 @@ struct ProblemGenerator {
                 bank.append(Problem(text: String(format: framing, question), answer: answer, isTatarChoice: true, tatarChoices: choices))
             }
         }
-        // Make periodic-table symbol questions appear regularly instead of being lost in the full bank.
-        let elementQuestions = bank.filter {
-            let text = $0.text.lowercased()
-            return text.contains("символ") || text.contains("химический элемент") || text.contains("периодической таблице")
-        }
-        if !elementQuestions.isEmpty && Int.random(in: 0..<100) < 60 {
-            return [elementQuestions.randomElement()!]
+        // Все 118 элементов доступны в заданиях: символ в вопросе, четыре русских названия в ответах.
+        if Int.random(in: 0..<100) < 70, let element = periodicElements.randomElement(), let index = periodicElements.firstIndex(where: { $0.0 == element.0 }) {
+            let distractorIndexes = [(index + 7) % periodicElements.count, (index + 19) % periodicElements.count, (index + 37) % periodicElements.count]
+            let choices = ([element.1] + distractorIndexes.map { periodicElements[$0].1 }).shuffled()
+            return [Problem(text: "Какой химический элемент обозначен символом \(element.0)?", answer: element.1, isTatarChoice: true, tatarChoices: choices)]
         }
         return bank
     }
@@ -2131,7 +2249,7 @@ private enum AchievementCatalog {
             let id: String
             let title: String
             let detail: String
-            let emojis = ["🏅", "🌈", "🚀", "🦄", "💎", "🧠", "🌟", "🐉", "🎯", "👑"]
+            let emojis = ["🏅", "🌈", "🦄", "🐉", "🎯", "👑", "🪁", "🎨", "🎸", "🎹", "🎺", "🥁", "🎻", "🎲", "🧩", "🪄", "🧿", "🔮", "🪬", "🪷", "🌻", "🌼", "🌺", "🌷", "🌹", "🪻", "🍀", "🌴", "🌵", "🌲", "🌳", "🍄", "🌾", "🌿", "🍁", "🍂", "🍃", "🌙", "☀️", "🌤️", "🌦️", "🌧️", "⛈️", "❄️", "☃️", "🌊", "🔥", "⚡️", "☄️", "🪐", "🌍", "🌎", "🌏", "🌋", "🏔️", "⛰️", "🏕️", "🏝️", "🏜️", "🏖️", "🛸", "🚀", "🛰️", "✈️", "🚁", "🚂", "🚲", "🛶", "⛵", "🚤", "🚢", "🚗", "🚕", "🚌", "🚎", "🚓", "🚑", "🚒", "🚜", "🏎️", "🏍️", "🛵", "🚠", "🚡", "🛞", "⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎳", "🏓", "🏸", "🥊", "🥋", "⛸️"]
             switch number {
             case 1...25:
                 let goal = number * 25
@@ -4212,10 +4330,10 @@ struct ContentView: View {
     }
 
     private func prepareAchievementThresholds() {
-        guard achievementThresholdsVersion < 2 else { return }
-        // Re-open the achievement track under the new, higher thresholds.
+        guard achievementThresholdsVersion < 3 else { return }
+        // Сбрасываем коллекцию, чтобы новые пороги по алмазам начинались заново.
         unlockedAchievementStorage = ""
-        achievementThresholdsVersion = 2
+        achievementThresholdsVersion = 3
     }
 
     private func prepareShopPrices() {
@@ -4516,7 +4634,7 @@ struct ContentView: View {
         return HStack(spacing: 9) {
             Collectible3DView(id: item.id, title: item.title, size: 82, animated: unlocked && item.isRare)
                 .frame(width: 99, height: 99)
-                .background(LinearGradient(colors: [palette.pink.opacity(0.25), palette.palePink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
+                .background(LinearGradient(colors: [palette.pink.opacity(0.12), palette.palePink.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 18))
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(palette.purple.opacity(0.75), lineWidth: 1.5))
             VStack(alignment: .leading, spacing: 3) {
                 Text(unlocked ? item.title : "Секретная находка").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -4528,28 +4646,15 @@ struct ContentView: View {
     }
     private func unlockEligibleAchievements() -> [Achievement] {
         let already = unlockedAchievementIDs
-        let newly = AchievementCatalog.all.filter { item in
-            guard !already.contains(item.id) else { return false }
-            switch item.id {
-            case "first-answer": return store.stats.total >= 2
-            case "ten-correct": return store.stats.correct >= 50
-            case "twenty-correct": return store.stats.correct >= 100
-            case "fifty-correct": return store.stats.correct >= 200
-            case "five-streak": return store.stats.bestStreak >= 20
-            case "fifteen-streak": return store.stats.bestStreak >= 40
-            case "twenty-streak": return store.stats.bestStreak >= 60
-            case "daily-solver": return today.total >= 60
-            case "three-days": return store.stats.days.filter { $0.total > 0 }.count >= 10
-            case "five-days": return store.stats.days.filter { $0.total > 0 }.count >= 20
-            case "perfect-ten": return store.stats.total >= 50 && store.stats.accuracy == 100
-            case "accuracy-90": return store.stats.total >= 200 && store.stats.accuracy >= 90
-            case "hundred-answers": return store.stats.total >= 500
-            case "five-hundred-answers": return store.stats.total >= 2000
-            case "diamond-100": return store.stats.diamonds >= 300
-            default: return isExtraAchievementUnlocked(item.id)
-            }
+        let diamonds = store.stats.diamonds
+        let newly = AchievementCatalog.all.enumerated().compactMap { index, item -> Achievement? in
+            guard !already.contains(item.id) else { return nil }
+            let requiredDiamonds = 50 + index * 20
+            return diamonds >= requiredDiamonds ? item : nil
         }
-        if !newly.isEmpty { unlockedAchievementStorage = already.union(newly.map(\.id)).sorted().joined(separator: ",") }
+        if !newly.isEmpty {
+            unlockedAchievementStorage = already.union(newly.map(\.id)).sorted().joined(separator: ",")
+        }
         return newly
     }
     private func isExtraAchievementUnlocked(_ id: String) -> Bool {
