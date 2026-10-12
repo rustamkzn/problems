@@ -72,6 +72,18 @@ private struct StudyIllustration: View {
             if lower.contains("мозг") || lower.contains("думать") { return "brain.head.profile" }
             return "leaf.fill"
         default:
+            if subject == .geometry {
+                if lower.contains("цилиндр") { return "cylinder" }
+                if lower.contains("октаэдр") { return "diamond.fill" }
+                if lower.contains("тетраэдр") { return "pyramid.fill" }
+                if lower.contains("куб") { return "cube.fill" }
+                if lower.contains("конус") { return "cone.fill" }
+                if lower.contains("шар") { return "sphere.fill" }
+                if lower.contains("луч") || lower.contains("прямая") { return "arrow.left.and.right" }
+                if lower.contains("отрез") { return "line.3.horizontal" }
+                if lower.contains("точк") { return "circle.fill" }
+                if lower.contains("угол") { return "angle" }
+            }
             if lower.contains("петри") { return "circle.hexagongrid.fill" }
             if lower.contains("мензур") || lower.contains("делени") || lower.contains("объём") { return "testtube.2" }
             if lower.contains("пипет") || lower.contains("капля") || lower.contains("переноса небольш") { return "eyedropper.full" }
@@ -84,6 +96,7 @@ private struct StudyIllustration: View {
         switch subject {
         case .logic: return Color(red: 0.48, green: 0.31, blue: 0.94)
         case .biology: return Color(red: 0.10, green: 0.68, blue: 0.42)
+        case .geometry: return Color(red: 0.15, green: 0.47, blue: 0.91)
         default: return Color(red: 0.12, green: 0.55, blue: 0.92)
         }
     }
@@ -266,6 +279,7 @@ struct ProblemGenerator {
         case .geography: hints = ["Найди ключевое слово: страна, столица, материк, море или река.", "Посмотри на порядок цветов флага.", "Остров со всех сторон окружён водой, а река течёт по руслу.", "Океан больше моря."]
         case .logic: hints = ["Найди закономерность между числами или фигурами.", "Проверь, что меняется от шага к шагу.", "Исключи варианты, которые нарушают условие."]
         case .biology: hints = ["Вспомни, чем живые организмы отличаются от неживых объектов.", "Сопоставь строение организма с его функцией.", "Подумай о среде обитания и питании."]
+        case .geometry: hints = ["Посмотри на число граней, рёбер и вершин.", "У цилиндра два круглых основания.", "У луча есть начало, а у отрезка — два конца."]
         }
         return hints.randomElement() ?? "Внимательно прочитай условие и проверь ответ."
     }
@@ -1411,6 +1425,29 @@ struct ProblemGenerator {
         return Problem(text: item.0, answer: answer, isTatarChoice: true, tatarChoices: finalChoices)
     }
 
+
+    private static func geometryQuestion(level: Int) -> Problem {
+        let solids: [(String, String, [String])] = [
+            ("Как называется объёмная фигура на картинке?", "Цилиндр", ["Цилиндр", "Куб", "Конус", "Шар"]),
+            ("Как называется объёмная фигура на картинке?", "Октаэдр", ["Октаэдр", "Тетраэдр", "Цилиндр", "Куб"]),
+            ("Как называется объёмная фигура на картинке?", "Тетраэдр", ["Тетраэдр", "Октаэдр", "Конус", "Призма"]),
+            ("Как называется объёмная фигура на картинке?", "Куб", ["Куб", "Цилиндр", "Шар", "Тетраэдр"]),
+            ("Как называется объёмная фигура на картинке?", "Конус", ["Конус", "Цилиндр", "Куб", "Октаэдр"]),
+            ("Как называется объёмная фигура на картинке?", "Шар", ["Шар", "Куб", "Тетраэдр", "Конус"]),
+            ("Сколько граней у куба?", "6", ["6", "4", "8", "12"]), ("Сколько вершин у тетраэдра?", "4", ["4", "6", "8", "12"])
+        ]
+        let lines: [(String, String, [String])] = [
+            ("Как называется часть прямой с двумя концами?", "Отрезок", ["Отрезок", "Луч", "Точка", "Плоскость"]),
+            ("Как называется линия с началом, но без конца?", "Луч", ["Луч", "Отрезок", "Точка", "Окружность"]),
+            ("Как называется точное положение без размера?", "Точка", ["Точка", "Прямая", "Отрезок", "Угол"]),
+            ("Как называется линия, продолжающаяся в обе стороны?", "Прямая", ["Прямая", "Луч", "Отрезок", "Точка"]),
+            ("Сколько концов у отрезка?", "Два", ["Два", "Один", "Ни одного", "Три"]),
+            ("Как называется фигура из двух лучей с общим началом?", "Угол", ["Угол", "Отрезок", "Точка", "Круг"])
+        ]
+        let item = (level == 1 || Bool.random() ? solids : lines).randomElement()!
+        return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: true)
+    }
+
     fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
         let bank: [(String, String, [String])]
         switch subject {
@@ -1418,6 +1455,7 @@ struct ProblemGenerator {
         case .pdd: return trafficQuestion(level: level)
         case .orthography: return orthographyQuestion(level: level)
         case .geography: return geographyQuestion(level: level)
+        case .geometry: return geometryQuestion(level: level)
         case .logic:
             bank = [("Продолжи ряд: 2, 4, 6, 8, …", "10", ["10", "9", "12", "14"]), ("Что лишнее: круг, квадрат, треугольник, яблоко?", "Яблоко", ["Яблоко", "Круг", "Квадрат", "Треугольник"]), ("У Маши 3 яблока, у Пети на 2 больше. Сколько у Пети?", "5", ["5", "1", "6", "8"]), ("Продолжи ряд: 1, 3, 5, 7, …", "9", ["9", "8", "10", "11"]), ("Если сегодня среда, какой день будет через 2 дня?", "Пятница", ["Пятница", "Четверг", "Суббота", "Воскресенье"]), ("Какой фигуры не хватает: круг, квадрат, круг, квадрат, …?", "Круг", ["Круг", "Треугольник", "Звезда", "Прямоугольник"]), ("У ряда фигур число углов увеличивается: 3, 4, 5, … Сколько углов у следующей?", "6", ["6", "5", "7", "8"]), ("На столе 4 красных и 2 синих кубика. Сколько всего кубиков?", "6", ["6", "5", "7", "8"]), ("Что тяжелее: килограмм ваты или килограмм железа?", "Одинаково", ["Одинаково", "Вата", "Железо", "Нельзя сравнить"]) ]
         case .biology:
@@ -1498,6 +1536,7 @@ struct ProblemGenerator {
     fileprivate static func next(for subject: StudySubject, difficulty: Int = 1) -> Problem {
         if subject == .logic { return logicQuestion(level: difficulty) }
         if subject == .biology { return biologyQuestion(level: difficulty, illustrated: false) }
+        if subject == .geometry { return geometryQuestion(level: difficulty) }
         if subject == .chemistry { return chemistryQuestionBank().randomElement() ?? Problem(text: "Как называется формула воды?", answer: "H₂O", isTatarChoice: true, tatarChoices: ["H₂O", "CO₂", "O₂", "NaCl"]) }
         if subject == .math { return next(difficulty: difficulty) }
         if difficulty > 1 && Int.random(in: 0...99) < 70,
@@ -1515,6 +1554,8 @@ struct ProblemGenerator {
             return orthographyQuestion(level: 1)
         case .geography:
             return geographyQuestion(level: 1)
+        case .geometry:
+            return geometryQuestion(level: difficulty)
         case .logic, .biology:
             let bank: [(String, String, [String])]
             if subject == .logic {
@@ -2213,6 +2254,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
     case geography = "География"
     case logic = "Логика"
     case biology = "Биология"
+    case geometry = "Геометрия"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -2229,6 +2271,7 @@ private enum StudySubject: String, CaseIterable, Identifiable {
         case .geography: "globe.americas.fill"
         case .logic: "brain.head.profile"
         case .biology: "leaf"
+        case .geometry: "cube.transparent.fill"
         }
     }
 }
@@ -2603,6 +2646,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.100", date: "12.10.2026", title: "Геометрия и улучшенные коллекционные игрушки", changes: ["Добавлен предмет «Геометрия» с картинками объёмных тел и заданиями о точке, прямой, луче и отрезке.", "Замок увеличен втрое, закрытые игрушки затемнены сильнее.", "Выпадающий список предметов стал выше."]),
             ReleaseNote(version: "1.0.99", date: "12.10.2026", title: "Сохраняем историю и обновляем коллекционные игрушки", changes: ["История обновлений закреплена как единый список: новая запись добавляется отдельной версией, а описания предыдущих выпусков не заменяются.", "Убраны повторяющиеся изображения игрушек и обновлены редкие коллекционные персонажи уникальными значками.", "Закрытые игрушки сильнее затемнены и скрыты за замком, но остаются различимыми по силуэту."]),
             ReleaseNote(version: "1.0.98", date: "12.10.2026", title: "Коллекционные игрушки, копирование и химия в быту", changes: ["Игрушки получили единый современный стиль с яркими персонажами и более прозрачным фоном; закрытые игрушки видны под замком.", "В журнале версий можно выделять и копировать текст, а у задания есть кнопка копирования вопроса и вариантов ответа.", "В химию добавлены вопросы о железе, кислороде, алюминии, меди и других элементах в бытовых предметах."]),
             ReleaseNote(version: "1.0.97", date: "12.10.2026", title: "Химия: исправление банка элементов", changes: ["Список вопросов о символах элементов помещён внутрь банка химии; каждый вопрос предлагает четыре русских названия.", "Исправлены разделители массива химических заданий." ]),
@@ -2794,6 +2838,7 @@ struct ContentView: View {
             }
             .background(palette.cardSurface.opacity(palette.isDark ? 0.96 : 0.72), in: RoundedRectangle(cornerRadius: 25))
             .overlay(RoundedRectangle(cornerRadius: 25).stroke(.white.opacity(0.94), lineWidth: 1.2))
+            .onTapGesture { if showSubjectPicker { showSubjectPicker = false } }
             .clipShape(RoundedRectangle(cornerRadius: 25))
             .contrast(screenContrast)
             .padding(13)
@@ -3061,7 +3106,7 @@ struct ContentView: View {
             .padding(.horizontal, 7).padding(.vertical, 10)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 690)
+        .frame(height: 740)
         .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
         .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 2))
         .shadow(color: palette.purple.opacity(0.22), radius: 10, x: 0, y: 5)
@@ -4340,10 +4385,11 @@ struct ContentView: View {
                 } else {
                     ZStack {
                         Collectible3DView(id: item.id, title: item.title, size: item.isRare ? 112 : 94, animated: false)
-                            .saturation(0.25)
-                            .opacity(0.28)
+                            .saturation(0.05)
+                            .opacity(0.10)
+                            .blur(radius: 1.5)
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 21, weight: .black))
+                            .font(.system(size: 63, weight: .black))
                             .foregroundStyle(.white)
                             .padding(11)
                             .background(palette.purple.opacity(0.98), in: Circle())
@@ -4358,7 +4404,7 @@ struct ContentView: View {
                         .foregroundStyle(gold)
                         .padding(7)
                 } else if !owned {
-                    Image(systemName: "lock.fill").font(.system(size: 12, weight: .black)).foregroundStyle(.white)
+                    Image(systemName: "lock.fill").font(.system(size: 36, weight: .black)).foregroundStyle(.white)
                         .padding(8).background(palette.purple.opacity(0.98), in: Circle()).overlay(Circle().stroke(.white.opacity(0.9), lineWidth: 1)).padding(6)
                 }
             }
@@ -4840,6 +4886,10 @@ struct ContentView: View {
             return "Ищи закономерность, внимательно проверь каждое условие и исключи варианты, которые противоречат последовательности."
         case .biology:
             return "Вспомни основные признаки живых организмов, функции органов и потребности растений и животных."
+        case .geometry:
+            if lower.contains("луч") { return "Луч начинается в одной точке и продолжается в одном направлении." }
+            if lower.contains("отрез") { return "У отрезка есть два конца; длину можно измерить линейкой." }
+            return "Определи форму тела и посчитай грани, рёбра или вершины."
         }
     }
 
@@ -4850,8 +4900,9 @@ struct ContentView: View {
             // Только задания, в которых условие действительно связано с фигурами.
             return text.contains("фигур") || text.contains("угл") || text.contains("круг") || text.contains("квадрат") || text.contains("кубик") || text.contains("куб")
         case .biology:
-            // По запросу пользователя биология работает только в текстовом режиме.
             return false
+        case .geometry:
+            return true
         case .chemistry:
             // Символы элементов и формулы остаются текстовыми заданиями.
             // Иллюстрации появляются только в отдельной группе вопросов о лабораторной посуде.
