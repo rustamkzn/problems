@@ -845,6 +845,14 @@ struct ProblemGenerator {
                 bank.append(Problem(text: String(format: framing, question), answer: answer, isTatarChoice: true, tatarChoices: choices))
             }
         }
+        // Make periodic-table symbol questions appear regularly instead of being lost in the full bank.
+        let elementQuestions = bank.filter {
+            let text = $0.text.lowercased()
+            return text.contains("символ") || text.contains("химический элемент") || text.contains("периодической таблице")
+        }
+        if !elementQuestions.isEmpty && Int.random(in: 0..<100) < 60 {
+            return [elementQuestions.randomElement()!]
+        }
         return bank
     }
 
@@ -2222,6 +2230,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.Theme") private var themeName = AppTheme.lilac.rawValue
     @AppStorage("MathTrainer.SelectedSubject") private var selectedSubjectName = StudySubject.math.rawValue
     @AppStorage("MathTrainer.UnlockedAchievements") private var unlockedAchievementStorage = ""
+    @AppStorage("MathTrainer.AchievementThresholdsVersion") private var achievementThresholdsVersion = 0
     @AppStorage("MathTrainer.RandomCollectibles") private var randomCollectiblesStorage = ""
     @AppStorage("MathTrainer.ShopPurchases") private var shopPurchasesStorage = ""
     @AppStorage("MathTrainer.ShopPrices.v3") private var shopPricesStorage = ""
@@ -2435,6 +2444,19 @@ struct ContentView: View {
         var byVersion: [String: ReleaseNote] = [:]
         for note in merged { if byVersion[note.version] == nil { byVersion[note.version] = note } }
         let installedVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.1"
+        if byVersion[installedVersion] == nil {
+            byVersion[installedVersion] = ReleaseNote(
+                version: installedVersion,
+                date: Bundle.main.infoDictionary?["AppReleaseDate"] as? String ?? "—",
+                title: "Исправления коллекции, наград и химии",
+                changes: [
+                    "Коллекция достижений показывает только полученные награды; пороги получения увеличены, старые отметки сброшены для честного повторного открытия.",
+                    "Карточки наград выровнены, а фон открытых обычных игрушек стал почти прозрачным.",
+                    "Химия: вопросы о символах элементов периодической таблицы возвращены в регулярную ротацию без картинок.",
+                    "История версий формируется с учётом установленной сборки, чтобы актуальный выпуск не пропадал."
+                ]
+            )
+        }
         let versionParts = installedVersion.split(separator: ".").compactMap { Int($0) }
         let currentBuild = versionParts.count >= 3 && versionParts[0] == 1 && versionParts[1] == 0 ? versionParts[2] : 1
         if currentBuild >= 1 {
@@ -2513,7 +2535,7 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 1180, minHeight: 760)
-        .onAppear { prepareShopPrices(); persistReleaseNotes(); store.refreshMonthIfNeeded(); lastMouseLocation = NSEvent.mouseLocation; lastMouseMovementAt = Date(); answerFocused = true }
+        .onAppear { prepareShopPrices(); prepareAchievementThresholds(); persistReleaseNotes(); store.refreshMonthIfNeeded(); lastMouseLocation = NSEvent.mouseLocation; lastMouseMovementAt = Date(); answerFocused = true }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in tickTimers() }
         .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
             store.refreshMonthIfNeeded()
@@ -3908,7 +3930,7 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Коллекция достижений", icon: "rosette")
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        ForEach(AchievementCatalog.all) { item in achievementCard(item) }
+                        ForEach(AchievementCatalog.all.filter { unlockedAchievementIDs.contains($0.id) }) { item in achievementCard(item) }
                     }
                 }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
@@ -4022,7 +4044,7 @@ struct ContentView: View {
                     LinearGradient(
                         colors: item.isRare
                             ? [Color(red: 1.0, green: 0.97, blue: 0.82), Color(red: 0.98, green: 0.82, blue: 0.48)]
-                            : [palette.line.opacity(0.5), palette.palePink],
+                            : (owned ? [palette.line.opacity(0.035), palette.palePink.opacity(0.045)] : [palette.line.opacity(0.5), palette.palePink]),
                         startPoint: .topLeading, endPoint: .bottomTrailing
                     )
                 )
@@ -4091,6 +4113,13 @@ struct ContentView: View {
         )
         .overlay(RoundedRectangle(cornerRadius: 19).stroke(item.isRare ? gold.opacity(0.8) : palette.line.opacity(0.7), lineWidth: item.isRare ? 2 : 1))
         .shadow(color: item.isRare ? gold.opacity(0.16) : palette.purple.opacity(0.035), radius: item.isRare ? 10 : 8, y: 3)
+    }
+
+    private func prepareAchievementThresholds() {
+        guard achievementThresholdsVersion < 2 else { return }
+        // Re-open the achievement track under the new, higher thresholds.
+        unlockedAchievementStorage = ""
+        achievementThresholdsVersion = 2
     }
 
     private func prepareShopPrices() {
@@ -4367,11 +4396,15 @@ struct ContentView: View {
     private func achievementCard(_ item: Achievement) -> some View {
         let unlocked = unlockedAchievementIDs.contains(item.id)
         return HStack(alignment: .top, spacing: 10) {
-            Text(item.emoji)
-                .font(.system(size: 43))
-                .frame(width: 82, height: 82)
-                .background(LinearGradient(colors: unlocked ? [rewardTint(for: item.id).opacity(0.38), rewardTint(for: item.id).opacity(0.10)] : [Color.gray.opacity(0.12), palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 19))
-                .overlay(RoundedRectangle(cornerRadius: 19).stroke(unlocked ? rewardTint(for: item.id) : Color.gray.opacity(0.35), lineWidth: unlocked ? 2.2 : 1.2))
+            ZStack {
+                RoundedRectangle(cornerRadius: 19)
+                    .fill(LinearGradient(colors: unlocked ? [rewardTint(for: item.id).opacity(0.38), rewardTint(for: item.id).opacity(0.10)] : [Color.gray.opacity(0.12), palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing))
+                Text(item.emoji)
+                    .font(.system(size: 43))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            }
+            .frame(width: 82, height: 82)
+            .overlay(RoundedRectangle(cornerRadius: 19).stroke(unlocked ? rewardTint(for: item.id) : Color.gray.opacity(0.35), lineWidth: unlocked ? 2.2 : 1.2))
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title).font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text(item.detail).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
