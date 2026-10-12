@@ -100,13 +100,25 @@ private struct StudyIllustration: View {
         default: return Color(red: 0.12, green: 0.55, blue: 0.92)
         }
     }
+    private var geometrySourceURL: URL? {
+        // Bundled Wikimedia Commons SVGs; match the figure by the answer appended to the prompt.
+        let name: String
+        if lower.contains("цилиндр") { name = "geometry-cylinder" }
+        else if lower.contains("октаэдр") { name = "geometry-octahedron" }
+        else if lower.contains("тетраэдр") { name = "geometry-tetrahedron" }
+        else if lower.contains("куб") { name = "geometry-cube" }
+        else if lower.contains("конус") { name = "geometry-cone" }
+        else if lower.contains("шар") { name = "geometry-sphere" }
+        else { return nil }
+        return Bundle.main.resourceURL?.appendingPathComponent(name).appendingPathExtension("svg")
+    }
     private var geometrySymbol: String {
-        // Use native SF Symbols rather than font glyphs, which may render as tofu/garbled characters.
+        if lower.contains("октаэдр") { return "diamond.fill" }
+        if lower.contains("тетраэдр") { return "pyramid.fill" }
         if lower.contains("цилиндр") { return "cylinder" }
-        if lower.contains("октаэдр") || lower.contains("тетраэдр") { return "pyramid" }
-        if lower.contains("куб") { return "cube.transparent" }
-        if lower.contains("конус") { return "cone" }
-        if lower.contains("шар") || lower.contains("круг") || lower.contains("точк") { return "circle" }
+        if lower.contains("куб") { return "cube.fill" }
+        if lower.contains("конус") { return "cone.fill" }
+        if lower.contains("шар") || lower.contains("круг") || lower.contains("точк") { return "circle.fill" }
         if lower.contains("луч") { return "arrow.right" }
         if lower.contains("отрез") { return "line.3.horizontal" }
         if lower.contains("прям") { return "arrow.left.and.right" }
@@ -125,7 +137,13 @@ private struct StudyIllustration: View {
             Circle().fill(tint.opacity(0.10)).frame(width: 112, height: 112).offset(x: 74, y: -24)
             if subject == .geometry {
                 VStack(spacing: 3) {
-                    Image(systemName: geometrySymbol).font(.system(size: 62, weight: .regular)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(height: 92).accessibilityLabel("Геометрическая фигура")
+                    if let url = geometrySourceURL, let sourceImage = NSImage(contentsOf: url) {
+                        Image(nsImage: sourceImage).resizable().scaledToFit().frame(maxWidth: 170, maxHeight: 96)
+                            .accessibilityLabel("Иллюстрация геометрической фигуры из Wikimedia Commons")
+                    } else {
+                        Image(systemName: geometrySymbol).font(.system(size: 62, weight: .regular)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(height: 92)
+                            .accessibilityLabel("Геометрическая фигура")
+                    }
                     Text("ГЕОМЕТРИЧЕСКАЯ ФИГУРА").font(.system(size: 11, weight: .black, design: .rounded)).foregroundStyle(.black)
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if subject == .biology {
@@ -2673,109 +2691,21 @@ struct ContentView: View {
     private var levelNumber: Int { store.stats.total / 25 + 1 }
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
+private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: "1.0.102", date: "12.10.2026", title: "Исправления геометрии и заданий", changes: ["Геометрические иллюстрации больше не используют проблемные текстовые символы: отображение переведено на системные векторные значки.", "Добавлены задания по геометрии без иллюстраций для начальных классов.", "Сохранены предыдущие записи истории версий."]),
-            ReleaseNote(version: "1.0.101", date: "12.10.2026", title: "Удобнее статистика и коллекция", changes: ["Блок «По дням» перенесён внутрь общей статистики на главной странице.", "Версия приложения теперь находится под названием в верхней части левой панели.", "Коллекционные игрушки в наградах и магазине размещены в четыре колонки.", "Для закрытых игрушек убран дополнительный маленький замок; основной крупный замок оставлен.", "Иллюстрации геометрии переведены в чёрно-белый учебный стиль."]),
-            ReleaseNote(version: "1.0.100", date: "12.10.2026", title: "Геометрия и улучшенные коллекционные игрушки", changes: ["Добавлен предмет «Геометрия» с картинками объёмных тел и заданиями о точке, прямой, луче и отрезке.", "Замок увеличен втрое, закрытые игрушки затемнены сильнее.", "Выпадающий список предметов стал выше."]),
-            ReleaseNote(version: "1.0.99", date: "12.10.2026", title: "Сохраняем историю и обновляем коллекционные игрушки", changes: ["История обновлений закреплена как единый список: новая запись добавляется отдельной версией, а описания предыдущих выпусков не заменяются.", "Убраны повторяющиеся изображения игрушек и обновлены редкие коллекционные персонажи уникальными значками.", "Закрытые игрушки сильнее затемнены и скрыты за замком, но остаются различимыми по силуэту."]),
-            ReleaseNote(version: "1.0.98", date: "12.10.2026", title: "Коллекционные игрушки, копирование и химия в быту", changes: ["Игрушки получили единый современный стиль с яркими персонажами и более прозрачным фоном; закрытые игрушки видны под замком.", "В журнале версий можно выделять и копировать текст, а у задания есть кнопка копирования вопроса и вариантов ответа.", "В химию добавлены вопросы о железе, кислороде, алюминии, меди и других элементах в бытовых предметах."]),
-            ReleaseNote(version: "1.0.97", date: "12.10.2026", title: "Химия: исправление банка элементов", changes: ["Список вопросов о символах элементов помещён внутрь банка химии; каждый вопрос предлагает четыре русских названия.", "Исправлены разделители массива химических заданий." ]),
-            ReleaseNote(version: "1.0.96", date: "12.10.2026", title: "Химия: структура вопросов по символам", changes: ["Добавлены задания вида Fe → Железо, Au → Золото и Na → Натрий.", "Список химических вопросов инициализируется корректно; финальная проверка продолжается в следующих сборках."]),
-            ReleaseNote(version: "1.0.95", date: "12.10.2026", title: "Химия и восстановление истории выпусков", changes: ["Добавлены задания на определение элемента по латинскому символу и восстановлены записи истории выпусков.", "Первая попытка сборки завершилась ошибкой структуры массива; исправление вошло в следующие версии."]),
-            ReleaseNote(version: "1.0.94", date: "12.10.2026", title: "Сборка 1.0.94", changes: ["Изменение по журналу разработки: Keep biology question identity stable to prevent repeated mastered facts.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.93", date: "12.10.2026", title: "Сборка 1.0.93", changes: ["Изменение по журналу разработки: Add 80 biology organisms for 320 more question variants.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.92", date: "12.10.2026", title: "Сборка 1.0.92", changes: ["Изменение по журналу разработки: Fix collectible shop background and center reward icons; reduce repeated correct questions.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.91", date: "12.10.2026", title: "Сборка 1.0.91", changes: ["Изменение по журналу разработки: Fix achievement visibility, reward layout, chemistry rotation and release history.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.90", date: "12.10.2026", title: "Сборка 1.0.90", changes: ["Изменение по журналу разработки: Complete traffic sign reference mapping.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.89", date: "12.10.2026", title: "Сборка 1.0.89", changes: ["Изменение по журналу разработки: Apply requested rewards and achievement updates.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.88", date: "12.10.2026", title: "Сборка 1.0.88", changes: ["Изменение по журналу разработки: Persist diamond medal milestones after spending.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.87", date: "12.10.2026", title: "Сборка 1.0.87", changes: ["Изменение по журналу разработки: Use reference road-sign images in traffic-safety questions.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.86", date: "12.10.2026", title: "Сборка 1.0.86", changes: ["Изменение по журналу разработки: Update rewards, collectibles, and achievement pacing.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.85", date: "12.10.2026", title: "Сборка 1.0.85", changes: ["Изменение по журналу разработки: Guarantee complete release history through current build number.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.84", date: "12.10.2026", title: "Сборка 1.0.84", changes: ["Изменение по журналу разработки: Restore every build number in release history without inventing missing change details.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.83", date: "12.10.2026", title: "Сборка 1.0.83", changes: ["Изменение по журналу разработки: Fix chemistry and biology illustrations, PDD sign matching, and complete version history.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.82", date: "12.10.2026", title: "Сборка 1.0.82", changes: ["Изменение по журналу разработки: Connect chemistry bank to active generator; version history 1.0.82; restrict mismatched PDD illustrations.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.81", date: "12.10.2026", title: "Сборка 1.0.81", changes: ["Изменение по журналу разработки: Fix persistent release history and subject illustrations; add 300 chemistry questions.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.80", date: "12.10.2026", title: "Сборка 1.0.80", changes: ["Изменение по журналу разработки: Fix duplicate ViewBuilder attribute in PDD illustration.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.79", date: "12.10.2026", title: "Сборка 1.0.79", changes: ["Изменение по журналу разработки: Harden spelling choice array types and biology card styling.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.78", date: "12.10.2026", title: "Сборка 1.0.78", changes: ["Изменение по журналу разработки: Fix PDD sign rendering, spelling single-answer choices, biology illustrations and reward colors.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.77", date: "12.10.2026", title: "Сборка 1.0.77", changes: ["Изменение по журналу разработки: Align latest release history entry with current build changes.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.76", date: "12.10.2026", title: "Сборка 1.0.76", changes: ["Изменение по журналу разработки: Make olympiad completion message match selected format.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.75", date: "12.10.2026", title: "Сборка 1.0.75", changes: ["Изменение по журналу разработки: Restore detailed changelog entries from repository history.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.74", date: "12.10.2026", title: "Сборка 1.0.74", changes: ["Изменение по журналу разработки: Match PDD sign illustrations to the sign named in each question.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.73", date: "12.10.2026", title: "Сборка 1.0.73", changes: ["Изменение по журналу разработки: Polish olympiad selection and single-answer spelling choices.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.72", date: "12.10.2026", title: "Сборка 1.0.72", changes: ["Изменение по журналу разработки: Separate biology text/image modes and hide chemistry answer in element card.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.71", date: "12.10.2026", title: "Сборка 1.0.71", changes: ["Изменение по журналу разработки: Fix release history, PDD illustrations, spelling choices, geography and olympiad modes.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.70", date: "11.10.2026", title: "Сборка 1.0.70", changes: ["Изменение по журналу разработки: Match biology illustrations to the organism named in each question.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.69", date: "11.10.2026", title: "Сборка 1.0.69", changes: ["Изменение по журналу разработки: Harden answer-choice construction for generated biology questions.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.68", date: "11.10.2026", title: "Сборка 1.0.68", changes: ["Изменение по журналу разработки: Expand Russian traffic-sign question bank.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.67", date: "11.10.2026", title: "Сборка 1.0.67", changes: ["Изменение по журналу разработки: Draw additional national flags for geography picture questions.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.66", date: "11.10.2026", title: "Сборка 1.0.66", changes: ["Изменение по журналу разработки: Expand flag quiz bank, generate varied biology questions, and add periodic-table tiles.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.65", date: "11.10.2026", title: "Сборка 1.0.65", changes: ["Изменение по журналу разработки: Improve logic questions, expand biology generator, and show full subject menu.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.64", date: "11.10.2026", title: "Сборка 1.0.64", changes: ["Изменение по журналу разработки: Align release history entry with corrective build number.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.63", date: "11.10.2026", title: "Сборка 1.0.63", changes: ["Изменение по журналу разработки: Separate chemistry question banks and pin release notes to actual version.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.62", date: "11.10.2026", title: "Сборка 1.0.62", changes: ["Изменение по журналу разработки: Fix mismatched subject illustrations and version history.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.61", date: "11.10.2026", title: "Сборка 1.0.61", changes: ["Изменение по журналу разработки: Redesign toy rewards as bright flat 2D collectible illustrations.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.60", date: "11.10.2026", title: "Сборка 1.0.60", changes: ["Изменение по журналу разработки: Add colorful study illustrations and laboratory equipment questions.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.59", date: "11.10.2026", title: "Сборка 1.0.59", changes: ["Изменение по журналу разработки: Add Logic and beginner Biology subjects and Olympiad pause.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.58", date: "11.10.2026", title: "Сборка 1.0.58", changes: ["Изменение по журналу разработки: Fix SwiftUI builder annotation for traffic-sign illustrations.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.57", date: "11.10.2026", title: "Сборка 1.0.57", changes: ["Изменение по журналу разработки: Expand road signs, flags, spelling gaps and animated 3D-style rewards.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.56", date: "11.10.2026", title: "Сборка 1.0.56", changes: ["Изменение по журналу разработки: Harden mistake review state and road-crossing illustrations.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.55", date: "11.10.2026", title: "Сборка 1.0.55", changes: ["Изменение по журналу разработки: Complete mistake explanations for every subject.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.54", date: "11.10.2026", title: "Сборка 1.0.54", changes: ["Изменение по журналу разработки: Add PDD visual aids and rainbow fireworks, show bought gift on reveal.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.53", date: "11.10.2026", title: "Сборка 1.0.53", changes: ["Изменение по журналу разработки: Add mistake review with explanations and balanced olympiad question coverage.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.52", date: "11.10.2026", title: "Сборка 1.0.52", changes: ["Изменение по журналу разработки: Fix shop visibility, reward sizing, achievement difficulty and contrast.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.51", date: "11.10.2026", title: "Сборка 1.0.51", changes: ["Изменение по журналу разработки: Add beginner geography subject and persistent mistake model.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.50", date: "11.10.2026", title: "Сборка 1.0.50", changes: ["Изменение по журналу разработки: Add graduated question levels by subject and update release notes.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.49", date: "11.10.2026", title: "Сборка 1.0.49", changes: ["Изменение по журналу разработки: Add five difficulty-level buttons beside the app logo.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.48", date: "11.10.2026", title: "Сборка 1.0.48", changes: ["Изменение по журналу разработки: Add five dark themes, relocate contrast slider and enlarge reward icons.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.47", date: "11.10.2026", title: "Сборка 1.0.47", changes: ["Изменение по журналу разработки: Add PDD and orthography tests, difficulty levels and correct answer labels.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.46", date: "11.10.2026", title: "Сборка 1.0.46", changes: ["Изменение по журналу разработки: Build olympiad gameplay, subject analytics, contrast control and larger reward icons.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.45", date: "11.10.2026", title: "Сборка 1.0.45", changes: ["Изменение по журналу разработки: Add achievement system, session tracking and olympiad foundation.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.44", date: "11.10.2026", title: "Сборка 1.0.44", changes: ["Изменение по журналу разработки: Add 1000+ informatics tests and rare collectible shop pricing.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.43", date: "11.10.2026", title: "Сборка 1.0.43", changes: ["Изменение по журналу разработки: Fix separators in new theme color switches.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.42", date: "11.10.2026", title: "Сборка 1.0.42", changes: ["Изменение по журналу разработки: Add monthly stats archive, reset control, five themes and de-duplicate release notes.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.41", date: "11.10.2026", title: "Сборка 1.0.41", changes: ["Изменение по журналу разработки: Give overlay subject menu a stable height.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.40", date: "11.10.2026", title: "Сборка 1.0.40", changes: ["Изменение по журналу разработки: Overlay subject picker and rebuild art quiz as text choices.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.39", date: "10.10.2026", title: "Сборка 1.0.39", changes: ["Изменение по журналу разработки: Hide uncollected prizes and limit drawing answers to four.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.38", date: "10.10.2026", title: "Сборка 1.0.38", changes: ["Изменение по журналу разработки: Improve grade-two practice, art variety and shop visibility.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.37", date: "10.10.2026", title: "Сборка 1.0.37", changes: ["Изменение по журналу разработки: Simplify grade-two world and chemistry quizzes.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.36", date: "10.10.2026", title: "Сборка 1.0.36", changes: ["Изменение по журналу разработки: Add English choices, chemistry subject, no-repeat questions and fix shop unlock state.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.35", date: "10.10.2026", title: "Сборка 1.0.35", changes: ["Изменение по журналу разработки: Make subject picker unmistakable, add Tatar multiple-choice answers, update release notes.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.34", date: "10.10.2026", title: "Сборка 1.0.34", changes: ["Изменение по журналу разработки: Fix randomized question interpolation and improve subject dropdown.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.33", date: "10.10.2026", title: "Сборка 1.0.33", changes: ["Изменение по журналу разработки: Fix access level for subject-specific hint generator.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.32", date: "10.10.2026", title: "Сборка 1.0.32", changes: ["Изменение по журналу разработки: Avoid duplicate release IDs and expand randomized question variations.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.31", date: "10.10.2026", title: "Сборка 1.0.31", changes: ["Изменение по журналу разработки: Restore release history 1.0.22–1.0.29 and expand randomized question generators.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.30", date: "10.10.2026", title: "Сборка 1.0.30", changes: ["Изменение по журналу разработки: Make subject picker obvious and make hints match each task.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.29", date: "10.10.2026", title: "Сборка 1.0.29", changes: ["Изменение по журналу разработки: Keep comparison questions in the expanded math generator.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.28", date: "10.10.2026", title: "Сборка 1.0.28", changes: ["Изменение по журналу разработки: Persist release history, restore visible subject selector, add unit conversion math tasks.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.27", date: "10.10.2026", title: "Сборка 1.0.27", changes: ["Изменение по журналу разработки: Restore dashboard top bar after moving subject selector.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.26", date: "10.10.2026", title: "Сборка 1.0.26", changes: ["Изменение по журналу разработки: Add visual multiple-choice art exercises.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.25", date: "10.10.2026", title: "Сборка 1.0.25", changes: ["Изменение по журналу разработки: Move subject picker to sidebar and simplify settings.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.24", date: "10.10.2026", title: "Сборка 1.0.24", changes: ["Изменение по журналу разработки: Move subject picker to sidebar and simplify settings.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.23", date: "10.10.2026", title: "Сборка 1.0.23", changes: ["Изменение по журналу разработки: Restore missing version 1.0.21 in release history.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.22", date: "10.10.2026", title: "Сборка 1.0.22", changes: ["Изменение по журналу разработки: Restore toy shop and refine main dashboard.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.21", date: "10.10.2026", title: "Сборка 1.0.21", changes: ["Изменение по журналу разработки: Fix access level for subject-specific problem generator.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.20", date: "10.10.2026", title: "Сборка 1.0.20", changes: ["Изменение по журналу разработки: Polish task menu sizing and document current release changes.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.19", date: "10.10.2026", title: "Сборка 1.0.19", changes: ["Изменение по журналу разработки: Add subject practice, fix comparisons and update toy shop.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.18", date: "10.10.2026", title: "Сборка 1.0.18", changes: ["Изменение по журналу разработки: Fix missing comma in release notes for Build 17.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.17", date: "10.10.2026", title: "Сборка 1.0.17", changes: ["Изменение по журналу разработки: Improve canvas contrast for night and galaxy themes.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.16", date: "10.10.2026", title: "Сборка 1.0.16", changes: ["Изменение по журналу разработки: Fix changelog comma for successful build.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.15", date: "10.10.2026", title: "Сборка 1.0.15", changes: ["Изменение по журналу разработки: Fix night themes, date labels, expand shop and add mixed math problems.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.14", date: "10.10.2026", title: "Сборка 1.0.14", changes: ["Изменение по журналу разработки: Add brain training shop, themes, achievements and native icon.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.13", date: "10.10.2026", title: "Сборка 1.0.13", changes: ["Изменение по журналу разработки: Fix theme palette factory references.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.12", date: "10.10.2026", title: "Сборка 1.0.12", changes: ["Изменение по журналу разработки: Include date in each MathTrainer release.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.11", date: "10.10.2026", title: "Сборка 1.0.11", changes: ["Изменение по журналу разработки: Add customizable themes, subjects, changelog and gamification.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
-            ReleaseNote(version: "1.0.10", date: "09.10.2026", title: "Сборка 1.0.10", changes: ["Изменение по журналу разработки: Redesign MathTrainer interface to match pastel dashboard mockups.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.9", date: "09.10.2026", title: "Сборка 1.0.9", changes: ["Изменение по журналу разработки: Make app build version unmistakable.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.8", date: "09.10.2026", title: "Сборка 1.0.8", changes: ["Изменение по журналу разработки: Automatically version each MathTrainer build.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.7", date: "09.10.2026", title: "Сборка 1.0.7", changes: ["Изменение по журналу разработки: Add answer totals, 20 and 50 diamond rewards, and surprised bunny.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.6", date: "09.10.2026", title: "Сборка 1.0.6", changes: ["Изменение по журналу разработки: Harden SwiftUI celebration rendering.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.5", date: "09.10.2026", title: "Сборка 1.0.5", changes: ["Изменение по журналу разработки: Fix all celebration animation coordinates.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.4", date: "09.10.2026", title: "Сборка 1.0.4", changes: ["Изменение по журналу разработки: Fix celebration animation coordinates.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.3", date: "09.10.2026", title: "Сборка 1.0.3", changes: ["Изменение по журналу разработки: Add daily stats, diamonds and learning rewards.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.2", date: "08.10.2026", title: "Сборка 1.0.2", changes: ["Изменение по журналу разработки: Raise minimum macOS to 14.", "Сборка GitHub Actions завершилась успешно."]),
-            ReleaseNote(version: "1.0.1", date: "08.10.2026", title: "Сборка 1.0.1", changes: ["Изменение по журналу разработки: Add root macOS DMG workflow.", "Попытка сборки завершилась ошибкой; готовый установщик этой попытки не выпускался."])
+            ReleaseNote(version: "1.0.112", date: "12.10.2026", title: "Геометрия: исправление иллюстраций и статистики", changes: ["Устранена причина несоответствия фигур: иллюстрация выбирается по правильному ответу, а не по общему тексту вопроса.", "Для объёмных фигур подключены исходные SVG-иллюстрации из Wikimedia Commons; в установщике они хранятся локально.", "Добавлены текстовые задания по геометрии для начальной школы.", "Блок «Статистика по дням» перенесён со страницы заданий внутрь раздела «Статистика».", "Редкие коллекционные изображения упрощены для более надёжного отображения на macOS."]),
+            ReleaseNote(version: "1.0.111", date: "12.10.2026", title: "Геометрия: текстовые задания", changes: ["Добавлены задания по геометрии без иллюстраций для начальных классов.", "Вместо текстовых псевдорисунков включены системные векторные значки как промежуточное исправление.", "Сборка GitHub Actions завершилась успешно."]),
+            ReleaseNote(version: "1.0.110", date: "12.10.2026", title: "Панель заданий и коллекционные игрушки", changes: ["Внесены правки в расположение панели заданий и элементов коллекции.", "Добавлена запись в журнал изменений для этой сборки.", "Сборка GitHub Actions завершилась успешно."]),
+            ReleaseNote(version: "1.0.109", date: "12.10.2026", title: "Группировка статистики и геометрия", changes: ["Предпринята попытка объединить дневные результаты с разделом статистики.", "Обновлён чёрно-белый стиль геометрических фигур.", "Сборка GitHub Actions завершилась успешно; перенос блока на странице заданий оставался неполным и исправляется в 1.0.112."]),
+            ReleaseNote(version: "1.0.108", date: "12.10.2026", title: "Версия в боковой панели и коллекция", changes: ["Уточнено размещение номера версии приложения.", "Изменена сетка коллекционных игрушек и монохромный стиль геометрии.", "Сборка GitHub Actions завершилась успешно."]),
+            ReleaseNote(version: "1.0.107", date: "12.10.2026", title: "Выпадающий список предметов", changes: ["Исправлено закрытие списка предметов при щелчке вне меню без блокировки нажатий внутри меню.", "Сборка GitHub Actions завершилась успешно."]),
+            ReleaseNote(version: "1.0.106", date: "12.10.2026", title: "Значки предметов геометрии", changes: ["Дополнено сопоставление геометрических фигур и значков.", "Сборка GitHub Actions завершилась успешно."]),
+            ReleaseNote(version: "1.0.105", date: "12.10.2026", title: "Попытка исправления геометрических иллюстраций", changes: ["Внесено изменение для сопоставления иллюстраций с ответами.", "Сборка завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
+            ReleaseNote(version: "1.0.104", date: "12.10.2026", title: "Добавление геометрии", changes: ["Добавлены задания по геометрии и изменения отображения закрытых коллекционных игрушек.", "Сборка завершилась ошибкой; готовый установщик этой попытки не выпускался."]),
+            ReleaseNote(version: "1.0.103", date: "12.10.2026", title: "Сохранение журнала и коллекционные изображения", changes: ["Исправлена логика сохранения истории выпусков, чтобы новые записи не заменяли предыдущие.", "Обновлены повторяющиеся изображения коллекционных игрушек.", "Сборка GitHub Actions завершилась успешно."]),
+            ReleaseNote(version: "1.0.102", date: "12.10.2026", title: "Дизайн коллекции и копирование", changes: ["Обновлён дизайн коллекционных игрушек.", "Добавлены элементы копирования вопросов и записей истории версий.", "Сборка GitHub Actions завершилась успешно."]),
+            ReleaseNote(version: "1.0.101", date: "12.10.2026", title: "Химия: бытовые вещества и элементы", changes: ["Добавлены вопросы по химии о бытовых предметах и химических элементах.", "Скорректировано распределение вопросов об элементах в банке заданий.", "Сборка GitHub Actions завершилась успешно."]),
+
         ]
     }
     private var releaseNotes: [ReleaseNote] {
@@ -3159,7 +3089,6 @@ struct ContentView: View {
             VStack(spacing: 11) {
                 topBar
                 quizCard.frame(maxWidth: .infinity, minHeight: 430)
-                dailyPreview
                 tipBar
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -3780,6 +3709,7 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Твои успехи", subtitle: "Каждый пример помогает стать увереннее 💜")
+                dailyPreview
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
                     largeStat("Всего ответов", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
                     largeStat("Правильных ответов", value: "\(store.stats.correct)", icon: "checkmark.circle.fill", color: palette.green)
