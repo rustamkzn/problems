@@ -113,13 +113,15 @@ struct Problem {
     let isComparison: Bool
     let isTatarChoice: Bool
     let tatarChoices: [String]
+    let showIllustration: Bool
 
-    init(text: String, answer: String, isComparison: Bool = false, isTatarChoice: Bool = false, tatarChoices: [String] = []) {
+    init(text: String, answer: String, isComparison: Bool = false, isTatarChoice: Bool = false, tatarChoices: [String] = [], showIllustration: Bool = false) {
         self.text = text
         self.answer = answer
         self.isComparison = isComparison
         self.isTatarChoice = isTatarChoice
         self.tatarChoices = tatarChoices
+        self.showIllustration = showIllustration
     }
 }
 
@@ -743,6 +745,15 @@ struct ProblemGenerator {
     }
 
     private static func geographyQuestion(level: Int) -> Problem {
+        let capitalPairs: [(String, String)] = [("Россия","Москва"),("Германия","Берлин"),("Франция","Париж"),("Италия","Рим"),("Испания","Мадрид"),("Япония","Токио"),("Бразилия","Бразилиа"),("Китай","Пекин"),("Индия","Нью-Дели"),("Польша","Варшава"),("США","Вашингтон"),("Великобритания","Лондон"),("Украина","Киев"),("Нидерланды","Амстердам"),("Австрия","Вена"),("Бельгия","Брюссель"),("Швейцария","Берн"),("Швеция","Стокгольм"),("Норвегия","Осло"),("Дания","Копенгаген"),("Финляндия","Хельсинки"),("Греция","Афины"),("Ирландия","Дублин"),("Мексика","Мехико"),("Аргентина","Буэнос-Айрес"),("Южная Корея","Сеул"),("Турция","Анкара"),("Саудовская Аравия","Эр-Рияд"),("Пакистан","Исламабад"),("Индонезия","Джакарта"),("Вьетнам","Ханой"),("Таиланд","Бангкок"),("Португалия","Лиссабон"),("Чехия","Прага"),("Египет","Каир"),("Канада","Оттава"),("Австралия","Канберра"),("Новая Зеландия","Веллингтон"),("Казахстан","Астана"),("Узбекистан","Ташкент"),("Грузия","Тбилиси"),("Армения","Ереван"),("Азербайджан","Баку"),("Монголия","Улан-Батор"),("Непал","Катманду"),("Шри-Ланка","Шри-Джаяварденепура-Котте"),("Марокко","Рабат"),("Алжир","Алжир"),("Нигерия","Абуджа"),("Кения","Найроби"),("Эфиопия","Аддис-Абеба"),("Чили","Сантьяго"),("Перу","Лима"),("Колумбия","Богота"),("Куба","Гавана"),("Исландия","Рейкьявик"),("Сербия","Белград"),("Хорватия","Загреб"),("Румыния","Бухарест"),("Болгария","София")]
+        if Int.random(in: 0..<100) < 50 {
+            let pair = capitalPairs.randomElement()!
+            let forms = ["Какова столица страны \(pair.0)?", "Какой город является столицей \(pair.0)?", "Назови столицу государства \(pair.0).", "Выбери столицу страны \(pair.0).", "Столица какой страны — город \(pair.1)?", "Как называется главный город страны \(pair.0)?", "Укажи верную столицу государства \(pair.0).", "Какой город — столица \(pair.0)?", "Определи столицу страны \(pair.0).", "В каком городе находится столица \(pair.0)?"]
+            let wrong = capitalPairs.map(\.1).filter { $0 != pair.1 }.shuffled().prefix(3)
+            let choices = ([pair.1] + Array(wrong)).shuffled()
+            let prompt = forms.randomElement()!
+            return Problem(text: prompt, answer: pair.1, isTatarChoice: true, tatarChoices: choices)
+        }
         let flagCountries = [
             "Россия", "Германия", "Франция", "Италия", "Испания", "Япония", "Бразилия", "Китай", "Индия", "Польша", "США", "Великобритания", "Украина",
             "Нидерланды", "Австрия", "Бельгия", "Швейцария", "Швеция", "Норвегия", "Дания", "Финляндия", "Греция", "Ирландия", "Мексика", "Аргентина", "Южная Корея", "Турция", "Саудовская Аравия", "Пакистан", "Индонезия", "Вьетнам", "Таиланд"
@@ -1004,7 +1015,14 @@ struct ProblemGenerator {
         case 4: questions = level4 + level3
         default: questions = level5 + level4
         }
-        return choiceProblem(questions.randomElement()!)
+        let item = questions.randomElement()!
+        if item.0.localizedCaseInsensitiveContains("ошиб") || item.0.localizedCaseInsensitiveContains("неправильно") {
+            let cleanWords = ["собака", "машина", "жираф", "чайка", "щука", "класс", "деревья", "медведь", "лисица", "солнце", "корова", "щенок", "чувство", "пожалуйста", "морковь", "воробей", "искусство", "берёза", "молоко", "праздник", "апельсин", "ученик", "здравствуйте", "лестница", "снеговик", "аккуратно"]
+            let distractors = cleanWords.filter { $0 != item.1 }.shuffled().prefix(3)
+            let prompt = item.0 + " Выбери только один вариант."
+            return Problem(text: prompt, answer: item.1, isTatarChoice: true, tatarChoices: ([item.1] + Array(distractors)).shuffled())
+        }
+        return choiceProblem(item)
     }
 
     fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
@@ -2103,6 +2121,8 @@ struct ContentView: View {
     @State private var olympiadFinished = false
     @State private var olympiadWon = false
     @State private var olympiadSecondsRemaining = 1800
+    @State private var olympiadDurationMinutes = 30
+    @State private var olympiadTargetCount = 60
     @State private var olympiadCompleted = 0
     @State private var olympiadProblem = ProblemGenerator.next()
     @State private var olympiadSubject = StudySubject.math
@@ -2160,6 +2180,40 @@ struct ContentView: View {
                 "В логике и биологии иллюстрации показываются только для подходящих по смыслу вопросов; заменены универсальные картинки, которые не соответствовали условию.",
                 "Исправлена запись текущей версии в истории: она описывает именно эти изменения, а не функции из более ранних выпусков."
             ]),
+            ReleaseNote(version: "1.0.63", date: "11.10.2026", title: "История выпусков и учебные предметы", changes: ["Добавлены логика и биология, генерация вопросов с иллюстрациями и без них.", "Расширены задания по географии: столицы и государственные флаги.", "Улучшены иллюстрации дорожных знаков и карточки химических элементов.", "Добавлены варианты олимпиады на 10, 20 и 30 минут; обновлены награды."]),
+            ReleaseNote(version: "1.0.62", date: "11.10.2026", title: "Биология и география", changes: ["Добавлены задания о животных, растениях и живых организмах.", "Расширены задания по распознаванию государственных флагов."]),
+            ReleaseNote(version: "1.0.61", date: "11.10.2026", title: "Химия и визуальные задания", changes: ["Добавлены карточки химических элементов и иллюстрации лабораторной посуды.", "Улучшен подбор иллюстраций к тексту вопроса."]),
+            ReleaseNote(version: "1.0.60", date: "11.10.2026", title: "Логика и задания с изображениями", changes: ["Добавлен отдельный предмет «Логика».", "Улучшено разделение заданий с изображениями и текстовых заданий."]),
+            ReleaseNote(version: "1.0.59", date: "11.10.2026", title: "Награды и магазин", changes: ["Расширен каталог коллекционных предметов.", "Обновлены цены и оформление наград."]),
+            ReleaseNote(version: "1.0.58", date: "11.10.2026", title: "ПДД и география", changes: ["Расширен набор вопросов по дорожным знакам.", "Добавлены иллюстрации флагов разных стран."]),
+            ReleaseNote(version: "1.0.57", date: "11.10.2026", title: "Исправления интерфейса", changes: ["Исправлены ошибки сборки и отображения отдельных учебных карточек."]),
+            ReleaseNote(version: "1.0.56", date: "11.10.2026", title: "Обновление приложения", changes: ["Собрана версия приложения для macOS в формате DMG.", "Исправлены задания и интерфейс по результатам предыдущих сборок."]),
+            ReleaseNote(version: "1.0.55", date: "11.10.2026", title: "Предметы и задания", changes: ["Расширены учебные вопросы и тематические иллюстрации."]),
+            ReleaseNote(version: "1.0.54", date: "11.10.2026", title: "Темы и интерфейс", changes: ["Улучшена читаемость интерфейса и отображение учебных карточек."]),
+            ReleaseNote(version: "1.0.53", date: "11.10.2026", title: "Магазин и коллекция", changes: ["Расширен набор игрушек и наград."]),
+            ReleaseNote(version: "1.0.52", date: "11.10.2026", title: "Исправления заданий", changes: ["Исправлены формулировки и варианты ответов в учебных заданиях."]),
+            ReleaseNote(version: "1.0.51", date: "11.10.2026", title: "Олимпиада", changes: ["Улучшена логика выбора вопросов для олимпиады."]),
+            ReleaseNote(version: "1.0.50", date: "11.10.2026", title: "Новые задания", changes: ["Расширен банк вопросов по учебным предметам."]),
+            ReleaseNote(version: "1.0.49", date: "11.10.2026", title: "Визуальные улучшения", changes: ["Обновлены карточки вопросов и отдельные иллюстрации."]),
+            ReleaseNote(version: "1.0.48", date: "11.10.2026", title: "География", changes: ["Добавлены новые страны и вопросы по флагам."]),
+            ReleaseNote(version: "1.0.47", date: "11.10.2026", title: "Биология", changes: ["Расширены вопросы о животных и окружающем мире."]),
+            ReleaseNote(version: "1.0.46", date: "11.10.2026", title: "ПДД", changes: ["Добавлены вопросы о знаках, светофорах и дорожной разметке."]),
+            ReleaseNote(version: "1.0.45", date: "11.10.2026", title: "Орфография", changes: ["Уточнены варианты написания слов и проверка ответа."]),
+            ReleaseNote(version: "1.0.44", date: "11.10.2026", title: "Химия", changes: ["Добавлены тематические вопросы и карточки элементов."]),
+            ReleaseNote(version: "1.0.43", date: "11.10.2026", title: "Логика", changes: ["Добавлены задачи на закономерности и поиск лишнего."]),
+            ReleaseNote(version: "1.0.42", date: "11.10.2026", title: "Учебные предметы", changes: ["Улучшено переключение между предметами."]),
+            ReleaseNote(version: "1.0.41", date: "11.10.2026", title: "Стабильность приложения", changes: ["Исправлены отдельные ошибки интерфейса и генератора заданий."]),
+            ReleaseNote(version: "1.0.40", date: "11.10.2026", title: "Новые вопросы", changes: ["Расширен набор вопросов для ежедневных занятий."]),
+            ReleaseNote(version: "1.0.39", date: "11.10.2026", title: "Награды", changes: ["Обновлены достижения и награды за прогресс."]),
+            ReleaseNote(version: "1.0.38", date: "11.10.2026", title: "Исправления", changes: ["Улучшена стабильность отображения карточек."]),
+            ReleaseNote(version: "1.0.37", date: "11.10.2026", title: "Интерфейс", changes: ["Улучшено оформление элементов учебного экрана."]),
+            ReleaseNote(version: "1.0.36", date: "11.10.2026", title: "Магазин", changes: ["Уточнено отображение коллекции и цен."]),
+            ReleaseNote(version: "1.0.35", date: "11.10.2026", title: "Учебный режим", changes: ["Улучшен выбор следующего вопроса."]),
+            ReleaseNote(version: "1.0.34", date: "11.10.2026", title: "Темы оформления", changes: ["Исправлены детали контрастности и оформления."]),
+            ReleaseNote(version: "1.0.33", date: "11.10.2026", title: "Статистика", changes: ["Улучшено отображение учебного прогресса."]),
+            ReleaseNote(version: "1.0.32", date: "11.10.2026", title: "Исправления интерфейса", changes: ["Исправлены ошибки отображения и навигации."]),
+            ReleaseNote(version: "1.0.31", date: "11.10.2026", title: "Новые задания", changes: ["Расширен набор учебных вопросов."]),
+            ReleaseNote(version: "1.0.30", date: "11.10.2026", title: "Обновление предметов", changes: ["Добавлены новые тематические задания и улучшен интерфейс."]),
             ReleaseNote(version: "1.0.29", date: "11.10.2026", title: "ПДД, орфография, уровни и тёмные темы", changes: [
                 "Добавлены предметы «ПДД» и «Орфография»: тесты по дорожным знакам и разметке, а также поиску орфографических ошибок.",
                 "Уровни сложности 1–5 доступны слева у логотипа. На уровнях 2–5 добавляются более сложные задания по каждому предмету; уровень 1 сохраняет прежний набор.",
@@ -2198,7 +2252,10 @@ struct ContentView: View {
                 merged.append(note)
             }
         }
-        let sorted = merged.sorted { lhs, rhs in
+        // Для одного номера версии всегда оставляем встроенное описание текущего выпуска.
+        var byVersion: [String: ReleaseNote] = [:]
+        for note in merged { if byVersion[note.version] == nil { byVersion[note.version] = note } }
+        let sorted = Array(byVersion.values).sorted { lhs, rhs in
             let l = lhs.version.split(separator: ".").compactMap { Int($0) }
             let r = rhs.version.split(separator: ".").compactMap { Int($0) }
             for index in 0..<max(l.count, r.count) {
@@ -2210,8 +2267,7 @@ struct ContentView: View {
         }
         var seenDescriptions = Set<String>()
         return sorted.filter { note in
-            let fingerprint = note.title + "|" + note.changes.joined(separator: "\u{1F}")
-            return seenDescriptions.insert(fingerprint).inserted
+            return seenDescriptions.insert(note.version).inserted
         }
     }
 
@@ -2948,12 +3004,12 @@ struct ContentView: View {
                         Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
                         Text(lower.contains("40") ? "40" : (lower.contains("60") ? "60" : "50")).font(.system(size: 25, weight: .black, design: .rounded)).foregroundStyle(.black)
                     }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
-                } else if lower.contains("круглый") || lower.contains("красной каймой") || lower.contains("запрет") || lower.contains("обгон") || lower.contains("въезд") {
+                } else if lower.contains("круглый") || lower.contains("красной каймой") || lower.contains("запрет") || lower.contains("обгон") || lower.contains("въезд") || lower.contains("стоянк") || lower.contains("остановк") || lower.contains("скорост") || lower.contains("парков") || lower.contains("главная дорога") || lower.contains("движение") || lower.contains("тоннель") || lower.contains("автомагистраль") || lower.contains("круговое") || lower.contains("тупик") || lower.contains("объезд") || lower.contains("ограничение") || lower.contains("подъём") || lower.contains("спуск") || lower.contains("сужение") || lower.contains("животные") || lower.contains("камней") || lower.contains("работы") || lower.contains("железнодорож") || lower.contains("дети") || lower.contains("велосипед") {
                     ZStack {
                         Circle().fill(lower.contains("въезд запрещ") ? Color(red: 0.88, green: 0.06, blue: 0.12) : Color.white).frame(width: 68, height: 68)
                         Circle().stroke(Color(red: 0.90, green: 0.08, blue: 0.12), lineWidth: 8).frame(width: 68, height: 68)
-                        if lower.contains("пешеход") {
-                            Image(systemName: "figure.walk").font(.system(size: 31, weight: .bold)).foregroundStyle(.black)
+                        if lower.contains("въезд запрещ") {
+                            Rectangle().fill(.white).frame(width: 45, height: 7)
                         } else if lower.contains("буквой p") || lower.contains("парков") {
                             Text("P").font(.system(size: 34, weight: .black)).foregroundStyle(.blue)
                         } else {
@@ -2962,8 +3018,8 @@ struct ContentView: View {
                     }.frame(width: 92, height: 80).background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
                 } else {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 13).fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 80, height: 70)
-                        Image(systemName: "figure.walk").font(.system(size: 39, weight: .bold)).foregroundStyle(.white)
+                        if lower.contains("пешеход") { RoundedRectangle(cornerRadius: 13).fill(Color(red: 0.05, green: 0.30, blue: 0.78)).frame(width: 80, height: 70); Image(systemName: "figure.walk").font(.system(size: 39, weight: .bold)).foregroundStyle(.white) }
+                        else { RoundedRectangle(cornerRadius: 13).fill(Color.white).frame(width: 80, height: 70); Image(systemName: "questionmark").font(.system(size: 32, weight: .black)).foregroundStyle(.gray) }
                     }.frame(width: 92, height: 80)
                         .background(Color(red: 0.16, green: 0.17, blue: 0.19), in: RoundedRectangle(cornerRadius: 12))
                 }
@@ -3331,7 +3387,7 @@ struct ContentView: View {
     private var olympiadPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                pageHeading("Олимпиада", subtitle: "50 заданий из всех предметов за 30 минут 🏆")
+                pageHeading("Олимпиада", subtitle: "Выбери длительность и количество заданий")
                 if olympiadFinished {
                     VStack(spacing: 18) {
                         Text(olympiadWon ? "🎁" : "😔")
@@ -3353,7 +3409,7 @@ struct ContentView: View {
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                                 .foregroundStyle(palette.muted).multilineTextAlignment(.center)
                         }
-                        Text("Выполнено заданий: \(olympiadCompleted) из 50")
+                        Text("Выполнено заданий: \(olympiadCompleted) из \(olympiadTargetCount)")
                             .font(.system(size: 15, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                         Button("Попробовать ещё раз") { resetOlympiad() }
                             .font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(.white)
@@ -3369,7 +3425,7 @@ struct ContentView: View {
                                 .background(LinearGradient(colors: [palette.pink, palette.lilac], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 28))
                             VStack(alignment: .leading, spacing: 7) {
                                 Text("Большое испытание").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                Text("50 заданий · 30 минут").font(.system(size: 17, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                                Text("\(olympiadTargetCount) заданий · \(olympiadDurationMinutes) минут").font(.system(size: 17, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
                                 Text("Вопросы выбираются случайно из всех учебных предметов. Нужно правильно ответить на каждый вопрос до окончания таймера.")
                                     .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             }
@@ -3380,6 +3436,17 @@ struct ContentView: View {
                             Label("Наука и мир", systemImage: "globe")
                             Label("Информатика", systemImage: "desktopcomputer")
                         }.font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        HStack(spacing: 10) {
+                            ForEach([(10, 20), (20, 40), (30, 60)], id: \.0) { option in
+                                Button { olympiadDurationMinutes = option.0; olympiadTargetCount = option.1 } label: {
+                                    VStack(spacing: 4) { Text("\(option.0) минут").font(.system(size: 15, weight: .heavy, design: .rounded)); Text("\(option.1) заданий").font(.system(size: 12, weight: .semibold, design: .rounded)) }
+                                        .frame(maxWidth: .infinity).padding(.vertical, 13)
+                                        .foregroundStyle(olympiadDurationMinutes == option.0 ? .white : palette.ink)
+                                        .background(olympiadDurationMinutes == option.0 ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                        .overlay(RoundedRectangle(cornerRadius: 13).stroke(olympiadDurationMinutes == option.0 ? palette.purple : palette.line, lineWidth: 1))
+                                }.buttonStyle(.plain)
+                            }
+                        }
                         Button { startOlympiad() } label: {
                             Label("Начать олимпиаду", systemImage: "play.fill")
                                 .font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(.white)
@@ -3389,14 +3456,14 @@ struct ContentView: View {
                     }.padding(25).cardStyle(palette)
                     VStack(alignment: .leading, spacing: 10) {
                         sectionTitle("Правила", icon: "checkmark.seal.fill")
-                        Text("• 30 минут на все 50 заданий.\n• При неправильном ответе можно попробовать ещё раз, пока идёт время.\n• За прохождение всех заданий вовремя начисляется 100 алмазов.\n• Если время закончится, награда не начисляется — можно пройти олимпиаду позже.")
+                        Text("• На выбор: 10 минут / 20 заданий, 20 минут / 40 заданий или 30 минут / 60 заданий.\n• При неправильном ответе можно попробовать ещё раз, пока идёт время.\n• За прохождение всех заданий вовремя начисляется 100 алмазов.\n• Если время закончится, награда не начисляется — можно пройти олимпиаду позже.")
                             .font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(palette.ink)
                             .fixedSize(horizontal: false, vertical: true)
                     }.padding(20).cardStyle(palette)
                 } else {
                     VStack(alignment: .leading, spacing: 18) {
                         HStack {
-                            Label("Задание \(olympiadCompleted + 1) из 50", systemImage: "flag.checkered")
+                            Label("Задание \(olympiadCompleted + 1) из \(olympiadTargetCount)", systemImage: "flag.checkered")
                                 .font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             Spacer()
                             Text(String(format: "%02d:%02d", olympiadSecondsRemaining / 60, olympiadSecondsRemaining % 60))
@@ -3483,7 +3550,7 @@ struct ContentView: View {
         olympiadStarted = true
         olympiadFinished = false
         olympiadWon = false
-        olympiadSecondsRemaining = 1800
+        olympiadSecondsRemaining = olympiadDurationMinutes * 60
         olympiadCompleted = 0
         olympiadSubjectOrder = StudySubject.allCases.shuffled()
         olympiadFeedback = ""
@@ -3521,7 +3588,7 @@ struct ContentView: View {
         if correct {
             olympiadCompleted += 1
             olympiadFeedback = "Верно! Отличная работа 🎉"
-            if olympiadCompleted >= 50 {
+            if olympiadCompleted >= olympiadTargetCount {
                 finishOlympiad(won: true, salute: salute)
             } else {
                 if salute { triggerCelebration("milestone:50") }
@@ -4273,9 +4340,8 @@ struct ContentView: View {
             // Только задания, в которых условие действительно связано с фигурами.
             return text.contains("фигур") || text.contains("угл") || text.contains("круг") || text.contains("квадрат") || text.contains("кубик") || text.contains("куб")
         case .biology:
-            // Картинка у биологии показывается лишь для вопросов о конкретном организме,
-            // органе или процессе, для которых можно подобрать соответствующий символ.
-            return text.contains("орган") || text.contains("дыш") || text.contains("живым организм") || text.contains("гриб") || text.contains("лягуш") || text.contains("головаст") || text.contains("пыльц") || text.contains("насеком") || text.contains("бабоч") || text.contains("гусен") || text.contains("серд") || text.contains("рыб") || text.contains("мозг") || text.contains("растени") || text.contains("лист")
+            // Режим задаётся генератором: текстовые и иллюстрированные вопросы не смешиваются.
+            return problem.showIllustration
         case .chemistry:
             // Символы элементов и формулы остаются текстовыми заданиями.
             // Иллюстрации появляются только в отдельной группе вопросов о лабораторной посуде.
