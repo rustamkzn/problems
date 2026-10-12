@@ -101,18 +101,18 @@ private struct StudyIllustration: View {
         }
     }
     private var geometryArt: String {
-        if lower.contains("цилиндр") { return "🛢️" }
-        if lower.contains("октаэдр") { return "💎" }
-        if lower.contains("тетраэдр") { return "🔺" }
-        if lower.contains("куб") { return "🧊" }
-        if lower.contains("конус") { return "🍦" }
-        if lower.contains("шар") { return "⚽" }
-        if lower.contains("луч") { return "➡️" }
-        if lower.contains("отрез") { return "━" }
-        if lower.contains("точк") { return "🔵" }
-        if lower.contains("прям") { return "↔️" }
+        if lower.contains("цилиндр") { return "◯\\n│   │\\n◯" }
+        if lower.contains("октаэдр") { return "◇\\n╱╲\\n◇" }
+        if lower.contains("тетраэдр") { return "△\\n╱ ╲\\n△" }
+        if lower.contains("куб") { return "□\\n╲□" }
+        if lower.contains("конус") { return "△\\n◡" }
+        if lower.contains("шар") { return "◯" }
+        if lower.contains("луч") { return "•━━━━→" }
+        if lower.contains("отрез") { return "•━━━━•" }
+        if lower.contains("точк") { return "•" }
+        if lower.contains("прям") { return "←━━━━→" }
         if lower.contains("угол") { return "∠" }
-        return "🔷"
+        return "◇"
     }
     private var biologyName: String? {
         guard subject == .biology else { return nil }
@@ -2551,8 +2551,8 @@ private struct Reward3DBadge: View {
             Circle().fill(locked ? Color.gray.opacity(0.13) : tint.opacity(0.16))
             Circle().stroke(locked ? Color.gray.opacity(0.22) : tint.opacity(0.55), lineWidth: max(1.5, size * 0.035)).padding(size * 0.07)
             if locked {
-                Image(systemName: symbol).font(.system(size: size * 0.40, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(Color.gray.opacity(0.28))
-                Image(systemName: "lock.fill").font(.system(size: size * 0.27, weight: .black)).foregroundStyle(Color.gray.opacity(0.88))
+                Image(systemName: symbol).font(.system(size: size * 0.40, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(Color.gray.opacity(0.10))
+                Image(systemName: "lock.fill").font(.system(size: size * 0.81, weight: .black)).foregroundStyle(Color.gray.opacity(0.92))
             } else {
                 Image(systemName: symbol).font(.system(size: size * 0.43, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint)
                 Circle().fill(.white.opacity(0.72)).frame(width: size * 0.10, height: size * 0.10).offset(x: -size * 0.22, y: -size * 0.20)
@@ -2885,6 +2885,8 @@ struct ContentView: View {
                 }.frame(width: 48, height: 48)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Тренировка мозга").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).minimumScaleFactor(0.78)
+                    Text("ВЕРСИЯ \(appVersion)").font(.system(size: 10, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                        .padding(.horizontal, 8).padding(.vertical, 4).background(palette.cardSurface.opacity(0.75), in: Capsule())
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 10)
@@ -3022,15 +3024,6 @@ struct ContentView: View {
             }
             .padding(.horizontal, 19)
 
-            Text("ВЕРСИЯ \(appVersion)")
-                .font(.system(size: 11, weight: .heavy, design: .rounded))
-                .foregroundStyle(palette.purple)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(palette.cardSurface.opacity(0.75), in: Capsule())
-                .padding(.leading, 19)
-                .padding(.top, 11)
-                .padding(.bottom, 24)
         }
         .frame(maxHeight: .infinity)
         .background(LinearGradient(
@@ -4286,7 +4279,7 @@ struct ContentView: View {
                     sectionTitle("Коллекционные игрушки", icon: "sparkles")
                     Text("\(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }.count) из \(Collectible.all.count) игрушек открыто")
                         .font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 12) {
                         ForEach(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }) { item in collectibleCard(item) }
                     }
                     if !Collectible.all.contains(where: { allOwnedCollectibleIDs.contains($0.id) }) {
@@ -4330,7 +4323,7 @@ struct ContentView: View {
                         Text("Редкие подарки — вверху страницы. Купленные и уже открытые игрушки остаются видимыми в коллекции.")
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             .fixedSize(horizontal: false, vertical: true)
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 13) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 13) {
                             ForEach(Collectible.all.filter { $0.isRare }) { item in
                                 shopItemCard(item)
                             }
@@ -4423,9 +4416,6 @@ struct ContentView: View {
                         .font(.system(size: 18, weight: .black))
                         .foregroundStyle(gold)
                         .padding(7)
-                } else if !owned {
-                    Image(systemName: "lock.fill").font(.system(size: 36, weight: .black)).foregroundStyle(.white)
-                        .padding(8).background(palette.purple.opacity(0.98), in: Circle()).overlay(Circle().stroke(.white.opacity(0.9), lineWidth: 1)).padding(6)
                 }
             }
             .frame(height: item.isRare ? 144 : 125)
