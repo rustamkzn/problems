@@ -100,6 +100,20 @@ private struct StudyIllustration: View {
         default: return Color(red: 0.12, green: 0.55, blue: 0.92)
         }
     }
+    private var geometryArt: String {
+        if lower.contains("цилиндр") { return "🛢️" }
+        if lower.contains("октаэдр") { return "💎" }
+        if lower.contains("тетраэдр") { return "🔺" }
+        if lower.contains("куб") { return "🧊" }
+        if lower.contains("конус") { return "🍦" }
+        if lower.contains("шар") { return "⚽" }
+        if lower.contains("луч") { return "➡️" }
+        if lower.contains("отрез") { return "━" }
+        if lower.contains("точк") { return "🔵" }
+        if lower.contains("прям") { return "↔️" }
+        if lower.contains("угол") { return "∠" }
+        return "🔷"
+    }
     private var biologyName: String? {
         guard subject == .biology else { return nil }
         let names = ["дождевой червь", "белый медведь", "дельфин", "карась", "орёл", "лягушка", "бабочка", "пчела", "ёж", "крот", "верблюд", "пингвин", "улитка", "паук", "сосна", "берёза", "кактус", "папоротник", "шампиньон", "бактерия"]
@@ -110,7 +124,12 @@ private struct StudyIllustration: View {
         ZStack {
             RoundedRectangle(cornerRadius: 24, style: .continuous).fill(tint.opacity(0.13))
             Circle().fill(tint.opacity(0.10)).frame(width: 112, height: 112).offset(x: 74, y: -24)
-            if subject == .biology {
+            if subject == .geometry {
+                VStack(spacing: 3) {
+                    Text(geometryArt).font(.system(size: 62, weight: .bold)).shadow(color: tint.opacity(0.22), radius: 5, y: 2)
+                    Text(geometryArt == "💎" ? "МНОГОГРАННИК" : "ГЕОМЕТРИЧЕСКАЯ ФИГУРА").font(.system(size: 11, weight: .black, design: .rounded)).foregroundStyle(tint)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if subject == .biology {
                 HStack(spacing: 18) {
                     if lower.contains("пингвин") {
                         Text("🐧").font(.system(size: 58)).frame(width: 82)
@@ -3222,7 +3241,7 @@ struct ContentView: View {
             } else if selectedSubject == .geography && problem.text.localizedCaseInsensitiveContains("флаг") {
                 geographyFlagIllustration(for: problem).padding(.horizontal, 24).padding(.top, 5)
             } else if shouldShowStudyIllustration(for: problem, subject: selectedSubject) {
-                StudyIllustration(subject: selectedSubject, prompt: problem.text).frame(maxWidth: .infinity).frame(height: 126).padding(.horizontal, 30).padding(.top, 8)
+                StudyIllustration(subject: selectedSubject, prompt: problem.text + (selectedSubject == .geometry ? " " + problem.answer : "")).frame(maxWidth: .infinity).frame(height: 126).padding(.horizontal, 30).padding(.top, 8)
             }
 
             Spacer(minLength: selectedSubject == .pdd ? 7 : 34)
