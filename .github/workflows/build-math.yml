@@ -26,6 +26,8 @@ jobs:
           mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources" "BrainTraining.iconset"
           # Educational geometry SVGs are downloaded from Wikimedia Commons and bundled offline.
           RES="$APP_BUNDLE/Contents/Resources"
+          # Bundle the exact original medal illustrations downloaded from the user-provided PNG.
+          cp Assets/medal-*.png "$RES/"
           download_geometry() {
             local name="$1"
             local url="$2"
