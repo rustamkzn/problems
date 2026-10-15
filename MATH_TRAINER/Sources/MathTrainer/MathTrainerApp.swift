@@ -2770,34 +2770,75 @@ private struct Reward3DBadge: View {
     var size: CGFloat = 74
     var locked: Bool = false
     var fillProgress: Double = 1
+
+    private var progress: CGFloat { CGFloat(min(1, max(0, fillProgress))) }
+
     var body: some View {
         ZStack {
-            Circle().fill(locked ? Color.gray.opacity(0.13) : (fillProgress < 1 ? Color.gray.opacity(0.09) : tint.opacity(0.16)))
-            Circle().stroke(locked ? Color.gray.opacity(0.22) : tint.opacity(0.55), lineWidth: max(1.5, size * 0.035)).padding(size * 0.07)
-            if locked {
-                Image(systemName: symbol).font(.system(size: size * 0.40, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(Color.gray.opacity(0.10))
-                Image(systemName: "lock.fill").font(.system(size: size * 0.81, weight: .black)).foregroundStyle(Color.gray.opacity(0.92))
-            } else {
-                ZStack {
-                    Image(systemName: symbol).font(.system(size: size * 0.43, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(fillProgress >= 1 ? tint : Color.gray.opacity(0.35))
-                    if fillProgress > 0 {
-                        GeometryReader { geometry in
-                            Image(systemName: symbol)
-                                .font(.system(size: size * 0.43, weight: .bold))
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundStyle(tint)
-                                .frame(width: geometry.size.width, height: geometry.size.height)
-                                .mask(alignment: .bottom) {
-                                    Rectangle()
-                                        .frame(width: geometry.size.width, height: geometry.size.height * min(1, max(0, fillProgress)))
-                                }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
-                    }
+            Circle()
+                .fill(LinearGradient(colors: locked
+                    ? [Color.gray.opacity(0.24), Color.gray.opacity(0.10)]
+                    : [tint.opacity(0.42), tint.opacity(0.12), Color.white.opacity(0.9)],
+                    startPoint: .topLeading, endPoint: .bottomTrailing))
+                .shadow(color: tint.opacity(locked ? 0.02 : 0.28), radius: size * 0.12, x: 0, y: size * 0.07)
+            Circle()
+                .stroke(LinearGradient(colors: [Color.white.opacity(0.95), tint.opacity(0.7), tint.opacity(0.35)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing),
+                        lineWidth: max(2, size * 0.055))
+                .padding(size * 0.045)
+            Circle()
+                .fill(LinearGradient(colors: locked
+                    ? [Color.gray.opacity(0.18), Color.gray.opacity(0.08)]
+                    : [tint.opacity(0.98), tint.opacity(0.68), Color(red: 0.20, green: 0.16, blue: 0.66)],
+                    startPoint: .topLeading, endPoint: .bottomTrailing))
+                .padding(size * 0.13)
+                .overlay {
+                    Circle().stroke(Color.white.opacity(locked ? 0.12 : 0.8), lineWidth: max(1, size * 0.018)).padding(size * 0.16)
                 }
-                Circle().fill(.white.opacity(0.72)).frame(width: size * 0.10, height: size * 0.10).offset(x: -size * 0.22, y: -size * 0.20)
+            if !locked {
+                Image(systemName: "sparkles")
+                    .font(.system(size: size * 0.15, weight: .black))
+                    .foregroundStyle(Color.white.opacity(0.95))
+                    .offset(x: size * 0.25, y: -size * 0.27)
+                Image(systemName: "sparkle")
+                    .font(.system(size: size * 0.10, weight: .black))
+                    .foregroundStyle(Color.yellow)
+                    .offset(x: -size * 0.27, y: size * 0.15)
             }
-        }.frame(width: size, height: size).overlay(Circle().stroke(tint.opacity(0.14), lineWidth: 1))
+            ZStack {
+                Image(systemName: symbol)
+                    .font(.system(size: size * 0.48, weight: .black))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(locked ? Color.gray.opacity(0.35) : Color.white.opacity(0.45), locked ? Color.gray.opacity(0.25) : Color.white.opacity(0.45))
+                    .shadow(color: .black.opacity(locked ? 0 : 0.25), radius: size * 0.035, x: 0, y: size * 0.035)
+                if !locked && progress > 0 {
+                    Image(systemName: symbol)
+                        .font(.system(size: size * 0.48, weight: .black))
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(Color.yellow, Color.white)
+                        .shadow(color: tint.opacity(0.5), radius: size * 0.04, x: 0, y: size * 0.02)
+                        .mask(alignment: .bottom) {
+                            Rectangle().frame(height: size * 0.48 * progress)
+                        }
+                }
+            }
+            if locked {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: size * 0.26, weight: .black))
+                    .foregroundStyle(Color.gray.opacity(0.85))
+                    .padding(size * 0.12)
+                    .background(Color.white.opacity(0.92), in: Circle())
+            } else {
+                Image(systemName: "star.fill")
+                    .font(.system(size: size * 0.14, weight: .black))
+                    .foregroundStyle(LinearGradient(colors: [Color.white, Color.yellow], startPoint: .top, endPoint: .bottom))
+                    .shadow(color: .orange.opacity(0.65), radius: size * 0.025, x: 0, y: 1)
+                    .offset(y: size * 0.31)
+            }
+        }
+        .frame(width: size, height: size)
+        .scaleEffect(1)
+        .accessibilityLabel(symbol)
     }
 }
 
