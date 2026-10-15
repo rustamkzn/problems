@@ -48,7 +48,7 @@ jobs:
           source = Image.open(root / "medals-source.png").convert("RGBA")
           w, h = source.size
           # The original sheet contains eight circular medal illustrations in a 4x2 grid.
-          centers_preview = [(42,44),(112,44),(183,44),(257,44),(42,141),(112,141),(183,141),(257,141)]
+          centers_preview = [(42,47),(112,47),(183,47),(257,47),(42,141),(112,141),(183,141),(257,141)]
           goals = [200,300,500,700,850,1000,1200,1500]
           side = 210
           contact = Image.new("RGB", (600, 320), (247, 244, 255))
