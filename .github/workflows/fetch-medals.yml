@@ -34,24 +34,45 @@ jobs:
           h = int.from_bytes(data[20:24], "big")
           print(f"Original PNG validated: {w}x{h}, {len(data)} bytes")
           PY
-      - name: Generate small visual preview for inspection
+      - name: Extract the eight original medal illustrations
         shell: bash
         run: |
           set -euo pipefail
           python3 -m venv /tmp/imgvenv
           /tmp/imgvenv/bin/pip install --quiet Pillow
           /tmp/imgvenv/bin/python - <<'PY'
-          from PIL import Image
+          from PIL import Image, ImageDraw
           from pathlib import Path
           import base64, io
-          im = Image.open("MATH_TRAINER/Assets/medals-source.png").convert("RGB")
-          im.thumbnail((300, 300))
+          root = Path("MATH_TRAINER/Assets")
+          source = Image.open(root / "medals-source.png").convert("RGBA")
+          w, h = source.size
+          # The original sheet contains eight circular medal illustrations in a 4x2 grid.
+          centers_preview = [(42,43),(112,43),(183,43),(257,43),(42,141),(112,141),(183,141),(257,141)]
+          goals = [200,300,500,700,850,1000,1200,1500]
+          side = 210
+          contact = Image.new("RGB", (600, 320), (247, 244, 255))
+          draw = ImageDraw.Draw(contact)
+          for idx, ((px,py),goal) in enumerate(zip(centers_preview, goals)):
+              cx, cy = round(px*w/300), round(py*h/200)
+              left, top = cx-side//2, cy-side//2
+              crop = source.crop((left, top, left+side, top+side))
+              mask = Image.new("L", (side,side), 0)
+              ImageDraw.Draw(mask).ellipse((3,3,side-4,side-4), fill=255)
+              crop.putalpha(mask)
+              crop.save(root / f"medal-{goal}.png", optimize=True)
+              thumb = crop.copy()
+              thumb.thumbnail((120,120))
+              x = (idx%4)*150 + 15
+              y = (idx//4)*155 + 5
+              contact.paste(thumb, (x,y), thumb)
+              draw.text((x,y+120), str(goal), fill=(55,35,100))
           out = io.BytesIO()
-          im.save(out, format="JPEG", quality=40, optimize=True)
-          print(f"PREVIEW_DIMENSIONS={im.width}x{im.height}")
-          print("PREVIEW_DATA_START")
+          contact.save(out, format="JPEG", quality=55, optimize=True)
+          print(f"Original source: {w}x{h}; extracted {len(goals)} medals.")
+          print("CONTACT_PREVIEW_START")
           print(base64.b64encode(out.getvalue()).decode("ascii"))
-          print("PREVIEW_DATA_END")
+          print("CONTACT_PREVIEW_END")
           PY
       - name: Commit original artwork into the app repository
         shell: bash
