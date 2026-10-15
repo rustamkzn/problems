@@ -2488,11 +2488,11 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     }
     var darkPanel: Color {
         switch self {
-        case .darkRuby: Color(red: 0.13, green: 0.045, blue: 0.19)
-        case .darkForest: Color(red: 0.025, green: 0.13, blue: 0.11)
-        case .darkOcean: Color(red: 0.035, green: 0.065, blue: 0.17)
-        case .darkGraphite: Color(red: 0.095, green: 0.075, blue: 0.17)
-        case .darkAmber: Color(red: 0.17, green: 0.045, blue: 0.10)
+        case .darkRuby: Color(red: 0.29, green: 0.16, blue: 0.36)
+        case .darkForest: Color(red: 0.13, green: 0.29, blue: 0.25)
+        case .darkOcean: Color(red: 0.13, green: 0.20, blue: 0.35)
+        case .darkGraphite: Color(red: 0.22, green: 0.19, blue: 0.35)
+        case .darkAmber: Color(red: 0.34, green: 0.14, blue: 0.24)
         default: Color(red: 0.10, green: 0.09, blue: 0.15)
         }
     }
@@ -2511,21 +2511,21 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     var darkRed: Color { Color(red: 1, green: 0.40, blue: 0.47) }
     var darkCanvasTop: Color {
         switch self {
-        case .darkRuby: Color(red: 0.18, green: 0.065, blue: 0.26)
-        case .darkForest: Color(red: 0.035, green: 0.19, blue: 0.15)
-        case .darkOcean: Color(red: 0.05, green: 0.085, blue: 0.25)
-        case .darkGraphite: Color(red: 0.13, green: 0.10, blue: 0.23)
-        case .darkAmber: Color(red: 0.23, green: 0.065, blue: 0.13)
+        case .darkRuby: Color(red: 0.36, green: 0.20, blue: 0.46)
+        case .darkForest: Color(red: 0.16, green: 0.36, blue: 0.30)
+        case .darkOcean: Color(red: 0.17, green: 0.25, blue: 0.43)
+        case .darkGraphite: Color(red: 0.27, green: 0.23, blue: 0.43)
+        case .darkAmber: Color(red: 0.42, green: 0.18, blue: 0.31)
         default: darkPanel
         }
     }
     var darkCanvasMiddle: Color {
         switch self {
-        case .darkRuby: Color(red: 0.09, green: 0.03, blue: 0.14)
-        case .darkForest: Color(red: 0.018, green: 0.09, blue: 0.075)
-        case .darkOcean: Color(red: 0.025, green: 0.045, blue: 0.14)
-        case .darkGraphite: Color(red: 0.07, green: 0.055, blue: 0.14)
-        case .darkAmber: Color(red: 0.13, green: 0.03, blue: 0.075)
+        case .darkRuby: Color(red: 0.24, green: 0.12, blue: 0.32)
+        case .darkForest: Color(red: 0.09, green: 0.23, blue: 0.19)
+        case .darkOcean: Color(red: 0.09, green: 0.15, blue: 0.29)
+        case .darkGraphite: Color(red: 0.16, green: 0.14, blue: 0.29)
+        case .darkAmber: Color(red: 0.25, green: 0.11, blue: 0.20)
         default: darkPanel
         }
     }
@@ -2994,6 +2994,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.ShopPrices.v3") private var shopPricesStorage = ""
     @AppStorage("MathTrainer.ReleaseNotes.v1") private var releaseNotesStorage = ""
     @AppStorage("MathTrainer.ScreenContrast.v1") private var screenContrast = 1.15
+    @AppStorage("MathTrainer.ThemeBrightness.v1") private var themeBrightness = 0.0
     @AppStorage("MathTrainer.Difficulty.v1") private var difficultyLevel = 1
     @AppStorage("MathTrainer.SubjectPerformance.v1") private var subjectPerformanceStorage = ""
     @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
@@ -3335,6 +3336,7 @@ struct ContentView: View {
             .overlay(RoundedRectangle(cornerRadius: 25).stroke(.white.opacity(0.94), lineWidth: 1.2))
             .clipShape(RoundedRectangle(cornerRadius: 25))
             .contrast(screenContrast)
+            .brightness(themeBrightness)
             .padding(13)
 
             if showCelebration {
@@ -3376,6 +3378,14 @@ struct ContentView: View {
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 10)
+
+            HStack(spacing: 8) {
+                HStack(spacing: 6) { Image(systemName: "diamond.fill").foregroundStyle(Color(red: 0.25, green: 0.72, blue: 1)); Text("\(store.stats.diamonds)").foregroundStyle(palette.ink) }
+                    .font(.system(size: 13, weight: .black, design: .rounded)).frame(maxWidth: .infinity).padding(.vertical, 9).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11)).overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.line, lineWidth: 1))
+                HStack(spacing: 6) { Image(systemName: "circle.hexagongrid.fill").foregroundStyle(Color(red: 1, green: 0.72, blue: 0.12)); Text("\(goldBalance)").foregroundStyle(palette.ink) }
+                    .font(.system(size: 13, weight: .black, design: .rounded)).frame(maxWidth: .infinity).padding(.vertical, 9).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11)).overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.line, lineWidth: 1))
+            }
+            .padding(.horizontal, 12).padding(.bottom, 12)
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
@@ -5582,6 +5592,12 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Настройки", subtitle: "Настрой своё учебное пространство")
                 VStack(alignment: .leading, spacing: 15) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 17, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Настрой яркость интерфейса. Значение сохраняется между запусками.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        Slider(value: $themeBrightness, in: -0.12...0.18, step: 0.01).tint(palette.purple).controlSize(.large).frame(minHeight: 38)
+                        HStack { Text("Темнее").foregroundStyle(palette.muted); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 15, weight: .black, design: .rounded)).foregroundStyle(palette.purple); Spacer(); Text("Светлее").foregroundStyle(palette.muted) }.font(.system(size: 11, weight: .bold, design: .rounded))
+                    }.padding(16).background(palette.palePink.opacity(0.65), in: RoundedRectangle(cornerRadius: 16))
                     VStack(alignment: .leading, spacing: 10) {
                         Label("КОНТРАСТ ЦВЕТОВ", systemImage: "circle.lefthalf.filled")
                             .font(.system(size: 17, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
