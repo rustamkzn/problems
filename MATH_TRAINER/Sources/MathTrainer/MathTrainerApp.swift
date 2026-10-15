@@ -4741,8 +4741,8 @@ struct ContentView: View {
         let shownProgress = active ? min(lifetime, goal) : 0
         let percent = goal == 0 ? 0 : Int((Double(shownProgress) / Double(goal) * 100).rounded())
         return VStack(alignment: .center, spacing: 8) {
-            Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 58, locked: false, fillProgress: Double(shownProgress) / Double(goal), artworkName: "medal-\(goal)")
-                .frame(width: 94, height: 82)
+            Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 78, locked: false, fillProgress: Double(shownProgress) / Double(goal), artworkName: "medal-\(goal)")
+                .frame(width: 112, height: 100)
                 .background(
                     LinearGradient(colors: earned ? [color.opacity(0.24), color.opacity(0.08)] : [Color.gray.opacity(0.08), palette.canvasMiddle],
                                    startPoint: .topLeading, endPoint: .bottomTrailing),
