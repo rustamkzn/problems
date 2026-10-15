@@ -3049,6 +3049,7 @@ struct ContentView: View {
     @State private var lifeSkillsIndex = 0
     @State private var lifeSkillsScore = 0
     @State private var lifeSkillsSelectedAnswer: String? = nil
+    @State private var lifeSkillsFirstWrongAnswer: String? = nil
     @FocusState private var answerFocused: Bool
 
     enum AnswerState { case neutral, correct, incorrect }
@@ -4371,23 +4372,26 @@ struct ContentView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(12).frame(maxWidth: .infinity, alignment: .leading)
                                 .background((picked == item.answer ? palette.green : palette.red).opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
-                            Button {
-                                if detectiveIndex + 1 < detectiveQuestions.count {
-                                    detectiveIndex += 1
-                                    detectiveSelectedAnswer = nil
-                                } else {
-                                    detectiveFinished = true
-                                    detectiveBestScore = max(detectiveBestScore, detectiveScore)
-                                    if detectiveScore == detectiveQuestions.count && detectiveRewardDate != StatsStore.dateKey(Date()) {
-                                        store.addDiamonds(5)
-                                        detectiveRewardDate = StatsStore.dateKey(Date())
+                            HStack {
+                                Spacer()
+                                Button {
+                                    if detectiveIndex + 1 < detectiveQuestions.count {
+                                        detectiveIndex += 1
+                                        detectiveSelectedAnswer = nil
+                                    } else {
+                                        detectiveFinished = true
+                                        detectiveBestScore = max(detectiveBestScore, detectiveScore)
+                                        if detectiveScore == detectiveQuestions.count && detectiveRewardDate != StatsStore.dateKey(Date()) {
+                                            store.addDiamonds(5)
+                                            detectiveRewardDate = StatsStore.dateKey(Date())
+                                        }
                                     }
-                                }
-                            } label: {
-                                Label(detectiveIndex + 1 == detectiveQuestions.count ? "Завершить расследование" : "Следующая загадка", systemImage: "arrow.right")
-                                    .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
-                                    .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
-                            }.buttonStyle(.plain)
+                                } label: {
+                                    Label(detectiveIndex + 1 == detectiveQuestions.count ? "Завершить расследование" : "Следующая загадка", systemImage: "arrow.right")
+                                        .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                        .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
+                                }.buttonStyle(.plain)
+                            }
                         }
                     }.padding(20).cardStyle(palette)
                 }
@@ -4480,14 +4484,17 @@ struct ContentView: View {
                         if let picked = memorySelectedAnswer {
                             Text(picked == memorySequence.joined(separator: " ") ? "Отличная память! Ты заработал 1 алмаз." : "Не беда — тренировка помогает запоминать лучше. Попробуй ещё раз.")
                                 .font(.system(size: 14, weight: .semibold, design: .rounded)).foregroundStyle(picked == memorySequence.joined(separator: " ") ? palette.green : palette.muted)
-                            Button {
-                                if memorySelectedAnswer == memorySequence.joined(separator: " ") { memoryLevel = min(6, memoryLevel + 1) }
-                                startMemoryRound()
-                            } label: {
-                                Label("Следующая последовательность", systemImage: "arrow.right")
-                                    .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
-                                    .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
-                            }.buttonStyle(.plain)
+                            HStack {
+                                Spacer()
+                                Button {
+                                    if memorySelectedAnswer == memorySequence.joined(separator: " ") { memoryLevel = min(6, memoryLevel + 1) }
+                                    startMemoryRound()
+                                } label: {
+                                    Label("Следующая последовательность", systemImage: "arrow.right")
+                                        .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                        .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
+                                }.buttonStyle(.plain)
+                            }
                         }
                     }
                     if memorySequence.isEmpty {
