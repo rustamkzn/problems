@@ -4706,7 +4706,7 @@ struct ContentView: View {
                         (1200, "🌈", "Мастер знаний", Color(red: 0.96, green: 0.42, blue: 0.66)),
                         (1500, "🚀", "Легенда учёбы", Color(red: 0.35, green: 0.65, blue: 0.98))
                     ]
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 12) {
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 14) {
                         ForEach(Array(answerGoals.enumerated()), id: \.offset) { index, item in
                             correctAnswerMilestoneCard(goal: item.0, emoji: item.1, title: item.2, color: item.3, previousGoal: index == 0 ? 0 : answerGoals[index - 1].0)
                         }
@@ -4741,8 +4741,8 @@ struct ContentView: View {
         let shownProgress = active ? min(lifetime, goal) : 0
         let percent = goal == 0 ? 0 : Int((Double(shownProgress) / Double(goal) * 100).rounded())
         return VStack(alignment: .center, spacing: 8) {
-            Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 78, locked: false, fillProgress: Double(shownProgress) / Double(goal), artworkName: "medal-\(goal)")
-                .frame(width: 112, height: 100)
+            Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 232, locked: false, fillProgress: Double(shownProgress) / Double(goal), artworkName: "medal-\(goal)")
+                .frame(width: 220, height: 220)
                 .background(
                     LinearGradient(colors: earned ? [color.opacity(0.24), color.opacity(0.08)] : [Color.gray.opacity(0.08), palette.canvasMiddle],
                                    startPoint: .topLeading, endPoint: .bottomTrailing),
@@ -4768,8 +4768,8 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 190, alignment: .top)
-        .padding(10)
+        .frame(maxWidth: .infinity, minHeight: 330, alignment: .top)
+        .padding(12)
         .background(palette.cardSurface.opacity(0.94), in: RoundedRectangle(cornerRadius: 17))
         .overlay(RoundedRectangle(cornerRadius: 17).stroke(earned ? color.opacity(0.8) : palette.line.opacity(0.7), lineWidth: earned ? 1.8 : 1))
     }
