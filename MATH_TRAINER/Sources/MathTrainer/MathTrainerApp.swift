@@ -2468,41 +2468,41 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     var darkText: Color { Color(red: 0.96, green: 0.97, blue: 1) }
     var darkAccent: Color {
         switch self {
-        case .darkRuby: Color(red: 1, green: 0.30, blue: 0.47)
-        case .darkForest: Color(red: 0.30, green: 0.91, blue: 0.62)
-        case .darkOcean: Color(red: 0.28, green: 0.72, blue: 1)
-        case .darkGraphite: Color(red: 0.48, green: 0.77, blue: 1)
-        case .darkAmber: Color(red: 1, green: 0.70, blue: 0.22)
+        case .darkRuby: Color(red: 0.78, green: 0.52, blue: 1)
+        case .darkForest: Color(red: 0.25, green: 0.88, blue: 0.72)
+        case .darkOcean: Color(red: 0.38, green: 0.66, blue: 1)
+        case .darkGraphite: Color(red: 0.63, green: 0.57, blue: 1)
+        case .darkAmber: Color(red: 1, green: 0.48, blue: 0.62)
         default: Color(red: 0.72, green: 0.56, blue: 1)
         }
     }
     var darkPink: Color {
         switch self {
-        case .darkRuby: Color(red: 1, green: 0.29, blue: 0.49)
-        case .darkForest: Color(red: 0.20, green: 0.75, blue: 0.51)
-        case .darkOcean: Color(red: 0.12, green: 0.55, blue: 0.90)
-        case .darkGraphite: Color(red: 0.33, green: 0.45, blue: 0.64)
-        case .darkAmber: Color(red: 0.91, green: 0.55, blue: 0.12)
+        case .darkRuby: Color(red: 0.66, green: 0.34, blue: 0.86)
+        case .darkForest: Color(red: 0.10, green: 0.62, blue: 0.49)
+        case .darkOcean: Color(red: 0.22, green: 0.40, blue: 0.80)
+        case .darkGraphite: Color(red: 0.39, green: 0.30, blue: 0.67)
+        case .darkAmber: Color(red: 0.69, green: 0.20, blue: 0.39)
         default: darkAccent
         }
     }
     var darkPanel: Color {
         switch self {
-        case .darkRuby: Color(red: 0.15, green: 0.055, blue: 0.095)
-        case .darkForest: Color(red: 0.035, green: 0.135, blue: 0.09)
-        case .darkOcean: Color(red: 0.035, green: 0.085, blue: 0.16)
-        case .darkGraphite: Color(red: 0.12, green: 0.13, blue: 0.16)
-        case .darkAmber: Color(red: 0.15, green: 0.095, blue: 0.025)
+        case .darkRuby: Color(red: 0.13, green: 0.045, blue: 0.19)
+        case .darkForest: Color(red: 0.025, green: 0.13, blue: 0.11)
+        case .darkOcean: Color(red: 0.035, green: 0.065, blue: 0.17)
+        case .darkGraphite: Color(red: 0.095, green: 0.075, blue: 0.17)
+        case .darkAmber: Color(red: 0.17, green: 0.045, blue: 0.10)
         default: Color(red: 0.10, green: 0.09, blue: 0.15)
         }
     }
     var darkLine: Color {
         switch self {
-        case .darkRuby: Color(red: 0.53, green: 0.16, blue: 0.28)
-        case .darkForest: Color(red: 0.12, green: 0.46, blue: 0.29)
-        case .darkOcean: Color(red: 0.13, green: 0.38, blue: 0.63)
-        case .darkGraphite: Color(red: 0.33, green: 0.37, blue: 0.44)
-        case .darkAmber: Color(red: 0.52, green: 0.32, blue: 0.075)
+        case .darkRuby: Color(red: 0.43, green: 0.20, blue: 0.58)
+        case .darkForest: Color(red: 0.10, green: 0.43, blue: 0.35)
+        case .darkOcean: Color(red: 0.16, green: 0.29, blue: 0.59)
+        case .darkGraphite: Color(red: 0.29, green: 0.23, blue: 0.49)
+        case .darkAmber: Color(red: 0.47, green: 0.15, blue: 0.29)
         default: darkAccent.opacity(0.5)
         }
     }
@@ -2511,21 +2511,21 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     var darkRed: Color { Color(red: 1, green: 0.40, blue: 0.47) }
     var darkCanvasTop: Color {
         switch self {
-        case .darkRuby: Color(red: 0.20, green: 0.045, blue: 0.085)
-        case .darkForest: Color(red: 0.025, green: 0.19, blue: 0.105)
-        case .darkOcean: Color(red: 0.025, green: 0.11, blue: 0.23)
-        case .darkGraphite: Color(red: 0.17, green: 0.18, blue: 0.22)
-        case .darkAmber: Color(red: 0.21, green: 0.12, blue: 0.02)
+        case .darkRuby: Color(red: 0.18, green: 0.065, blue: 0.26)
+        case .darkForest: Color(red: 0.035, green: 0.19, blue: 0.15)
+        case .darkOcean: Color(red: 0.05, green: 0.085, blue: 0.25)
+        case .darkGraphite: Color(red: 0.13, green: 0.10, blue: 0.23)
+        case .darkAmber: Color(red: 0.23, green: 0.065, blue: 0.13)
         default: darkPanel
         }
     }
     var darkCanvasMiddle: Color {
         switch self {
-        case .darkRuby: Color(red: 0.09, green: 0.035, blue: 0.06)
-        case .darkForest: Color(red: 0.018, green: 0.095, blue: 0.06)
-        case .darkOcean: Color(red: 0.02, green: 0.055, blue: 0.12)
-        case .darkGraphite: Color(red: 0.095, green: 0.10, blue: 0.125)
-        case .darkAmber: Color(red: 0.105, green: 0.065, blue: 0.015)
+        case .darkRuby: Color(red: 0.09, green: 0.03, blue: 0.14)
+        case .darkForest: Color(red: 0.018, green: 0.09, blue: 0.075)
+        case .darkOcean: Color(red: 0.025, green: 0.045, blue: 0.14)
+        case .darkGraphite: Color(red: 0.07, green: 0.055, blue: 0.14)
+        case .darkAmber: Color(red: 0.13, green: 0.03, blue: 0.075)
         default: darkPanel
         }
     }
