@@ -2770,6 +2770,7 @@ private struct Reward3DBadge: View {
     var size: CGFloat = 74
     var locked: Bool = false
     var fillProgress: Double = 1
+    var artworkName: String? = nil
 
     private var progress: CGFloat { CGFloat(min(1, max(0, fillProgress))) }
     private var progressPercent: Int { Int((progress * 100).rounded()) }
@@ -2823,12 +2824,25 @@ private struct Reward3DBadge: View {
                     .offset(x: -size * 0.25, y: size * 0.13)
             }
 
-            Image(systemName: symbol)
-                .font(.system(size: size * 0.43, weight: .black))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(locked ? Color.gray.opacity(0.35) : Color.white, locked ? Color.gray.opacity(0.25) : Color.white.opacity(0.92))
-                .shadow(color: .black.opacity(locked ? 0 : 0.25), radius: size * 0.035, x: 0, y: size * 0.035)
-                .offset(y: -size * 0.035)
+            if let artworkName,
+               let imageURL = Bundle.main.url(forResource: artworkName, withExtension: "png"),
+               let medalImage = NSImage(contentsOf: imageURL) {
+                Image(nsImage: medalImage)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: size * 0.86, height: size * 0.86)
+                    .saturation(locked ? 0.18 : 1)
+                    .opacity(locked ? 0.58 : 1)
+                    .offset(y: -size * 0.035)
+            } else {
+                Image(systemName: symbol)
+                    .font(.system(size: size * 0.43, weight: .black))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(locked ? Color.gray.opacity(0.35) : Color.white, locked ? Color.gray.opacity(0.25) : Color.white.opacity(0.92))
+                    .shadow(color: .black.opacity(locked ? 0 : 0.25), radius: size * 0.035, x: 0, y: size * 0.035)
+                    .offset(y: -size * 0.035)
+            }
 
             if locked {
                 Image(systemName: "lock.fill")
@@ -2974,6 +2988,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.142", date: "15.10.2026", title: "Оригинальные медали из выбранного дизайна", changes: ["Восемь медалей за правильные ответы заменены оригинальными иллюстрациями из предоставленного изображения.", "Круговой индикатор прогресса и процент снизу по центру сохранены.", "Оригинальные изображения включены в ресурсы приложения для работы без интернета.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.141", date: "15.10.2026", title: "Восемь медалей и постепенное заполнение цветом", changes: ["В раздел «Награды» добавлены медали за 1200 и 1500 правильных ответов; всего теперь восемь целей: 200, 300, 500, 700, 850, 1000, 1200 и 1500.", "Карточки медалей расположены в два ряда по четыре колонки.", "Изображение каждой медали постепенно заполняется её цветом по мере роста процента прогресса.", "Следующая медаль открывается для прогресса после получения предыдущей; накопленные правильные ответы сохраняются между месяцами."]),
             ReleaseNote(version: "1.0.135", date: "12.10.2026", title: "Единый дизайн коллекции и новые рубежи наград", changes: ["Карточки коллекционных игрушек в разделе «Награды» оформлены в том же стиле, что и карточки магазина: крупная иллюстрация сверху, подписи ниже, золотое оформление редких игрушек.", "Добавлены новые рубежи наград за накопление 5500 и 6000 алмазов.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.134", date: "12.10.2026", title: "Цвет золота и удобные кнопки магазина", changes: ["Золотые монеты выделены ярким золотисто-жёлтым цветом.", "Кнопки покупки получили тёмно-фиолетовый фон и белый контрастный текст.", "Алмазы и золото на главной странице выровнены в одну строку на одном уровне.", "Сетки обычных и редких коллекционных игрушек изменены на пять столбцов."]),
@@ -4726,7 +4741,7 @@ struct ContentView: View {
         let shownProgress = active ? min(lifetime, goal) : 0
         let percent = goal == 0 ? 0 : Int((Double(shownProgress) / Double(goal) * 100).rounded())
         return VStack(alignment: .center, spacing: 8) {
-            Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 58, locked: false, fillProgress: Double(shownProgress) / Double(goal))
+            Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 58, locked: false, fillProgress: Double(shownProgress) / Double(goal), artworkName: "medal-\(goal)")
                 .frame(width: 94, height: 82)
                 .background(
                     LinearGradient(colors: earned ? [color.opacity(0.24), color.opacity(0.08)] : [Color.gray.opacity(0.08), palette.canvasMiddle],
