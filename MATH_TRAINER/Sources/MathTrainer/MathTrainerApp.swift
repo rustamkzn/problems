@@ -2901,6 +2901,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.140", date: "15.10.2026", title: "Шесть медалей за правильные ответы", changes: ["В раздел «Награды» добавлены шесть медалей за 200, 300, 500, 700, 850 и 1000 правильных ответов.", "Медали становятся цветными при достижении 100%; на карточках показывается процент и количество правильных ответов.", "Следующая медаль открывается для прогресса после получения предыдущей.", "Прогресс считается по накопленным правильным ответам за всё время и не сбрасывается при смене месяца."]),
             ReleaseNote(version: "1.0.135", date: "12.10.2026", title: "Единый дизайн коллекции и новые рубежи наград", changes: ["Карточки коллекционных игрушек в разделе «Награды» оформлены в том же стиле, что и карточки магазина: крупная иллюстрация сверху, подписи ниже, золотое оформление редких игрушек.", "Добавлены новые рубежи наград за накопление 5500 и 6000 алмазов.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.134", date: "12.10.2026", title: "Цвет золота и удобные кнопки магазина", changes: ["Золотые монеты выделены ярким золотисто-жёлтым цветом.", "Кнопки покупки получили тёмно-фиолетовый фон и белый контрастный текст.", "Алмазы и золото на главной странице выровнены в одну строку на одном уровне.", "Сетки обычных и редких коллекционных игрушек изменены на пять столбцов."]),
             ReleaseNote(version: "1.0.133", date: "12.10.2026", title: "Золотые монеты и улучшенная комната", changes: ["В магазин добавлен обмен алмазов на золото: 100 монет за 50 алмазов, 200 за 95, 500 за 250. Покупка доступна только при достаточном балансе алмазов.", "В верхнем блоке главного экрана теперь одновременно видны балансы алмазов и золотых монет.", "В разделе «Моя комната» игрушки размещаются в шесть колонок. Баланс золота сохраняется между запусками приложения."]),
@@ -4603,6 +4604,25 @@ struct ContentView: View {
                         .background(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .leading, endPoint: .trailing), in: Capsule())
                 }.buttonStyle(.plain)
                 VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("Медали за правильные ответы", icon: "medal.fill")
+                    Text("Правильные ответы накапливаются за всё время, даже после смены месяца. Каждая следующая медаль становится доступна после предыдущей.")
+                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                    let answerGoals: [(Int, String, String, Color)] = [
+                        (200, "🥉", "Первые 200", Color(red: 0.72, green: 0.43, blue: 0.25)),
+                        (300, "🥈", "Уверенный старт", Color(red: 0.63, green: 0.68, blue: 0.76)),
+                        (500, "🥇", "Полтысячи", Color(red: 0.96, green: 0.72, blue: 0.20)),
+                        (700, "🏆", "Мастер ответов", Color(red: 0.40, green: 0.65, blue: 0.92)),
+                        (850, "👑", "Знаток", Color(red: 0.68, green: 0.43, blue: 0.88)),
+                        (1000, "💎", "Гений знаний", Color(red: 0.28, green: 0.78, blue: 0.75))
+                    ]
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        ForEach(Array(answerGoals.enumerated()), id: \.offset) { index, item in
+                            correctAnswerMilestoneCard(goal: item.0, emoji: item.1, title: item.2, color: item.3, previousGoal: index == 0 ? 0 : answerGoals[index - 1].0)
+                        }
+                    }
+                }.padding(18).cardStyle(palette)
+                VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Полученные достижения", icon: "rosette")
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(AchievementCatalog.all.filter { unlockedAchievementIDs.contains($0.id) }) { item in achievementCard(item) }
@@ -4624,6 +4644,46 @@ struct ContentView: View {
             }.padding(25)
         }.scrollIndicators(.hidden)
     }
+    private func correctAnswerMilestoneCard(goal: Int, emoji: String, title: String, color: Color, previousGoal: Int) -> some View {
+        let lifetime = lifetimeCorrectAnswers
+        let earned = lifetime >= goal
+        let active = previousGoal == 0 || lifetime >= previousGoal
+        let shownProgress = active ? min(lifetime, goal) : 0
+        let percent = goal == 0 ? 0 : Int((Double(shownProgress) / Double(goal) * 100).rounded())
+        return VStack(alignment: .center, spacing: 8) {
+            Reward3DBadge(symbol: medalSymbol(for: emoji), tint: color, size: 58, locked: !earned)
+                .frame(width: 94, height: 82)
+                .background(
+                    LinearGradient(colors: earned ? [color.opacity(0.24), color.opacity(0.08)] : [Color.gray.opacity(0.08), palette.canvasMiddle],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing),
+                    in: RoundedRectangle(cornerRadius: 17)
+                )
+                .overlay(RoundedRectangle(cornerRadius: 17).stroke(earned ? color : Color.gray.opacity(0.35), lineWidth: earned ? 2 : 1))
+                .opacity(active || earned ? 1 : 0.58)
+            Text(title)
+                .font(.system(size: 12, weight: .heavy, design: .rounded))
+                .foregroundStyle(earned ? color : palette.ink)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .frame(minHeight: 30, alignment: .center)
+            Text("\(goal) правильных ответов")
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .foregroundStyle(palette.muted)
+                .multilineTextAlignment(.center)
+            ProgressView(value: Double(shownProgress), total: Double(goal))
+                .tint(earned ? color : (active ? palette.purple : Color.gray.opacity(0.35)))
+            Text(earned ? "100% · Медаль получена!" : (active ? "\(percent)% · \(shownProgress) из \(goal)" : "Откроется после предыдущей"))
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .foregroundStyle(earned ? palette.green : (active ? palette.purple : palette.muted))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, minHeight: 190, alignment: .top)
+        .padding(10)
+        .background(palette.cardSurface.opacity(0.94), in: RoundedRectangle(cornerRadius: 17))
+        .overlay(RoundedRectangle(cornerRadius: 17).stroke(earned ? color.opacity(0.8) : palette.line.opacity(0.7), lineWidth: earned ? 1.8 : 1))
+    }
+
     private func medalCard(_ emoji: String, title: String, detail: String, progress: Int, goal: Int, color: Color) -> some View {
         let earned = progress >= goal
         return VStack(alignment: .leading, spacing: 9) {
