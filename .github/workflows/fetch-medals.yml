@@ -34,6 +34,22 @@ jobs:
           h = int.from_bytes(data[20:24], "big")
           print(f"Original PNG validated: {w}x{h}, {len(data)} bytes")
           PY
+      - name: Generate small visual preview for inspection
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v magick >/dev/null 2>&1; then
+            magick MATH_TRAINER/Assets/medals-source.png -resize '320x320>' -quality 42 /tmp/medals-preview.jpg
+          elif command -v convert >/dev/null 2>&1; then
+            convert MATH_TRAINER/Assets/medals-source.png -resize '320x320>' -quality 42 /tmp/medals-preview.jpg
+          else
+            echo "No ImageMagick available for preview; original file remains safely stored."
+            exit 0
+          fi
+          echo "PREVIEW_DATA_START"
+          base64 -w0 /tmp/medals-preview.jpg
+          echo
+          echo "PREVIEW_DATA_END"
       - name: Commit original artwork into the app repository
         shell: bash
         run: |
