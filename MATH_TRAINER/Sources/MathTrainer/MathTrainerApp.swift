@@ -1986,6 +1986,44 @@ private struct MistakeRecord: Codable, Identifiable {
     let date: String
 }
 
+private struct ActivityQuestion: Identifiable {
+    let id = UUID()
+    let prompt: String
+    let answer: String
+    let choices: [String]
+    let explanation: String
+    let symbol: String
+}
+
+private enum ActivityQuestionBank {
+    static let detective: [ActivityQuestion] = [
+        ActivityQuestion(prompt: "Продолжи ряд: 2, 4, 6, 8, …", answer: "10", choices: ["9", "10", "12", "14"], explanation: "Каждый раз прибавляем 2: после 8 будет 10.", symbol: "🔢"),
+        ActivityQuestion(prompt: "У Маши 3 красных и 2 синих карандаша. Сколько всего карандашей?", answer: "5", choices: ["4", "5", "6", "7"], explanation: "Складываем красные и синие карандаши: 3 + 2 = 5.", symbol: "✏️"),
+        ActivityQuestion(prompt: "Что лишнее: кошка, собака, воробей, корова?", answer: "Воробей", choices: ["Кошка", "Собака", "Воробей", "Корова"], explanation: "Воробей — птица, остальные животные относятся к млекопитающим.", symbol: "🕵️"),
+        ActivityQuestion(prompt: "У стола 4 ножки. Сколько ножек у двух таких столов?", answer: "8", choices: ["6", "8", "10", "12"], explanation: "У каждого стола по 4 ножки: 4 + 4 = 8.", symbol: "🪑"),
+        ActivityQuestion(prompt: "Сегодня среда. Какой день будет через два дня?", answer: "Пятница", choices: ["Четверг", "Пятница", "Суббота", "Воскресенье"], explanation: "После среды идёт четверг, а ещё через день — пятница.", symbol: "📅"),
+        ActivityQuestion(prompt: "У всех квадратов…", answer: "4 равные стороны", choices: ["3 стороны", "4 равные стороны", "5 углов", "Все стороны разные"], explanation: "У квадрата четыре стороны одинаковой длины и четыре прямых угла.", symbol: "🟪"),
+        ActivityQuestion(prompt: "Найди число, которое не подходит: 5, 10, 15, 18, 20", answer: "18", choices: ["5", "10", "18", "20"], explanation: "Остальные числа делятся на 5, а 18 — нет.", symbol: "🔎"),
+        ActivityQuestion(prompt: "Улитка ползёт вверх по лестнице. Что ей нужно сделать, чтобы подняться выше?", answer: "Продолжать двигаться вверх", choices: ["Двигаться вниз", "Остаться на месте", "Продолжать двигаться вверх", "Повернуть на месте"], explanation: "Чтобы оказаться выше, нужно продолжать движение вверх.", symbol: "🐌"),
+        ActivityQuestion(prompt: "Какое слово получится, если переставить буквы в слове «РОТ»?", answer: "ТРО", choices: ["ТРО", "РОТТ", "ОРО", "ТОРО"], explanation: "Из тех же трёх букв можно составить слово «тро» как начало слова «тропа»; внимательно проверяй состав букв.", symbol: "🔤"),
+        ActivityQuestion(prompt: "У Лены 10 конфет. Она отдала половину. Сколько осталось?", answer: "5", choices: ["2", "4", "5", "8"], explanation: "Половина от 10 — это 5. Столько конфет и осталось.", symbol: "🍬"),
+        ActivityQuestion(prompt: "Что тяжелее: килограмм яблок или килограмм крупы?", answer: "Одинаково", choices: ["Яблоки", "Крупа", "Одинаково", "Нельзя сравнить"], explanation: "И там и там по одному килограмму — масса одинаковая.", symbol: "⚖️"),
+        ActivityQuestion(prompt: "Продолжи закономерность: круг, квадрат, круг, квадрат, …", answer: "Круг", choices: ["Круг", "Треугольник", "Квадрат", "Звезда"], explanation: "Фигуры чередуются: круг, квадрат, круг, квадрат. Следующий — круг.", symbol: "🧩")
+    ]
+    static let lifeSkills: [ActivityQuestion] = [
+        ActivityQuestion(prompt: "Карандаш стоит 12 ₽, блокнот — 28 ₽. Сколько нужно заплатить за оба товара?", answer: "40 ₽", choices: ["30 ₽", "36 ₽", "40 ₽", "42 ₽"], explanation: "Складываем цены: 12 + 28 = 40 рублей.", symbol: "🛍️"),
+        ActivityQuestion(prompt: "Ты заплатил 100 ₽ за покупку стоимостью 67 ₽. Какая сдача?", answer: "33 ₽", choices: ["23 ₽", "33 ₽", "37 ₽", "43 ₽"], explanation: "Вычитаем стоимость покупки из оплаты: 100 − 67 = 33 рубля.", symbol: "🪙"),
+        ActivityQuestion(prompt: "Занятие начинается в 15:00 и длится 45 минут. Когда оно закончится?", answer: "15:45", choices: ["15:15", "15:30", "15:45", "16:00"], explanation: "К 15:00 прибавляем 45 минут — получаем 15:45.", symbol: "🕒"),
+        ActivityQuestion(prompt: "На прогулку нужно взять воду, куртку и ключи. Что лучше сделать перед выходом?", answer: "Проверить весь список", choices: ["Взять только воду", "Ничего не проверять", "Проверить весь список", "Оставить ключи дома"], explanation: "Короткая проверка списка помогает не забыть нужные вещи.", symbol: "🎒"),
+        ActivityQuestion(prompt: "Что удобнее использовать, чтобы измерить длину карандаша?", answer: "Линейку", choices: ["Весы", "Линейку", "Часы", "Термометр"], explanation: "Линейка измеряет длину; весы измеряют массу, часы — время, термометр — температуру.", symbol: "📏"),
+        ActivityQuestion(prompt: "У тебя 200 ₽. Ты хочешь купить книгу за 120 ₽. Сколько останется?", answer: "80 ₽", choices: ["60 ₽", "70 ₽", "80 ₽", "90 ₽"], explanation: "200 − 120 = 80 рублей. Это остаток после покупки.", symbol: "📚"),
+        ActivityQuestion(prompt: "Ты видишь красный сигнал светофора у перехода. Что нужно сделать?", answer: "Остановиться и ждать разрешающего сигнала", choices: ["Быстро перебежать", "Остановиться и ждать разрешающего сигнала", "Идти за незнакомцем", "Играть у дороги"], explanation: "На красный сигнал нельзя начинать переход. Дождись разрешающего сигнала и убедись, что переход безопасен.", symbol: "🚦"),
+        ActivityQuestion(prompt: "Как лучше поступить, если не успеваешь выполнить все домашние дела?", answer: "Составить план и попросить помощи взрослого", choices: ["Скрыть это", "Бросить всё", "Составить план и попросить помощи взрослого", "Выполнить всё наугад"], explanation: "План помогает расставить приоритеты, а взрослый подскажет, как распределить время.", symbol: "🗓️"),
+        ActivityQuestion(prompt: "Что лучше сделать, прежде чем поделиться личными данными в интернете?", answer: "Посоветоваться с родителем", choices: ["Отправить любому", "Посоветоваться с родителем", "Написать пароль в чате", "Указать адрес всем"], explanation: "Адрес, пароль и другие личные сведения нельзя отправлять незнакомым людям. Обсуди это с родителем.", symbol: "🔐"),
+        ActivityQuestion(prompt: "Рецепт требует 2 стакана воды. Ты уже налил 1 стакан. Сколько осталось добавить?", answer: "1 стакан", choices: ["Полстакана", "1 стакан", "2 стакана", "3 стакана"], explanation: "Нужно 2 стакана, один уже налит: осталось добавить ещё один.", symbol: "🥣")
+    ]
+}
+
 struct MonthlyStats: Codable, Identifiable {
     var monthKey: String
     var correct: Int
@@ -2317,6 +2355,9 @@ struct MathTrainerApp: App {
 
 private enum AppSection: String, CaseIterable, Identifiable {
     case task = "Задание"
+    case detective = "Ежедневный детектив"
+    case memory = "Тренировка памяти"
+    case lifeSkills = "Навыки жизни"
     case olympiad = "Олимпиада"
     case statistics = "Статистика"
     case days = "По дням"
@@ -2330,6 +2371,9 @@ private enum AppSection: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .task: return "house.fill"
+        case .detective: return "magnifyingglass"
+        case .memory: return "brain.head.profile"
+        case .lifeSkills: return "lightbulb.max.fill"
         case .olympiad: return "trophy.circle.fill"
         case .statistics: return "chart.bar.fill"
         case .days: return "calendar"
@@ -2899,6 +2943,10 @@ struct ContentView: View {
     @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
     @AppStorage("MathTrainer.OlympiadWins.v1") private var olympiadWins = 0
     @AppStorage("MathTrainer.Mistakes.v1") private var mistakesStorage = ""
+    @AppStorage("MathTrainer.DetectiveRewardDate.v1") private var detectiveRewardDate = ""
+    @AppStorage("MathTrainer.DetectiveBestScore.v1") private var detectiveBestScore = 0
+    @AppStorage("MathTrainer.MemoryBestLevel.v1") private var memoryBestLevel = 0
+    @AppStorage("MathTrainer.LifeSkillsBestScore.v1") private var lifeSkillsBestScore = 0
     @AppStorage("MathTrainer.CorrectAnswersLifetime.v1") private var lifetimeCorrectAnswers = 0
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
@@ -2931,6 +2979,20 @@ struct ContentView: View {
     @State private var reviewingMistakeID: String? = nil
     @State private var olympiadAnswer = ""
     @State private var olympiadFeedback = ""
+    @State private var detectiveQuestions = Array(ActivityQuestionBank.detective.shuffled().prefix(5))
+    @State private var detectiveIndex = 0
+    @State private var detectiveScore = 0
+    @State private var detectiveSelectedAnswer: String? = nil
+    @State private var detectiveFinished = false
+    @State private var memoryLevel = 1
+    @State private var memoryRound = 0
+    @State private var memorySequence: [String] = []
+    @State private var memoryChoices: [String] = []
+    @State private var memoryShowing = true
+    @State private var memorySelectedAnswer: String? = nil
+    @State private var lifeSkillsIndex = 0
+    @State private var lifeSkillsScore = 0
+    @State private var lifeSkillsSelectedAnswer: String? = nil
     @FocusState private var answerFocused: Bool
 
     enum AnswerState { case neutral, correct, incorrect }
@@ -2988,6 +3050,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.146", date: "15.10.2026", title: "Новые развивающие режимы", changes: ["Добавлены «Ежедневный детектив» с пятью логическими загадками и ежедневным бонусом за идеальный результат, «Тренировка памяти» с последовательностями и постепенным ростом сложности, а также «Навыки жизни» с практическими ситуациями.", "В статистике появилась карточка «Мой наставник» с рекомендацией по предмету на основе результатов ребёнка.", "Новые разделы добавлены в прокручиваемое меню; существующие предметы, награды, магазин и история версий сохранены."]),
             ReleaseNote(version: "1.0.145", date: "15.10.2026", title: "Ускорена прокрутка магазина", changes: ["Снижена графическая нагрузка карточек игрушек при прокрутке длинного каталога.", "В магазине отключена постоянная анимация редких игрушек; оформление и покупки сохранены.", "История предыдущих версий сохранена."]),
         ReleaseNote(version: "1.0.144", date: "15.10.2026", title: "Уменьшены замки в магазине игрушек", changes: ["Размер замков на закрытых игрушках уменьшен в два раза, оформление магазина сохранено.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.143", date: "15.10.2026", title: "Четыре варианта ответа для математики и русского языка", changes: ["В математике и русском языке теперь показываются четыре варианта ответа, из которых один правильный.", "Процент прогресса оставлен на самой медали; дублирующая подпись с процентом под карточкой убрана.", "История предыдущих версий сохранена."]),
@@ -3344,6 +3407,7 @@ struct ContentView: View {
             .padding(.horizontal, 12).padding(.bottom, 18)
             .zIndex(showSubjectPicker ? 10 : 0)
 
+            ScrollView(.vertical) {
             VStack(spacing: 8) {
                 ForEach(AppSection.allCases.filter { $0 != .days }) { section in
                     Button {
@@ -3377,8 +3441,10 @@ struct ContentView: View {
                 }
             }
             .padding(.horizontal, 12)
+            }
+            .scrollIndicators(.hidden)
 
-            Spacer(minLength: 20)
+            Spacer(minLength: 12)
 
             HStack(spacing: 7) {
                 Image(systemName: "heart.fill").foregroundStyle(palette.pink)
@@ -3401,6 +3467,9 @@ struct ContentView: View {
         switch selected {
         case .task:
             taskDashboard
+        case .detective: detectivePage
+        case .memory: memoryPage
+        case .lifeSkills: lifeSkillsPage
         case .olympiad: olympiadPage
         case .statistics: statisticsPage
         case .days: daysPage
@@ -4172,10 +4241,322 @@ struct ContentView: View {
         .cardStyle(palette)
     }
 
+
+    private var detectivePage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                pageHeading("Ежедневный детектив", subtitle: "Пять небольших загадок для внимательного сыщика 🔎")
+                HStack(spacing: 14) {
+                    Text("🕵️").font(.system(size: 54))
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Дело дня").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Реши 5 заданий. За правильные ответы получишь алмазы, а за идеальный результат — дополнительный бонус раз в день.")
+                            .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                    Spacer(minLength: 0)
+                }.padding(18).cardStyle(palette)
+                if detectiveFinished {
+                    VStack(spacing: 14) {
+                        Text(detectiveScore == detectiveQuestions.count ? "🏆" : "✨").font(.system(size: 64))
+                        Text(detectiveScore == detectiveQuestions.count ? "Дело раскрыто идеально!" : "Расследование завершено!")
+                            .font(.system(size: 25, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Правильных ответов: \(detectiveScore) из \(detectiveQuestions.count)")
+                            .font(.system(size: 18, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                        if detectiveRewardDate == StatsStore.dateKey(Date()) {
+                            Text("Награда за сегодня уже получена. Можно сыграть ещё раз и потренироваться.")
+                                .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).multilineTextAlignment(.center)
+                        }
+                        Button {
+                            detectiveQuestions = Array(ActivityQuestionBank.detective.shuffled().prefix(5))
+                            detectiveIndex = 0; detectiveScore = 0; detectiveSelectedAnswer = nil; detectiveFinished = false
+                        } label: {
+                            Label("Новое расследование", systemImage: "arrow.clockwise")
+                                .font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                .padding(.horizontal, 22).padding(.vertical, 13).background(palette.purple, in: Capsule())
+                        }.buttonStyle(.plain)
+                    }.frame(maxWidth: .infinity).padding(28).cardStyle(palette)
+                } else if detectiveQuestions.indices.contains(detectiveIndex) {
+                    let item = detectiveQuestions[detectiveIndex]
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Text("ЗАДАНИЕ \(detectiveIndex + 1) ИЗ \(detectiveQuestions.count)")
+                                .font(.system(size: 11, weight: .black, design: .rounded)).tracking(0.7).foregroundStyle(palette.purple)
+                            Spacer()
+                            Text("⭐ \(detectiveScore)").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        }
+                        HStack(alignment: .center, spacing: 14) {
+                            Text(item.symbol).font(.system(size: 52)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
+                            Text(item.prompt).font(.system(size: 20, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                        }
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                            ForEach(item.choices, id: \.self) { choice in
+                                Button {
+                                    guard detectiveSelectedAnswer == nil else { return }
+                                    detectiveSelectedAnswer = choice
+                                    if choice == item.answer {
+                                        detectiveScore += 1
+                                        store.addDiamonds(1)
+                                    }
+                                } label: {
+                                    Text(choice).font(.system(size: 15, weight: .bold, design: .rounded))
+                                        .foregroundStyle(detectiveSelectedAnswer == choice ? .white : palette.ink)
+                                        .frame(maxWidth: .infinity, minHeight: 54)
+                                        .padding(.horizontal, 8)
+                                        .background(detectiveSelectedAnswer == choice ? (choice == item.answer ? palette.green : palette.red) : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                        .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
+                                }.buttonStyle(.plain).disabled(detectiveSelectedAnswer != nil)
+                            }
+                        }
+                        if let picked = detectiveSelectedAnswer {
+                            Text(picked == item.answer ? "Верно! \(item.explanation)" : "Пока не получилось. Правильный ответ: \(item.answer). \(item.explanation)")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundStyle(picked == item.answer ? palette.green : palette.red)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(12).frame(maxWidth: .infinity, alignment: .leading)
+                                .background((picked == item.answer ? palette.green : palette.red).opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
+                            Button {
+                                if detectiveIndex + 1 < detectiveQuestions.count {
+                                    detectiveIndex += 1
+                                    detectiveSelectedAnswer = nil
+                                } else {
+                                    detectiveFinished = true
+                                    detectiveBestScore = max(detectiveBestScore, detectiveScore)
+                                    if detectiveScore == detectiveQuestions.count && detectiveRewardDate != StatsStore.dateKey(Date()) {
+                                        store.addDiamonds(5)
+                                        detectiveRewardDate = StatsStore.dateKey(Date())
+                                    }
+                                }
+                            } label: {
+                                Label(detectiveIndex + 1 == detectiveQuestions.count ? "Завершить расследование" : "Следующая загадка", systemImage: "arrow.right")
+                                    .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                    .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
+                            }.buttonStyle(.plain)
+                        }
+                    }.padding(20).cardStyle(palette)
+                }
+                HStack {
+                    Label("Лучший результат: \(detectiveBestScore)/5", systemImage: "trophy.fill")
+                    Spacer()
+                    Label("Алмазы: \(store.stats.diamonds)", systemImage: "sparkles")
+                }.font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+            }.padding(24)
+        }
+    }
+
+    private let memorySymbols = ["🐸", "🦊", "🐼", "🦋", "🍓", "🚀", "⭐", "🐢", "🌈", "🐙", "🍉", "🎈"]
+
+    private func makeMemoryChoices(for sequence: [String]) -> [String] {
+        let correct = sequence.joined(separator: " ")
+        var choices = [correct]
+        while choices.count < 4 {
+            var altered = sequence
+            if altered.count > 1 {
+                let a = Int.random(in: 0..<altered.count)
+                var b = Int.random(in: 0..<altered.count)
+                while b == a { b = Int.random(in: 0..<altered.count) }
+                altered.swapAt(a, b)
+            }
+            let option = altered.joined(separator: " ")
+            if !choices.contains(option) { choices.append(option) }
+        }
+        return choices.shuffled()
+    }
+
+    private func startMemoryRound() {
+        let count = min(8, 3 + memoryLevel)
+        memorySequence = Array(memorySymbols.shuffled().prefix(count))
+        memoryChoices = makeMemoryChoices(for: memorySequence)
+        memoryShowing = true
+        memorySelectedAnswer = nil
+        memoryRound += 1
+    }
+
+    private var memoryPage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                pageHeading("Тренировка памяти", subtitle: "Запоминай последовательности и постепенно повышай уровень 🧠")
+                HStack(spacing: 14) {
+                    Text("🧠").font(.system(size: 54))
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Уровень \(memoryLevel)").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Посмотри на последовательность, запомни порядок и выбери её среди вариантов. На каждом новом уровне символов становится больше.")
+                            .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                }.padding(18).cardStyle(palette)
+                VStack(alignment: .leading, spacing: 18) {
+                    HStack {
+                        Text(memoryShowing ? "ЗАПОМНИ ПО ПОРЯДКУ" : "ВОССТАНОВИ ПО ПАМЯТИ")
+                            .font(.system(size: 12, weight: .black, design: .rounded)).tracking(0.5).foregroundStyle(palette.purple)
+                        Spacer()
+                        Text("Рекорд: \(memoryBestLevel)").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                    if memorySequence.isEmpty {
+                        Text("Готов? Нажми кнопку, чтобы начать первую последовательность.")
+                            .font(.system(size: 18, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
+                    } else if memoryShowing {
+                        Text(memorySequence.joined(separator: "   ")).font(.system(size: 39)).frame(maxWidth: .infinity, minHeight: 100)
+                            .padding(12).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
+                        Text("Запоминай и порядок, и сами символы. Через несколько секунд последовательность скроется.")
+                            .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    } else {
+                        Text("Какая последовательность была показана?").font(.system(size: 19, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        VStack(spacing: 9) {
+                            ForEach(memoryChoices, id: \.self) { choice in
+                                Button {
+                                    guard memorySelectedAnswer == nil else { return }
+                                    memorySelectedAnswer = choice
+                                    let correct = memorySequence.joined(separator: " ")
+                                    if choice == correct {
+                                        memoryBestLevel = max(memoryBestLevel, memoryLevel)
+                                        store.addDiamonds(1)
+                                    } else {
+                                        memoryLevel = max(1, memoryLevel - 1)
+                                    }
+                                } label: {
+                                    Text(choice).font(.system(size: 21)).frame(maxWidth: .infinity, minHeight: 56)
+                                        .foregroundStyle(memorySelectedAnswer == choice ? .white : palette.ink)
+                                        .background(memorySelectedAnswer == choice ? (choice == memorySequence.joined(separator: " ") ? palette.green : palette.red) : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                        .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
+                                }.buttonStyle(.plain).disabled(memorySelectedAnswer != nil)
+                            }
+                        }
+                        if let picked = memorySelectedAnswer {
+                            Text(picked == memorySequence.joined(separator: " ") ? "Отличная память! Ты заработал 1 алмаз." : "Не беда — тренировка помогает запоминать лучше. Попробуй ещё раз.")
+                                .font(.system(size: 14, weight: .semibold, design: .rounded)).foregroundStyle(picked == memorySequence.joined(separator: " ") ? palette.green : palette.muted)
+                            Button {
+                                if memorySelectedAnswer == memorySequence.joined(separator: " ") { memoryLevel = min(6, memoryLevel + 1) }
+                                startMemoryRound()
+                            } label: {
+                                Label("Следующая последовательность", systemImage: "arrow.right")
+                                    .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                    .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
+                            }.buttonStyle(.plain)
+                        }
+                    }
+                    if memorySequence.isEmpty {
+                        Button { startMemoryRound() } label: {
+                            Label("Начать тренировку", systemImage: "play.fill")
+                                .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
+                        }.buttonStyle(.plain)
+                    }
+                }.padding(22).cardStyle(palette)
+            }.padding(24)
+        }
+        .task(id: memoryRound) {
+            guard memoryShowing, !memorySequence.isEmpty else { return }
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            if !Task.isCancelled { memoryShowing = false }
+        }
+    }
+
+    private var lifeSkillsPage: some View {
+        let item = ActivityQuestionBank.lifeSkills[lifeSkillsIndex % ActivityQuestionBank.lifeSkills.count]
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                pageHeading("Навыки жизни", subtitle: "Учимся применять знания в обычных ситуациях 🌟")
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    miniStat("Решено", value: "\(lifeSkillsIndex)", icon: "checkmark.circle.fill", color: palette.purple)
+                    miniStat("Верно в этой сессии", value: "\(lifeSkillsScore)", icon: "target", color: palette.green)
+                    miniStat("Лучший результат", value: "\(lifeSkillsBestScore)", icon: "trophy.fill", color: Color(red: 0.94, green: 0.52, blue: 0.24))
+                }
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(spacing: 14) {
+                        Text(item.symbol).font(.system(size: 52)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Ситуация из жизни").font(.system(size: 12, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
+                            Text(item.prompt).font(.system(size: 20, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        ForEach(item.choices, id: \.self) { choice in
+                            Button {
+                                guard lifeSkillsSelectedAnswer == nil else { return }
+                                lifeSkillsSelectedAnswer = choice
+                                lifeSkillsIndex += 1
+                                if choice == item.answer {
+                                    lifeSkillsScore += 1
+                                    lifeSkillsBestScore = max(lifeSkillsBestScore, lifeSkillsScore)
+                                    store.addDiamonds(1)
+                                }
+                            } label: {
+                                Text(choice).font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundStyle(lifeSkillsSelectedAnswer == choice ? .white : palette.ink)
+                                    .frame(maxWidth: .infinity, minHeight: 60).padding(.horizontal, 8)
+                                    .background(lifeSkillsSelectedAnswer == choice ? (choice == item.answer ? palette.green : palette.red) : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                    .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
+                            }.buttonStyle(.plain).disabled(lifeSkillsSelectedAnswer != nil)
+                        }
+                    }
+                    if let picked = lifeSkillsSelectedAnswer {
+                        Text(picked == item.answer ? "Верно! \(item.explanation)" : "Правильный ответ: \(item.answer). \(item.explanation)")
+                            .font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(picked == item.answer ? palette.green : palette.red)
+                            .fixedSize(horizontal: false, vertical: true).padding(12)
+                            .background((picked == item.answer ? palette.green : palette.red).opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
+                        Button {
+                            lifeSkillsSelectedAnswer = nil
+                        } label: {
+                            Label("Следующая ситуация", systemImage: "arrow.right")
+                                .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
+                        }.buttonStyle(.plain)
+                    }
+                }.padding(22).cardStyle(palette)
+            }.padding(24)
+        }
+    }
+
+    private var mentorCard: some View {
+        let weakest = StudySubject.allCases
+            .map { subject in (subject, decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()) }
+            .filter { $0.1.total >= 3 }
+            .min { $0.1.accuracy < $1.1.accuracy }
+        let message: String
+        let action: String
+        if let weakest, weakest.1.accuracy < 80 {
+            message = "Давай уделим немного внимания предмету «\(weakest.0.rawValue)». В нём пока верно \(weakest.1.accuracy)% ответов. Несколько спокойных упражнений помогут закрепить знания."
+            action = "Потренировать \(weakest.0.rawValue)"
+        } else if store.stats.total < 10 {
+            message = "Начни с короткой тренировки на 5–10 минут. Ошибки — это подсказки, которые помогают учиться. Попробуй разные предметы и найди любимый!"
+            action = "Начать занятие"
+        } else {
+            message = "Ты уже решил \(store.stats.total) заданий с точностью \(store.stats.accuracy)%. Продолжай заниматься понемногу и делай перерывы — регулярность важнее спешки."
+            action = "Продолжить занятие"
+        }
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Text("🦉").font(.system(size: 42)).frame(width: 62, height: 62).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 16))
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Мой наставник").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Совет на основе твоих результатов").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                }
+                Spacer(minLength: 0)
+            }
+            Text(message).font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Label("Сегодня: \(store.stats.correct) верных", systemImage: "checkmark.circle.fill")
+                Spacer()
+                Text("Без оценок и упрёков 💜")
+            }.font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+            Button {
+                if let weakest, weakest.1.accuracy < 80 { selectedSubjectName = weakest.0.rawValue }
+                selected = .task
+                answer = ""; answerState = .neutral
+                problem = makeUniqueProblem(for: selectedSubject)
+                currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
+            } label: {
+                Label(action, systemImage: "play.fill")
+                    .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                    .padding(.horizontal, 17).padding(.vertical, 11).background(palette.purple, in: Capsule())
+            }.buttonStyle(.plain)
+        }.padding(18).cardStyle(palette)
+    }
+
     private var statisticsPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Твои успехи", subtitle: "Каждый пример помогает стать увереннее 💜")
+                mentorCard
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
                     largeStat("Всего ответов", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
                     largeStat("Правильных ответов", value: "\(store.stats.correct)", icon: "checkmark.circle.fill", color: palette.green)
