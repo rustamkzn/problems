@@ -340,9 +340,11 @@ struct ProblemGenerator {
             let b = Int.random(in: 1...(100 - a))
             return Problem(text: "\(a) + \(b) = ?", answer: String(a + b))
         case 1:
-            let a = Int.random(in: 20...100)
-            let b = Int.random(in: 1...a)
-            return Problem(text: "\(a) − \(b) = ?", answer: String(a - b))
+            let tens = Int.random(in: 4...9) * 10
+            let ones = Int.random(in: 1...9)
+            let subtract = Int.random(in: 11...min(39, tens + ones))
+            let result = tens + ones - subtract
+            return Problem(text: "Вычитание по частям: \(tens + ones) − \(subtract) = ? (сначала десятки, затем единицы)", answer: String(result))
         case 2:
             let a = Int.random(in: 10...80)
             let b = Int.random(in: 1...20)
@@ -1667,6 +1669,85 @@ struct ProblemGenerator {
         return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled(), showIllustration: false)
     }
 
+    private static func languageOrWorldQuestion(for subject: StudySubject) -> Problem? {
+        let bank: [(String, String, [String])]
+        switch subject {
+        case .english:
+            bank = [
+                ("Complete with the correct form of “to be”: I ___ happy.", "am", ["am", "is", "are", "be"]),
+                ("Complete: She ___ my sister.", "is", ["am", "is", "are", "be"]),
+                ("Complete: They ___ at school.", "are", ["am", "is", "are", "be"]),
+                ("Complete: We ___ friends.", "are", ["am", "is", "are", "be"]),
+                ("Choose the correct sentence.", "He is seven.", ["He is seven.", "He are seven.", "He am seven.", "He be seven."]),
+                ("Which word contains “ee”?", "tree", ["tree", "cat", "dog", "sun"]),
+                ("Which word contains “oo”?", "book", ["book", "pen", "bag", "bed"]),
+                ("Which word contains “ai”?", "rain", ["rain", "red", "run", "fox"]),
+                ("Which word contains “oa”?", "boat", ["boat", "bird", "fish", "cup"]),
+                ("Which word begins with the sound /sh/?", "ship", ["ship", "cat", "dog", "pen"]),
+                ("Which word begins with the sound /ch/?", "chair", ["chair", "table", "book", "door"]),
+                ("Which word begins with the sound /th/?", "three", ["three", "tree", "free", "see"]),
+                ("What is “pillow” in Russian?", "подушка", ["подушка", "стол", "окно", "дверь"]),
+                ("What is “mirror” in Russian?", "зеркало", ["зеркало", "кровать", "полка", "лампа"]),
+                ("What is “fridge” in Russian?", "холодильник", ["холодильник", "диван", "ковёр", "стул"]),
+                ("What is “sidewalk” in Russian?", "тротуар", ["тротуар", "крыша", "потолок", "стена"]),
+                ("What is “crosswalk” in Russian?", "пешеходный переход", ["пешеходный переход", "остановка", "магазин", "парк"]),
+                ("What is “traffic light” in Russian?", "светофор", ["светофор", "автобус", "велосипед", "фонарь"]),
+                ("What is “blackboard” in Russian?", "школьная доска", ["школьная доска", "пенал", "ранец", "линейка"]),
+                ("What is “ruler” in Russian?", "линейка", ["линейка", "тетрадь", "мел", "клей"]),
+                ("Choose the action word (verb).", "jump", ["jump", "blue", "chair", "quiet"]),
+                ("Choose the action word (verb).", "write", ["write", "window", "green", "school"]),
+                ("What does “carry” mean?", "нести", ["нести", "спать", "петь", "рисовать"]),
+                ("What does “listen” mean?", "слушать", ["слушать", "бежать", "прыгать", "открывать"]),
+                ("What does “draw” mean?", "рисовать", ["рисовать", "читать", "пить", "сидеть"])
+            ]
+        case .tatar:
+            bank = [
+                ("Кайсы хәрефләр сузык авазларны белдерә? (Какие буквы обозначают гласные?)", "а, ә, э, и, о, ө, у, ү, ы, е, ё, ю, я", ["а, ә, э, и, о, ө, у, ү, ы, е, ё, ю, я", "б, в, г, д, ж", "т, к, п, с, ш", "м, н, р, л, й"]),
+                ("Татар телендә тартык аваз нәрсә ул? (Что такое согласный звук?)", "Согласный звук", ["Согласный звук", "Гласный звук", "Знак препинания", "Целое предложение"]),
+                ("Сколько слогов в слове «мәктәп»?", "2", ["2", "1", "3", "4"]),
+                ("Как по-татарски «тетрадь»?", "дәфтәр", ["дәфтәр", "каләм", "ишек", "тәрәзә"]),
+                ("Как по-татарски «ручка»?", "каләм", ["каләм", "дәфтәр", "өстәл", "китап"]),
+                ("Как по-татарски «книга»?", "китап", ["китап", "мәче", "урындык", "кибет"]),
+                ("Как по-татарски «дом»?", "өй", ["өй", "мәктәп", "урам", "кибет"]),
+                ("Как по-татарски «улица»?", "урам", ["урам", "балык", "дәфтәр", "тәрәзә"]),
+                ("Как по-татарски «магазин»?", "кибет", ["кибет", "урман", "мәктәп", "күл"]),
+                ("Как по-татарски «кошка»?", "мәче", ["мәче", "эт", "ат", "кош"]),
+                ("Как по-татарски «собака»?", "эт", ["эт", "мәче", "балык", "куян"]),
+                ("Как по-татарски «лошадь»?", "ат", ["ат", "кош", "сыер", "балык"]),
+                ("Как по-татарски «птица»?", "кош", ["кош", "мәче", "эт", "ат"]),
+                ("Как по-татарски «рыба»?", "балык", ["балык", "дәфтәр", "каләм", "ишек"]),
+                ("Какая гласная буква есть в слове «күл»?", "ү", ["ү", "б", "к", "л"]),
+                ("Сколько слогов в слове «бала»?", "2", ["2", "1", "3", "4"]),
+                ("Что означает «сөт»?", "молоко", ["молоко", "хлеб", "вода", "яблоко"]),
+                ("Что означает «алма»?", "яблоко", ["яблоко", "окно", "школа", "дорога"]),
+                ("Что означает «урындык»?", "стул", ["стул", "стол", "книга", "дверь"]),
+                ("Что означает «тәрәзә»?", "окно", ["окно", "пол", "крыша", "ручка"])
+            ]
+        case .world:
+            bank = [
+                ("Как называется природное явление, при котором гремит гром и сверкает молния?", "Гроза", ["Гроза", "Роса", "Туман", "Радуга"]),
+                ("Как называется вода, падающая из облаков в виде капель?", "Дождь", ["Дождь", "Иней", "Роса", "Снег"]),
+                ("Почему появляется радуга?", "Свет преломляется и отражается в каплях воды", ["Свет преломляется и отражается в каплях воды", "Из-за дыма", "Из-за мороза", "Из-за ветра"]),
+                ("Как называется тонкий слой льда на ветках?", "Иней", ["Иней", "Туман", "Роса", "Пар"]),
+                ("Какая птица остаётся зимовать в Татарстане?", "Синица", ["Синица", "Ласточка", "Стриж", "Аист"]),
+                ("Зачем птицы строят гнёзда?", "Чтобы откладывать яйца и растить птенцов", ["Чтобы откладывать яйца и растить птенцов", "Чтобы выращивать цветы", "Чтобы хранить воду", "Чтобы прятать корни"]),
+                ("Чем покрыто тело большинства птиц?", "Перьями", ["Перьями", "Шерстью", "Чешуёй", "Панцирем"]),
+                ("Что нужно семени для прорастания?", "Вода, воздух и подходящая температура", ["Вода, воздух и подходящая температура", "Только песок", "Только темнота", "Только сахар"]),
+                ("Как растения получают энергию для образования питательных веществ?", "Используют энергию солнечного света", ["Используют энергию солнечного света", "Питаются камнями", "Пьют молоко", "Получают пищу из воздуха без света"]),
+                ("Для чего корням нужна почва?", "Чтобы закрепляться и получать воду с минеральными веществами", ["Чтобы закрепляться и получать воду с минеральными веществами", "Чтобы ловить насекомых у всех растений", "Чтобы создавать семена без цветков", "Чтобы поглощать солнечный свет вместо листьев"]),
+                ("Какую функцию выполняет ствол дерева?", "Поддерживает крону и проводит воду и вещества", ["Поддерживает крону и проводит воду и вещества", "Поглощает пищу ртом", "Производит перья", "Помогает плавать"]),
+                ("Почему осенью листья многих деревьев меняют цвет?", "Меняется количество зелёного пигмента в листьях", ["Меняется количество зелёного пигмента в листьях", "Дерево становится неживым", "Листья превращаются в цветы", "Солнце меняет цвет"]),
+                ("Чем дышит рыба в воде?", "Жабрами", ["Жабрами", "Лёгкими как человек", "Плавниками", "Хвостом"]),
+                ("Как рыбы обычно передвигаются в воде?", "Плавают с помощью плавников и движений тела", ["Плавают с помощью плавников и движений тела", "Летают крыльями", "Ходят на лапах", "Прыгают на корнях"]),
+                ("Что помогает водным растениям получать свет?", "Расположение листьев в освещённой воде", ["Расположение листьев в освещённой воде", "Корни в полной темноте всегда", "Панцирь", "Перья"]),
+                ("Что такое круговорот воды в природе?", "Переход воды между поверхностью, воздухом и осадками", ["Переход воды между поверхностью, воздухом и осадками", "Рост дерева из камня", "Перелёт птиц", "Движение рыб по реке"])
+            ]
+        default: return nil
+        }
+        guard let item = bank.randomElement() else { return nil }
+        return Problem(text: item.0, answer: item.1, isTatarChoice: true, tatarChoices: item.2.shuffled())
+    }
+
     fileprivate static func nextAdvancedQuestion(for subject: StudySubject, level: Int) -> Problem? {
         let bank: [(String, String, [String])]
         switch subject {
@@ -1753,6 +1834,7 @@ struct ProblemGenerator {
     }
 
     fileprivate static func next(for subject: StudySubject, difficulty: Int = 1) -> Problem {
+        if let question = languageOrWorldQuestion(for: subject) { return question }
         if subject == .logic { return logicQuestion(level: difficulty) }
         if subject == .biology { return biologyQuestion(level: difficulty, illustrated: false) }
         if subject == .geometry { return geometryQuestion(level: difficulty) }
@@ -2376,7 +2458,7 @@ private enum ActivityQuestionBank {
         for i in 0..<10_000 {
             let item = templates[i % templates.count]
             let name = names[(i / templates.count + i) % names.count]
-            let prompt = item.0.replacingOccurrences(of: "{n}", with: name) + " (ситуация №\(i + 1))"
+            let prompt = item.0.replacingOccurrences(of: "{n}", with: name)
             bank.append(ActivityQuestion(prompt: prompt, answer: item.1, choices: fourChoices(item.1, item.2), explanation: item.3, symbol: item.4))
         }
         return bank
@@ -2792,11 +2874,11 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     }
     var darkPanel: Color {
         switch self {
-        case .darkRuby: Color(red: 0.12, green: 0.09, blue: 0.19)
-        case .darkForest: Color(red: 0.07, green: 0.16, blue: 0.15)
-        case .darkOcean: Color(red: 0.07, green: 0.12, blue: 0.23)
-        case .darkGraphite: Color(red: 0.10, green: 0.10, blue: 0.19)
-        case .darkAmber: Color(red: 0.20, green: 0.08, blue: 0.14)
+        case .darkRuby: Color(red: 0.22, green: 0.17, blue: 0.31)
+        case .darkForest: Color(red: 0.15, green: 0.25, blue: 0.23)
+        case .darkOcean: Color(red: 0.15, green: 0.22, blue: 0.34)
+        case .darkGraphite: Color(red: 0.20, green: 0.19, blue: 0.31)
+        case .darkAmber: Color(red: 0.31, green: 0.17, blue: 0.24)
         default: Color(red: 0.10, green: 0.09, blue: 0.15)
         }
     }
@@ -2815,21 +2897,21 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     var darkRed: Color { Color(red: 1, green: 0.40, blue: 0.47) }
     var darkCanvasTop: Color {
         switch self {
-        case .darkRuby: Color(red: 0.17, green: 0.12, blue: 0.25)
-        case .darkForest: Color(red: 0.09, green: 0.21, blue: 0.18)
-        case .darkOcean: Color(red: 0.09, green: 0.16, blue: 0.29)
-        case .darkGraphite: Color(red: 0.14, green: 0.13, blue: 0.25)
-        case .darkAmber: Color(red: 0.26, green: 0.11, blue: 0.18)
+        case .darkRuby: Color(red: 0.29, green: 0.23, blue: 0.39)
+        case .darkForest: Color(red: 0.20, green: 0.31, blue: 0.28)
+        case .darkOcean: Color(red: 0.20, green: 0.29, blue: 0.42)
+        case .darkGraphite: Color(red: 0.27, green: 0.25, blue: 0.40)
+        case .darkAmber: Color(red: 0.38, green: 0.22, blue: 0.31)
         default: darkPanel
         }
     }
     var darkCanvasMiddle: Color {
         switch self {
-        case .darkRuby: Color(red: 0.10, green: 0.07, blue: 0.16)
-        case .darkForest: Color(red: 0.06, green: 0.13, blue: 0.12)
-        case .darkOcean: Color(red: 0.06, green: 0.10, blue: 0.19)
-        case .darkGraphite: Color(red: 0.08, green: 0.08, blue: 0.16)
-        case .darkAmber: Color(red: 0.16, green: 0.06, blue: 0.11)
+        case .darkRuby: Color(red: 0.19, green: 0.14, blue: 0.27)
+        case .darkForest: Color(red: 0.12, green: 0.22, blue: 0.19)
+        case .darkOcean: Color(red: 0.12, green: 0.19, blue: 0.31)
+        case .darkGraphite: Color(red: 0.18, green: 0.17, blue: 0.29)
+        case .darkAmber: Color(red: 0.27, green: 0.13, blue: 0.21)
         default: darkPanel
         }
     }
@@ -3307,6 +3389,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.DetectiveRewardDate.v1") private var detectiveRewardDate = ""
     @AppStorage("MathTrainer.DetectiveBestScore.v1") private var detectiveBestScore = 0
     @AppStorage("MathTrainer.MemoryBestLevel.v1") private var memoryBestLevel = 0
+    @AppStorage("MathTrainer.MemoryCategoryStats.v1") private var memoryCategoryStatsStorage = ""
     @AppStorage("MathTrainer.LifeSkillsBestScore.v1") private var lifeSkillsBestScore = 0
     @AppStorage("MathTrainer.CorrectAnswersLifetime.v1") private var lifetimeCorrectAnswers = 0
     @StateObject private var store = StatsStore()
@@ -3904,7 +3987,7 @@ struct ContentView: View {
 
     private var subjectPickerMenu: some View {
         ScrollView {
-            VStack(spacing: 8) {
+            VStack(spacing: 3) {
                 ForEach(StudySubject.allCases) { subject in
                     Button {
                         selectedSubjectName = subject.rawValue
@@ -3933,7 +4016,7 @@ struct ContentView: View {
                                     .foregroundStyle(palette.purple)
                             }
                         }
-                        .padding(.horizontal, 9).padding(.vertical, 7)
+                        .padding(.horizontal, 9).padding(.vertical, 4)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(subject == selectedSubject ? palette.palePink : palette.cardSurface, in: RoundedRectangle(cornerRadius: 11))
                         .overlay(RoundedRectangle(cornerRadius: 11).stroke(subject == selectedSubject ? palette.purple : palette.line, lineWidth: subject == selectedSubject ? 2 : 1))
@@ -4719,12 +4802,34 @@ struct ContentView: View {
     private let memoryLetterSymbols = Array("АБВГДЕЖЗИКЛМНОПРСТУФХ").map(String.init)
     private let memoryDigitSymbols = Array("0123456789").map(String.init)
     private let memorySignSymbols = ["+", "−", "×", "÷", "=", "<", ">", "△", "○", "□"]
+    private let memoryShapeSymbols = ["○", "□", "△", "⏢", "◇", "🔺"]
+    private let memoryColorSymbols = ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣", "⚫", "⚪"]
+    private var decodedMemoryCategoryStats: [String: [Int]] {
+        guard let data = memoryCategoryStatsStorage.data(using: .utf8),
+              let decoded = try? JSONDecoder().decode([String: [Int]].self, from: data) else { return [:] }
+        return decoded
+    }
+    private func recordMemoryAnswer(correct: Bool) {
+        var stats = decodedMemoryCategoryStats
+        let outcomeIndex = correct ? 0 : 1
+        for type in memorySelectedTypes {
+            var counts = stats[type] ?? [0, 0]
+            if counts.count < 2 { counts = [0, 0] }
+            counts[outcomeIndex] += 1
+            stats[type] = counts
+        }
+        if let data = try? JSONEncoder().encode(stats) {
+            memoryCategoryStatsStorage = String(decoding: data, as: UTF8.self)
+        }
+    }
     private var availableMemorySymbols: [String] {
         var result: [String] = []
         if memorySelectedTypes.contains("Картинки") { result += memoryImageSymbols }
         if memorySelectedTypes.contains("Буквы") { result += memoryLetterSymbols }
         if memorySelectedTypes.contains("Цифры") { result += memoryDigitSymbols }
         if memorySelectedTypes.contains("Знаки") { result += memorySignSymbols }
+        if memorySelectedTypes.contains("Геометрические формы") { result += memoryShapeSymbols }
+        if memorySelectedTypes.contains("Цвета") { result += memoryColorSymbols }
         return result.isEmpty ? memoryImageSymbols : result
     }
 
@@ -4797,7 +4902,7 @@ struct ContentView: View {
                         Text("Выбери, что нужно запоминать:")
                             .font(.system(size: 16, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
-                            ForEach(["Картинки", "Буквы", "Цифры", "Знаки"], id: \.self) { type in
+                            ForEach(["Картинки", "Буквы", "Цифры", "Знаки", "Геометрические формы", "Цвета"], id: \.self) { type in
                                 Button {
                                     if memorySelectedTypes.contains(type) {
                                         if memorySelectedTypes.count > 1 { memorySelectedTypes.remove(type) }
@@ -4852,7 +4957,9 @@ struct ContentView: View {
                                     guard memorySelectedAnswer == nil else { return }
                                     memorySelectedAnswer = choice
                                     let correct = memorySequence.joined(separator: " ")
-                                    if choice == correct {
+                                    let isCorrect = choice == correct
+                                    recordMemoryAnswer(correct: isCorrect)
+                                    if isCorrect {
                                         memoryBestLevel = max(memoryBestLevel, memoryLevel)
                                         store.addDiamonds(1)
                                     } else {
@@ -4881,6 +4988,25 @@ struct ContentView: View {
                                 }.buttonStyle(.plain)
                             }
                         }
+                    }
+                    if memorySequence.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Статистика по направлениям").font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("Верные ответы и ошибки помогают понять, какой материал стоит повторить.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            ForEach(["Картинки", "Цифры", "Буквы", "Знаки", "Геометрические формы", "Цвета"], id: \.self) { type in
+                                let counts = decodedMemoryCategoryStats[type] ?? [0, 0]
+                                let correct = counts.indices.contains(0) ? counts[0] : 0
+                                let wrong = counts.indices.contains(1) ? counts[1] : 0
+                                HStack(spacing: 8) {
+                                    Text(type).font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                                    Spacer()
+                                    Text("Верно: \(correct)").foregroundStyle(palette.green)
+                                    Text("Ошибки: \(wrong)").foregroundStyle(wrong > 0 ? palette.red : palette.muted)
+                                    if correct + wrong > 0 { Text("\(Int(Double(correct) * 100 / Double(correct + wrong)))%").foregroundStyle(palette.purple) }
+                                }.font(.system(size: 12, weight: .semibold, design: .rounded)).padding(.vertical, 5)
+                                Divider().overlay(palette.line)
+                            }
+                        }.padding(14).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 14))
                     }
                     if memorySequence.isEmpty {
                         Button { startMemoryRound() } label: {
