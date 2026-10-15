@@ -38,18 +38,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if command -v magick >/dev/null 2>&1; then
-            magick MATH_TRAINER/Assets/medals-source.png -resize '320x320>' -quality 42 /tmp/medals-preview.jpg
-          elif command -v convert >/dev/null 2>&1; then
-            convert MATH_TRAINER/Assets/medals-source.png -resize '320x320>' -quality 42 /tmp/medals-preview.jpg
-          else
-            echo "No ImageMagick available for preview; original file remains safely stored."
-            exit 0
-          fi
-          echo "PREVIEW_DATA_START"
-          base64 -w0 /tmp/medals-preview.jpg
-          echo
-          echo "PREVIEW_DATA_END"
+          python3 -m venv /tmp/imgvenv
+          /tmp/imgvenv/bin/pip install --quiet Pillow
+          /tmp/imgvenv/bin/python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          import base64, io
+          im = Image.open("MATH_TRAINER/Assets/medals-source.png").convert("RGB")
+          im.thumbnail((300, 300))
+          out = io.BytesIO()
+          im.save(out, format="JPEG", quality=40, optimize=True)
+          print(f"PREVIEW_DIMENSIONS={im.width}x{im.height}")
+          print("PREVIEW_DATA_START")
+          print(base64.b64encode(out.getvalue()).decode("ascii"))
+          print("PREVIEW_DATA_END")
+          PY
       - name: Commit original artwork into the app repository
         shell: bash
         run: |
