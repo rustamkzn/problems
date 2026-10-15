@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import Combine
+import AVFoundation
 
 private struct PeriodicElementTile: View {
     let prompt: String
@@ -2086,7 +2087,12 @@ private enum ActivityQuestionBank {
             result.append(value)
             if result.count == 4 { break }
         }
-        return result.shuffled()
+        let fallback = ["Другой вариант", "Ни один из этих вариантов", "Нужно подумать ещё раз", "Зависит от ситуации", "Верный ответ другой"]
+        for value in fallback where !result.contains(value) {
+            result.append(value)
+            if result.count == 4 { break }
+        }
+        return Array(result.prefix(4)).shuffled()
     }
     // 1 200 automatically generated questions, with varying values and explanations.
     private static let generatedDetective: [ActivityQuestion] = {
@@ -2098,7 +2104,7 @@ private enum ActivityQuestionBank {
         }
         for i in 0..<120 {
             let divisor = 2 + i % 12, quotient = 3 + (i / 12) % 10, total = divisor * quotient
-            bank.append(ActivityQuestion(prompt: "Расследование №\(i + 121). \(total) жетонов поровну разделили между \(divisor) игроками. Сколько получил каждый?", answer: "\(quotient)", choices: fourChoices("\(quotient)", ["\(quotient + 1)", "\(max(1, quotient - 2))", "\(quotient + divisor)"]), explanation: "Делим поровну: \(total) ÷ \(divisor) = \(quotient).", symbol: "🪙"))
+            bank.append(ActivityQuestion(prompt: "\(total) жетонов поровну разделили между \(divisor) игроками. Сколько получил каждый?", answer: "\(quotient)", choices: fourChoices("\(quotient)", ["\(quotient + 1)", "\(max(1, quotient - 2))", "\(quotient + divisor)"]), explanation: "Делим поровну: \(total) ÷ \(divisor) = \(quotient).", symbol: "🪙"))
         }
         for i in 0..<120 {
             let start = 3 + i % 35, step = 2 + (i / 35) % 9, answer = start + step * 4
@@ -2738,11 +2744,11 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     case denim = "Джинсовая"
     case amber = "Янтарная"
     case berry = "Ягодная"
-    case darkRuby = "Тёмная слива"
-    case darkForest = "Нефритовая ночь"
-    case darkOcean = "Полуночный сапфир"
-    case darkGraphite = "Графитовый индиго"
-    case darkAmber = "Вишнёвый бархат"
+    case darkRuby = "Лаванда на графите"
+    case darkForest = "Мята на графите"
+    case darkOcean = "Северное сияние"
+    case darkGraphite = "Космический синий"
+    case darkAmber = "Ночная роза"
     var id: String { rawValue }
     var isDark: Bool { switch self { case .darkRuby, .darkForest, .darkOcean, .darkGraphite, .darkAmber: true; default: false } }
     var darkText: Color { Color(red: 0.96, green: 0.97, blue: 1) }
@@ -2768,11 +2774,11 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     }
     var darkPanel: Color {
         switch self {
-        case .darkRuby: Color(red: 0.75, green: 0.62, blue: 0.82)
-        case .darkForest: Color(red: 0.58, green: 0.73, blue: 0.66)
-        case .darkOcean: Color(red: 0.60, green: 0.68, blue: 0.82)
-        case .darkGraphite: Color(red: 0.68, green: 0.64, blue: 0.82)
-        case .darkAmber: Color(red: 0.78, green: 0.61, blue: 0.70)
+        case .darkRuby: Color(red: 0.12, green: 0.09, blue: 0.19)
+        case .darkForest: Color(red: 0.07, green: 0.16, blue: 0.15)
+        case .darkOcean: Color(red: 0.07, green: 0.12, blue: 0.23)
+        case .darkGraphite: Color(red: 0.10, green: 0.10, blue: 0.19)
+        case .darkAmber: Color(red: 0.20, green: 0.08, blue: 0.14)
         default: Color(red: 0.10, green: 0.09, blue: 0.15)
         }
     }
@@ -2791,21 +2797,21 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     var darkRed: Color { Color(red: 1, green: 0.40, blue: 0.47) }
     var darkCanvasTop: Color {
         switch self {
-        case .darkRuby: Color(red: 0.82, green: 0.70, blue: 0.88)
-        case .darkForest: Color(red: 0.67, green: 0.79, blue: 0.74)
-        case .darkOcean: Color(red: 0.68, green: 0.74, blue: 0.86)
-        case .darkGraphite: Color(red: 0.76, green: 0.73, blue: 0.86)
-        case .darkAmber: Color(red: 0.84, green: 0.69, blue: 0.77)
+        case .darkRuby: Color(red: 0.17, green: 0.12, blue: 0.25)
+        case .darkForest: Color(red: 0.09, green: 0.21, blue: 0.18)
+        case .darkOcean: Color(red: 0.09, green: 0.16, blue: 0.29)
+        case .darkGraphite: Color(red: 0.14, green: 0.13, blue: 0.25)
+        case .darkAmber: Color(red: 0.26, green: 0.11, blue: 0.18)
         default: darkPanel
         }
     }
     var darkCanvasMiddle: Color {
         switch self {
-        case .darkRuby: Color(red: 0.72, green: 0.61, blue: 0.78)
-        case .darkForest: Color(red: 0.56, green: 0.70, blue: 0.65)
-        case .darkOcean: Color(red: 0.58, green: 0.64, blue: 0.79)
-        case .darkGraphite: Color(red: 0.65, green: 0.63, blue: 0.78)
-        case .darkAmber: Color(red: 0.74, green: 0.61, blue: 0.70)
+        case .darkRuby: Color(red: 0.10, green: 0.07, blue: 0.16)
+        case .darkForest: Color(red: 0.06, green: 0.13, blue: 0.12)
+        case .darkOcean: Color(red: 0.06, green: 0.10, blue: 0.19)
+        case .darkGraphite: Color(red: 0.08, green: 0.08, blue: 0.16)
+        case .darkAmber: Color(red: 0.16, green: 0.06, blue: 0.11)
         default: darkPanel
         }
     }
@@ -3329,6 +3335,8 @@ struct ContentView: View {
     @State private var memoryShowing = true
     @State private var memorySelectedAnswer: String? = nil
     @State private var lifeSkillsIndex = 0
+    @State private var lifeSkillsOrder = ActivityQuestionBank.lifeSkills.indices.shuffled()
+    @State private var memoryCountdown = 4
     @State private var lifeSkillsScore = 0
     @State private var lifeSkillsSelectedAnswer: String? = nil
     @State private var lifeSkillsFirstWrongAnswer: String? = nil
@@ -4724,6 +4732,7 @@ struct ContentView: View {
         memorySequence = Array(symbols.shuffled().prefix(min(count, symbols.count)))
         memoryChoices = makeMemoryChoices(for: memorySequence)
         memoryShowing = true
+        memoryCountdown = 4
         memorySelectedAnswer = nil
         memoryRound += 1
     }
@@ -4732,6 +4741,7 @@ struct ContentView: View {
         memorySequence = []
         memoryChoices = []
         memoryShowing = true
+        memoryCountdown = 4
         memorySelectedAnswer = nil
         memoryRound += 1
     }
@@ -4793,6 +4803,15 @@ struct ContentView: View {
                             .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     } else if memoryShowing {
                         HStack(spacing: 8) {
+                            Image(systemName: "metronome")
+                                .font(.system(size: 20, weight: .bold))
+                            Text("\(memoryCountdown)")
+                                .font(.system(size: 28, weight: .black, design: .rounded).monospacedDigit())
+                        }
+                        .foregroundStyle(palette.ink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                        HStack(spacing: 8) {
                             ForEach(Array(memorySequence.enumerated()), id: \.offset) { _, symbol in
                                 Text(symbol)
                                     .font(.system(size: 39, weight: .black, design: .rounded))
@@ -4804,7 +4823,7 @@ struct ContentView: View {
                             }
                         }.frame(maxWidth: .infinity)
                             .padding(12).background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
-                        Text("Запоминай и порядок, и сами символы. Через несколько секунд последовательность скроется.")
+                        Text("Запоминай и порядок, и сами символы. Последовательность скроется после обратного отсчёта.")
                             .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     } else {
                         Text("Какая последовательность была показана?").font(.system(size: 19, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
@@ -4856,13 +4875,18 @@ struct ContentView: View {
         }
         .task(id: memoryRound) {
             guard memoryShowing, !memorySequence.isEmpty else { return }
-            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            for beat in stride(from: 4, through: 1, by: -1) {
+                if Task.isCancelled { return }
+                memoryCountdown = beat
+                NSSound(named: NSSound.Name("Tink"))?.play()
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+            }
             if !Task.isCancelled { memoryShowing = false }
         }
     }
 
     private var lifeSkillsPage: some View {
-        let item = ActivityQuestionBank.lifeSkills[lifeSkillsIndex % ActivityQuestionBank.lifeSkills.count]
+        let item = ActivityQuestionBank.lifeSkills[lifeSkillsOrder[lifeSkillsIndex % lifeSkillsOrder.count]]
         return ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Навыки жизни", subtitle: "Учимся применять знания в обычных ситуациях 🌟")
@@ -4916,6 +4940,7 @@ struct ContentView: View {
                             Spacer()
                             Button {
                                 lifeSkillsIndex += 1
+                                if lifeSkillsIndex >= lifeSkillsOrder.count { lifeSkillsIndex = 0; lifeSkillsOrder = ActivityQuestionBank.lifeSkills.indices.shuffled() }
                                 lifeSkillsSelectedAnswer = nil
                                 lifeSkillsFirstWrongAnswer = nil
                             } label: {
