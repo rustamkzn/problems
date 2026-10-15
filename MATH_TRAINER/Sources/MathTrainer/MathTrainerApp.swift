@@ -6007,11 +6007,17 @@ struct ContentView: View {
                             .padding(.horizontal, 5)
                             .overlay {
                                 GeometryReader { proxy in
-                                    Circle().fill(Color.black).frame(width: 24, height: 24)
+                                    let normalizedContrast = max(0.0, min(1.0, (screenContrast - 0.75) / 0.80))
+                                    let availableWidth = max(0.0, proxy.size.width - 24.0)
+                                    let knobPosition = 12.0 + normalizedContrast * availableWidth
+                                    Circle()
+                                        .fill(Color.black)
+                                        .frame(width: 24, height: 24)
                                         .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                                        .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
-                                        .position(x: 12 + CGFloat(max(0, min(1, (screenContrast - 0.75) / 0.80))) * max(0, proxy.size.width - 24), y: proxy.size.height / 2)
-                                }.allowsHitTesting(false)
+                                        .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
+                                        .position(x: knobPosition, y: proxy.size.height / 2)
+                                }
+                                .allowsHitTesting(false)
                             }
                             .background(Color.white, in: Capsule())
                             .overlay(Capsule().stroke(Color.black, lineWidth: 2))
