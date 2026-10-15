@@ -27,6 +27,7 @@ jobs:
           # Educational geometry SVGs are downloaded from Wikimedia Commons and bundled offline.
           RES="$APP_BUNDLE/Contents/Resources"
           # Bundle the exact original medal illustrations downloaded from the user-provided PNG.
+          for goal in 200 300 500 700 850 1000 1200 1500; do test -s "Assets/medal-$goal.png"; done
           cp Assets/medal-*.png "$RES/"
           download_geometry() {
             local name="$1"
