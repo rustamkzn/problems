@@ -2402,11 +2402,11 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     case denim = "Джинсовая"
     case amber = "Янтарная"
     case berry = "Ягодная"
-    case darkRuby = "Тёмный рубин"
-    case darkForest = "Тёмный лес"
-    case darkOcean = "Тёмный океан"
-    case darkGraphite = "Ночной графит"
-    case darkAmber = "Тёмный янтарь"
+    case darkRuby = "Тёмная слива"
+    case darkForest = "Нефритовая ночь"
+    case darkOcean = "Полуночный сапфир"
+    case darkGraphite = "Графитовый индиго"
+    case darkAmber = "Вишнёвый бархат"
     var id: String { rawValue }
     var isDark: Bool { switch self { case .darkRuby, .darkForest, .darkOcean, .darkGraphite, .darkAmber: true; default: false } }
     var darkText: Color { Color(red: 0.96, green: 0.97, blue: 1) }
