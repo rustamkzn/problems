@@ -2233,7 +2233,7 @@ private enum ActivityQuestionBank {
         ActivityQuestion(prompt: "Ты хочешь прокатиться на велосипеде вечером. Что важно проверить перед поездкой?", answer: "Тормоза, шлем, свет и видимость на дороге", choices: ["Только цвет велосипеда", "Тормоза, шлем, свет и видимость на дороге", "Громкость музыки в наушниках", "Ничего не проверять"], explanation: "Перед поездкой проверь исправность велосипеда, надень шлем и сделай себя заметным. Не отвлекайся на телефон и музыку.", symbol: "🚴"),
         ActivityQuestion(prompt: "В игре появился всплывающий экран «Ты выиграл приз — введи пароль». Как поступить?", answer: "Закрыть окно, ничего не вводить и рассказать взрослому", choices: ["Ввести пароль от почты", "Установить предложенный файл", "Закрыть окно, ничего не вводить и рассказать взрослому", "Отправить код из SMS"], explanation: "Неожиданные призы с запросом пароля часто являются мошенничеством. Не вводи данные и сообщи взрослому.", symbol: "🕹️")
     ]
-    static let lifeSkills: [ActivityQuestion] = generatedLifeSkills + practicalLifeSkills + baseLifeSkills
+    static let lifeSkills: [ActivityQuestion] = practicalLifeSkills + generatedLifeSkills + baseLifeSkills
 }
 
 struct MonthlyStats: Codable, Identifiable {
