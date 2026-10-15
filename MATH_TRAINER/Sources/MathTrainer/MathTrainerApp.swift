@@ -2988,6 +2988,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.144", date: "15.10.2026", title: "Уменьшены замки в магазине игрушек", changes: ["Размер замков на закрытых игрушках уменьшен в два раза, оформление магазина сохранено.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.143", date: "15.10.2026", title: "Четыре варианта ответа для математики и русского языка", changes: ["В математике и русском языке теперь показываются четыре варианта ответа, из которых один правильный.", "Процент прогресса оставлен на самой медали; дублирующая подпись с процентом под карточкой убрана.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.142", date: "15.10.2026", title: "Оригинальные медали из выбранного дизайна", changes: ["Восемь медалей за правильные ответы заменены оригинальными иллюстрациями из предоставленного изображения.", "Круговой индикатор прогресса и процент снизу по центру сохранены.", "Оригинальные изображения включены в ресурсы приложения для работы без интернета.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.141", date: "15.10.2026", title: "Восемь медалей и постепенное заполнение цветом", changes: ["В раздел «Награды» добавлены медали за 1200 и 1500 правильных ответов; всего теперь восемь целей: 200, 300, 500, 700, 850, 1000, 1200 и 1500.", "Карточки медалей расположены в два ряда по четыре колонки.", "Изображение каждой медали постепенно заполняется её цветом по мере роста процента прогресса.", "Следующая медаль открывается для прогресса после получения предыдущей; накопленные правильные ответы сохраняются между месяцами."]),
@@ -4947,12 +4948,12 @@ struct ContentView: View {
                             .opacity(0.16)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 63, weight: .black))
+                            .font(.system(size: 31.5, weight: .black))
                             .foregroundStyle(.white)
-                            .padding(11)
+                            .padding(5.5)
                             .background(palette.purple.opacity(0.98), in: Circle())
-                            .overlay(Circle().stroke(.white.opacity(0.95), lineWidth: 1.8))
-                            .shadow(color: .black.opacity(0.18), radius: 4, y: 2)
+                            .overlay(Circle().stroke(.white.opacity(0.95), lineWidth: 1.0))
+                            .shadow(color: .black.opacity(0.18), radius: 2, y: 1)
                             .offset(x: item.isRare ? 42 : 36, y: item.isRare ? 48 : 39)
                     }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
