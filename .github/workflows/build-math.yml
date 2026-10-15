@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="1.0.${GITHUB_RUN_NUMBER}"
+          VERSION="1.2.0"
           BUILD_DATE="$(date -u +'%d.%m.%Y')"
           APP_BUNDLE="Тренировка мозга.app"
           rm -rf "$APP_BUNDLE" "BrainTraining.dmg" "BrainTraining.iconset" "icon-1024.png"
