@@ -2005,7 +2005,7 @@ private enum ActivityQuestionBank {
         ActivityQuestion(prompt: "У всех квадратов…", answer: "4 равные стороны", choices: ["3 стороны", "4 равные стороны", "5 углов", "Все стороны разные"], explanation: "У квадрата четыре стороны одинаковой длины и четыре прямых угла.", symbol: "🟪"),
         ActivityQuestion(prompt: "Найди число, которое не подходит: 5, 10, 15, 18, 20", answer: "18", choices: ["5", "10", "18", "20"], explanation: "Остальные числа делятся на 5, а 18 — нет.", symbol: "🔎"),
         ActivityQuestion(prompt: "Улитка ползёт вверх по лестнице. Что ей нужно сделать, чтобы подняться выше?", answer: "Продолжать двигаться вверх", choices: ["Двигаться вниз", "Остаться на месте", "Продолжать двигаться вверх", "Повернуть на месте"], explanation: "Чтобы оказаться выше, нужно продолжать движение вверх.", symbol: "🐌"),
-        ActivityQuestion(prompt: "Какое слово получится, если переставить буквы в слове «РОТ»?", answer: "ТРО", choices: ["ТРО", "РОТТ", "ОРО", "ТОРО"], explanation: "Из тех же трёх букв можно составить слово «тро» как начало слова «тропа»; внимательно проверяй состав букв.", symbol: "🔤"),
+        ActivityQuestion(prompt: "Какое слово лишнее: январь, март, среда, июнь?", answer: "Среда", choices: ["Январь", "Март", "Среда", "Июнь"], explanation: "Январь, март и июнь — месяцы, а среда — день недели.", symbol: "🔤"),
         ActivityQuestion(prompt: "У Лены 10 конфет. Она отдала половину. Сколько осталось?", answer: "5", choices: ["2", "4", "5", "8"], explanation: "Половина от 10 — это 5. Столько конфет и осталось.", symbol: "🍬"),
         ActivityQuestion(prompt: "Что тяжелее: килограмм яблок или килограмм крупы?", answer: "Одинаково", choices: ["Яблоки", "Крупа", "Одинаково", "Нельзя сравнить"], explanation: "И там и там по одному килограмму — масса одинаковая.", symbol: "⚖️"),
         ActivityQuestion(prompt: "Продолжи закономерность: круг, квадрат, круг, квадрат, …", answer: "Круг", choices: ["Круг", "Треугольник", "Квадрат", "Звезда"], explanation: "Фигуры чередуются: круг, квадрат, круг, квадрат. Следующий — круг.", symbol: "🧩")
@@ -4473,7 +4473,6 @@ struct ContentView: View {
                             Button {
                                 guard lifeSkillsSelectedAnswer == nil else { return }
                                 lifeSkillsSelectedAnswer = choice
-                                lifeSkillsIndex += 1
                                 if choice == item.answer {
                                     lifeSkillsScore += 1
                                     lifeSkillsBestScore = max(lifeSkillsBestScore, lifeSkillsScore)
@@ -4494,6 +4493,7 @@ struct ContentView: View {
                             .fixedSize(horizontal: false, vertical: true).padding(12)
                             .background((picked == item.answer ? palette.green : palette.red).opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
                         Button {
+                            lifeSkillsIndex += 1
                             lifeSkillsSelectedAnswer = nil
                         } label: {
                             Label("Следующая ситуация", systemImage: "arrow.right")
