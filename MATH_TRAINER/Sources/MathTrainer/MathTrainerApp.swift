@@ -2988,6 +2988,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.0.143", date: "15.10.2026", title: "Четыре варианта ответа для математики и русского языка", changes: ["В математике и русском языке теперь показываются четыре варианта ответа, из которых один правильный.", "Процент прогресса оставлен на самой медали; дублирующая подпись с процентом под карточкой убрана.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.142", date: "15.10.2026", title: "Оригинальные медали из выбранного дизайна", changes: ["Восемь медалей за правильные ответы заменены оригинальными иллюстрациями из предоставленного изображения.", "Круговой индикатор прогресса и процент снизу по центру сохранены.", "Оригинальные изображения включены в ресурсы приложения для работы без интернета.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.141", date: "15.10.2026", title: "Восемь медалей и постепенное заполнение цветом", changes: ["В раздел «Награды» добавлены медали за 1200 и 1500 правильных ответов; всего теперь восемь целей: 200, 300, 500, 700, 850, 1000, 1200 и 1500.", "Карточки медалей расположены в два ряда по четыре колонки.", "Изображение каждой медали постепенно заполняется её цветом по мере роста процента прогресса.", "Следующая медаль открывается для прогресса после получения предыдущей; накопленные правильные ответы сохраняются между месяцами."]),
             ReleaseNote(version: "1.0.135", date: "12.10.2026", title: "Единый дизайн коллекции и новые рубежи наград", changes: ["Карточки коллекционных игрушек в разделе «Награды» оформлены в том же стиле, что и карточки магазина: крупная иллюстрация сверху, подписи ниже, золотое оформление редких игрушек.", "Добавлены новые рубежи наград за накопление 5500 и 6000 алмазов.", "История предыдущих версий сохранена."]),
@@ -4762,11 +4763,6 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
             ProgressView(value: Double(shownProgress), total: Double(goal))
                 .tint(earned ? color : (active ? palette.purple : Color.gray.opacity(0.35)))
-            Text(earned ? "100% · Медаль получена!" : (active ? "\(percent)% · \(shownProgress) из \(goal)" : "Откроется после предыдущей"))
-                .font(.system(size: 9, weight: .bold, design: .rounded))
-                .foregroundStyle(earned ? palette.green : (active ? palette.purple : palette.muted))
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, minHeight: 205, alignment: .top)
         .padding(10)
@@ -5751,6 +5747,34 @@ struct ContentView: View {
         }
     }
 
+    private func ensureFourChoices(for item: Problem, subject: StudySubject) -> Problem {
+        guard (subject == .math || subject == .russian), !item.isTatarChoice else { return item }
+        let correct = item.answer.trimmingCharacters(in: .whitespacesAndNewlines)
+        var choices: [String] = [correct]
+        if item.isComparison {
+            choices = ["<", ">", "=", "≠"]
+        } else {
+            let numericPrefix = String(correct.prefix { $0.isNumber || $0 == "-" })
+            if let value = Int(numericPrefix), !numericPrefix.isEmpty {
+                let suffix = String(correct.dropFirst(numericPrefix.count))
+                let candidates = [value + 1, value - 1, value + 2, value - 2, value * 2, max(0, value / 2), value + 10, max(0, value - 10)]
+                for candidate in candidates where choices.count < 4 {
+                    let option = "\(candidate)\(suffix)"
+                    if !choices.contains(option) { choices.append(option) }
+                }
+            } else if subject == .russian {
+                let distractors = ["дом", "лес", "ночь", "друг", "книга", "быстрый", "солнце", "школа", "мама", "собака", "радость", "весёлый", "читать", "молоко", "река", "цветок", "трусливый", "широкий", "птица", "машина"].filter { $0.lowercased() != correct.lowercased() }.shuffled()
+                choices.append(contentsOf: distractors.prefix(3))
+            }
+        }
+        if choices.count < 4 {
+            for fallback in ["0", "1", "2", "3", "4", "5", "10"] where choices.count < 4 && !choices.contains(fallback) {
+                choices.append(fallback)
+            }
+        }
+        return Problem(text: item.text, answer: item.answer, isComparison: item.isComparison, isTatarChoice: true, tatarChoices: Array(choices.prefix(4)).shuffled(), showIllustration: item.showIllustration)
+    }
+
     private func makeUniqueProblem(for subject: StudySubject) -> Problem {
         let key = subject.rawValue
         var seen = seenQuestionTexts[key, default: []]
@@ -5767,6 +5791,7 @@ struct ContentView: View {
             }
             if seen.contains(candidate.text) { seen.removeAll() }
         }
+        candidate = ensureFourChoices(for: candidate, subject: subject)
         seen.insert(candidate.text)
         seenQuestionTexts[key] = seen
         return candidate
