@@ -4535,35 +4535,53 @@ struct ContentView: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                         ForEach(item.choices, id: \.self) { choice in
                             Button {
-                                guard lifeSkillsSelectedAnswer == nil else { return }
-                                lifeSkillsSelectedAnswer = choice
+                                guard lifeSkillsSelectedAnswer == nil, choice != lifeSkillsFirstWrongAnswer else { return }
                                 if choice == item.answer {
+                                    lifeSkillsSelectedAnswer = choice
                                     lifeSkillsScore += 1
                                     lifeSkillsBestScore = max(lifeSkillsBestScore, lifeSkillsScore)
                                     store.addDiamonds(1)
+                                } else if lifeSkillsFirstWrongAnswer == nil {
+                                    lifeSkillsFirstWrongAnswer = choice
+                                } else {
+                                    lifeSkillsSelectedAnswer = choice
                                 }
                             } label: {
                                 Text(choice).font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundStyle(lifeSkillsSelectedAnswer == choice ? .white : palette.ink)
+                                    .foregroundStyle((lifeSkillsSelectedAnswer == choice || lifeSkillsFirstWrongAnswer == choice) ? .white : palette.ink)
                                     .frame(maxWidth: .infinity, minHeight: 60).padding(.horizontal, 8)
-                                    .background(lifeSkillsSelectedAnswer == choice ? (choice == item.answer ? palette.green : palette.red) : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                    .background(
+                                        lifeSkillsSelectedAnswer == choice
+                                            ? (choice == item.answer ? palette.green : palette.red)
+                                            : (lifeSkillsFirstWrongAnswer == choice ? palette.red : palette.cardSurface),
+                                        in: RoundedRectangle(cornerRadius: 13)
+                                    )
                                     .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
-                            }.buttonStyle(.plain).disabled(lifeSkillsSelectedAnswer != nil)
+                            }.buttonStyle(.plain).disabled(lifeSkillsSelectedAnswer != nil || lifeSkillsFirstWrongAnswer == choice)
                         }
                     }
                     if let picked = lifeSkillsSelectedAnswer {
-                        Text(picked == item.answer ? "Верно! \(item.explanation)" : "Правильный ответ: \(item.answer). \(item.explanation)")
+                        Text(picked == item.answer ? "Верно! \(item.explanation)" : "Вторая попытка использована. Правильный ответ: \(item.answer). \(item.explanation)")
                             .font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(picked == item.answer ? palette.green : palette.red)
                             .fixedSize(horizontal: false, vertical: true).padding(12)
                             .background((picked == item.answer ? palette.green : palette.red).opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
-                        Button {
-                            lifeSkillsIndex += 1
-                            lifeSkillsSelectedAnswer = nil
-                        } label: {
-                            Label("Следующая ситуация", systemImage: "arrow.right")
-                                .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
-                                .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
-                        }.buttonStyle(.plain)
+                        HStack {
+                            Spacer()
+                            Button {
+                                lifeSkillsIndex += 1
+                                lifeSkillsSelectedAnswer = nil
+                                lifeSkillsFirstWrongAnswer = nil
+                            } label: {
+                                Label("Следующая ситуация", systemImage: "arrow.right")
+                                    .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                    .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
+                            }.buttonStyle(.plain)
+                        }
+                    } else if let firstWrong = lifeSkillsFirstWrongAnswer {
+                        Text("Не совсем верно: «\(firstWrong)». Попробуй ещё раз — у тебя осталась одна попытка.")
+                            .font(.system(size: 14, weight: .semibold, design: .rounded)).foregroundStyle(palette.red)
+                            .fixedSize(horizontal: false, vertical: true).padding(12)
+                            .background(palette.red.opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
                     }
                 }.padding(22).cardStyle(palette)
             }.padding(24)
