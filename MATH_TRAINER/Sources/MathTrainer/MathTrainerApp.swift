@@ -1830,7 +1830,11 @@ struct ProblemGenerator {
             case 4: questions = [("Сколько гласных в слове «\(item.0)»?", String(item.0.lowercased().filter { "аеёиоуыэюя".contains($0) }.count))]
             case 5: questions = [("Сколько согласных в слове «\(item.0)»?", String(item.0.lowercased().filter { "бвгджзйклмнпрстфхцчшщ".contains($0) }.count))]
             case 6: questions = [("Какой первый звук в слове «\(item.0)»?", String(item.0.lowercased().prefix(1)))]
-            case 7: questions = [("Какой последний звук в слове «\(item.0)»?", String(item.0.lowercased().suffix(1)))]
+            case 7:
+                let lastLetter = item.0.lowercased().last.map(String.init) ?? ""
+                let finalSoundMap = ["б":"п", "в":"ф", "г":"к", "д":"т", "ж":"ш", "з":"с"]
+                let finalSound = finalSoundMap[lastLetter] ?? lastLetter
+                questions = [("Какой последний звук в слове «\(item.0)»?", finalSound)]
             case 8: questions = [("Какой падеж у выделенного слова: «Я вижу кота» (вижу кого?)", "Винительный")]
             case 9: questions = [("Выбери глагол — слово, которое обозначает действие", "бежать")]
             case 10: questions = [("Найди подлежащее в предложении «Птицы поют»", "Птицы")]
@@ -1866,8 +1870,12 @@ struct ProblemGenerator {
                 russianChoices = [String(correct), String(max(0, correct - 1)), String(correct + 1), String(correct + 2)]
             } else if question.0.contains("наоборот") {
                 russianChoices = uniqueChoices([question.1, String(item.0), String(item.0.reversed()), String(item.0.uppercased())]).prefix(4).map { $0 }
-            } else if question.0.contains("первый звук") || question.0.contains("последний звук") {
-                russianChoices = uniqueChoices([question.1, "а", "о", "м"]).prefix(4).map { $0 }
+            } else if question.0.contains("первый звук") {
+                let soundPool = ["а", "о", "м", "с", "к", "т", "р", "п", "л", "н"]
+                russianChoices = uniqueChoices([question.1] + soundPool.filter { $0 != question.1 }.shuffled()).prefix(4).map { $0 }
+            } else if question.0.contains("последний звук") {
+                let soundPool = ["п", "ф", "к", "т", "ш", "с", "м", "н", "р", "л"]
+                russianChoices = uniqueChoices([question.1] + soundPool.filter { $0 != question.1 }.shuffled()).prefix(4).map { $0 }
             } else if question.0.contains("падеж") {
                 russianChoices = ["Именительный", "Родительный", "Дательный", "Винительный"]
             } else if question.0.contains("глагол") {
@@ -2760,21 +2768,21 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     }
     var darkPanel: Color {
         switch self {
-        case .darkRuby: Color(red: 0.43, green: 0.29, blue: 0.50)
-        case .darkForest: Color(red: 0.27, green: 0.43, blue: 0.38)
-        case .darkOcean: Color(red: 0.28, green: 0.36, blue: 0.52)
-        case .darkGraphite: Color(red: 0.36, green: 0.32, blue: 0.51)
-        case .darkAmber: Color(red: 0.49, green: 0.28, blue: 0.38)
+        case .darkRuby: Color(red: 0.75, green: 0.62, blue: 0.82)
+        case .darkForest: Color(red: 0.58, green: 0.73, blue: 0.66)
+        case .darkOcean: Color(red: 0.60, green: 0.68, blue: 0.82)
+        case .darkGraphite: Color(red: 0.68, green: 0.64, blue: 0.82)
+        case .darkAmber: Color(red: 0.78, green: 0.61, blue: 0.70)
         default: Color(red: 0.10, green: 0.09, blue: 0.15)
         }
     }
     var darkLine: Color {
         switch self {
-        case .darkRuby: Color(red: 0.43, green: 0.20, blue: 0.58)
-        case .darkForest: Color(red: 0.10, green: 0.43, blue: 0.35)
-        case .darkOcean: Color(red: 0.16, green: 0.29, blue: 0.59)
-        case .darkGraphite: Color(red: 0.29, green: 0.23, blue: 0.49)
-        case .darkAmber: Color(red: 0.47, green: 0.15, blue: 0.29)
+        case .darkRuby: Color(red: 0.72, green: 0.56, blue: 0.82)
+        case .darkForest: Color(red: 0.48, green: 0.72, blue: 0.64)
+        case .darkOcean: Color(red: 0.56, green: 0.66, blue: 0.84)
+        case .darkGraphite: Color(red: 0.66, green: 0.59, blue: 0.81)
+        case .darkAmber: Color(red: 0.76, green: 0.53, blue: 0.68)
         default: darkAccent.opacity(0.5)
         }
     }
@@ -2783,21 +2791,21 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     var darkRed: Color { Color(red: 1, green: 0.40, blue: 0.47) }
     var darkCanvasTop: Color {
         switch self {
-        case .darkRuby: Color(red: 0.49, green: 0.33, blue: 0.59)
-        case .darkForest: Color(red: 0.29, green: 0.48, blue: 0.41)
-        case .darkOcean: Color(red: 0.31, green: 0.40, blue: 0.56)
-        case .darkGraphite: Color(red: 0.40, green: 0.36, blue: 0.56)
-        case .darkAmber: Color(red: 0.54, green: 0.31, blue: 0.43)
+        case .darkRuby: Color(red: 0.82, green: 0.70, blue: 0.88)
+        case .darkForest: Color(red: 0.67, green: 0.79, blue: 0.74)
+        case .darkOcean: Color(red: 0.68, green: 0.74, blue: 0.86)
+        case .darkGraphite: Color(red: 0.76, green: 0.73, blue: 0.86)
+        case .darkAmber: Color(red: 0.84, green: 0.69, blue: 0.77)
         default: darkPanel
         }
     }
     var darkCanvasMiddle: Color {
         switch self {
-        case .darkRuby: Color(red: 0.38, green: 0.25, blue: 0.46)
-        case .darkForest: Color(red: 0.23, green: 0.37, blue: 0.32)
-        case .darkOcean: Color(red: 0.24, green: 0.31, blue: 0.45)
-        case .darkGraphite: Color(red: 0.30, green: 0.27, blue: 0.44)
-        case .darkAmber: Color(red: 0.39, green: 0.25, blue: 0.34)
+        case .darkRuby: Color(red: 0.72, green: 0.61, blue: 0.78)
+        case .darkForest: Color(red: 0.56, green: 0.70, blue: 0.65)
+        case .darkOcean: Color(red: 0.58, green: 0.64, blue: 0.79)
+        case .darkGraphite: Color(red: 0.65, green: 0.63, blue: 0.78)
+        case .darkAmber: Color(red: 0.74, green: 0.61, blue: 0.70)
         default: darkPanel
         }
     }
@@ -3254,8 +3262,8 @@ private struct ReleaseNote: Codable, Identifiable {
 struct ContentView: View {
     @AppStorage("MathTrainer.Theme") private var themeName = AppTheme.lilac.rawValue
     @AppStorage("MathTrainer.SelectedSubject") private var selectedSubjectName = StudySubject.math.rawValue
-    @AppStorage("MathTrainer.CurrentProblem.v1") private var savedProblemJSON = ""
-    @AppStorage("MathTrainer.CurrentProblemSubject.v1") private var savedProblemSubject = ""
+    @AppStorage("MathTrainer.CurrentProblem.v2") private var savedProblemJSON = ""
+    @AppStorage("MathTrainer.CurrentProblemSubject.v2") private var savedProblemSubject = ""
     @AppStorage("MathTrainer.UnlockedAchievements") private var unlockedAchievementStorage = ""
     @AppStorage("MathTrainer.AchievementThresholdsVersion") private var achievementThresholdsVersion = 0
     @AppStorage("MathTrainer.CorrectQuestions") private var correctQuestionStorage = "{}"
@@ -3381,6 +3389,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.6", date: "15.10.2026", title: "Проверка русского языка и видимые ползунки", changes: ["Исправлено определение последнего звука: в слове «друг» последний звук — [к], а не [г].", "Вопросы по русскому языку используют варианты ответа из той же категории: звуки — звуки, типы предложений — типы предложений, лексические понятия — лексические понятия.", "Индикатор обоих ползунков сделан крупным чёрным кругом с белой обводкой, чтобы его было видно и можно было точно захватить на светлой теме.", "Пять тёмных тем заметно осветлены; сохранён светлый текст для читаемости."]),
             ReleaseNote(version: "1.2.5", date: "15.10.2026", title: "Контрастные ползунки, более светлые тёмные темы и новые учебные ситуации", changes: ["Ползунки яркости темы и контраста цветов получили чёрный индикатор и более заметную шкалу.", "Пять тёмных тем сделаны заметно светлее, сохранив контрастность текста.", "В «Навыки жизни» добавлено ещё 10 000 ситуаций о школе, природе, транспорте, театре, кино, площадке, гостях, помощи родителям, порядке, питании, сне, спорте, чтении и общении.", "В тренировке памяти символы и варианты ответов теперь чёрные на светлых темах и белые на тёмных.", "В русский язык добавлены вопросы о многозначных словах, лексике и типах предложений."]),
             ReleaseNote(version: "1.2.4", date: "15.10.2026", title: "Практические навыки, русская грамматика и исправленная тренировка памяти", changes: ["В «Навыки жизни» добавлены ситуации о самокате, велосипеде, транспорте, метро, безопасности в общественных местах, открытых люках, экстренной помощи, питании и мошенничестве в играх и телефоне.", "В русский язык добавлены задания для начальной школы на падежи, глаголы, подлежащее и сказуемое.", "Во время запоминания последовательность показывается отдельными крупными символами; кнопка «Стоп» возвращает к выбору режима и сложности.", "Баланс в левой колонке остаётся кликабельным и открывает магазин.", "История предыдущих версий сохранена; запись новой версии добавлена сверху."]),
             ReleaseNote(version: "1.2.3", date: "15.10.2026", title: "Удобный баланс и выбор символов для тренировки памяти", changes: ["Ползунок яркости стал заметнее на светлых темах благодаря контрастной рамке и фону.", "В левой панели блок «Баланс» использует изображения алмаза и золотой монеты в стиле магазина; баланс удалён из верхней панели задания.", "В «Навыках жизни» из текста вопроса убрана пометка уровня сложности.", "Перед тренировкой памяти можно выбрать картинки, буквы, цифры и знаки по отдельности или в любой комбинации."]),
@@ -5925,6 +5934,14 @@ struct ContentView: View {
                         Slider(value: $themeBrightness, in: -0.12...0.18, step: 0.01)
                             .tint(.black)
                             .controlSize(.large).frame(minHeight: 44).padding(.horizontal, 8)
+                            .overlay {
+                                GeometryReader { proxy in
+                                    Circle().fill(Color.black).frame(width: 24, height: 24)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                        .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+                                        .position(x: 12 + CGFloat(max(0, min(1, (themeBrightness + 0.12) / 0.30))) * max(0, proxy.size.width - 24), y: proxy.size.height / 2)
+                                }.allowsHitTesting(false)
+                            }
                             .background(Color.white, in: Capsule())
                             .overlay(Capsule().stroke(Color.black, lineWidth: 2))
                         HStack { Text("Темнее").foregroundStyle(palette.ink); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 16, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.30, green: 0.08, blue: 0.78)); Spacer(); Text("Светлее").foregroundStyle(palette.ink) }.font(.system(size: 12, weight: .black, design: .rounded))
@@ -5938,6 +5955,14 @@ struct ContentView: View {
                             .tint(.black)
                             .controlSize(.large).frame(minHeight: 42)
                             .padding(.horizontal, 5)
+                            .overlay {
+                                GeometryReader { proxy in
+                                    Circle().fill(Color.black).frame(width: 24, height: 24)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                        .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+                                        .position(x: 12 + CGFloat(max(0, min(1, (screenContrast - 0.75) / 0.80))) * max(0, proxy.size.width - 24), y: proxy.size.height / 2)
+                                }.allowsHitTesting(false)
+                            }
                             .background(Color.white, in: Capsule())
                             .overlay(Capsule().stroke(Color.black, lineWidth: 2))
                         HStack {
