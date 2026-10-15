@@ -2787,7 +2787,10 @@ private struct Reward3DBadge: View {
                                 .symbolRenderingMode(.hierarchical)
                                 .foregroundStyle(tint)
                                 .frame(width: geometry.size.width, height: geometry.size.height)
-                                .clipShape(Rectangle().path(in: CGRect(x: 0, y: geometry.size.height * (1 - min(1, max(0, fillProgress))), width: geometry.size.width, height: geometry.size.height * min(1, max(0, fillProgress))))
+                                .mask(alignment: .bottom) {
+                                    Rectangle()
+                                        .frame(width: geometry.size.width, height: geometry.size.height * min(1, max(0, fillProgress)))
+                                }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
                     }
