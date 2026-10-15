@@ -2151,7 +2151,7 @@ private enum ActivityQuestionBank {
         }
         return bank
     }()
-    static let lifeSkills: [ActivityQuestion] = generatedLifeSkills + baseLifeSkills ]
+    static let lifeSkills: [ActivityQuestion] = generatedLifeSkills + baseLifeSkills
 }
 
 struct MonthlyStats: Codable, Identifiable {
