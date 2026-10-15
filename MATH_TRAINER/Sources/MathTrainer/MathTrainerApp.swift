@@ -3819,7 +3819,6 @@ struct ContentView: View {
             }.padding(.horizontal, 12).frame(maxWidth: .infinity).frame(height: 70)
              .background(palette.cardSurface.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
              .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
-        }
     }
 
     private var quizCard: some View {
