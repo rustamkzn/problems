@@ -2772,6 +2772,7 @@ private struct Reward3DBadge: View {
     var fillProgress: Double = 1
 
     private var progress: CGFloat { CGFloat(min(1, max(0, fillProgress))) }
+    private var progressPercent: Int { Int((progress * 100).rounded()) }
 
     var body: some View {
         ZStack {
@@ -2781,64 +2782,78 @@ private struct Reward3DBadge: View {
                     : [tint.opacity(0.42), tint.opacity(0.12), Color.white.opacity(0.9)],
                     startPoint: .topLeading, endPoint: .bottomTrailing))
                 .shadow(color: tint.opacity(locked ? 0.02 : 0.28), radius: size * 0.12, x: 0, y: size * 0.07)
+
+            // The progress indicator wraps around the whole medal, like a loading ring.
+            Circle()
+                .stroke(Color.black.opacity(locked ? 0.07 : 0.10), lineWidth: max(3, size * 0.065))
+                .padding(size * 0.025)
+            if !locked {
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(AngularGradient(colors: [tint, Color.yellow, tint], center: .center),
+                            style: StrokeStyle(lineWidth: max(3, size * 0.065), lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .padding(size * 0.025)
+                    .shadow(color: tint.opacity(0.5), radius: size * 0.045)
+            }
+
             Circle()
                 .stroke(LinearGradient(colors: [Color.white.opacity(0.95), tint.opacity(0.7), tint.opacity(0.35)],
                                        startPoint: .topLeading, endPoint: .bottomTrailing),
-                        lineWidth: max(2, size * 0.055))
-                .padding(size * 0.045)
+                        lineWidth: max(2, size * 0.045))
+                .padding(size * 0.105)
             Circle()
                 .fill(LinearGradient(colors: locked
                     ? [Color.gray.opacity(0.18), Color.gray.opacity(0.08)]
                     : [tint.opacity(0.98), tint.opacity(0.68), Color(red: 0.20, green: 0.16, blue: 0.66)],
                     startPoint: .topLeading, endPoint: .bottomTrailing))
-                .padding(size * 0.13)
+                .padding(size * 0.17)
                 .overlay {
-                    Circle().stroke(Color.white.opacity(locked ? 0.12 : 0.8), lineWidth: max(1, size * 0.018)).padding(size * 0.16)
+                    Circle().stroke(Color.white.opacity(locked ? 0.12 : 0.8), lineWidth: max(1, size * 0.018)).padding(size * 0.19)
                 }
+
             if !locked {
                 Image(systemName: "sparkles")
-                    .font(.system(size: size * 0.15, weight: .black))
+                    .font(.system(size: size * 0.13, weight: .black))
                     .foregroundStyle(Color.white.opacity(0.95))
-                    .offset(x: size * 0.25, y: -size * 0.27)
+                    .offset(x: size * 0.23, y: -size * 0.25)
                 Image(systemName: "sparkle")
-                    .font(.system(size: size * 0.10, weight: .black))
+                    .font(.system(size: size * 0.09, weight: .black))
                     .foregroundStyle(Color.yellow)
-                    .offset(x: -size * 0.27, y: size * 0.15)
+                    .offset(x: -size * 0.25, y: size * 0.13)
             }
-            ZStack {
-                Image(systemName: symbol)
-                    .font(.system(size: size * 0.48, weight: .black))
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(locked ? Color.gray.opacity(0.35) : Color.white.opacity(0.45), locked ? Color.gray.opacity(0.25) : Color.white.opacity(0.45))
-                    .shadow(color: .black.opacity(locked ? 0 : 0.25), radius: size * 0.035, x: 0, y: size * 0.035)
-                if !locked && progress > 0 {
-                    Image(systemName: symbol)
-                        .font(.system(size: size * 0.48, weight: .black))
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(Color.yellow, Color.white)
-                        .shadow(color: tint.opacity(0.5), radius: size * 0.04, x: 0, y: size * 0.02)
-                        .mask(alignment: .bottom) {
-                            Rectangle().frame(height: size * 0.48 * progress)
-                        }
-                }
-            }
+
+            Image(systemName: symbol)
+                .font(.system(size: size * 0.43, weight: .black))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(locked ? Color.gray.opacity(0.35) : Color.white, locked ? Color.gray.opacity(0.25) : Color.white.opacity(0.92))
+                .shadow(color: .black.opacity(locked ? 0 : 0.25), radius: size * 0.035, x: 0, y: size * 0.035)
+                .offset(y: -size * 0.035)
+
             if locked {
                 Image(systemName: "lock.fill")
-                    .font(.system(size: size * 0.26, weight: .black))
+                    .font(.system(size: size * 0.23, weight: .black))
                     .foregroundStyle(Color.gray.opacity(0.85))
-                    .padding(size * 0.12)
+                    .padding(size * 0.10)
                     .background(Color.white.opacity(0.92), in: Circle())
+                    .offset(y: size * 0.24)
             } else {
-                Image(systemName: "star.fill")
-                    .font(.system(size: size * 0.14, weight: .black))
-                    .foregroundStyle(LinearGradient(colors: [Color.white, Color.yellow], startPoint: .top, endPoint: .bottom))
-                    .shadow(color: .orange.opacity(0.65), radius: size * 0.025, x: 0, y: 1)
-                    .offset(y: size * 0.31)
+                // Percentage is always legible at the bottom center of the medal.
+                Text("\(progressPercent)%")
+                    .font(.system(size: max(10, size * 0.155), weight: .black, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.white)
+                    .padding(.horizontal, size * 0.07)
+                    .padding(.vertical, size * 0.025)
+                    .background(Color.black.opacity(0.58), in: Capsule())
+                    .overlay(Capsule().stroke(Color.white.opacity(0.85), lineWidth: max(0.8, size * 0.012)))
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
+                    .offset(y: size * 0.34)
             }
         }
         .frame(width: size, height: size)
-        .scaleEffect(1)
-        .accessibilityLabel(symbol)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(locked ? "Награда закрыта" : "\(progressPercent)% прогресса")
     }
 }
 
