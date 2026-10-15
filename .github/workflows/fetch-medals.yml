@@ -48,7 +48,7 @@ jobs:
           source = Image.open(root / "medals-source.png").convert("RGBA")
           w, h = source.size
           # The original sheet contains eight circular medal illustrations in a 4x2 grid.
-          centers_preview = [(42,43),(112,43),(183,43),(257,43),(42,141),(112,141),(183,141),(257,141)]
+          centers_preview = [(42,44),(112,44),(183,44),(257,44),(42,141),(112,141),(183,141),(257,141)]
           goals = [200,300,500,700,850,1000,1200,1500]
           side = 210
           contact = Image.new("RGB", (600, 320), (247, 244, 255))
@@ -58,7 +58,7 @@ jobs:
               left, top = cx-side//2, cy-side//2
               crop = source.crop((left, top, left+side, top+side))
               mask = Image.new("L", (side,side), 0)
-              ImageDraw.Draw(mask).ellipse((side//2-88,side//2-88,side//2+88,side//2+88), fill=255)
+              ImageDraw.Draw(mask).ellipse((side//2-96,side//2-96,side//2+96,side//2+96), fill=255)
               crop.putalpha(mask)
               crop.save(root / f"medal-{goal}.png", optimize=True)
               thumb = crop.copy()
