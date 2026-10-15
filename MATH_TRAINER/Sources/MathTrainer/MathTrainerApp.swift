@@ -1851,6 +1851,59 @@ struct ProblemGenerator {
             case 25: questions = [("Как называется раздел языка, который изучает значения слов и словарный состав?", "Лексика")]
             default: questions = [("Подбери синоним к слову «\(item.0)»", item.1)]
             }
+            let question = questions.randomElement() ?? ("Попробуй ещё раз", "")
+            let russianChoices: [String]
+            if question.0.contains("синоним") {
+                russianChoices = [question.1, "Антоним", "Омоним", "Предлог"]
+            } else if question.0.contains("антоним") {
+                russianChoices = [question.1, "Синоним", "Омоним", "Существительное"]
+            } else if question.0.contains("Сколько букв") || question.0.contains("Сколько гласных") || question.0.contains("Сколько согласных") {
+                let correct = Int(question.1) ?? 0
+                russianChoices = [String(correct), String(max(0, correct - 1)), String(correct + 1), String(correct + 2)]
+            } else if question.0.contains("наоборот") {
+                russianChoices = [question.1, String(item.0), String(item.0.reversed()), String(item.0.uppercased())].uniqued().prefix(4).map { $0 }
+            } else if question.0.contains("первый звук") || question.0.contains("последний звук") {
+                russianChoices = [question.1, "а", "о", "м"].uniqued().prefix(4).map { $0 }
+            } else if question.0.contains("падеж") {
+                russianChoices = ["Именительный", "Родительный", "Дательный", "Винительный"]
+            } else if question.0.contains("глагол") {
+                russianChoices = ["бежать", "красивый", "стол", "быстро"]
+            } else if question.0.contains("подлежащее") {
+                russianChoices = ["Птицы", "поют", "красиво", "быстро"]
+            } else if question.0.contains("сказуемое") {
+                russianChoices = ["играют", "Дети", "весёлые", "школа"]
+            } else if question.0.contains("слова с противоположным") {
+                russianChoices = ["Антонимы", "Синонимы", "Омонимы", "Предлоги"]
+            } else if question.0.contains("слова, близкие") {
+                russianChoices = ["Синонимы", "Антонимы", "Омонимы", "Предлоги"]
+            } else if question.0.contains("Из земли бил холодный ключ") {
+                russianChoices = ["Родник", "Предмет для замка", "Музыкальный знак", "Птица"]
+            } else if question.0.contains("дверь ключом") {
+                russianChoices = ["Предмет для замка", "Родник", "Музыкальный знак", "Растение"]
+            } else if question.0.contains("Сегодня мы читаем") {
+                russianChoices = ["Повествовательное", "Вопросительное", "Побудительное", "Назывное"]
+            } else if question.0.contains("Когда начнётся") {
+                russianChoices = ["Вопросительное", "Повествовательное", "Побудительное", "Назывное"]
+            } else if question.0.contains("Пожалуйста, закрой окно") {
+                russianChoices = ["Повествовательное", "Вопросительное", "Побудительное", "Назывное"]
+            } else if question.0.contains("На улице идёт дождь") {
+                russianChoices = ["Невосклицательное", "Восклицательное", "Вопросительное", "Побудительное"]
+            } else if question.0.contains("Как красиво вокруг") {
+                russianChoices = ["Восклицательное", "Невосклицательное", "Вопросительное", "Повествовательное"]
+            } else if question.0.contains("одно лексическое значение") {
+                russianChoices = ["Берёза", "Ключ", "Лук", "Коса"]
+            } else if question.0.contains("многозначное") {
+                russianChoices = ["Лук", "Тетрадь", "Берёза", "Карандаш"]
+            } else if question.0.contains("На небе появились звёзды") {
+                russianChoices = ["Распространённое", "Нераспространённое", "Вопросительное", "Побудительное"]
+            } else if question.0.contains("Птицы поют") {
+                russianChoices = ["Нераспространённое", "Распространённое", "Восклицательное", "Вопросительное"]
+            } else if question.0.contains("раздел языка") {
+                russianChoices = ["Лексика", "Фонетика", "Морфология", "Синтаксис"]
+            } else {
+                russianChoices = [question.1, item.2, item.0, "слово"].uniqued().prefix(4).map { $0 }
+            }
+            return Problem(text: "\(["Задание:", "Проверь себя:", "Подумай:", "Вопрос:"].randomElement()!) \(question.0)", answer: question.1, isTatarChoice: true, tatarChoices: Array(russianChoices.prefix(4)).shuffled())
         case .english:
             let words: [(String,String)] = [("cat","кот"),("dog","собака"),("sun","солнце"),("book","книга"),("apple","яблоко"),("water","вода"),("house","дом"),("school","школа"),("friend","друг"),("family","семья"),("mother","мама"),("father","папа"),("sister","сестра"),("brother","брат"),("bird","птица"),("fish","рыба"),("tree","дерево"),("flower","цветок"),("green","зелёный"),("blue","синий"),("red","красный"),("yellow","жёлтый"),("black","чёрный"),("white","белый"),("one","один"),("two","два"),("three","три"),("four","четыре"),("five","пять"),("happy","счастливый"),("small","маленький"),("big","большой"),("fast","быстрый"),("slow","медленный"),("bread","хлеб"),("milk","молоко"),("chair","стул"),("table","стол"),("window","окно"),("door","дверь"),("morning","утро"),("night","ночь"),("hello","привет"),("please","пожалуйста"),("pencil","карандаш"),("rain","дождь"),("snow","снег"),("star","звезда"),("orange","апельсин"),("cheese","сыр")]
             let item = words.randomElement()!
