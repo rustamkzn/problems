@@ -1853,6 +1853,10 @@ struct ProblemGenerator {
             }
             let question = questions.randomElement() ?? ("Попробуй ещё раз", "")
             let russianChoices: [String]
+            func uniqueChoices(_ values: [String]) -> [String] {
+                var seen = Set<String>()
+                return values.filter { seen.insert($0).inserted }
+            }
             if question.0.contains("синоним") {
                 russianChoices = [question.1, "Антоним", "Омоним", "Предлог"]
             } else if question.0.contains("антоним") {
@@ -1861,9 +1865,9 @@ struct ProblemGenerator {
                 let correct = Int(question.1) ?? 0
                 russianChoices = [String(correct), String(max(0, correct - 1)), String(correct + 1), String(correct + 2)]
             } else if question.0.contains("наоборот") {
-                russianChoices = [question.1, String(item.0), String(item.0.reversed()), String(item.0.uppercased())].uniqued().prefix(4).map { $0 }
+                russianChoices = uniqueChoices([question.1, String(item.0), String(item.0.reversed()), String(item.0.uppercased())]).prefix(4).map { $0 }
             } else if question.0.contains("первый звук") || question.0.contains("последний звук") {
-                russianChoices = [question.1, "а", "о", "м"].uniqued().prefix(4).map { $0 }
+                russianChoices = uniqueChoices([question.1, "а", "о", "м"]).prefix(4).map { $0 }
             } else if question.0.contains("падеж") {
                 russianChoices = ["Именительный", "Родительный", "Дательный", "Винительный"]
             } else if question.0.contains("глагол") {
@@ -1901,7 +1905,7 @@ struct ProblemGenerator {
             } else if question.0.contains("раздел языка") {
                 russianChoices = ["Лексика", "Фонетика", "Морфология", "Синтаксис"]
             } else {
-                russianChoices = [question.1, item.2, item.0, "слово"].uniqued().prefix(4).map { $0 }
+                russianChoices = uniqueChoices([question.1, item.2, item.0, "слово"]).prefix(4).map { $0 }
             }
             return Problem(text: "\(["Задание:", "Проверь себя:", "Подумай:", "Вопрос:"].randomElement()!) \(question.0)", answer: question.1, isTatarChoice: true, tatarChoices: Array(russianChoices.prefix(4)).shuffled())
         case .english:
