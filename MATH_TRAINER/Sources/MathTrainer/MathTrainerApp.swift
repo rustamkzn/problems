@@ -2078,6 +2078,24 @@ private struct ActivityQuestion: Identifiable {
     let choices: [String]
     let explanation: String
     let symbol: String
+
+    init(prompt: String, answer: String, choices: [String], explanation: String, symbol: String) {
+        self.prompt = prompt
+        self.answer = answer
+        var normalized = [answer]
+        for choice in choices where !normalized.contains(choice) {
+            normalized.append(choice)
+            if normalized.count == 4 { break }
+        }
+        let fallback = ["Другой вариант", "Нужно подумать ещё раз", "Зависит от ситуации", "Верный ответ другой", "Попробуй рассуждать иначе"]
+        for choice in fallback where !normalized.contains(choice) {
+            normalized.append(choice)
+            if normalized.count == 4 { break }
+        }
+        self.choices = Array(normalized.prefix(4)).shuffled()
+        self.explanation = explanation
+        self.symbol = symbol
+    }
 }
 
 private enum ActivityQuestionBank {
@@ -4878,7 +4896,7 @@ struct ContentView: View {
             for beat in stride(from: 4, through: 1, by: -1) {
                 if Task.isCancelled { return }
                 memoryCountdown = beat
-                NSSound(named: NSSound.Name("Tink"))?.play()
+                NSSound.beep()
                 try? await Task.sleep(nanoseconds: 1_000_000_000)
             }
             if !Task.isCancelled { memoryShowing = false }
