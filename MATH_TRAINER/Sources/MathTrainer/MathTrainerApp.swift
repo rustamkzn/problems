@@ -2096,108 +2096,108 @@ private enum ActivityQuestionBank {
             let explanation: String
             switch i % 20 {
             case 0:
-                q = "Товар стоит \(a) ₽, второй — \(b) ₽. Сколько стоят оба? Сложность \(level)/3."
+                q = "Товар стоит \(a) ₽, второй — \(b) ₽. Сколько стоят оба?."
                 answer = "\(a + b) ₽"
                 wrong = ["\(a + b + 5) ₽", "\(max(1, a + b - 3)) ₽", "\(a - b) ₽"]
                 explanation = "Складываем цены: \(a) + \(b) = \(a + b) рублей."
             case 1:
-                q = "У тебя было \(a) ₽, покупка стоит \(b) ₽. Сколько денег останется? Сложность \(level)/3."
+                q = "У тебя было \(a) ₽, покупка стоит \(b) ₽. Сколько денег останется?."
                 answer = "\(a - b) ₽"
                 wrong = ["\(a + b) ₽", "\(a - b + 4) ₽", "\(max(0, a - b - 5)) ₽"]
                 explanation = "Вычитаем стоимость покупки: \(a) − \(b) = \(a - b) рублей."
             case 2:
                 let total = c + d
-                q = "Для блюда нужно \(total) ложек ингредиента, уже добавили \(c). Сколько осталось? Сложность \(level)/3."
+                q = "Для блюда нужно \(total) ложек ингредиента, уже добавили \(c). Сколько осталось?."
                 answer = "\(d) ложек"
                 wrong = ["\(d + 1) ложек", "\(total) ложек", "\(max(1, d - 1)) ложек"]
                 explanation = "\(total) − \(c) = \(d): осталось добавить \(d) ложек."
             case 3:
-                q = "Незнакомец в сети просит твой пароль. Как поступить? Сложность \(level)/3."
+                q = "Незнакомец в сети просит твой пароль. Как поступить?."
                 answer = "Не сообщать пароль и рассказать взрослому"
                 wrong = ["Отправить пароль", "Написать пароль в общем чате", "Отдать пароль за подарок"]
                 explanation = "Пароль — личная информация. Не сообщай его и обратись к родителю или доверенному взрослому."
             case 4:
-                q = "Ты собираешься выйти из дома и боишься забыть нужные вещи. Что поможет? Сложность \(level)/3."
+                q = "Ты собираешься выйти из дома и боишься забыть нужные вещи. Что поможет?."
                 answer = "Проверить список необходимых вещей"
                 wrong = ["Взять только одну случайную вещь", "Не проверять ничего", "Оставить ключи снаружи"]
                 explanation = "Список и проверка перед выходом помогают ничего не забыть."
             case 5:
-                q = "Ты видишь мусор рядом с контейнерами. Как поступить правильно? Сложность \(level)/3."
+                q = "Ты видишь мусор рядом с контейнерами. Как поступить правильно?."
                 answer = "Выбросить мусор в подходящий контейнер"
                 wrong = ["Оставить мусор на тротуаре", "Бросить мусор в реку", "Спрятать мусор под кустом"]
                 explanation = "Мусор нужно убирать в подходящий контейнер, а пригодные отходы — сортировать."
             case 6:
-                q = "На переходе горит красный свет. Что нужно сделать? Сложность \(level)/3."
+                q = "На переходе горит красный свет. Что нужно сделать?."
                 answer = "Остановиться и дождаться разрешающего сигнала"
                 wrong = ["Быстро перебежать", "Идти, не глядя по сторонам", "Побежать за незнакомцем"]
                 explanation = "На красный сигнал переходить нельзя. Дождись зелёного и убедись, что путь безопасен."
             case 7:
-                q = "Друг расстроен и хочет поговорить. Как лучше его поддержать? Сложность \(level)/3."
+                q = "Друг расстроен и хочет поговорить. Как лучше его поддержать?."
                 answer = "Выслушать спокойно и спросить, чем помочь"
                 wrong = ["Перебивать и смеяться", "Рассказывать всем его секрет", "Сразу обвинять его"]
                 explanation = "Внимательное слушание и уважение чувств помогают поддержать друга."
             case 8:
-                q = "Ты пролил воду рядом с электрической розеткой. Что делать? Сложность \(level)/3."
+                q = "Ты пролил воду рядом с электрической розеткой. Что делать?."
                 answer = "Не трогать розетку и позвать взрослого"
                 wrong = ["Вытереть воду рукой возле розетки", "Включить прибор", "Разобрать розетку самому"]
                 explanation = "Вода и электричество опасны вместе. Не прикасайся к розетке и сразу предупреди взрослого."
             case 9:
                 let cm = c * 10 + d
-                q = "Лента длиной \(cm) см. Сколько это дециметров и сантиметров? Сложность \(level)/3."
+                q = "Лента длиной \(cm) см. Сколько это дециметров и сантиметров?."
                 answer = "\(cm / 10) дм \(cm % 10) см"
                 wrong = ["\(cm) дм", "\(cm / 10 + 1) дм", "\(cm % 10) дм \(cm / 10) см"]
                 explanation = "10 см = 1 дм, значит \(cm) см = \(cm / 10) дм \(cm % 10) см."
             case 10:
                 let minutes = 15 * (i % 4 + 1) + level * 5
-                q = "Урок начинается в 09:00 и длится \(minutes) минут. Во сколько он закончится? Сложность \(level)/3."
+                q = "Урок начинается в 09:00 и длится \(minutes) минут. Во сколько он закончится?."
                 answer = String(format: "%02d:%02d", 9 + minutes / 60, minutes % 60)
                 wrong = [String(format: "%02d:%02d", 9 + minutes / 60 + 1, minutes % 60), String(format: "%02d:%02d", 9, minutes % 60), String(format: "%02d:%02d", 9 + max(0, minutes / 60 - 1), minutes % 60)]
                 explanation = "Прибавляем \(minutes) минут к 09:00 и получаем \(answer)."
             case 11:
                 let budget = a + b + c
-                q = "У тебя бюджет \(budget) ₽. Ты купил вещи за \(a) ₽ и \(b) ₽. Сколько осталось? Сложность \(level)/3."
+                q = "У тебя бюджет \(budget) ₽. Ты купил вещи за \(a) ₽ и \(b) ₽. Сколько осталось?."
                 answer = "\(c) ₽"
                 wrong = ["\(c + 5) ₽", "\(budget) ₽", "\(a + b) ₽"]
                 explanation = "После покупки осталось \(c) рублей."
             case 12:
                 let people = level + 2
                 let each = c + 1
-                q = "Нужно разложить по \(each) карандашей на каждое из \(people) мест. Сколько понадобится? Сложность \(level)/3."
+                q = "Нужно разложить по \(each) карандашей на каждое из \(people) мест. Сколько понадобится?."
                 answer = "\(people * each)"
                 wrong = ["\(people + each)", "\(people * each + 2)", "\(max(1, people * each - 3))"]
                 explanation = "\(people) × \(each) = \(people * each) карандашей."
             case 13:
-                q = "На улице сильный дождь, а тебе нужно идти в школу. Что разумнее сделать? Сложность \(level)/3."
+                q = "На улице сильный дождь, а тебе нужно идти в школу. Что разумнее сделать?."
                 answer = "Взять подходящую одежду и предупредить взрослого, если погода опасная"
                 wrong = ["Бежать по скользкой дороге", "Игнорировать грозу", "Играть с водой возле электропроводов"]
                 explanation = "Одежда по погоде и осторожность помогают избежать травм."
             case 14:
-                q = "Ты нашёл лекарство без упаковки. Как безопаснее поступить? Сложность \(level)/3."
+                q = "Ты нашёл лекарство без упаковки. Как безопаснее поступить?."
                 answer = "Не принимать его и показать взрослому"
                 wrong = ["Попробовать на вкус", "Принять неизвестную таблетку", "Дать лекарство другу"]
                 explanation = "Нельзя принимать неизвестные лекарства. Передай находку взрослому."
             case 15:
-                q = "Ты случайно испортил чужую вещь. Что лучше сделать? Сложность \(level)/3."
+                q = "Ты случайно испортил чужую вещь. Что лучше сделать?."
                 answer = "Честно рассказать владельцу и взрослому и помочь исправить ситуацию"
                 wrong = ["Спрятать вещь", "Обвинить другого", "Убежать и никому не сказать"]
                 explanation = "Честность и готовность исправить ошибку помогают восстановить доверие."
             case 16:
-                q = "Ты заметил, что дома зря течёт вода. Как поступить? Сложность \(level)/3."
+                q = "Ты заметил, что дома зря течёт вода. Как поступить?."
                 answer = "Закрыть кран, если это безопасно, и сообщить взрослому"
                 wrong = ["Оставить воду течь", "Играть с открытым краном", "Не сообщать о протечке"]
                 explanation = "Так можно сберечь воду и вовремя устранить неисправность."
             case 17:
-                q = "Тебе дали несколько поручений, и ты боишься забыть одно из них. Что поможет? Сложность \(level)/3."
+                q = "Тебе дали несколько поручений, и ты боишься забыть одно из них. Что поможет?."
                 answer = "Записать поручения и выполнять по порядку"
                 wrong = ["Надеяться, что всё запомнится", "Начать всё одновременно", "Скрыть, что забыл"]
                 explanation = "Короткий список помогает распределить задачи и ничего не упустить."
             case 18:
-                q = "В общественном месте ты потерялся и не видишь близких. Что безопаснее? Сложность \(level)/3."
+                q = "В общественном месте ты потерялся и не видишь близких. Что безопаснее?."
                 answer = "Остаться в безопасном месте и обратиться к сотруднику или полицейскому"
                 wrong = ["Уйти с незнакомцем", "Искать выход через служебные двери", "Сесть в чужую машину"]
                 explanation = "Обратись к сотруднику учреждения или полицейскому и не уходи с незнакомцами."
             default:
-                q = "Как лучше подготовиться к важному школьному дню? Сложность \(level)/3."
+                q = "Как лучше подготовиться к важному школьному дню?."
                 answer = "Заранее проверить расписание, собрать вещи и лечь вовремя спать"
                 wrong = ["Собирать всё в последнюю минуту", "Не смотреть расписание", "Не отдыхать всю ночь"]
                 explanation = "Планирование и достаточный отдых помогают быть готовым к занятиям."
@@ -3172,6 +3172,7 @@ struct ContentView: View {
     @State private var detectiveFinished = false
     @State private var memoryLevel = 1
     @State private var memoryRound = 0
+    @State private var memorySelectedTypes: Set<String> = ["Картинки"]
     @State private var memorySequence: [String] = []
     @State private var memoryChoices: [String] = []
     @State private var memoryShowing = true
@@ -3237,6 +3238,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.3", date: "15.10.2026", title: "Удобный баланс и выбор символов для тренировки памяти", changes: ["Ползунок яркости стал заметнее на светлых темах благодаря контрастной рамке и фону.", "В левой панели блок «Баланс» использует изображения алмаза и золотой монеты в стиле магазина; баланс удалён из верхней панели задания.", "В «Навыках жизни» из текста вопроса убрана пометка уровня сложности.", "Перед тренировкой памяти можно выбрать картинки, буквы, цифры и знаки по отдельности или в любой комбинации."]),
             ReleaseNote(version: "1.2.2", date: "15.10.2026", title: "Настройка яркости и 5 000 заданий по жизненным навыкам", changes: ["Пять нижних тёмных тем стали заметно светлее; первые пять тем не изменены.", "Добавлен отдельный сохраняемый ползунок яркости темы.", "В «Навыки жизни» добавлено 5 000 автоматически сформированных заданий из разных бытовых сфер с тремя уровнями сложности.", "Баланс алмазов и золота перенесён в левую панель над выбором сложности и виден на всех страницах."]),
             ReleaseNote(version: "1.2.1", date: "15.10.2026", title: "Новые темы и улучшенные игровые задания", changes: ["Пять нижних тёмных тем получили новые цветовые сочетания и названия; темы «Лаванда», «Океан», «Мята», «Персик» и «Ночное небо» оставлены без изменений.", "В «Ежедневном детективе» добавлена расширенная база из более чем 1 000 разнообразных задач: вычисления, закономерности, деньги, измерения, календарь и геометрия.", "Кнопки перехода в детективе, тренировке памяти и навыках жизни выровнены по правому краю.", "В «Навыках жизни» после первой ошибки остаётся ещё одна попытка; правильный ответ и объяснение показываются только после второй ошибки."]),
             ReleaseNote(version: "1.2.0", date: "15.10.2026", title: "Крупное обновление: новые режимы развития", changes: ["Добавлены «Ежедневный детектив» с логическими загадками и ежедневным бонусом, «Тренировка памяти» с последовательностями и ростом сложности, а также «Навыки жизни» с практическими ситуациями.", "В статистике появился «Мой наставник» — персональная рекомендация по предмету на основе результатов ребёнка.", "В «Навыках жизни» после выбора ответа сначала показывается объяснение, а переход к следующей ситуации выполняется отдельной кнопкой.", "Номер версии приложения изменён на 1.2.0. Существующие предметы, накопленные награды, магазин и прежняя история выпусков сохранены."]),
@@ -3509,13 +3511,24 @@ struct ContentView: View {
             }
             .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 10)
 
-            HStack(spacing: 8) {
-                HStack(spacing: 6) { Image(systemName: "diamond.fill").foregroundStyle(Color(red: 0.25, green: 0.72, blue: 1)); Text("\(store.stats.diamonds)").foregroundStyle(palette.ink) }
-                    .font(.system(size: 13, weight: .black, design: .rounded)).frame(maxWidth: .infinity).padding(.vertical, 9).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11)).overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.line, lineWidth: 1))
-                HStack(spacing: 6) { Image(systemName: "circle.hexagongrid.fill").foregroundStyle(Color(red: 1, green: 0.72, blue: 0.12)); Text("\(goldBalance)").foregroundStyle(palette.ink) }
-                    .font(.system(size: 13, weight: .black, design: .rounded)).frame(maxWidth: .infinity).padding(.vertical, 9).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11)).overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.line, lineWidth: 1))
-            }
-            .padding(.horizontal, 12).padding(.bottom, 12)
+            VStack(alignment: .leading, spacing: 7) {
+                Text("БАЛАНС").font(.system(size: 10, weight: .black, design: .rounded)).tracking(0.6).foregroundStyle(palette.ink)
+                Button { openShop() } label: {
+                    HStack(spacing: 7) {
+                        HStack(spacing: 4) {
+                            Text("💎").font(.system(size: 18))
+                            Text("\(store.stats.diamonds)").font(.system(size: 12, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                        }.frame(maxWidth: .infinity)
+                        Rectangle().fill(palette.line).frame(width: 1, height: 22)
+                        HStack(spacing: 4) {
+                            goldCoinIcon(size: 18)
+                            Text("\(goldBalance)").font(.system(size: 12, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.83, green: 0.55, blue: 0.02))
+                        }.frame(maxWidth: .infinity)
+                    }.padding(.horizontal, 8).padding(.vertical, 9)
+                     .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11))
+                     .overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.line, lineWidth: 1))
+                }.buttonStyle(.plain).help("Открыть магазин")
+            }.padding(.horizontal, 12).padding(.bottom, 12)
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
@@ -3792,29 +3805,6 @@ struct ContentView: View {
 
     private var topBar: some View {
         HStack(spacing: 10) {
-            Button { openShop() } label: {
-                HStack(spacing: 12) {
-                    HStack(spacing: 12) {
-                        HStack(spacing: 5) {
-                            Text("💎").font(.system(size: 23))
-                            Text("\(store.stats.diamonds)").font(.system(size: 20, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                        }
-                        HStack(spacing: 5) {
-                            goldCoinIcon(size: 22)
-                            Text("\(goldBalance)").font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(Color(red: 0.83, green: 0.55, blue: 0.02))
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Баланс").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                        Text("Алмазы и золото").font(.system(size: 10, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
-                    }
-                    Spacer(minLength: 0)
-                    Image(systemName: "chevron.right").font(.system(size: 11, weight: .heavy)).foregroundStyle(palette.purple)
-                }.padding(.horizontal, 14).frame(maxWidth: .infinity).frame(height: 70)
-                 .background(palette.cardSurface.opacity(0.76), in: RoundedRectangle(cornerRadius: 20))
-                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.line, lineWidth: 1))
-            }.buttonStyle(.plain).help("Открыть магазин: алмазы, золото и игрушки")
-            HStack(spacing: 10) {
                 Text("🔥").font(.system(size: 30))
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Серия").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
@@ -4545,7 +4535,18 @@ struct ContentView: View {
         }
     }
 
-    private let memorySymbols = ["🐸", "🦊", "🐼", "🦋", "🍓", "🚀", "⭐", "🐢", "🌈", "🐙", "🍉", "🎈"]
+    private let memoryImageSymbols = ["🐸", "🦊", "🐼", "🦋", "🍓", "🚀", "⭐", "🐢", "🌈", "🐙", "🍉", "🎈"]
+    private let memoryLetterSymbols = Array("АБВГДЕЖЗИКЛМНОПРСТУФХ").map(String.init)
+    private let memoryDigitSymbols = Array("0123456789").map(String.init)
+    private let memorySignSymbols = ["+", "−", "×", "÷", "=", "<", ">", "△", "○", "□"]
+    private var availableMemorySymbols: [String] {
+        var result: [String] = []
+        if memorySelectedTypes.contains("Картинки") { result += memoryImageSymbols }
+        if memorySelectedTypes.contains("Буквы") { result += memoryLetterSymbols }
+        if memorySelectedTypes.contains("Цифры") { result += memoryDigitSymbols }
+        if memorySelectedTypes.contains("Знаки") { result += memorySignSymbols }
+        return result.isEmpty ? memoryImageSymbols : result
+    }
 
     private func makeMemoryChoices(for sequence: [String]) -> [String] {
         let correct = sequence.joined(separator: " ")
@@ -4566,7 +4567,8 @@ struct ContentView: View {
 
     private func startMemoryRound() {
         let count = min(8, 3 + memoryLevel)
-        memorySequence = Array(memorySymbols.shuffled().prefix(count))
+        let symbols = availableMemorySymbols
+        memorySequence = Array(symbols.shuffled().prefix(min(count, symbols.count)))
         memoryChoices = makeMemoryChoices(for: memorySequence)
         memoryShowing = true
         memorySelectedAnswer = nil
@@ -4593,8 +4595,32 @@ struct ContentView: View {
                         Text("Рекорд: \(memoryBestLevel)").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
                     }
                     if memorySequence.isEmpty {
-                        Text("Готов? Нажми кнопку, чтобы начать первую последовательность.")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Выбери, что нужно запоминать:")
+                            .font(.system(size: 16, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
+                            ForEach(["Картинки", "Буквы", "Цифры", "Знаки"], id: \.self) { type in
+                                Button {
+                                    if memorySelectedTypes.contains(type) {
+                                        if memorySelectedTypes.count > 1 { memorySelectedTypes.remove(type) }
+                                    } else {
+                                        memorySelectedTypes.insert(type)
+                                    }
+                                } label: {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: memorySelectedTypes.contains(type) ? "checkmark.circle.fill" : "circle")
+                                            .font(.system(size: 18, weight: .bold))
+                                        Text(type).font(.system(size: 14, weight: .bold, design: .rounded))
+                                        Spacer(minLength: 0)
+                                    }
+                                    .foregroundStyle(memorySelectedTypes.contains(type) ? .white : palette.ink)
+                                    .padding(12).frame(maxWidth: .infinity)
+                                    .background(memorySelectedTypes.contains(type) ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
+                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(memorySelectedTypes.contains(type) ? palette.purple : palette.line, lineWidth: 1))
+                                }.buttonStyle(.plain)
+                            }
+                        }
+                        Text("Можно выбрать несколько вариантов сразу.")
+                            .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     } else if memoryShowing {
                         Text(memorySequence.joined(separator: "   ")).font(.system(size: 39)).frame(maxWidth: .infinity, minHeight: 100)
                             .padding(12).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
@@ -5725,9 +5751,13 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 17, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Настрой яркость интерфейса. Значение сохраняется между запусками.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                        Slider(value: $themeBrightness, in: -0.12...0.18, step: 0.01).tint(palette.purple).controlSize(.large).frame(minHeight: 38)
-                        HStack { Text("Темнее").foregroundStyle(palette.muted); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 15, weight: .black, design: .rounded)).foregroundStyle(palette.purple); Spacer(); Text("Светлее").foregroundStyle(palette.muted) }.font(.system(size: 11, weight: .bold, design: .rounded))
-                    }.padding(16).background(palette.palePink.opacity(0.65), in: RoundedRectangle(cornerRadius: 16))
+                        Slider(value: $themeBrightness, in: -0.12...0.18, step: 0.01)
+                            .tint(Color(red: 0.30, green: 0.08, blue: 0.78))
+                            .controlSize(.large).frame(minHeight: 44).padding(.horizontal, 8)
+                            .background(Color.white, in: Capsule())
+                            .overlay(Capsule().stroke(Color(red: 0.30, green: 0.08, blue: 0.78), lineWidth: 2))
+                        HStack { Text("Темнее").foregroundStyle(palette.ink); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 16, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.30, green: 0.08, blue: 0.78)); Spacer(); Text("Светлее").foregroundStyle(palette.ink) }.font(.system(size: 12, weight: .black, design: .rounded))
+                    }.padding(16).background(Color.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 16)).overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(red: 0.30, green: 0.08, blue: 0.78).opacity(0.55), lineWidth: 1.5))
                     VStack(alignment: .leading, spacing: 10) {
                         Label("КОНТРАСТ ЦВЕТОВ", systemImage: "circle.lefthalf.filled")
                             .font(.system(size: 17, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
