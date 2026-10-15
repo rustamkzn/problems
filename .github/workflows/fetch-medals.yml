@@ -58,7 +58,7 @@ jobs:
               left, top = cx-side//2, cy-side//2
               crop = source.crop((left, top, left+side, top+side))
               mask = Image.new("L", (side,side), 0)
-              ImageDraw.Draw(mask).ellipse((3,3,side-4,side-4), fill=255)
+              ImageDraw.Draw(mask).ellipse((side//2-88,side//2-88,side//2+88,side//2+88), fill=255)
               crop.putalpha(mask)
               crop.save(root / f"medal-{goal}.png", optimize=True)
               thumb = crop.copy()
