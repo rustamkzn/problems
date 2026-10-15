@@ -2988,7 +2988,8 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: "1.0.144", date: "15.10.2026", title: "Уменьшены замки в магазине игрушек", changes: ["Размер замков на закрытых игрушках уменьшен в два раза, оформление магазина сохранено.", "История предыдущих версий сохранена."]),
+            ReleaseNote(version: "1.0.145", date: "15.10.2026", title: "Ускорена прокрутка магазина", changes: ["Снижена графическая нагрузка карточек игрушек при прокрутке длинного каталога.", "В магазине отключена постоянная анимация редких игрушек; оформление и покупки сохранены.", "История предыдущих версий сохранена."]),
+        ReleaseNote(version: "1.0.144", date: "15.10.2026", title: "Уменьшены замки в магазине игрушек", changes: ["Размер замков на закрытых игрушках уменьшен в два раза, оформление магазина сохранено.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.143", date: "15.10.2026", title: "Четыре варианта ответа для математики и русского языка", changes: ["В математике и русском языке теперь показываются четыре варианта ответа, из которых один правильный.", "Процент прогресса оставлен на самой медали; дублирующая подпись с процентом под карточкой убрана.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.142", date: "15.10.2026", title: "Оригинальные медали из выбранного дизайна", changes: ["Восемь медалей за правильные ответы заменены оригинальными иллюстрациями из предоставленного изображения.", "Круговой индикатор прогресса и процент снизу по центру сохранены.", "Оригинальные изображения включены в ресурсы приложения для работы без интернета.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.0.141", date: "15.10.2026", title: "Восемь медалей и постепенное заполнение цветом", changes: ["В раздел «Награды» добавлены медали за 1200 и 1500 правильных ответов; всего теперь восемь целей: 200, 300, 500, 700, 850, 1000, 1200 и 1500.", "Карточки медалей расположены в два ряда по четыре колонки.", "Изображение каждой медали постепенно заполняется её цветом по мере роста процента прогресса.", "Следующая медаль открывается для прогресса после получения предыдущей; накопленные правильные ответы сохраняются между месяцами."]),
@@ -4856,7 +4857,7 @@ struct ContentView: View {
                         in: RoundedRectangle(cornerRadius: 21)
                     )
                     .overlay(RoundedRectangle(cornerRadius: 21).stroke(palette.isDark ? palette.purple : Color(red: 0.84, green: 0.60, blue: 0.18), lineWidth: 2))
-                    .shadow(color: palette.purple.opacity(0.13), radius: 10, y: 4)
+                    .shadow(color: .clear, radius: 0)
                 }
 
                 if Collectible.all.contains(where: { !$0.isRare }) {
@@ -4935,7 +4936,7 @@ struct ContentView: View {
                     )
                 )
                 if owned {
-                    Collectible3DView(id: item.id, title: item.title, size: item.isRare ? 112 : 94, animated: item.isRare)
+                    Collectible3DView(id: item.id, title: item.title, size: item.isRare ? 112 : 94, animated: false)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .contentShape(Rectangle())
                         .onTapGesture { if item.isRare { triggerCelebration("rare:\(item.id)") } }
@@ -5003,7 +5004,7 @@ struct ContentView: View {
             in: RoundedRectangle(cornerRadius: 19)
         )
         .overlay(RoundedRectangle(cornerRadius: 19).stroke(item.isRare ? gold.opacity(0.8) : palette.line.opacity(0.7), lineWidth: item.isRare ? 2 : 1))
-        .shadow(color: item.isRare ? gold.opacity(0.16) : palette.purple.opacity(0.035), radius: item.isRare ? 10 : 8, y: 3)
+        .shadow(color: .clear, radius: 0)
     }
 
     private func prepareAchievementThresholds() {
