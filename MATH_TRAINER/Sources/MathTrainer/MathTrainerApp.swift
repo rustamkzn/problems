@@ -5980,11 +5980,17 @@ struct ContentView: View {
                             .controlSize(.large).frame(minHeight: 44).padding(.horizontal, 8)
                             .overlay {
                                 GeometryReader { proxy in
-                                    Circle().fill(Color.black).frame(width: 24, height: 24)
+                                    let normalizedBrightness = max(0.0, min(1.0, (themeBrightness + 0.12) / 0.30))
+                                    let availableWidth = max(0.0, proxy.size.width - 24.0)
+                                    let knobPosition = 12.0 + normalizedBrightness * availableWidth
+                                    Circle()
+                                        .fill(Color.black)
+                                        .frame(width: 24, height: 24)
                                         .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                                        .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
-                                        .position(x: 12 + CGFloat(max(0, min(1, (themeBrightness + 0.12) / 0.30))) * max(0, proxy.size.width - 24), y: proxy.size.height / 2)
-                                }.allowsHitTesting(false)
+                                        .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
+                                        .position(x: knobPosition, y: proxy.size.height / 2)
+                                }
+                                .allowsHitTesting(false)
                             }
                             .background(Color.white, in: Capsule())
                             .overlay(Capsule().stroke(Color.black, lineWidth: 2))
@@ -6758,9 +6764,15 @@ struct ContentView: View {
                 Color(red: 0.28, green: 0.17, blue: 0.40).opacity(0.20).ignoresSafeArea()
                 ForEach(celebrationTokens.indices, id: \.self) { index in
                     let token = celebrationTokens[index]
+                    let isBigMilestone = celebration == "milestone:50"
+                    let baseSize: Double = isBigMilestone ? 27 : 24
+                    let sizeMultiplier: Double = isBigMilestone ? 13 : 12
+                    let tokenFontSize = CGFloat(baseSize + token.delay * sizeMultiplier)
+                    let tokenX = CGFloat(token.x) * geo.size.width
+                    let tokenY = CGFloat(token.y) * geo.size.height
                     Text(token.emoji)
-                        .font(.system(size: CGFloat(celebration == "milestone:50" ? 27 + token.delay * 13 : 24 + token.delay * 12)))
-                        .position(x: CGFloat(token.x) * geo.size.width, y: CGFloat(token.y) * geo.size.height)
+                        .font(.system(size: tokenFontSize))
+                        .position(x: tokenX, y: tokenY)
                         .offset(
                             x: showCelebration ? CGFloat(token.drift) : 0,
                             y: showCelebration ? -110 : 90
