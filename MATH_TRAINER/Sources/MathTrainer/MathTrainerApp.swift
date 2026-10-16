@@ -2237,19 +2237,19 @@ private enum ActivityQuestionBank {
         }
         for i in 0..<120 {
             let a = 15 + i * 3, b = 12 + (i * 7) % 83, answer = a + b
-            bank.append(ActivityQuestion(prompt: "Проверка улик №\(i + 361): в одном конверте \(a) марок, в другом \(b). Сколько марок вместе?", answer: "\(answer)", choices: fourChoices("\(answer)", ["\(answer + 10)", "\(answer - 7)", "\(abs(a - b))"]), explanation: "Складываем: \(a) + \(b) = \(answer).", symbol: "✉️"))
+            bank.append(ActivityQuestion(prompt: "в одном конверте \(a) марок, в другом \(b). Сколько марок вместе?", answer: "\(answer)", choices: fourChoices("\(answer)", ["\(answer + 10)", "\(answer - 7)", "\(abs(a - b))"]), explanation: "Складываем: \(a) + \(b) = \(answer).", symbol: "✉️"))
         }
         for i in 0..<120 {
             let price = 18 + (i * 7) % 72, paid = price + 20 + (i * 11) % 81, answer = paid - price
-            bank.append(ActivityQuestion(prompt: "Дело №\(i + 481): покупка стоит \(price) ₽, покупатель дал \(paid) ₽. Какова сдача?", answer: "\(answer) ₽", choices: fourChoices("\(answer) ₽", ["\(answer + 10) ₽", "\(max(1, answer - 5)) ₽", "\(price) ₽"]), explanation: "Сдача: \(paid) − \(price) = \(answer) рублей.", symbol: "🛍️"))
+            bank.append(ActivityQuestion(prompt: "покупка стоит \(price) ₽, покупатель дал \(paid) ₽. Какова сдача?", answer: "\(answer) ₽", choices: fourChoices("\(answer) ₽", ["\(answer + 10) ₽", "\(max(1, answer - 5)) ₽", "\(price) ₽"]), explanation: "Сдача: \(paid) − \(price) = \(answer) рублей.", symbol: "🛍️"))
         }
         for i in 0..<120 {
             let dm = 2 + i % 18, answer = dm * 10
-            bank.append(ActivityQuestion(prompt: "Шифр длины №\(i + 601): сколько сантиметров составляют \(dm) дм?", answer: "\(answer) см", choices: fourChoices("\(answer) см", ["\(dm) см", "\(answer + 10) см", "\(dm * 100) см"]), explanation: "В одном дециметре 10 см: \(dm) × 10 = \(answer) см.", symbol: "📏"))
+            bank.append(ActivityQuestion(prompt: "сколько сантиметров составляют \(dm) дм?", answer: "\(answer) см", choices: fourChoices("\(answer) см", ["\(dm) см", "\(answer + 10) см", "\(dm * 100) см"]), explanation: "В одном дециметре 10 см: \(dm) × 10 = \(answer) см.", symbol: "📏"))
         }
         for i in 0..<120 {
             let length = 4 + i % 27, width = 3 + (i * 5) % 19, answer = 2 * (length + width)
-            bank.append(ActivityQuestion(prompt: "Геометрическая улика №\(i + 721): прямоугольник со сторонами \(length) см и \(width) см. Найди периметр.", answer: "\(answer) см", choices: fourChoices("\(answer) см", ["\(length * width) см", "\(answer + 4) см", "\(length + width) см"]), explanation: "Периметр: (\(length) + \(width)) × 2 = \(answer) см.", symbol: "📐"))
+            bank.append(ActivityQuestion(prompt: "прямоугольник со сторонами \(length) см и \(width) см. Найди периметр.", answer: "\(answer) см", choices: fourChoices("\(answer) см", ["\(length * width) см", "\(answer + 4) см", "\(length + width) см"]), explanation: "Периметр: (\(length) + \(width)) × 2 = \(answer) см.", symbol: "📐"))
         }
         for i in 0..<120 {
             let n = 4 + i % 40, factor = 2 + (i / 10) % 5, answer = n * factor
@@ -2259,11 +2259,11 @@ private enum ActivityQuestionBank {
             let day = i % 7, offset = 1 + (i / 7) % 6
             let answer = weekdays[(day + offset) % 7].capitalized
             let start = weekdays[day]
-            bank.append(ActivityQuestion(prompt: "Календарная загадка №\(i + 961): сегодня \(start). Какой день недели будет через \(offset) дней?", answer: answer, choices: fourChoices(answer, weekdays.map { $0.capitalized }.filter { $0 != answer }), explanation: "Через \(offset) дней после \(start) будет \(answer).", symbol: "📅"))
+            bank.append(ActivityQuestion(prompt: "сегодня \(start). Какой день недели будет через \(offset) дней?", answer: answer, choices: fourChoices(answer, weekdays.map { $0.capitalized }.filter { $0 != answer }), explanation: "Через \(offset) дней после \(start) будет \(answer).", symbol: "📅"))
         }
         for i in 0..<120 {
             let side = 3 + i % 28, answer = side * side
-            bank.append(ActivityQuestion(prompt: "Чертёж №\(i + 1081): у квадрата сторона \(side) см. Чему равна площадь?", answer: "\(answer) см²", choices: fourChoices("\(answer) см²", ["\(side * 4) см²", "\(answer + side) см²", "\(side + side) см²"]), explanation: "Площадь квадрата: \(side) × \(side) = \(answer) см².", symbol: "🟦"))
+            bank.append(ActivityQuestion(prompt: "у квадрата сторона \(side) см. Чему равна площадь?", answer: "\(answer) см²", choices: fourChoices("\(answer) см²", ["\(side * 4) см²", "\(answer + side) см²", "\(side + side) см²"]), explanation: "Площадь квадрата: \(side) × \(side) = \(answer) см².", symbol: "🟦"))
         }
         return bank
     }()
