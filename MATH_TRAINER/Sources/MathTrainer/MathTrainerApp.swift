@@ -2009,7 +2009,20 @@ struct ProblemGenerator {
             } else {
                 russianChoices = uniqueChoices([question.1, item.2, item.0, "слово"]).prefix(4).map { $0 }
             }
-            return Problem(text: "\(["Задание:", "Проверь себя:", "Подумай:", "Вопрос:"].randomElement()!) \(question.0)", answer: question.1, isTatarChoice: true, tatarChoices: Array(russianChoices.prefix(4)).shuffled())
+            var finalRussianChoices = uniqueChoices([question.1] + russianChoices.filter { $0 != question.1 })
+            let russianFallbacks = ["молоко", "машина", "собака", "берёза", "карандаш", "тетрадь", "яблоко", "дорога", "город", "река", "облако", "звезда"]
+            for fallback in russianFallbacks where !finalRussianChoices.contains(fallback) {
+                finalRussianChoices.append(fallback)
+                if finalRussianChoices.count == 4 { break }
+            }
+            if question.0.contains("наоборот") && finalRussianChoices.count < 4 {
+                for word in ["молоко", "машина", "собака", "берёза", "карандаш"] {
+                    let reversed = String(word.reversed())
+                    if !finalRussianChoices.contains(reversed) { finalRussianChoices.append(reversed) }
+                    if finalRussianChoices.count == 4 { break }
+                }
+            }
+            return Problem(text: "\(["Задание:", "Проверь себя:", "Подумай:", "Вопрос:"].randomElement()!) \(question.0)", answer: question.1, isTatarChoice: true, tatarChoices: Array(finalRussianChoices.prefix(4)).shuffled())
         case .english:
             let words: [(String,String)] = [("cat","кот"),("dog","собака"),("sun","солнце"),("book","книга"),("apple","яблоко"),("water","вода"),("house","дом"),("school","школа"),("friend","друг"),("family","семья"),("mother","мама"),("father","папа"),("sister","сестра"),("brother","брат"),("bird","птица"),("fish","рыба"),("tree","дерево"),("flower","цветок"),("green","зелёный"),("blue","синий"),("red","красный"),("yellow","жёлтый"),("black","чёрный"),("white","белый"),("one","один"),("two","два"),("three","три"),("four","четыре"),("five","пять"),("happy","счастливый"),("small","маленький"),("big","большой"),("fast","быстрый"),("slow","медленный"),("bread","хлеб"),("milk","молоко"),("chair","стул"),("table","стол"),("window","окно"),("door","дверь"),("morning","утро"),("night","ночь"),("hello","привет"),("please","пожалуйста"),("pencil","карандаш"),("rain","дождь"),("snow","снег"),("star","звезда"),("orange","апельсин"),("cheese","сыр")]
             let item = words.randomElement()!
@@ -2211,7 +2224,7 @@ private enum ActivityQuestionBank {
         let weekdays = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
         for i in 0..<120 {
             let a = 2 + i % 12, b = 3 + (i / 12) % 10, answer = a * b
-            bank.append(ActivityQuestion(prompt: "Логическая разминка №\(i + 1). В коробках по \(b) фишек, коробок \(a). Сколько фишек всего?", answer: "\(answer)", choices: fourChoices("\(answer)", ["\(answer + b)", "\(answer - a)", "\(answer + a + 2)"]), explanation: "Количество фишек: \(a) × \(b) = \(answer).", symbol: "🧮"))
+            bank.append(ActivityQuestion(prompt: "В коробках по \(b) фишек, коробок \(a). Сколько фишек всего?", answer: "\(answer)", choices: fourChoices("\(answer)", ["\(answer + b)", "\(answer - a)", "\(answer + a + 2)"]), explanation: "Количество фишек: \(a) × \(b) = \(answer).", symbol: "🧮"))
         }
         for i in 0..<120 {
             let divisor = 2 + i % 12, quotient = 3 + (i / 12) % 10, total = divisor * quotient
@@ -2219,7 +2232,7 @@ private enum ActivityQuestionBank {
         }
         for i in 0..<120 {
             let start = 3 + i % 35, step = 2 + (i / 35) % 9, answer = start + step * 4
-            bank.append(ActivityQuestion(prompt: "Найди правило в ряду №\(i + 241): \(start), \(start + step), \(start + step * 2), \(start + step * 3), …", answer: "\(answer)", choices: fourChoices("\(answer)", ["\(answer + 1)", "\(answer - step + 1)", "\(answer + step)"]), explanation: "Каждый раз прибавляем \(step): \(start + step * 3) + \(step) = \(answer).", symbol: "🔢"))
+            bank.append(ActivityQuestion(prompt: "Найди правило в ряду: \(start), \(start + step), \(start + step * 2), \(start + step * 3), …", answer: "\(answer)", choices: fourChoices("\(answer)", ["\(answer + 1)", "\(answer - step + 1)", "\(answer + step)"]), explanation: "Каждый раз прибавляем \(step): \(start + step * 3) + \(step) = \(answer).", symbol: "🔢"))
         }
         for i in 0..<120 {
             let a = 15 + i * 3, b = 12 + (i * 7) % 83, answer = a + b
@@ -3433,6 +3446,16 @@ struct ContentView: View {
     @AppStorage("MathTrainer.MemoryBestLevel.v1") private var memoryBestLevel = 0
     @AppStorage("MathTrainer.MemoryCategoryStats.v1") private var memoryCategoryStatsStorage = ""
     @AppStorage("MathTrainer.LifeSkillsBestScore.v1") private var lifeSkillsBestScore = 0
+    @AppStorage("MathTrainer.DetectiveAttempts.v1") private var detectiveTotalAttempts = 0
+    @AppStorage("MathTrainer.DetectiveCorrect.v1") private var detectiveTotalCorrect = 0
+    @AppStorage("MathTrainer.DetectiveWrong.v1") private var detectiveTotalWrong = 0
+    @AppStorage("MathTrainer.DetectiveStreak.v1") private var detectiveCurrentStreak = 0
+    @AppStorage("MathTrainer.DetectiveBestStreak.v1") private var detectiveBestStreak = 0
+    @AppStorage("MathTrainer.LifeSkillsAttempts.v1") private var lifeSkillsTotalAttempts = 0
+    @AppStorage("MathTrainer.LifeSkillsCorrect.v1") private var lifeSkillsTotalCorrect = 0
+    @AppStorage("MathTrainer.LifeSkillsWrong.v1") private var lifeSkillsTotalWrong = 0
+    @AppStorage("MathTrainer.LifeSkillsStreak.v1") private var lifeSkillsCurrentStreak = 0
+    @AppStorage("MathTrainer.LifeSkillsBestStreak.v1") private var lifeSkillsBestStreak = 0
     @AppStorage("MathTrainer.CorrectAnswersLifetime.v1") private var lifetimeCorrectAnswers = 0
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
@@ -3540,6 +3563,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.11", date: "16.10.2026", title: "Аналитика игр и проверка русских ответов", changes: ["В «Ежедневном детективе» и «Навыках жизни» добавлены подробные сохраняемые отчёты: попытки, правильные и ошибочные ответы, точность, текущая и лучшая серии правильных ответов.", "В русском языке обеспечены четыре уникальных варианта ответа, в том числе для задания на написание слова наоборот.", "Из вопросов детектива удалены служебные номера и префиксы вроде «Логическая разминка №…»; остаётся формулировка задачи."]),
             ReleaseNote(version: "1.2.10", date: "16.10.2026", title: "Исправления языков и диапазон яркости 75–115%", changes: ["В татарском убраны подсказки в формулировках и добавлены задания на перевод слов в обоих направлениях; варианты ответа не подсказывают правильный ответ.", "В английском формулировки вопросов на русском, а английские слова и предложения для изучения сохранены.", "Выпадающий список предметов увеличен, чтобы нижний пункт не обрезался.", "Яркость темы теперь настраивается от 75% (темнее) до 115% (светлее); выбранное значение сохраняется.", "Фон и обводка блока «Яркость темы» совпадают с блоком «Контраст цветов»."]),
             ReleaseNote(version: "1.2.9", date: "15.10.2026", title: "Новые темы оформления и логические вопросы", changes: ["Добавлены пять новых тем с мягким градиентом и пять светлых вариантов с тёмными цветовыми акцентами.", "В выпадающем списке предметов высота подстраивается под число пунктов, чтобы список заканчивался на последнем предмете.", "В «Ежедневном детективе» убрана фраза «Код сейфа» перед вопросом.", "Фон блока «Яркость темы» приведён к стилю блока «Контраст цветов».", "В «Навыки жизни» добавлены вопросы с подвохом и объяснениями."]),
             ReleaseNote(version: "1.2.8", date: "15.10.2026", title: "Новые темы по английскому, татарскому и окружающему миру", changes: ["В английский добавлены to be, сочетания гласных, звуки, слова о доме, улице и школе, а также глаголы действия.", "В татарский добавлены гласные и согласные, слоги, транскрипция и слова о животных и предметах вокруг ребёнка.", "В окружающий мир добавлены природные явления, птицы, растения, деревья и рыбы.", "В математике появилось отдельное упражнение на вычитание по частям.", "В тренировке памяти добавлены геометрические формы, цвета и статистика правильных ответов и ошибок по направлениям.", "Тёмные темы стали светлее, убрана нумерация ситуаций в «Навыках жизни», список предметов стал компактнее."]),
@@ -4752,6 +4776,18 @@ struct ContentView: View {
                     }
                     Spacer(minLength: 0)
                 }.padding(18).cardStyle(palette)
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Подробный отчёт", systemImage: "chart.bar.xaxis")
+                        .font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        miniStat("Всего попыток", value: "\(detectiveTotalAttempts)", icon: "list.number", color: palette.purple)
+                        miniStat("Верно", value: "\(detectiveTotalCorrect)", icon: "checkmark.circle.fill", color: palette.green)
+                        miniStat("Ошибки", value: "\(detectiveTotalWrong)", icon: "xmark.circle.fill", color: palette.red)
+                        miniStat("Точность", value: "\(detectiveTotalAttempts == 0 ? 0 : Int((Double(detectiveTotalCorrect) / Double(detectiveTotalAttempts) * 100).rounded()))%", icon: "target", color: palette.purple)
+                        miniStat("Серия сейчас", value: "\(detectiveCurrentStreak)", icon: "flame.fill", color: Color.orange)
+                        miniStat("Лучшая серия", value: "\(detectiveBestStreak)", icon: "trophy.fill", color: Color.orange)
+                    }
+                }.padding(16).cardStyle(palette)
                 if detectiveFinished {
                     VStack(spacing: 14) {
                         Text(detectiveScore == detectiveQuestions.count ? "🏆" : "✨").font(.system(size: 64))
@@ -4790,9 +4826,16 @@ struct ContentView: View {
                                 Button {
                                     guard detectiveSelectedAnswer == nil else { return }
                                     detectiveSelectedAnswer = choice
+                                    detectiveTotalAttempts += 1
                                     if choice == item.answer {
                                         detectiveScore += 1
+                                        detectiveTotalCorrect += 1
+                                        detectiveCurrentStreak += 1
+                                        detectiveBestStreak = max(detectiveBestStreak, detectiveCurrentStreak)
                                         store.addDiamonds(1)
+                                    } else {
+                                        detectiveTotalWrong += 1
+                                        detectiveCurrentStreak = 0
                                     }
                                 } label: {
                                     Text(choice).font(.system(size: 15, weight: .bold, design: .rounded))
@@ -5085,6 +5128,18 @@ struct ContentView: View {
                     miniStat("Верно в этой сессии", value: "\(lifeSkillsScore)", icon: "target", color: palette.green)
                     miniStat("Лучший результат", value: "\(lifeSkillsBestScore)", icon: "trophy.fill", color: Color(red: 0.94, green: 0.52, blue: 0.24))
                 }
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Подробный отчёт", systemImage: "chart.bar.xaxis")
+                        .font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        miniStat("Всего попыток", value: "\(lifeSkillsTotalAttempts)", icon: "list.number", color: palette.purple)
+                        miniStat("Верно", value: "\(lifeSkillsTotalCorrect)", icon: "checkmark.circle.fill", color: palette.green)
+                        miniStat("Ошибки", value: "\(lifeSkillsTotalWrong)", icon: "xmark.circle.fill", color: palette.red)
+                        miniStat("Точность", value: "\(lifeSkillsTotalAttempts == 0 ? 0 : Int((Double(lifeSkillsTotalCorrect) / Double(lifeSkillsTotalAttempts) * 100).rounded()))%", icon: "target", color: palette.purple)
+                        miniStat("Серия сейчас", value: "\(lifeSkillsCurrentStreak)", icon: "flame.fill", color: Color.orange)
+                        miniStat("Лучшая серия", value: "\(lifeSkillsBestStreak)", icon: "trophy.fill", color: Color.orange)
+                    }
+                }.padding(16).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(spacing: 14) {
                         Text(item.symbol).font(.system(size: 52)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
@@ -5097,14 +5152,22 @@ struct ContentView: View {
                         ForEach(item.choices, id: \.self) { choice in
                             Button {
                                 guard lifeSkillsSelectedAnswer == nil, choice != lifeSkillsFirstWrongAnswer else { return }
+                                lifeSkillsTotalAttempts += 1
                                 if choice == item.answer {
                                     lifeSkillsSelectedAnswer = choice
+                                    lifeSkillsTotalCorrect += 1
+                                    lifeSkillsCurrentStreak += 1
+                                    lifeSkillsBestStreak = max(lifeSkillsBestStreak, lifeSkillsCurrentStreak)
                                     lifeSkillsScore += 1
                                     lifeSkillsBestScore = max(lifeSkillsBestScore, lifeSkillsScore)
                                     store.addDiamonds(1)
                                 } else if lifeSkillsFirstWrongAnswer == nil {
+                                    lifeSkillsTotalWrong += 1
+                                    lifeSkillsCurrentStreak = 0
                                     lifeSkillsFirstWrongAnswer = choice
                                 } else {
+                                    lifeSkillsTotalWrong += 1
+                                    lifeSkillsCurrentStreak = 0
                                     lifeSkillsSelectedAnswer = choice
                                 }
                             } label: {
