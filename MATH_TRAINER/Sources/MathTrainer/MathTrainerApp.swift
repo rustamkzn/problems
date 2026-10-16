@@ -5464,7 +5464,7 @@ struct ContentView: View {
         return VStack(alignment: .leading, spacing: 13) {
             Label("Единый анализ", systemImage: "chart.xyaxis.line").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             Text("Наставник собирает результаты школьных предметов, логики и других учебных тем, детектива, памяти, навыков жизни и олимпиады. Учитываются число попыток, количество ошибок и повторяющиеся ошибки; точность — не единственный показатель. Данные о сложности доступны не для каждого режима, поэтому там, где их нет, наставник не делает вид, что измерил её.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-            ForEach(modeRows, id: \.0) { row in
+            ForEach(Array(modeRows.enumerated()), id: \.offset) { _, row in
                 HStack(spacing: 10) {
                     Image(systemName: row.3).font(.system(size: 17, weight: .bold)).foregroundStyle(palette.purple).frame(width: 28)
                     VStack(alignment: .leading, spacing: 3) {
