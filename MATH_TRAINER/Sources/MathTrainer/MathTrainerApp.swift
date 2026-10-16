@@ -2178,6 +2178,15 @@ private struct MistakeRecord: Codable, Identifiable {
     let date: String
 }
 
+private struct LifeSkillsReviewRecord: Codable, Identifiable {
+    let id: String
+    let prompt: String
+    let answer: String
+    let explanation: String
+    let symbol: String
+    let selectedAnswer: String
+}
+
 private struct ActivityQuestion: Identifiable {
     let id = UUID()
     let prompt: String
@@ -3457,6 +3466,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.LifeSkillsWrong.v1") private var lifeSkillsTotalWrong = 0
     @AppStorage("MathTrainer.LifeSkillsStreak.v1") private var lifeSkillsCurrentStreak = 0
     @AppStorage("MathTrainer.LifeSkillsBestStreak.v1") private var lifeSkillsBestStreak = 0
+    @AppStorage("MathTrainer.LifeSkillsReview.v1") private var lifeSkillsReviewStorage = "[]"
     @AppStorage("MathTrainer.CorrectAnswersLifetime.v1") private var lifetimeCorrectAnswers = 0
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
@@ -4893,6 +4903,22 @@ struct ContentView: View {
     private let memorySignSymbols = ["+", "−", "×", "÷", "=", "<", ">", "△", "○", "□"]
     private let memoryShapeSymbols = ["○", "□", "△", "⏢", "◇", "🍦"]
     private let memoryColorSymbols = ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣", "⚫", "⚪"]
+    private var decodedLifeSkillsReview: [LifeSkillsReviewRecord] {
+        guard let data = lifeSkillsReviewStorage.data(using: .utf8),
+              let decoded = try? JSONDecoder().decode([LifeSkillsReviewRecord].self, from: data) else { return [] }
+        return decoded
+    }
+    private func saveLifeSkillsReview(_ item: ActivityQuestion, selected: String) {
+        var records = decodedLifeSkillsReview
+        guard !records.contains(where: { $0.prompt == item.prompt && $0.answer == item.answer }) else { return }
+        records.insert(LifeSkillsReviewRecord(id: UUID().uuidString, prompt: item.prompt, answer: item.answer, explanation: item.explanation, symbol: item.symbol, selectedAnswer: selected), at: 0)
+        if records.count > 100 { records = Array(records.prefix(100)) }
+        if let data = try? JSONEncoder().encode(records) { lifeSkillsReviewStorage = String(decoding: data, as: UTF8.self) }
+    }
+    private func removeLifeSkillsReview(_ id: String) {
+        let records = decodedLifeSkillsReview.filter { $0.id != id }
+        if let data = try? JSONEncoder().encode(records) { lifeSkillsReviewStorage = String(decoding: data, as: UTF8.self) }
+    }
     private var decodedMemoryCategoryStats: [String: [Int]] {
         guard let data = memoryCategoryStatsStorage.data(using: .utf8),
               let decoded = try? JSONDecoder().decode([String: [Int]].self, from: data) else { return [:] }
@@ -5165,6 +5191,7 @@ struct ContentView: View {
                                 } else if lifeSkillsFirstWrongAnswer == nil {
                                     lifeSkillsTotalWrong += 1
                                     lifeSkillsCurrentStreak = 0
+                                    saveLifeSkillsReview(item, selected: choice)
                                     lifeSkillsFirstWrongAnswer = choice
                                 } else {
                                     lifeSkillsTotalWrong += 1
