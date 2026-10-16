@@ -6166,8 +6166,8 @@ struct ContentView: View {
                 .frame(width: 117, height: 94, alignment: .center)
                 .background(LinearGradient(colors: earned ? [color.opacity(0.18), palette.pink.opacity(0.10)] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(earned ? color : palette.line, lineWidth: 1.5))
-            Text(title).font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text(detail).font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Text(title).font(.system(size: 16 * fontScaleH3, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(detail).font(.system(size: 12 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             ProgressView(value: Double(progress), total: Double(goal)).tint(earned ? color : palette.purple)
             Text(earned ? "Медаль получена!" : "\(progress) из \(goal)").font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(earned ? palette.green : palette.purple)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(17).cardStyle(palette)
@@ -6694,7 +6694,7 @@ struct ContentView: View {
                 .font(.system(size: 15, weight: .heavy))
                 .foregroundStyle(palette.purple)
             Text(text)
-                .font(.system(size: 15, weight: .heavy, design: .rounded))
+                .font(.system(size: 15 * fontScaleH2, weight: .heavy, design: .rounded))
                 .foregroundStyle(palette.ink)
         }
     }
@@ -6703,7 +6703,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 4) {
                 Image(systemName: icon).font(.system(size: 11, weight: .heavy)).foregroundStyle(color)
-                Text(title).font(.system(size: 9, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted).lineLimit(1).minimumScaleFactor(0.68)
+                Text(title).font(.system(size: 9 * fontScaleH7, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted).lineLimit(1).minimumScaleFactor(0.68)
             }
             Text(value).font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7)
         }
@@ -6725,14 +6725,14 @@ struct ContentView: View {
 
     private func tableHead(_ text: String, align: Alignment) -> some View {
         Text(text)
-            .font(.system(size: 10, weight: .bold, design: .rounded))
+            .font(.system(size: 10 * fontScaleH7, weight: .bold, design: .rounded))
             .foregroundStyle(palette.muted)
             .frame(maxWidth: align == .leading ? .infinity : nil, alignment: align)
     }
 
     private func emptyHint(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .font(.system(size: 11 * fontScaleH7, weight: .medium, design: .rounded))
             .foregroundStyle(palette.muted)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
@@ -6745,8 +6745,8 @@ struct ContentView: View {
                 .frame(width: 63, height: 68)
                 .background(palette.palePink, in: RoundedRectangle(cornerRadius: 12))
             VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                Text(subtitle).font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                Text(title).font(.system(size: 12 * fontScaleH5, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                Text(subtitle).font(.system(size: 10 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 ProgressView(value: Double(progress), total: Double(goal)).tint(palette.purple).scaleEffect(x: 1, y: 0.72, anchor: .center)
             }
             Spacer(minLength: 0)
@@ -7135,8 +7135,8 @@ struct ContentView: View {
                 Text(emoji).font(.system(size: 63)).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
             .frame(width: 102, height: 102, alignment: .center)
-            Text(title).font(.system(size: 20, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text(detail).font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Text(title).font(.system(size: 20 * fontScaleH3, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(detail).font(.system(size: 13 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 .fixedSize(horizontal: false, vertical: true)
             ProgressView(value: Double(progress), total: Double(goal)).tint(palette.purple)
             Text("\(progress) из \(goal)")
