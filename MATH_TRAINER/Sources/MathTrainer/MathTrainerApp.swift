@@ -3470,6 +3470,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.LifeSkillsBestStreak.v1") private var lifeSkillsBestStreak = 0
     @AppStorage("MathTrainer.LifeSkillsReview.v1") private var lifeSkillsReviewStorage = "[]"
     @AppStorage("MathTrainer.MentorActivityDates.v1") private var mentorActivityDatesStorage = "[]"
+    @AppStorage("MathTrainer.AdaptiveDifficultyHistory.v1") private var adaptiveDifficultyHistoryStorage = "{}"
     @State private var mentorCalendarMonth = Date()
     @AppStorage("MathTrainer.CorrectAnswersLifetime.v1") private var lifetimeCorrectAnswers = 0
     @StateObject private var store = StatsStore()
@@ -6898,6 +6899,23 @@ struct ContentView: View {
         if correct { item.correct += 1 } else { item.incorrect += 1 }
         all[subject.rawValue] = item
         if let data = try? JSONEncoder().encode(all) { subjectPerformanceStorage = String(decoding: data, as: UTF8.self) }
+        guard selected == .task && subject == selectedSubject else { return }
+        var history = (try? JSONDecoder().decode([String: [Bool]].self, from: Data(adaptiveDifficultyHistoryStorage.utf8))) ?? [:]
+        var outcomes = history[subject.rawValue] ?? []
+        outcomes.append(correct)
+        if outcomes.count > 10 { outcomes = Array(outcomes.suffix(10)) }
+        history[subject.rawValue] = outcomes
+        if let data = try? JSONEncoder().encode(history) { adaptiveDifficultyHistoryStorage = String(decoding: data, as: UTF8.self) }
+        if outcomes.count >= 5 && outcomes.count.isMultiple(of: 5) {
+            let recentFiveCorrect = outcomes.suffix(5).filter { $0 }.count
+            if recentFiveCorrect >= 4 && difficultyLevel < 5 {
+                difficultyLevel += 1
+                currentTip = "Ты уверенно справляешься — сложность постепенно повышена до уровня \(difficultyLevel)."
+            } else if recentFiveCorrect <= 2 && difficultyLevel > 1 {
+                difficultyLevel -= 1
+                currentTip = "Давай закрепим основу: сложность снижена до уровня \(difficultyLevel), чтобы идти спокойнее."
+            }
+        }
     }
 
     private func countCorrectTowardMilestone() -> Bool {
