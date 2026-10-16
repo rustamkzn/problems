@@ -5414,6 +5414,96 @@ struct ContentView: View {
         }.padding(18).cardStyle(palette)
     }
 
+    private var mentorPage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                pageHeading("Мой наставник", subtitle: "Единый анализ занятий, бережные рекомендации и план на сегодня")
+                mentorCard
+                mentorUnifiedAnalysis
+                mentorCalendar
+            }.padding(24)
+        }.scrollIndicators(.hidden)
+    }
+
+    private var mentorUnifiedAnalysis: some View {
+        let subjectRows = StudySubject.allCases.map { ($0.rawValue, decodedSubjectPerformance[$0.rawValue] ?? SubjectPerformance()) }.filter { $0.1.total > 0 }
+        let memoryTotal = decodedMemoryCategoryStats.values.reduce(0) { $0 + $1.reduce(0, +) }
+        let memoryCorrect = decodedMemoryCategoryStats.values.reduce(0) { $0 + ($1.first ?? 0) }
+        let modeRows: [(String, Int, Int, String)] = [
+            ("Школьные предметы", subjectRows.reduce(0) { $0 + $1.1.total }, subjectRows.reduce(0) { $0 + $1.1.correct }, "book.fill"),
+            ("Ежедневный детектив", detectiveTotalAttempts, detectiveTotalCorrect, "magnifyingglass"),
+            ("Навыки жизни", lifeSkillsTotalAttempts, lifeSkillsTotalCorrect, "lightbulb.max.fill"),
+            ("Тренировка памяти", memoryTotal, memoryCorrect, "brain.head.profile"),
+            ("Олимпиада", olympiadCompleted, olympiadCompleted, "trophy.fill")
+        ]
+        let repeatedErrors = Dictionary(grouping: decodedMistakes, by: { "\($0.subject)|\($0.question)" }).filter { $0.value.count > 1 }.count
+        return VStack(alignment: .leading, spacing: 13) {
+            Label("Единый анализ", systemImage: "chart.xyaxis.line").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text("Наставник собирает результаты школьных предметов, логики и других учебных тем, детектива, памяти, навыков жизни и олимпиады. Учитываются число попыток, количество ошибок и повторяющиеся ошибки; точность — не единственный показатель. Данные о сложности доступны не для каждого режима, поэтому там, где их нет, наставник не делает вид, что измерил её.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+            ForEach(modeRows, id: \.0) { row in
+                HStack(spacing: 10) {
+                    Image(systemName: row.3).font(.system(size: 17, weight: .bold)).foregroundStyle(palette.purple).frame(width: 28)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(row.0).font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text(row.1 >= 5 ? "Попыток: \(row.1) · верных: \(row.2)" : "Пока мало данных: \(row.1) попыток. Нужны дополнительные занятия.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                    Spacer()
+                    if row.1 >= 5 { Text("\(Int(Double(row.2) * 100 / Double(max(1, row.1))))%").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple) }
+                    else { Text("Недостаточно").font(.system(size: 10, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted) }
+                }.padding(10).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
+            }
+            HStack {
+                Label("Повторяющиеся ошибки: \(repeatedErrors)", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
+                Spacer()
+                Label("Ошибок для разбора: \(decodedMistakes.count + decodedLifeSkillsReview.count)", systemImage: "text.book.closed")
+            }.font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+            if subjectRows.reduce(0, { $0 + $1.1.total }) < 5 && detectiveTotalAttempts < 5 && lifeSkillsTotalAttempts < 5 && memoryTotal < 5 {
+                Text("Пока недостаточно данных для надёжных выводов. Проведи несколько коротких занятий в разных режимах. Наставник не будет объявлять предмет слабым только из-за пары ошибок.").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).padding(12).background(palette.palePink.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+            }
+            Label("Умная сложность", systemImage: "slider.horizontal.3").font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text("Не меняй сложность по одному ответу. Если несколько занятий подряд проходят уверенно и ошибки редки, можно поднять уровень на один шаг. Если ошибки повторяются или ребёнок часто затрудняется — вернись к более простым заданиям, разбей решение на шаги и снова проверь результат. Сейчас это рекомендации; автоматическое изменение уровня применяется только там, где режим поддерживает управление сложностью.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+        }.padding(17).cardStyle(palette)
+    }
+
+    private var mentorCalendar: some View {
+        let calendar = Calendar.current
+        let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: mentorCalendarMonth)) ?? mentorCalendarMonth
+        let dayRange = calendar.range(of: .day, in: .month, for: monthStart) ?? (1..<29)
+        let firstWeekday = (calendar.component(.weekday, from: monthStart) + 5) % 7
+        let activityDates = mentorActivityDates.union(Set(store.stats.days.filter { $0.total > 0 }.map(\.date))).union(Set(decodedActiveSeconds.filter { $0.value > 0 }.map(\.key)))
+        return VStack(alignment: .leading, spacing: 12) {
+            Label("Календарь занятий", systemImage: "calendar").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            HStack {
+                Button { mentorCalendarMonth = calendar.date(byAdding: .month, value: -1, to: monthStart) ?? monthStart } label: {
+                    Image(systemName: "chevron.left").font(.system(size: 13, weight: .heavy)).foregroundStyle(palette.purple).frame(width: 32, height: 30)
+                }.buttonStyle(.plain)
+                Spacer()
+                Text(monthStart.formatted(.dateTime.month(.wide).year())).font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                Spacer()
+                Button { mentorCalendarMonth = calendar.date(byAdding: .month, value: 1, to: monthStart) ?? monthStart } label: {
+                    Image(systemName: "chevron.right").font(.system(size: 13, weight: .heavy)).foregroundStyle(palette.purple).frame(width: 32, height: 30)
+                }.buttonStyle(.plain)
+            }
+            HStack { ForEach(["Пн","Вт","Ср","Чт","Пт","Сб","Вс"], id: \.self) { day in Text(day).font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(palette.muted).frame(maxWidth: .infinity) } }
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 5), count: 7), spacing: 7) {
+                ForEach(0..<42, id: \.self) { index in
+                    let day = index - firstWeekday + 1
+                    if day >= 1 && day <= dayRange.count, let date = calendar.date(byAdding: .day, value: day - 1, to: monthStart) {
+                        let key = StatsStore.dateKey(date)
+                        let isFuture = calendar.startOfDay(for: date) > calendar.startOfDay(for: Date())
+                        let active = activityDates.contains(key)
+                        Text("\(day)").font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundStyle(active ? .white : palette.ink).frame(maxWidth: .infinity).frame(height: 32).background(active ? palette.green : (isFuture ? palette.cardSurface.opacity(0.35) : palette.red.opacity(0.13)), in: Circle()).overlay(Circle().stroke(active ? palette.green : palette.line.opacity(0.5), lineWidth: 1))
+                    } else { Color.clear.frame(height: 32) }
+                }
+            }
+            HStack(spacing: 15) {
+                Label("Было занятие", systemImage: "circle.fill").foregroundStyle(palette.green)
+                Label("Пропуск", systemImage: "circle.fill").foregroundStyle(palette.red)
+            }.font(.system(size: 11, weight: .semibold, design: .rounded))
+            Text("Зелёный — приложение зафиксировало занятие в одном из режимов. Красный — прошедший день без записанной активности. Дни до установки версии с календарём могут быть отмечены только по сохранившейся статистике.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+        }.padding(17).cardStyle(palette)
+    }
+
     private var statisticsPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
