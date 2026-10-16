@@ -6906,7 +6906,7 @@ struct ContentView: View {
         if outcomes.count > 10 { outcomes = Array(outcomes.suffix(10)) }
         history[subject.rawValue] = outcomes
         if let data = try? JSONEncoder().encode(history) { adaptiveDifficultyHistoryStorage = String(decoding: data, as: UTF8.self) }
-        if outcomes.count >= 5 && outcomes.count.isMultiple(of: 5) {
+        if outcomes.count >= 5 && item.total.isMultiple(of: 5) {
             let recentFiveCorrect = outcomes.suffix(5).filter { $0 }.count
             if recentFiveCorrect >= 4 && difficultyLevel < 5 {
                 difficultyLevel += 1
