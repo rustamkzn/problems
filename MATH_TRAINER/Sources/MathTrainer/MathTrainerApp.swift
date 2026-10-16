@@ -2846,6 +2846,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
     case lifeSkills = "Навыки жизни"
     case olympiad = "Олимпиада"
     case statistics = "Статистика"
+    case mentor = "Мой наставник"
     case days = "По дням"
     case rewards = "Награды"
     case shop = "Магазин"
@@ -2862,6 +2863,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
         case .lifeSkills: return "lightbulb.max.fill"
         case .olympiad: return "trophy.circle.fill"
         case .statistics: return "chart.bar.fill"
+        case .mentor: return "graduationcap.fill"
         case .days: return "calendar"
         case .rewards: return "trophy.fill"
         case .shop: return "storefront.fill"
@@ -3467,6 +3469,8 @@ struct ContentView: View {
     @AppStorage("MathTrainer.LifeSkillsStreak.v1") private var lifeSkillsCurrentStreak = 0
     @AppStorage("MathTrainer.LifeSkillsBestStreak.v1") private var lifeSkillsBestStreak = 0
     @AppStorage("MathTrainer.LifeSkillsReview.v1") private var lifeSkillsReviewStorage = "[]"
+    @AppStorage("MathTrainer.MentorActivityDates.v1") private var mentorActivityDatesStorage = "[]"
+    @State private var mentorCalendarMonth = Date()
     @AppStorage("MathTrainer.CorrectAnswersLifetime.v1") private var lifetimeCorrectAnswers = 0
     @StateObject private var store = StatsStore()
     @State private var problem = ProblemGenerator.next()
@@ -3574,6 +3578,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.13", date: "16.10.2026", title: "Единый наставник и календарь занятий", changes: ["«Мой наставник» вынесен в отдельный раздел левого меню и объединяет анализ школьных предметов, логики, памяти, детектива, навыков жизни и олимпиады.", "Добавлены единая статистика, календарь занятий, план на день, повторяющиеся ошибки и рекомендации по сложности. При недостатке данных наставник прямо сообщает об этом.", "В «Навыках жизни» разбор ошибки расширен: добавлены пошаговый анализ, оценка последствий и рекомендации для похожих ситуаций.", "Шрифт заголовков в «Версиях и изменениях» увеличен в 1,4 раза. Прежняя история выпусков и сохранённые достижения оставлены."]),
             ReleaseNote(version: "1.2.12", date: "16.10.2026", title: "Личный план обучения и разбор ошибок", changes: ["В «Навыках жизни» появился сохраняемый раздел «Разобрать ошибки»: можно повторно прочитать ситуацию, свой ответ, правильный ответ и объяснение; разобранные записи убираются из списка.", "В «Моём наставнике» добавлен личный план занятия на 10–15 минут с быстрым переходом к предмету для повторения.", "Добавлен поиск слабых мест по точности в предметах; учитываются только направления минимум с тремя ответами, а список показывает до пяти тем с наименьшей точностью.", "Сохранены прежняя история выпусков, статистика, достижения и накопленные награды."]),
             ReleaseNote(version: "1.2.11", date: "16.10.2026", title: "Аналитика игр и проверка русских ответов", changes: ["В «Ежедневном детективе» и «Навыках жизни» добавлены подробные сохраняемые отчёты: попытки, правильные и ошибочные ответы, точность, текущая и лучшая серии правильных ответов.", "В русском языке обеспечены четыре уникальных варианта ответа, в том числе для задания на написание слова наоборот.", "Из вопросов детектива удалены служебные номера и префиксы вроде «Логическая разминка №…»; остаётся формулировка задачи."]),
             ReleaseNote(version: "1.2.10", date: "16.10.2026", title: "Исправления языков и диапазон яркости 75–115%", changes: ["В татарском убраны подсказки в формулировках и добавлены задания на перевод слов в обоих направлениях; варианты ответа не подсказывают правильный ответ.", "В английском формулировки вопросов на русском, а английские слова и предложения для изучения сохранены.", "Выпадающий список предметов увеличен, чтобы нижний пункт не обрезался.", "Яркость темы теперь настраивается от 75% (темнее) до 115% (светлее); выбранное значение сохраняется.", "Фон и обводка блока «Яркость темы» совпадают с блоком «Контраст цветов»."]),
@@ -4029,6 +4034,7 @@ struct ContentView: View {
         case .lifeSkills: lifeSkillsPage
         case .olympiad: olympiadPage
         case .statistics: statisticsPage
+        case .mentor: mentorPage
         case .days: daysPage
         case .rewards: rewardsPage
         case .shop: shopPage
@@ -4839,6 +4845,7 @@ struct ContentView: View {
                                     guard detectiveSelectedAnswer == nil else { return }
                                     detectiveSelectedAnswer = choice
                                     detectiveTotalAttempts += 1
+                                    markMentorActivity()
                                     if choice == item.answer {
                                         detectiveScore += 1
                                         detectiveTotalCorrect += 1
@@ -4904,6 +4911,15 @@ struct ContentView: View {
     private let memorySignSymbols = ["+", "−", "×", "÷", "=", "<", ">", "△", "○", "□"]
     private let memoryShapeSymbols = ["○", "□", "△", "⏢", "◇", "🍦"]
     private let memoryColorSymbols = ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣", "⚫", "⚪"]
+    private var mentorActivityDates: Set<String> {
+        guard let data = mentorActivityDatesStorage.data(using: .utf8), let dates = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+        return Set(dates)
+    }
+    private func markMentorActivity() {
+        var dates = mentorActivityDates
+        dates.insert(StatsStore.dateKey(Date()))
+        if let data = try? JSONEncoder().encode(Array(dates.sorted().suffix(730))) { mentorActivityDatesStorage = String(decoding: data, as: UTF8.self) }
+    }
     private var decodedLifeSkillsReview: [LifeSkillsReviewRecord] {
         guard let data = lifeSkillsReviewStorage.data(using: .utf8),
               let decoded = try? JSONDecoder().decode([LifeSkillsReviewRecord].self, from: data) else { return [] }
@@ -4926,6 +4942,7 @@ struct ContentView: View {
         return decoded
     }
     private func recordMemoryAnswer(correct: Bool) {
+        markMentorActivity()
         var stats = decodedMemoryCategoryStats
         let outcomeIndex = correct ? 0 : 1
         for type in memorySelectedTypes {
@@ -5181,6 +5198,7 @@ struct ContentView: View {
                             Button {
                                 guard lifeSkillsSelectedAnswer == nil, choice != lifeSkillsFirstWrongAnswer else { return }
                                 lifeSkillsTotalAttempts += 1
+                                markMentorActivity()
                                 if choice == item.answer {
                                     lifeSkillsSelectedAnswer = choice
                                     lifeSkillsTotalCorrect += 1
@@ -5258,7 +5276,11 @@ struct ContentView: View {
                                     Text(record.prompt).font(.system(size: 14, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                                     Text("Твой ответ: \(record.selectedAnswer)").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
                                     Text("Правильный ответ: \(record.answer)").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
-                                    Text("Почему: \(record.explanation)").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text("Почему это важно: \(record.explanation)").font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text("Разберём по шагам").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                                    Text("1. Вспомни, чего добивался герой ситуации и какие факты были важны. 2. Сравни свой выбор с правильным ответом: что могло произойти после каждого варианта? 3. Выдели правило, которое можно применить в похожей ситуации.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text("Как поступить в следующий раз").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                                    Text("Не спеши выбирать первый вариант. Остановись, оцени возможные последствия, подумай о безопасности и о том, кому можно обратиться за помощью. Если ситуация неоднозначная — объясни свой выбор взрослому и обсуди альтернативы.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                                 }
                                 Spacer(minLength: 0)
                                 Button { removeLifeSkillsReview(record.id) } label: {
@@ -5757,6 +5779,7 @@ struct ContentView: View {
         let correctAnswer = olympiadProblem.answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let correct = normalized == correctAnswer
         _ = store.record(correct: correct, grantDiamond: false)
+        markMentorActivity()
         recordSubjectAnswer(subject: olympiadSubject, correct: correct)
         _ = unlockEligibleAchievements()
         let salute = correct ? countCorrectTowardMilestone() : false
@@ -6465,7 +6488,7 @@ struct ContentView: View {
                             Image(systemName: "app.badge.checkmark").font(.system(size: 23, weight: .bold)).foregroundStyle(palette.purple)
                                 .frame(width: 42, height: 42).background(palette.palePink, in: RoundedRectangle(cornerRadius: 13))
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(note.version == appVersion ? "Версия \(note.version) (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"))" : "Версия \(note.version)").textSelection(.enabled).font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                Text(note.version == appVersion ? "Версия \(note.version) (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"))" : "Версия \(note.version)").textSelection(.enabled).font(.system(size: 24, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                                 Text(note.title).textSelection(.enabled).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                             }
                             Spacer()
