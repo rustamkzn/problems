@@ -3304,15 +3304,15 @@ private struct Collectible3DView: View {
             RoundedRectangle(cornerRadius: size * 0.23, style: .continuous).fill(colors[0].opacity(0.07))
             Circle().fill(colors[1].opacity(0.11)).frame(width: size * 0.73, height: size * 0.73).offset(x: size * 0.20, y: -size * 0.20)
             Circle().fill(colors[0].opacity(0.085)).frame(width: size * 0.62, height: size * 0.62).offset(x: -size * 0.22, y: size * 0.23)
-            Text(emoji).font(.system(size: size * 0.62)).shadow(color: colors[0].opacity(0.13), radius: 3, y: 2)
+            Text(emoji).font(.system(size: size * 0.62 * AppFontScale.factor)).shadow(color: colors[0].opacity(0.13), radius: 3, y: 2)
                 .padding(size * 0.12).background(colors[1].opacity(0.09), in: RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
             if key.contains("rainbow") && (key.contains("panda") || key.contains("панд") || key.contains("hedgehog") || key.contains("ёжик") || key.contains("ежик") || key.contains("fairy") || key.contains("фея")) {
-                Text("🌈").font(.system(size: size * 0.25)).rotationEffect(.degrees(-12))
+                Text("🌈").font(.system(size: size * 0.25 * AppFontScale.factor)).rotationEffect(.degrees(-12))
                     .padding(3).background(.white.opacity(0.9), in: Circle())
                     .overlay(Circle().stroke(colors[0].opacity(0.35), lineWidth: 1))
                     .offset(x: size * 0.31, y: size * 0.28)
             }
-            Image(systemName: "sparkle").font(.system(size: size * 0.16, weight: .bold)).foregroundStyle(colors[1].opacity(0.8)).offset(x: size * 0.31, y: -size * 0.30)
+            Image(systemName: "sparkle").font(.system(size: size * 0.16 * AppFontScale.factor, weight: .bold)).foregroundStyle(colors[1].opacity(0.8)).offset(x: size * 0.31, y: -size * 0.30)
         }
         .frame(width: size, height: size)
         .overlay(RoundedRectangle(cornerRadius: size * 0.23, style: .continuous).stroke(colors[0].opacity(0.28), lineWidth: 1.5))
@@ -3373,11 +3373,11 @@ private struct Reward3DBadge: View {
 
             if !locked {
                 Image(systemName: "sparkles")
-                    .font(.system(size: size * 0.13, weight: .black))
+                    .font(.system(size: size * 0.13 * AppFontScale.factor, weight: .black))
                     .foregroundStyle(Color.white.opacity(0.95))
                     .offset(x: size * 0.23, y: -size * 0.25)
                 Image(systemName: "sparkle")
-                    .font(.system(size: size * 0.09, weight: .black))
+                    .font(.system(size: size * 0.09 * AppFontScale.factor, weight: .black))
                     .foregroundStyle(Color.yellow)
                     .offset(x: -size * 0.25, y: size * 0.13)
             }
@@ -3395,7 +3395,7 @@ private struct Reward3DBadge: View {
                     .offset(y: -size * 0.12)
             } else {
                 Image(systemName: symbol)
-                    .font(.system(size: size * 0.43, weight: .black))
+                    .font(.system(size: size * 0.43 * AppFontScale.factor, weight: .black))
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(locked ? Color.gray.opacity(0.35) : Color.white, locked ? Color.gray.opacity(0.25) : Color.white.opacity(0.92))
                     .shadow(color: .black.opacity(locked ? 0 : 0.25), radius: size * 0.035, x: 0, y: size * 0.035)
@@ -3404,7 +3404,7 @@ private struct Reward3DBadge: View {
 
             if locked {
                 Image(systemName: "lock.fill")
-                    .font(.system(size: size * 0.23, weight: .black))
+                    .font(.system(size: size * 0.23 * AppFontScale.factor, weight: .black))
                     .foregroundStyle(Color.gray.opacity(0.85))
                     .padding(size * 0.10)
                     .background(Color.white.opacity(0.92), in: Circle())
@@ -3412,7 +3412,7 @@ private struct Reward3DBadge: View {
             } else {
                 // Percentage is always legible at the bottom center of the medal.
                 Text("\(progressPercent)%")
-                    .font(.system(size: max(10, size * 0.155), weight: .black, design: .rounded))
+                    .font(.system(size: max(10, size * 0.155) * AppFontScale.factor, weight: .black, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(Color.white)
                     .padding(.horizontal, size * 0.07)
@@ -4223,7 +4223,7 @@ struct ContentView: View {
             if !(selectedSubject == .geometry && problem.showIllustration) {
                 Text(problem.text)
                     .textSelection(.enabled)
-                    .font(.system(size: (selectedSubject == .math ? 62 : 38) * fontScaleH4, weight: .heavy, design: .rounded))
+                    .font(.system(size: (selectedSubject == .math ? 62 : 38) * fontScaleH4 * AppFontScale.factor, weight: .heavy, design: .rounded))
                     .foregroundStyle(palette.ink)
                     .multilineTextAlignment(.center)
                     .contentTransition(.numericText())
@@ -5731,7 +5731,7 @@ struct ContentView: View {
                 if olympiadFinished {
                     VStack(spacing: 18) {
                         Text(olympiadWon ? "🎁" : "😔")
-                            .font(.system(size: olympiadWon ? 132 : 100))
+                            .font(.system(size: olympiadWon ? 132 : 100 * AppFontScale.factor))
                             .shadow(color: (olympiadWon ? palette.purple : palette.muted).opacity(0.22), radius: 18, y: 7)
                         Text(olympiadWon ? "ОЛИМПИАДА ПРОЙДЕНА!" : "В ЭТОТ РАЗ НЕ ПОЛУЧИЛОСЬ")
                             .font(.system(size: 27 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
@@ -6285,7 +6285,7 @@ struct ContentView: View {
         ZStack {
             Circle().fill(LinearGradient(colors: [Color(red: 1.0, green: 0.88, blue: 0.20), Color(red: 0.94, green: 0.62, blue: 0.02)], startPoint: .topLeading, endPoint: .bottomTrailing))
             Circle().stroke(Color(red: 0.72, green: 0.40, blue: 0.0), lineWidth: max(1, size * 0.07)).padding(size * 0.14)
-            Image(systemName: "star.fill").font(.system(size: size * 0.34, weight: .black)).foregroundStyle(Color(red: 0.62, green: 0.34, blue: 0.0))
+            Image(systemName: "star.fill").font(.system(size: size * 0.34 * AppFontScale.factor, weight: .black)).foregroundStyle(Color(red: 0.62, green: 0.34, blue: 0.0))
         }.frame(width: size, height: size).accessibilityLabel("Золотая монета")
     }
 
@@ -6341,7 +6341,7 @@ struct ContentView: View {
                         // Лёгкая заглушка вместо декоративного 3D-рендера для закрытых товаров.
                         // Это снижает нагрузку при прокрутке длинного каталога.
                         Text("🎁")
-                            .font(.system(size: item.isRare ? 62 : 52))
+                            .font(.system(size: item.isRare ? 62 : 52 * AppFontScale.factor))
                             .opacity(0.16)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                         Image(systemName: "lock.fill")
@@ -7179,7 +7179,7 @@ struct ContentView: View {
                 }
                 .background(Color.white, in: Capsule())
                 .overlay(Capsule().stroke(Color.black, lineWidth: 2))
-            Text(example).font(.system(size: baseSize * scale.wrappedValue, weight: .semibold, design: .rounded))
+            Text(example).font(.system(size: baseSize * scale.wrappedValue * AppFontScale.factor, weight: .semibold, design: .rounded))
                 .foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
         }
         .padding(6)
@@ -7389,7 +7389,7 @@ struct ContentView: View {
                     let tokenX = CGFloat(token.x) * geo.size.width
                     let tokenY = CGFloat(token.y) * geo.size.height
                     Text(token.emoji)
-                        .font(.system(size: tokenFontSize))
+                        .font(.system(size: tokenFontSize * AppFontScale.factor))
                         .position(x: tokenX, y: tokenY)
                         .offset(
                             x: showCelebration ? CGFloat(token.drift) : 0,
