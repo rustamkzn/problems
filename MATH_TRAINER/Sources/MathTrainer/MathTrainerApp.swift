@@ -5419,10 +5419,34 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 18) {
                 pageHeading("Мой наставник", subtitle: "Единый анализ занятий, бережные рекомендации и план на сегодня")
                 mentorCard
+                mentorDailyPlan
                 mentorUnifiedAnalysis
                 mentorCalendar
             }.padding(24)
         }.scrollIndicators(.hidden)
+    }
+
+    private var mentorDailyPlan: some View {
+        let weakest = StudySubject.allCases.map { ($0, decodedSubjectPerformance[$0.rawValue] ?? SubjectPerformance()) }.filter { $0.1.total >= 5 }.min { $0.1.accuracy < $1.1.accuracy }
+        return VStack(alignment: .leading, spacing: 12) {
+            Label("Личный план на день", systemImage: "sun.max.fill").font(.system(size: 19, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text("Три коротких блока, чтобы тренировать разные навыки, а не заниматься всё время одним и тем же. План адаптируется к имеющимся данным; если их мало, начинаем с разнообразия и собираем статистику.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Button {
+                if let weakest { selectedSubjectName = weakest.0.rawValue }
+                selected = .task
+                answer = ""; answerState = .neutral
+                problem = makeUniqueProblem(for: selectedSubject)
+                currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
+            } label: {
+                HStack { Text("1").font(.system(size: 13, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("5 минут · школьный предмет").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text(weakest.map { "Повторить \($0.0.rawValue): \($0.1.correct) верных из \($0.1.total) попыток." } ?? "Выбери предмет и собери первые результаты.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
+            }.buttonStyle(.plain)
+            Button { selected = .memory } label: {
+                HStack { Text("2").font(.system(size: 13, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("3 минуты · тренировка памяти").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text("Короткий блок на внимание и запоминание.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
+            }.buttonStyle(.plain)
+            Button { selected = lifeSkillsTotalAttempts <= detectiveTotalAttempts ? .lifeSkills : .detective } label: {
+                HStack { Text("3").font(.system(size: 13, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("3–5 минут · практические ситуации или логика").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text("Чередуем режимы, чтобы развивать рассуждение и применение знаний.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
+            }.buttonStyle(.plain)
+        }.padding(17).cardStyle(palette)
     }
 
     private var mentorUnifiedAnalysis: some View {
@@ -5459,6 +5483,25 @@ struct ContentView: View {
             }.font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
             if subjectRows.reduce(0, { $0 + $1.1.total }) < 5 && detectiveTotalAttempts < 5 && lifeSkillsTotalAttempts < 5 && memoryTotal < 5 {
                 Text("Пока недостаточно данных для надёжных выводов. Проведи несколько коротких занятий в разных режимах. Наставник не будет объявлять предмет слабым только из-за пары ошибок.").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).padding(12).background(palette.palePink.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+            }
+            let trendDays = store.stats.days.filter { $0.total > 0 }.sorted { $0.date > $1.date }
+            if trendDays.count >= 4 {
+                let recent = Array(trendDays.prefix(7))
+                let previous = Array(trendDays.dropFirst(7).prefix(7))
+                if !previous.isEmpty {
+                    let recentTotal = recent.reduce(0) { $0 + $1.total }
+                    let previousTotal = previous.reduce(0) { $0 + $1.total }
+                    let recentCorrect = recent.reduce(0) { $0 + $1.correct }
+                    let previousCorrect = previous.reduce(0) { $0 + $1.correct }
+                    let recentRate = Int(Double(recentCorrect) * 100 / Double(max(1, recentTotal)))
+                    let previousRate = Int(Double(previousCorrect) * 100 / Double(max(1, previousTotal)))
+                    Label("Изменение результатов", systemImage: "chart.line.uptrend.xyaxis").font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("По сохранённой дневной статистике основного тренажёра: в последних \(recent.count) активных днях точность \(recentRate)%, в предыдущих \(previous.count) активных днях — \(previousRate)%. \(recentRate > previousRate ? "Результат растёт." : (recentRate < previousRate ? "Есть смысл повторить темы и посмотреть на результат позже." : "Показатель примерно не изменился.") )").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text("Для сравнения результатов во времени пока мало дневных записей. Продолжай заниматься — наставник сможет сравнить периоды, когда накопится история.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                }
+            } else {
+                Text("Для анализа изменений во времени пока мало дневных записей. Наставник не будет делать вывод о прогрессе по одной тренировке.").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             }
             Label("Умная сложность", systemImage: "slider.horizontal.3").font(.system(size: 16, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             Text("Не меняй сложность по одному ответу. Если несколько занятий подряд проходят уверенно и ошибки редки, можно поднять уровень на один шаг. Если ошибки повторяются или ребёнок часто затрудняется — вернись к более простым заданиям, разбей решение на шаги и снова проверь результат. Сейчас это рекомендации; автоматическое изменение уровня применяется только там, где режим поддерживает управление сложностью.").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
