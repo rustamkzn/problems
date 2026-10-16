@@ -19,18 +19,18 @@ private struct PeriodicElementTile: View {
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("\(element.2)").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded))
+                Text("\(element.2)").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                 Spacer(minLength: 0)
-                Text(prompt.localizedCaseInsensitiveContains("символ у элемента") ? "?" : element.0).font(.system(size: 42 * AppFontScale.factor, weight: .black, design: .rounded))
-                Text(prompt.localizedCaseInsensitiveContains("символ у элемента") ? "Символ скрыт" : (prompt.localizedCaseInsensitiveContains("элемент с символом") ? "Название скрыто" : element.1)).font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
+                Text(prompt.localizedCaseInsensitiveContains("символ у элемента") ? "?" : element.0).font(.system(size: 42 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
+                Text(prompt.localizedCaseInsensitiveContains("символ у элемента") ? "Символ скрыт" : (prompt.localizedCaseInsensitiveContains("элемент с символом") ? "Название скрыто" : element.1)).font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).lineLimit(1).minimumScaleFactor(0.7)
             }
             .foregroundStyle(Color(red: 0.08, green: 0.25, blue: 0.48))
             .padding(12).frame(width: 112, height: 106, alignment: .leading)
             .background(LinearGradient(colors: [Color(red: 0.75, green: 0.92, blue: 1), Color(red: 0.48, green: 0.79, blue: 0.97)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 12))
             VStack(alignment: .leading, spacing: 6) {
-                Text("ТАБЛИЦА МЕНДЕЛЕЕВА").font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.6)
-                Text("Карточка химического элемента").font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
-                Text("Атомный номер · символ · название").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded))
+                Text("ТАБЛИЦА МЕНДЕЛЕЕВА").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.6)
+                Text("Карточка химического элемента").font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
+                Text("Атомный номер · символ · название").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded))
             }.foregroundStyle(Color(red: 0.08, green: 0.25, blue: 0.48))
             Spacer(minLength: 0)
         }
@@ -118,40 +118,40 @@ private struct StudyIllustration: View {
             } else if subject == .biology {
                 HStack(spacing: 18) {
                     if lower.contains("пингвин") {
-                        Text("🐧").font(.system(size: 58)).frame(width: 82)
+                        Text("🐧").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("дельфин") {
-                        Text("🐬").font(.system(size: 58)).frame(width: 82)
+                        Text("🐬").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("карась") || lower.contains("рыба") {
-                        Text("🐟").font(.system(size: 58)).frame(width: 82)
+                        Text("🐟").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("бабоч") {
-                        Text("🦋").font(.system(size: 58)).frame(width: 82)
+                        Text("🦋").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("пчел") {
-                        Text("🐝").font(.system(size: 58)).frame(width: 82)
+                        Text("🐝").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("лягуш") {
-                        Text("🐸").font(.system(size: 58)).frame(width: 82)
+                        Text("🐸").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("белый медвед") {
-                        Text("🐻‍❄️").font(.system(size: 58)).frame(width: 82)
+                        Text("🐻‍❄️").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("верблюд") {
-                        Text("🐪").font(.system(size: 58)).frame(width: 82)
+                        Text("🐪").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("ёж") {
-                        Text("🦔").font(.system(size: 58)).frame(width: 82)
+                        Text("🦔").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("сосна") || lower.contains("берёз") {
-                        Text("🌳").font(.system(size: 58)).frame(width: 82)
+                        Text("🌳").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("кактус") {
-                        Text("🌵").font(.system(size: 58)).frame(width: 82)
+                        Text("🌵").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else if lower.contains("шампиньон") || lower.contains("гриб") {
-                        Text("🍄").font(.system(size: 58)).frame(width: 82)
+                        Text("🍄").font(.system(size: 58 * AppFontScale.factor)).frame(width: 82)
                     } else {
-                        Image(systemName: symbol).font(.system(size: 58 * AppFontScale.factor, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(width: 82)
+                        Image(systemName: symbol).font(.system(size: 58 * AppFontScale.factor * AppFontScale.factor, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(width: 82)
                     }
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(biologyName ?? "ОБЪЕКТ ИЗУЧЕНИЯ").font(.system(size: 15 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(tint).lineLimit(2)
-                        Text("Иллюстрация к этому организму").font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(tint.opacity(0.78))
+                        Text(biologyName ?? "ОБЪЕКТ ИЗУЧЕНИЯ").font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(tint).lineLimit(2)
+                        Text("Иллюстрация к этому организму").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(tint.opacity(0.78))
                     }
                     Spacer(minLength: 4)
                 }.padding(.horizontal, 14)
             } else {
-                Image(systemName: symbol).font(.system(size: 68 * AppFontScale.factor, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(maxWidth: .infinity, maxHeight: .infinity)
+                Image(systemName: symbol).font(.system(size: 68 * AppFontScale.factor * AppFontScale.factor, weight: .bold)).symbolRenderingMode(.hierarchical).foregroundStyle(tint).frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .frame(maxWidth: .infinity)
@@ -3870,28 +3870,28 @@ struct ContentView: View {
             HStack(alignment: .top, spacing: 12) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 17).fill(LinearGradient(colors: [palette.purple, Color(red: 0.85, green: 0.43, blue: 0.74)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    Image(systemName: "brain.head.profile").font(.system(size: 27 * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white)
+                    Image(systemName: "brain.head.profile").font(.system(size: 27 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white)
                 }.frame(width: 48, height: 48)
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Тренировка мозга").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).minimumScaleFactor(0.78)
-                    Button { selected = .versionHistory } label: { Text("Версия \(appVersion)").font(.system(size: 10 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple).underline() }.buttonStyle(.plain).help("Открыть «Версии и изменения»")
+                    Text("Тренировка мозга").font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).minimumScaleFactor(0.78)
+                    Button { selected = .versionHistory } label: { Text("Версия \(appVersion)").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple).underline() }.buttonStyle(.plain).help("Открыть «Версии и изменения»")
                         .padding(.horizontal, 8).padding(.vertical, 4).background(palette.cardSurface.opacity(0.75), in: Capsule())
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 12).padding(.top, 22).padding(.bottom, 10)
 
             VStack(alignment: .leading, spacing: 7) {
-                Text("БАЛАНС").font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.6).foregroundStyle(palette.ink)
+                Text("БАЛАНС").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.6).foregroundStyle(palette.ink)
                 Button { openShop() } label: {
                     HStack(spacing: 7) {
                         HStack(spacing: 4) {
-                            Text("💎").font(.system(size: 18))
-                            Text("\(store.stats.diamonds)").font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("💎").font(.system(size: 18 * AppFontScale.factor))
+                            Text("\(store.stats.diamonds)").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
                         }.frame(maxWidth: .infinity)
                         Rectangle().fill(palette.line).frame(width: 1, height: 22)
                         HStack(spacing: 4) {
                             goldCoinIcon(size: 18)
-                            Text("\(goldBalance)").font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.83, green: 0.55, blue: 0.02))
+                            Text("\(goldBalance)").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.83, green: 0.55, blue: 0.02))
                         }.frame(maxWidth: .infinity)
                     }.padding(.horizontal, 8).padding(.vertical, 9)
                      .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11))
@@ -3902,11 +3902,11 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("УРОВЕНЬ СЛОЖНОСТИ")
-                        .font(.system(size: 9 * AppFontScale.factor, weight: .black, design: .rounded))
+                        .font(.system(size: 9 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                         .tracking(0.45).foregroundStyle(palette.ink)
                     Spacer(minLength: 2)
                     Text("\(difficultyLevel)/5")
-                        .font(.system(size: 10 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                        .font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                         .foregroundStyle(palette.purple)
                 }
                 HStack(spacing: 5) {
@@ -3920,7 +3920,7 @@ struct ContentView: View {
                             answerFocused = false
                         } label: {
                             Text("\(level)")
-                                .font(.system(size: 15 * AppFontScale.factor, weight: .black, design: .rounded))
+                                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                                 .foregroundStyle(difficultyLevel == level ? .white : palette.ink)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 32)
@@ -3932,13 +3932,13 @@ struct ContentView: View {
                     }
                 }
                 Text("1 — базовый · 5 — самый сложный")
-                    .font(.system(size: 9 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    .font(.system(size: 9 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             }
             .padding(.horizontal, 12).padding(.bottom, 12)
 
             VStack(alignment: .leading, spacing: 9) {
                 Text("ВЫБЕРИ ПРЕДМЕТ")
-                    .font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.6).foregroundStyle(palette.ink)
+                    .font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.6).foregroundStyle(palette.ink)
                 Button {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
                         showSubjectPicker.toggle()
@@ -3946,20 +3946,20 @@ struct ContentView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: selectedSubject.icon)
-                            .font(.system(size: 19 * AppFontScale.factor, weight: .heavy))
+                            .font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .heavy))
                             .frame(width: 40, height: 40)
                             .background(palette.cardSurface.opacity(0.22), in: RoundedRectangle(cornerRadius: 11))
                         VStack(alignment: .leading, spacing: 3) {
                             Text(selectedSubject.rawValue)
-                                .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                                 .lineLimit(1).minimumScaleFactor(0.75)
                             Text("НАЖМИ ЗДЕСЬ ДЛЯ СМЕНЫ")
-                                .font(.system(size: 8 * AppFontScale.factor, weight: .black, design: .rounded))
+                                .font(.system(size: 8 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                                 .tracking(0.2)
                         }
                         Spacer(minLength: 1)
                         Image(systemName: showSubjectPicker ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 13 * AppFontScale.factor, weight: .black))
+                            .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .black))
                             .frame(width: 28, height: 28)
                             .background(palette.cardSurface.opacity(0.22), in: Circle())
                     }
@@ -3999,10 +3999,10 @@ struct ContentView: View {
                     } label: {
                         HStack(spacing: 13) {
                             Image(systemName: section.icon)
-                                .font(.system(size: 18 * AppFontScale.factor, weight: .bold))
+                                .font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .bold))
                                 .frame(width: 24)
                             Text(section.rawValue)
-                                .font(.system(size: 15 * AppFontScale.factor * fontScaleBody, weight: .semibold, design: .rounded))
+                                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor * fontScaleBody, weight: .semibold, design: .rounded))
                             Spacer(minLength: 0)
                         }
                         .foregroundStyle(selected == section ? .white : palette.purple)
@@ -4030,7 +4030,7 @@ struct ContentView: View {
             HStack(spacing: 7) {
                 Image(systemName: "heart.fill").foregroundStyle(palette.pink)
                 Text("Для маленьких побед")
-                    .font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                    .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                     .foregroundStyle(palette.muted)
             }
             .padding(.horizontal, 19)
@@ -4067,10 +4067,10 @@ struct ContentView: View {
             pageHeading(selectedSubject.rawValue, subtitle: "Новый предмет в твоём учебном пространстве")
             Spacer()
             VStack(spacing: 18) {
-                Text(subjectEmoji).font(.system(size: 86))
-                Text("Готовим задания!").font(.system(size: 30 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                Text(subjectEmoji).font(.system(size: 86 * AppFontScale.factor))
+                Text("Готовим задания!").font(.system(size: 30 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text("Раздел уже создан. Задания для этого предмета появятся в следующем обновлении. Математика продолжает работать как обычно.")
-                    .font(.system(size: 16 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    .font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     .multilineTextAlignment(.center).frame(maxWidth: 510)
                 Button {
                     selectedSubjectName = StudySubject.math.rawValue
@@ -4080,7 +4080,7 @@ struct ContentView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { answerFocused = true }
                 } label: {
                     Label("Вернуться к математике", systemImage: "function")
-                        .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                        .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                         .padding(.horizontal, 20).padding(.vertical, 13).background(palette.purple, in: Capsule())
                 }.buttonStyle(.plain)
             }
@@ -4107,17 +4107,17 @@ struct ContentView: View {
                     } label: {
                         HStack(spacing: 10) {
                             Image(systemName: subject.icon)
-                                .font(.system(size: 15 * AppFontScale.factor, weight: .bold))
+                                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .bold))
                                 .frame(width: 30, height: 30)
                                 .foregroundStyle(subject == selectedSubject ? .white : palette.purple)
                                 .background(subject == selectedSubject ? palette.purple : palette.palePink, in: RoundedRectangle(cornerRadius: 9))
                             Text(subject.rawValue)
-                                .font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                 .foregroundStyle(palette.ink)
                             Spacer()
                             if subject == selectedSubject {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 16 * AppFontScale.factor, weight: .heavy))
+                                    .font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor, weight: .heavy))
                                     .foregroundStyle(palette.purple)
                             }
                         }
@@ -4174,10 +4174,10 @@ struct ContentView: View {
 
     private var topBar: some View {
         HStack(spacing: 10) {
-                Text("🔥").font(.system(size: 30))
+                Text("🔥").font(.system(size: 30 * AppFontScale.factor))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Серия").font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                    Text("\(store.stats.currentStreak) подряд").font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Серия").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("\(store.stats.currentStreak) подряд").font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 }
                 Spacer(minLength: 2)
                 HStack(spacing: 4) {
@@ -4194,7 +4194,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             Spacer(minLength: 16)
             Text("РЕШИ ПРИМЕР")
-                .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                 .tracking(1.1)
                 .foregroundStyle(palette.isDark ? Color(red: 0.88, green: 0.82, blue: 1) : palette.purple)
                 .padding(.horizontal, 22)
@@ -4215,7 +4215,7 @@ struct ContentView: View {
                         NSPasteboard.general.setString(textToCopy, forType: .string)
                     } label: {
                         Label("Копировать вопрос", systemImage: "doc.on.doc")
-                            .font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                            .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                             .foregroundStyle(palette.purple)
                     }.buttonStyle(.plain).help("Скопировать вопрос и варианты ответов")
                 }.padding(.horizontal, 25)
@@ -4248,7 +4248,7 @@ struct ContentView: View {
             } else {
                 HStack(spacing: 11) {
                     TextField(problem.isComparison ? "Выбери знак ниже" : "Введи ответ...", text: $answer)
-                        .font(.system(size: 23 * AppFontScale.factor * fontScaleH5, weight: .bold, design: .rounded))
+                        .font(.system(size: 23 * AppFontScale.factor * AppFontScale.factor * fontScaleH5, weight: .bold, design: .rounded))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(answerColor)
                         .textFieldStyle(.plain)
@@ -4278,7 +4278,7 @@ struct ContentView: View {
                                     answerFocused = false
                                 } label: {
                                     Text(symbol)
-                                        .font(.system(size: 24 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                        .font(.system(size: 24 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                                         .foregroundStyle(answer == symbol ? .white : palette.ink)
                                         .frame(maxWidth: .infinity)
                                         .frame(height: 49)
@@ -4298,7 +4298,7 @@ struct ContentView: View {
                             Text("Проверить")
                             Image(systemName: "arrow.right")
                         }
-                        .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                        .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 15)
                         .frame(height: 74)
@@ -4314,7 +4314,7 @@ struct ContentView: View {
             }
 
             Text(stateMessage)
-                .font(.system(size: 18 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                .font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                 .foregroundStyle(answerColor)
                 .frame(height: 31)
                 .padding(.top, 13)
@@ -4323,7 +4323,7 @@ struct ContentView: View {
             HStack(spacing: 8) {
                 Text("✨")
                 Text("Ты можешь! У тебя всё получится!")
-                    .font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                    .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                     .foregroundStyle(palette.purple)
                 Text("💗")
             }
@@ -4343,13 +4343,13 @@ struct ContentView: View {
             }
         }
         .overlay(alignment: .topLeading) {
-            Text("✦").font(.system(size: 24)).foregroundStyle(Color(red: 1, green: 0.74, blue: 0.44)).padding(23)
+            Text("✦").font(.system(size: 24 * AppFontScale.factor)).foregroundStyle(Color(red: 1, green: 0.74, blue: 0.44)).padding(23)
         }
         .overlay(alignment: .topTrailing) {
-            Text("✧").font(.system(size: 30)).foregroundStyle(palette.pink).padding(26)
+            Text("✧").font(.system(size: 30 * AppFontScale.factor)).foregroundStyle(palette.pink).padding(26)
         }
         .overlay(alignment: .bottomTrailing) {
-            Text("✦").font(.system(size: 22)).foregroundStyle(Color(red: 1, green: 0.78, blue: 0.52)).padding(23)
+            Text("✦").font(.system(size: 22 * AppFontScale.factor)).foregroundStyle(Color(red: 1, green: 0.78, blue: 0.52)).padding(23)
         }
         .overlay(alignment: .leading) {
             if showBunny {
@@ -4368,7 +4368,7 @@ struct ContentView: View {
             flagDesign(for: problem.answer).frame(width: 172, height: 96)
                 .clipShape(RoundedRectangle(cornerRadius: 8)).overlay(RoundedRectangle(cornerRadius: 8).stroke(.white, lineWidth: 2))
                 .shadow(color: .black.opacity(0.20), radius: 8, y: 4)
-            Text("ФЛАГ СТРАНЫ").font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded)).tracking(1.1).foregroundStyle(palette.muted)
+            Text("ФЛАГ СТРАНЫ").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).tracking(1.1).foregroundStyle(palette.muted)
         }
         .padding(10).background(palette.cardSurface.opacity(0.96), in: RoundedRectangle(cornerRadius: 15))
         .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.line, lineWidth: 1))
@@ -4390,7 +4390,7 @@ struct ContentView: View {
         case "Бразилия":
             ZStack { Color(red: 0.0, green: 0.48, blue: 0.25); FlagDiamond().fill(Color(red: 1, green: 0.82, blue: 0.15)).padding(.horizontal, 22).padding(.vertical, 17); Circle().fill(Color(red: 0.05, green: 0.20, blue: 0.52)).frame(width: 37, height: 37) }
         case "Китай":
-            ZStack(alignment: .topLeading) { Color(red: 0.87, green: 0.09, blue: 0.16); Image(systemName: "star.fill").font(.system(size: 30)).foregroundStyle(Color(red: 1, green: 0.83, blue: 0.20)).padding(12) }
+            ZStack(alignment: .topLeading) { Color(red: 0.87, green: 0.09, blue: 0.16); Image(systemName: "star.fill").font(.system(size: 30 * AppFontScale.factor)).foregroundStyle(Color(red: 1, green: 0.83, blue: 0.20)).padding(12) }
         case "Индия":
             VStack(spacing: 0) { Color(red: 1, green: 0.57, blue: 0.17); Color.white; ZStack { Color(red: 0.07, green: 0.44, blue: 0.28); Circle().fill(Color(red: 0.09, green: 0.22, blue: 0.52)).frame(width: 24, height: 24).overlay(Circle().stroke(Color.white, lineWidth: 1)) } }
         case "Польша":
@@ -4398,7 +4398,7 @@ struct ContentView: View {
         case "США":
             ZStack(alignment: .topLeading) {
                 VStack(spacing: 0) { ForEach(0..<13, id: \.self) { i in (i.isMultiple(of: 2) ? Color.white : Color(red: 0.78, green: 0.12, blue: 0.20)) } }
-                Color(red: 0.10, green: 0.20, blue: 0.47).frame(width: 72, height: 51).overlay(Image(systemName: "star.fill").font(.system(size: 20)).foregroundStyle(.white))
+                Color(red: 0.10, green: 0.20, blue: 0.47).frame(width: 72, height: 51).overlay(Image(systemName: "star.fill").font(.system(size: 20 * AppFontScale.factor)).foregroundStyle(.white))
             }
         case "Великобритания":
             ZStack { Color(red: 0.06, green: 0.15, blue: 0.39); Rectangle().fill(.white).frame(height: 25); Rectangle().fill(.white).frame(width: 25); Rectangle().fill(Color(red: 0.78, green: 0.07, blue: 0.18)).frame(height: 12); Rectangle().fill(Color(red: 0.78, green: 0.07, blue: 0.18)).frame(width: 12) }
@@ -4431,15 +4431,15 @@ struct ContentView: View {
         case "Южная Корея":
             ZStack { Color.white; Circle().trim(from: 0, to: 0.5).fill(Color(red: 0.82, green: 0.12, blue: 0.18)).frame(width: 36, height: 36).rotationEffect(.degrees(-90)); Circle().trim(from: 0.5, to: 1).fill(Color(red: 0.05, green: 0.22, blue: 0.55)).frame(width: 36, height: 36).rotationEffect(.degrees(-90)) }
         case "Турция":
-            ZStack(alignment: .leading) { Color(red: 0.85, green: 0.08, blue: 0.16); HStack(spacing: 2) { Image(systemName: "moon.fill"); Image(systemName: "star.fill").font(.system(size: 15)) }.font(.system(size: 28)).foregroundStyle(.white).padding(.leading, 24) }
+            ZStack(alignment: .leading) { Color(red: 0.85, green: 0.08, blue: 0.16); HStack(spacing: 2) { Image(systemName: "moon.fill"); Image(systemName: "star.fill").font(.system(size: 15 * AppFontScale.factor)) }.font(.system(size: 28 * AppFontScale.factor)).foregroundStyle(.white).padding(.leading, 24) }
         case "Саудовская Аравия":
-            ZStack { Color(red: 0.02, green: 0.38, blue: 0.22); Text("لا إله إلا الله").font(.system(size: 15 * AppFontScale.factor, weight: .bold)).foregroundStyle(.white); Rectangle().fill(.white).frame(width: 58, height: 3).offset(y: 24) }
+            ZStack { Color(red: 0.02, green: 0.38, blue: 0.22); Text("لا إله إلا الله").font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .bold)).foregroundStyle(.white); Rectangle().fill(.white).frame(width: 58, height: 3).offset(y: 24) }
         case "Пакистан":
-            HStack(spacing: 0) { Color.white.frame(width: 35); ZStack { Color(red: 0.01, green: 0.36, blue: 0.23); Image(systemName: "moon.fill").font(.system(size: 31)).foregroundStyle(.white); Image(systemName: "star.fill").font(.system(size: 12)).foregroundStyle(.white).offset(x: 10, y: -8) } }
+            HStack(spacing: 0) { Color.white.frame(width: 35); ZStack { Color(red: 0.01, green: 0.36, blue: 0.23); Image(systemName: "moon.fill").font(.system(size: 31 * AppFontScale.factor)).foregroundStyle(.white); Image(systemName: "star.fill").font(.system(size: 12 * AppFontScale.factor)).foregroundStyle(.white).offset(x: 10, y: -8) } }
         case "Индонезия":
             VStack(spacing: 0) { Color(red: 0.82, green: 0.08, blue: 0.16); Color.white }
         case "Вьетнам":
-            ZStack { Color(red: 0.82, green: 0.08, blue: 0.16); Image(systemName: "star.fill").font(.system(size: 38)).foregroundStyle(Color(red: 1, green: 0.83, blue: 0.16)) }
+            ZStack { Color(red: 0.82, green: 0.08, blue: 0.16); Image(systemName: "star.fill").font(.system(size: 38 * AppFontScale.factor)).foregroundStyle(Color(red: 1, green: 0.83, blue: 0.16)) }
         case "Таиланд":
             VStack(spacing: 0) { Color(red: 0.75, green: 0.06, blue: 0.16); Color.white; Color(red: 0.05, green: 0.12, blue: 0.32).frame(height: 32); Color.white; Color(red: 0.75, green: 0.06, blue: 0.16) }
         default:
@@ -4542,20 +4542,20 @@ struct ContentView: View {
                 .padding(8)
                 .background(Color.white, in: RoundedRectangle(cornerRadius: 16))
                 Text("ОФИЦИАЛЬНОЕ ИЗОБРАЖЕНИЕ ДОРОЖНОГО ЗНАКА")
-                    .font(.system(size: 9 * AppFontScale.factor, weight: .black, design: .rounded))
+                    .font(.system(size: 9 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                     .tracking(0.3)
                     .foregroundStyle(palette.muted)
             } else {
                 HStack(spacing: 16) {
                     Image(systemName: q.contains("светофор") ? "trafficlight.fill" : (q.contains("размет") || q.contains("зебр") ? "road.lanes" : "figure.walk"))
-                        .font(.system(size: 44 * AppFontScale.factor, weight: .bold))
+                        .font(.system(size: 44 * AppFontScale.factor * AppFontScale.factor, weight: .bold))
                         .foregroundStyle(palette.purple)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(q.contains("светофор") ? "СВЕТОФОР" : "БЕЗОПАСНОСТЬ")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded))
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                             .foregroundStyle(palette.ink)
                         Text("Смотри по сторонам")
-                            .font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                            .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                             .foregroundStyle(palette.muted)
                     }
                 }
@@ -4570,7 +4570,7 @@ struct ContentView: View {
     private var tatarChoiceGrid: some View {
         VStack(spacing: 12) {
             Text(selectedSubject == .tatar ? "ВЫБЕРИ ПРАВИЛЬНЫЙ ПЕРЕВОД" : "ВЫБЕРИ ПРАВИЛЬНЫЙ ОТВЕТ")
-                .font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded))
+                .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                 .tracking(0.35)
                 .foregroundStyle(palette.purple)
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
@@ -4582,11 +4582,11 @@ struct ContentView: View {
                     } label: {
                         HStack(spacing: 8) {
                             Text(["А", "Б", "В", "Г"][index])
-                                .font(.system(size: 13 * AppFontScale.factor, weight: .black, design: .rounded))
+                                .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                                 .frame(width: 27, height: 27)
                                 .background(answer == choice ? Color.white.opacity(0.22) : palette.palePink, in: Circle())
                             Text(choice)
-                                .font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(2)
                             Spacer(minLength: 0)
@@ -4608,9 +4608,9 @@ struct ContentView: View {
 
     private var bunnySticker: some View {
         VStack(spacing: 0) {
-            Text("😱").font(.system(size: 27)).offset(x: 22, y: 12)
-            Text("🐰").font(.system(size: 92))
-            Text("Ой!").font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded))
+            Text("😱").font(.system(size: 27 * AppFontScale.factor)).offset(x: 22, y: 12)
+            Text("🐰").font(.system(size: 92 * AppFontScale.factor))
+            Text("Ой!").font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                 .foregroundStyle(palette.purple).offset(y: -8)
         }
         .frame(width: 112, height: 150)
@@ -4623,20 +4623,20 @@ struct ContentView: View {
 
     private var tipBar: some View {
         HStack(spacing: 12) {
-            Text("💡").font(.system(size: 29))
+            Text("💡").font(.system(size: 29 * AppFontScale.factor))
             VStack(alignment: .leading, spacing: 3) {
                 Text("Маленькая подсказка")
-                    .font(.system(size: 13 * AppFontScale.factor * fontScaleH6, weight: .heavy, design: .rounded))
+                    .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor * fontScaleH6, weight: .heavy, design: .rounded))
                     .foregroundStyle(palette.ink)
                 Text(currentTip)
-                    .font(.system(size: 12 * AppFontScale.factor * fontScaleHints, weight: .medium, design: .rounded))
+                    .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor * fontScaleHints, weight: .medium, design: .rounded))
                     .foregroundStyle(palette.muted)
             }
             Spacer(minLength: 4)
             Rectangle().fill(palette.line).frame(width: 1, height: 34)
             Button { nextProblem() } label: {
                 Label("Новый пример", systemImage: "arrow.clockwise")
-                    .font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded))
+                    .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                     .foregroundStyle(palette.purple)
             }
             .buttonStyle(.plain)
@@ -4666,15 +4666,15 @@ struct ContentView: View {
                     HStack {
                         sectionTitle("Сегодня", icon: "calendar")
                         Spacer()
-                        Text("За день").font(.system(size: 10 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("За день").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                     }
                     todayStat("Верных ответов", value: today.correct, icon: "checkmark.circle.fill", color: palette.green)
                     todayStat("Неверных ответов", value: today.incorrect, icon: "xmark.circle.fill", color: palette.red)
                     todayStat("Всего ответов", value: today.total, icon: "list.number", color: palette.purple)
                     HStack {
-                        Text("Точность").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("Точность").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         Spacer()
-                        Text("\(today.accuracy)%").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                        Text("\(today.accuracy)%").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
                     }
                 }
                 .padding(13)
@@ -4688,7 +4688,7 @@ struct ContentView: View {
                     rewardPreview(emoji: "🧸", title: "20 алмазов", subtitle: "Салют из игрушек", progress: min(store.stats.diamonds, 20), goal: 20)
                     rewardPreview(emoji: "🦋", title: "50 алмазов", subtitle: "Птички и бабочки", progress: min(store.stats.diamonds, 50), goal: 50)
                     Button("Все награды →") { selected = .rewards }
-                        .font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded))
+                        .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                         .foregroundStyle(palette.purple).buttonStyle(.plain)
                 }
                 .padding(13)
@@ -4720,7 +4720,7 @@ struct ContentView: View {
                             Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 52, alignment: .trailing)
                             Text("\(day.accuracy)%").foregroundStyle(palette.purple).frame(width: 42, alignment: .trailing)
                         }
-                        .font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                        .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                         .padding(.horizontal, 8).padding(.vertical, 7)
                         .background(palette.cardSurface.opacity(0.55), in: RoundedRectangle(cornerRadius: 9))
                     }
@@ -4734,21 +4734,21 @@ struct ContentView: View {
                     ForEach(store.monthSummaries) { month in
                         VStack(alignment: .leading, spacing: 7) {
                             HStack {
-                                Text(StatsStore.displayMonth(month.monthKey)).font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                Text(StatsStore.displayMonth(month.monthKey)).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                                 Spacer()
-                                Text("\(month.accuracy)%").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                                Text("\(month.accuracy)%").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
                             }
                             HStack(spacing: 10) {
                                 Text("\(month.correct) верно").foregroundStyle(palette.green)
                                 Text("\(month.incorrect) ошибок").foregroundStyle(palette.red)
                                 Spacer(minLength: 0)
                                 Text("Всего: \(month.total)").foregroundStyle(palette.ink)
-                            }.font(.system(size: 10 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                            }.font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                             HStack {
                                 Text("Лучшая серия: \(month.bestStreak)")
                                 Spacer()
                                 Text("Дней с занятиями: \(month.days.filter { $0.total > 0 }.count)")
-                            }.font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            }.font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         }
                         .padding(11).background(palette.cardSurface.opacity(0.55), in: RoundedRectangle(cornerRadius: 11))
                     }
@@ -4765,7 +4765,7 @@ struct ContentView: View {
                 sectionTitle("Статистика по дням", icon: "calendar")
                 Spacer()
                 Button("Показать все") { selected = .days }
-                    .font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded))
+                    .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                     .foregroundStyle(palette.purple).buttonStyle(.plain)
             }
             if store.stats.days.isEmpty {
@@ -4787,7 +4787,7 @@ struct ContentView: View {
                         Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 47, alignment: .trailing)
                         Text("\(day.accuracy)%").foregroundStyle(palette.purple).frame(width: 58, alignment: .trailing)
                     }
-                    .font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                    .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 7)
                     .background(palette.cardSurface.opacity(0.48), in: RoundedRectangle(cornerRadius: 8))
@@ -4804,17 +4804,17 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Ежедневный детектив", subtitle: "Пять небольших загадок для внимательного сыщика 🔎")
                 HStack(spacing: 14) {
-                    Text("🕵️").font(.system(size: 54))
+                    Text("🕵️").font(.system(size: 54 * AppFontScale.factor))
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("Дело дня").font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Дело дня").font(.system(size: 22 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Реши 5 заданий. За правильные ответы получишь алмазы, а за идеальный результат — дополнительный бонус раз в день.")
-                            .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     }
                     Spacer(minLength: 0)
                 }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     Label("Подробный отчёт", systemImage: "chart.bar.xaxis")
-                        .font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        .font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                         miniStat("Всего попыток", value: "\(detectiveTotalAttempts)", icon: "list.number", color: palette.purple)
                         miniStat("Верно", value: "\(detectiveTotalCorrect)", icon: "checkmark.circle.fill", color: palette.green)
@@ -4826,21 +4826,21 @@ struct ContentView: View {
                 }.padding(16).cardStyle(palette)
                 if detectiveFinished {
                     VStack(spacing: 14) {
-                        Text(detectiveScore == detectiveQuestions.count ? "🏆" : "✨").font(.system(size: 64))
+                        Text(detectiveScore == detectiveQuestions.count ? "🏆" : "✨").font(.system(size: 64 * AppFontScale.factor))
                         Text(detectiveScore == detectiveQuestions.count ? "Дело раскрыто идеально!" : "Расследование завершено!")
-                            .font(.system(size: 25 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            .font(.system(size: 25 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Правильных ответов: \(detectiveScore) из \(detectiveQuestions.count)")
-                            .font(.system(size: 18 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                            .font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
                         if detectiveRewardDate == StatsStore.dateKey(Date()) {
                             Text("Награда за сегодня уже получена. Можно сыграть ещё раз и потренироваться.")
-                                .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).multilineTextAlignment(.center)
+                                .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).multilineTextAlignment(.center)
                         }
                         Button {
                             detectiveQuestions = Array(ActivityQuestionBank.detective.shuffled().prefix(5))
                             detectiveIndex = 0; detectiveScore = 0; detectiveSelectedAnswer = nil; detectiveFinished = false
                         } label: {
                             Label("Новое расследование", systemImage: "arrow.clockwise")
-                                .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                                 .padding(.horizontal, 22).padding(.vertical, 13).background(palette.purple, in: Capsule())
                         }.buttonStyle(.plain)
                     }.frame(maxWidth: .infinity).padding(28).cardStyle(palette)
@@ -4849,13 +4849,13 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
                             Text("ЗАДАНИЕ \(detectiveIndex + 1) ИЗ \(detectiveQuestions.count)")
-                                .font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.7).foregroundStyle(palette.purple)
+                                .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.7).foregroundStyle(palette.purple)
                             Spacer()
-                            Text("⭐ \(detectiveScore)").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("⭐ \(detectiveScore)").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                         }
                         HStack(alignment: .center, spacing: 14) {
-                            Text(item.symbol).font(.system(size: 52)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
-                            Text(item.prompt).font(.system(size: 20 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                            Text(item.symbol).font(.system(size: 52 * AppFontScale.factor)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
+                            Text(item.prompt).font(.system(size: 20 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                         }
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                             ForEach(item.choices, id: \.self) { choice in
@@ -4875,7 +4875,7 @@ struct ContentView: View {
                                         detectiveCurrentStreak = 0
                                     }
                                 } label: {
-                                    Text(choice).font(.system(size: 15 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                    Text(choice).font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                         .foregroundStyle(detectiveSelectedAnswer == choice ? .white : palette.ink)
                                         .frame(maxWidth: .infinity, minHeight: 54)
                                         .padding(.horizontal, 8)
@@ -4886,7 +4886,7 @@ struct ContentView: View {
                         }
                         if let picked = detectiveSelectedAnswer {
                             Text(picked == item.answer ? "Верно! \(item.explanation)" : "Пока не получилось. Правильный ответ: \(item.answer). \(item.explanation)")
-                                .font(.system(size: 14 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded))
                                 .foregroundStyle(picked == item.answer ? palette.green : palette.red)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(12).frame(maxWidth: .infinity, alignment: .leading)
@@ -4907,7 +4907,7 @@ struct ContentView: View {
                                     }
                                 } label: {
                                     Label(detectiveIndex + 1 == detectiveQuestions.count ? "Завершить расследование" : "Следующая загадка", systemImage: "arrow.right")
-                                        .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                        .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                                         .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
                                 }.buttonStyle(.plain)
                             }
@@ -4918,7 +4918,7 @@ struct ContentView: View {
                     Label("Лучший результат: \(detectiveBestScore)/5", systemImage: "trophy.fill")
                     Spacer()
                     Label("Алмазы: \(store.stats.diamonds)", systemImage: "sparkles")
-                }.font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                }.font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
             }.padding(24)
         }
     }
@@ -5026,23 +5026,23 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Тренировка памяти", subtitle: "Запоминай последовательности и постепенно повышай уровень 🧠")
                 HStack(spacing: 14) {
-                    Text("🧠").font(.system(size: 54))
+                    Text("🧠").font(.system(size: 54 * AppFontScale.factor))
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("Уровень \(memoryLevel)").font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Уровень \(memoryLevel)").font(.system(size: 22 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Посмотри на последовательность, запомни порядок и выбери её среди вариантов. На каждом новом уровне символов становится больше.")
-                            .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     }
                 }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 18) {
                     HStack {
                         Text(memoryShowing ? "ЗАПОМНИ ПО ПОРЯДКУ" : "ВОССТАНОВИ ПО ПАМЯТИ")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.5).foregroundStyle(palette.purple)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).tracking(0.5).foregroundStyle(palette.purple)
                         Spacer()
-                        Text("Рекорд: \(memoryBestLevel)").font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("Рекорд: \(memoryBestLevel)").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
                         if !memorySequence.isEmpty {
                             Button { stopMemoryTraining() } label: {
                                 Label("Стоп", systemImage: "stop.fill")
-                                    .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                    .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                                     .foregroundStyle(palette.red)
                                     .padding(.horizontal, 11).padding(.vertical, 7)
                                     .background(palette.red.opacity(0.10), in: Capsule())
@@ -5051,7 +5051,7 @@ struct ContentView: View {
                     }
                     if memorySequence.isEmpty {
                         Text("Выбери, что нужно запоминать:")
-                            .font(.system(size: 16 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                            .font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
                             ForEach(["Картинки", "Буквы", "Цифры", "Знаки", "Геометрические формы", "Цвета"], id: \.self) { type in
                                 Button {
@@ -5063,8 +5063,8 @@ struct ContentView: View {
                                 } label: {
                                     HStack(spacing: 8) {
                                         Image(systemName: memorySelectedTypes.contains(type) ? "checkmark.circle.fill" : "circle")
-                                            .font(.system(size: 18 * AppFontScale.factor, weight: .bold))
-                                        Text(type).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                            .font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .bold))
+                                        Text(type).font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                         Spacer(minLength: 0)
                                     }
                                     .foregroundStyle(memorySelectedTypes.contains(type) ? .white : palette.ink)
@@ -5075,13 +5075,13 @@ struct ContentView: View {
                             }
                         }
                         Text("Можно выбрать несколько вариантов сразу.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     } else if memoryShowing {
                         HStack(spacing: 8) {
                             Image(systemName: "metronome")
-                                .font(.system(size: 20 * AppFontScale.factor, weight: .bold))
+                                .font(.system(size: 20 * AppFontScale.factor * AppFontScale.factor, weight: .bold))
                             Text("\(memoryCountdown)")
-                                .font(.system(size: 28 * AppFontScale.factor, weight: .black, design: .rounded).monospacedDigit())
+                                .font(.system(size: 28 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded).monospacedDigit())
                         }
                         .foregroundStyle(palette.ink)
                         .frame(maxWidth: .infinity)
@@ -5089,7 +5089,7 @@ struct ContentView: View {
                         HStack(spacing: 8) {
                             ForEach(Array(memorySequence.enumerated()), id: \.offset) { _, symbol in
                                 Text(symbol)
-                                    .font(.system(size: 39 * AppFontScale.factor, weight: .black, design: .rounded))
+                                    .font(.system(size: 39 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                                     .foregroundStyle(palette.isDark ? Color.white : Color.black)
                                     .monospacedDigit()
                                     .frame(maxWidth: .infinity, minHeight: 86)
@@ -5099,9 +5099,9 @@ struct ContentView: View {
                         }.frame(maxWidth: .infinity)
                             .padding(12).background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
                         Text("Запоминай и порядок, и сами символы. Последовательность скроется после обратного отсчёта.")
-                            .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     } else {
-                        Text("Какая последовательность была показана?").font(.system(size: 19 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Какая последовательность была показана?").font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                         VStack(spacing: 9) {
                             ForEach(memoryChoices, id: \.self) { choice in
                                 Button {
@@ -5117,7 +5117,7 @@ struct ContentView: View {
                                         memoryLevel = max(1, memoryLevel - 1)
                                     }
                                 } label: {
-                                    Text(choice).font(.system(size: 21 * AppFontScale.factor, weight: .bold, design: .rounded)).frame(maxWidth: .infinity, minHeight: 56)
+                                    Text(choice).font(.system(size: 21 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).frame(maxWidth: .infinity, minHeight: 56)
                                         .foregroundStyle(memorySelectedAnswer == choice ? .white : (palette.isDark ? Color.white : Color.black))
                                         .background(memorySelectedAnswer == choice ? (choice == memorySequence.joined(separator: " ") ? palette.green : palette.red) : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
                                         .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
@@ -5126,7 +5126,7 @@ struct ContentView: View {
                         }
                         if let picked = memorySelectedAnswer {
                             Text(picked == memorySequence.joined(separator: " ") ? "Отличная память! Ты заработал 1 алмаз." : "Не беда — тренировка помогает запоминать лучше. Попробуй ещё раз.")
-                                .font(.system(size: 14 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(picked == memorySequence.joined(separator: " ") ? palette.green : palette.muted)
+                                .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(picked == memorySequence.joined(separator: " ") ? palette.green : palette.muted)
                             HStack {
                                 Spacer()
                                 Button {
@@ -5134,7 +5134,7 @@ struct ContentView: View {
                                     startMemoryRound()
                                 } label: {
                                     Label("Следующая последовательность", systemImage: "arrow.right")
-                                        .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                        .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                                         .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
                                 }.buttonStyle(.plain)
                             }
@@ -5142,19 +5142,19 @@ struct ContentView: View {
                     }
                     if memorySequence.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Статистика по направлениям").font(.system(size: 16 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text("Верные ответы и ошибки помогают понять, какой материал стоит повторить.").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            Text("Статистика по направлениям").font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("Верные ответы и ошибки помогают понять, какой материал стоит повторить.").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             ForEach(["Картинки", "Цифры", "Буквы", "Знаки", "Геометрические формы", "Цвета"], id: \.self) { type in
                                 let counts = decodedMemoryCategoryStats[type] ?? [0, 0]
                                 let correct = counts.indices.contains(0) ? counts[0] : 0
                                 let wrong = counts.indices.contains(1) ? counts[1] : 0
                                 HStack(spacing: 8) {
-                                    Text(type).font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                                    Text(type).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                                     Spacer()
                                     Text("Верно: \(correct)").foregroundStyle(palette.green)
                                     Text("Ошибки: \(wrong)").foregroundStyle(wrong > 0 ? palette.red : palette.muted)
                                     if correct + wrong > 0 { Text("\(Int(Double(correct) * 100 / Double(correct + wrong)))%").foregroundStyle(palette.purple) }
-                                }.font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).padding(.vertical, 5)
+                                }.font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).padding(.vertical, 5)
                                 Divider().overlay(palette.line)
                             }
                         }.padding(14).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 14))
@@ -5162,7 +5162,7 @@ struct ContentView: View {
                     if memorySequence.isEmpty {
                         Button { startMemoryRound() } label: {
                             Label("Начать тренировку", systemImage: "play.fill")
-                                .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                                 .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
                         }.buttonStyle(.plain)
                     }
@@ -5193,7 +5193,7 @@ struct ContentView: View {
                 }
                 VStack(alignment: .leading, spacing: 12) {
                     Label("Подробный отчёт", systemImage: "chart.bar.xaxis")
-                        .font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        .font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                         miniStat("Всего попыток", value: "\(lifeSkillsTotalAttempts)", icon: "list.number", color: palette.purple)
                         miniStat("Верно", value: "\(lifeSkillsTotalCorrect)", icon: "checkmark.circle.fill", color: palette.green)
@@ -5205,10 +5205,10 @@ struct ContentView: View {
                 }.padding(16).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(spacing: 14) {
-                        Text(item.symbol).font(.system(size: 52)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
+                        Text(item.symbol).font(.system(size: 52 * AppFontScale.factor)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Ситуация из жизни").font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
-                            Text(item.prompt).font(.system(size: 20 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                            Text("Ситуация из жизни").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
+                            Text(item.prompt).font(.system(size: 20 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                         }
                     }
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
@@ -5236,7 +5236,7 @@ struct ContentView: View {
                                     lifeSkillsSelectedAnswer = choice
                                 }
                             } label: {
-                                Text(choice).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                Text(choice).font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                     .foregroundStyle((lifeSkillsSelectedAnswer == choice || lifeSkillsFirstWrongAnswer == choice) ? .white : palette.ink)
                                     .frame(maxWidth: .infinity, minHeight: 60).padding(.horizontal, 8)
                                     .background(
@@ -5251,7 +5251,7 @@ struct ContentView: View {
                     }
                     if let picked = lifeSkillsSelectedAnswer {
                         Text(picked == item.answer ? "Верно! \(item.explanation)" : "Вторая попытка использована. Правильный ответ: \(item.answer). \(item.explanation)")
-                            .font(.system(size: 14 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(picked == item.answer ? palette.green : palette.red)
+                            .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(picked == item.answer ? palette.green : palette.red)
                             .fixedSize(horizontal: false, vertical: true).padding(12)
                             .background((picked == item.answer ? palette.green : palette.red).opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
                         HStack {
@@ -5263,13 +5263,13 @@ struct ContentView: View {
                                 lifeSkillsFirstWrongAnswer = nil
                             } label: {
                                 Label("Следующая ситуация", systemImage: "arrow.right")
-                                    .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                    .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                                     .padding(.horizontal, 20).padding(.vertical, 12).background(palette.purple, in: Capsule())
                             }.buttonStyle(.plain)
                         }
                     } else if let firstWrong = lifeSkillsFirstWrongAnswer {
                         Text("Не совсем верно: «\(firstWrong)». Попробуй ещё раз — у тебя осталась одна попытка.")
-                            .font(.system(size: 14 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.red)
+                            .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.red)
                             .fixedSize(horizontal: false, vertical: true).padding(12)
                             .background(palette.red.opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
                     }
@@ -5277,32 +5277,32 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Label("Разобрать ошибки", systemImage: "arrow.uturn.backward.circle.fill")
-                            .font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            .font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                         Spacer()
-                        Text("\(decodedLifeSkillsReview.count)").font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                        Text("\(decodedLifeSkillsReview.count)").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
                     }
                     Text("Вернись к ситуации, вспомни правильное решение и закрепи тему.")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     if decodedLifeSkillsReview.isEmpty {
                         Text("Ошибок для разбора пока нет. Если ответ окажется неверным, ситуация появится здесь.")
-                            .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).padding(.vertical, 8)
+                            .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).padding(.vertical, 8)
                     } else {
                         ForEach(decodedLifeSkillsReview) { record in
                             HStack(alignment: .top, spacing: 10) {
-                                Text(record.symbol).font(.system(size: 27))
+                                Text(record.symbol).font(.system(size: 27 * AppFontScale.factor))
                                 VStack(alignment: .leading, spacing: 5) {
-                                    Text(record.prompt).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
-                                    Text("Твой ответ: \(record.selectedAnswer)").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
-                                    Text("Правильный ответ: \(record.answer)").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
-                                    Text("Почему это важно: \(record.explanation)").font(.system(size: 14 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
-                                    Text("Разберём по шагам").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
-                                    Text("1. Вспомни, чего добивался герой ситуации и какие факты были важны. 2. Сравни свой выбор с правильным ответом: что могло произойти после каждого варианта? 3. Выдели правило, которое можно применить в похожей ситуации.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
-                                    Text("Как поступить в следующий раз").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
-                                    Text("Не спеши выбирать первый вариант. Остановись, оцени возможные последствия, подумай о безопасности и о том, кому можно обратиться за помощью. Если ситуация неоднозначная — объясни свой выбор взрослому и обсуди альтернативы.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text(record.prompt).font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text("Твой ответ: \(record.selectedAnswer)").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
+                                    Text("Правильный ответ: \(record.answer)").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
+                                    Text("Почему это важно: \(record.explanation)").font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text("Разберём по шагам").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                                    Text("1. Вспомни, чего добивался герой ситуации и какие факты были важны. 2. Сравни свой выбор с правильным ответом: что могло произойти после каждого варианта? 3. Выдели правило, которое можно применить в похожей ситуации.").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text("Как поступить в следующий раз").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                                    Text("Не спеши выбирать первый вариант. Остановись, оцени возможные последствия, подумай о безопасности и о том, кому можно обратиться за помощью. Если ситуация неоднозначная — объясни свой выбор взрослому и обсуди альтернативы.").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                                 }
                                 Spacer(minLength: 0)
                                 Button { removeLifeSkillsReview(record.id) } label: {
-                                    Image(systemName: "checkmark.circle.fill").font(.system(size: 18)).foregroundStyle(palette.green)
+                                    Image(systemName: "checkmark.circle.fill").font(.system(size: 18 * AppFontScale.factor)).foregroundStyle(palette.green)
                                 }.buttonStyle(.plain).help("Убрать из списка после повторения")
                             }.padding(12).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
                         }
@@ -5331,19 +5331,19 @@ struct ContentView: View {
         }
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                Text("🦉").font(.system(size: 42)).frame(width: 62, height: 62).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 16))
+                Text("🦉").font(.system(size: 42 * AppFontScale.factor)).frame(width: 62, height: 62).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 16))
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Мой наставник").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Совет на основе твоих результатов").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("Мой наставник").font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Совет на основе твоих результатов").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 }
                 Spacer(minLength: 0)
             }
-            Text(message).font(.system(size: 14 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+            Text(message).font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
             HStack {
                 Label("Сегодня: \(store.stats.correct) верных", systemImage: "checkmark.circle.fill")
                 Spacer()
                 Text("Без оценок и упрёков 💜")
-            }.font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+            }.font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
             Button {
                 if let weakest, weakest.1.accuracy < 80 { selectedSubjectName = weakest.0.rawValue }
                 selected = .task
@@ -5352,43 +5352,43 @@ struct ContentView: View {
                 currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
             } label: {
                 Label(action, systemImage: "play.fill")
-                    .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                    .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                     .padding(.horizontal, 17).padding(.vertical, 11).background(palette.purple, in: Capsule())
             }.buttonStyle(.plain)
             Divider().overlay(palette.line)
             VStack(alignment: .leading, spacing: 10) {
                 Label("Личный план обучения", systemImage: "calendar.badge.clock")
-                    .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text("План на 10–15 минут, который подстраивается под твои результаты.")
-                    .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 let planSubject = weakest?.0 ?? selectedSubject
                 HStack(alignment: .top, spacing: 9) {
-                    Text("1").font(.system(size: 13 * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
+                    Text("1").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("5 минут — \(planSubject.rawValue)").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("5 минут — \(planSubject.rawValue)").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                         if let weakest {
                             Text("Начни с темы, где точность ниже всего: \(weakest.1.accuracy)% верных ответов.")
-                                .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         } else {
                             Text("Потренируй выбранный предмет и собери первые результаты.")
-                                .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         }
                     }
                 }
                 HStack(alignment: .top, spacing: 9) {
-                    Text("2").font(.system(size: 13 * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
+                    Text("2").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("3–5 минут — закрепление").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("3–5 минут — закрепление").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Реши несколько заданий и перечитай объяснения ошибок.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     }
                 }
                 HStack(alignment: .top, spacing: 9) {
-                    Text("3").font(.system(size: 13 * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
+                    Text("3").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("2 минуты — проверка результата").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("2 минуты — проверка результата").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Посмотри, стало ли больше правильных ответов. Если устал — сделай перерыв.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     }
                 }
                 Button {
@@ -5399,32 +5399,32 @@ struct ContentView: View {
                     currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
                 } label: {
                     Label("Начать личный план", systemImage: "play.fill")
-                        .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                        .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                         .padding(.horizontal, 15).padding(.vertical, 10).background(palette.purple, in: Capsule())
                 }.buttonStyle(.plain)
             }
             Divider().overlay(palette.line)
             VStack(alignment: .leading, spacing: 8) {
                 Label("Поиск слабых мест", systemImage: "scope")
-                    .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Text("Результаты сравниваются по предметам. Для вывода нужно минимум 3 ответа по каждому предмету.")
-                    .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 let rankedSubjects = StudySubject.allCases
                     .map { subject in (subject, decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()) }
                     .filter { $0.1.total >= 3 }
                     .sorted { $0.1.accuracy < $1.1.accuracy }
                 if rankedSubjects.isEmpty {
                     Text("Пока мало данных. Реши хотя бы по 3 задания в нескольких предметах — наставник найдёт темы для повторения.")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 } else {
                     ForEach(Array(rankedSubjects.prefix(5).enumerated()), id: \.offset) { _, entry in
                         HStack(spacing: 8) {
                             VStack(alignment: .leading, spacing: 3) {
-                                Text(entry.0.rawValue).font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
-                                Text("\(entry.1.correct) верно из \(entry.1.total) ответов").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                Text(entry.0.rawValue).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                                Text("\(entry.1.correct) верно из \(entry.1.total) ответов").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             }
                             Spacer()
-                            Text("\(entry.1.accuracy)%").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(entry.1.accuracy < 70 ? palette.red : (entry.1.accuracy < 85 ? Color.orange : palette.green))
+                            Text("\(entry.1.accuracy)%").font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(entry.1.accuracy < 70 ? palette.red : (entry.1.accuracy < 85 ? Color.orange : palette.green))
                         }.padding(.vertical, 3)
                     }
                 }
@@ -5447,8 +5447,8 @@ struct ContentView: View {
     private var mentorDailyPlan: some View {
         let weakest = StudySubject.allCases.map { ($0, decodedSubjectPerformance[$0.rawValue] ?? SubjectPerformance()) }.filter { $0.1.total >= 5 }.min { $0.1.accuracy < $1.1.accuracy }
         return VStack(alignment: .leading, spacing: 12) {
-            Label("Личный план на день", systemImage: "sun.max.fill").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text("Три коротких блока, чтобы тренировать разные навыки, а не заниматься всё время одним и тем же. План адаптируется к имеющимся данным; если их мало, начинаем с разнообразия и собираем статистику.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Label("Личный план на день", systemImage: "sun.max.fill").font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text("Три коротких блока, чтобы тренировать разные навыки, а не заниматься всё время одним и тем же. План адаптируется к имеющимся данным; если их мало, начинаем с разнообразия и собираем статистику.").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             Button {
                 if let weakest { selectedSubjectName = weakest.0.rawValue }
                 selected = .task
@@ -5456,13 +5456,13 @@ struct ContentView: View {
                 problem = makeUniqueProblem(for: selectedSubject)
                 currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
             } label: {
-                HStack { Text("1").font(.system(size: 13 * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("5 минут · школьный предмет").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text(weakest.map { "Повторить \($0.0.rawValue): \($0.1.correct) верных из \($0.1.total) попыток." } ?? "Выбери предмет и собери первые результаты.").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
+                HStack { Text("1").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("5 минут · школьный предмет").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text(weakest.map { "Повторить \($0.0.rawValue): \($0.1.correct) верных из \($0.1.total) попыток." } ?? "Выбери предмет и собери первые результаты.").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
             }.buttonStyle(.plain)
             Button { selected = .memory } label: {
-                HStack { Text("2").font(.system(size: 13 * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("3 минуты · тренировка памяти").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text("Короткий блок на внимание и запоминание.").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
+                HStack { Text("2").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("3 минуты · тренировка памяти").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text("Короткий блок на внимание и запоминание.").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
             }.buttonStyle(.plain)
             Button { selected = lifeSkillsTotalAttempts <= detectiveTotalAttempts ? .lifeSkills : .detective } label: {
-                HStack { Text("3").font(.system(size: 13 * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("3–5 минут · практические ситуации или логика").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text("Чередуем режимы, чтобы развивать рассуждение и применение знаний.").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
+                HStack { Text("3").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white).frame(width: 26, height: 26).background(palette.purple, in: Circle()); VStack(alignment: .leading, spacing: 2) { Text("3–5 минут · практические ситуации или логика").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink); Text("Чередуем режимы, чтобы развивать рассуждение и применение знаний.").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted) }; Spacer(); Image(systemName: "play.fill").foregroundStyle(palette.purple) }
             }.buttonStyle(.plain)
         }.padding(17).cardStyle(palette)
     }
@@ -5480,28 +5480,28 @@ struct ContentView: View {
         ]
         let repeatedErrors = Dictionary(grouping: decodedMistakes, by: { "\($0.subject)|\($0.question)" }).filter { $0.value.count > 1 }.count
         return VStack(alignment: .leading, spacing: 13) {
-            Label("Единый анализ", systemImage: "chart.xyaxis.line").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text("Наставник собирает результаты школьных предметов, логики и других учебных тем, детектива, памяти, навыков жизни и олимпиады. Учитываются число попыток, количество ошибок и повторяющиеся ошибки; точность — не единственный показатель. Данные о сложности доступны не для каждого режима, поэтому там, где их нет, наставник не делает вид, что измерил её.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+            Label("Единый анализ", systemImage: "chart.xyaxis.line").font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text("Наставник собирает результаты школьных предметов, логики и других учебных тем, детектива, памяти, навыков жизни и олимпиады. Учитываются число попыток, количество ошибок и повторяющиеся ошибки; точность — не единственный показатель. Данные о сложности доступны не для каждого режима, поэтому там, где их нет, наставник не делает вид, что измерил её.").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
             ForEach(Array(modeRows.enumerated()), id: \.offset) { entry in
                 let row = entry.element
                 HStack(spacing: 10) {
-                    Image(systemName: row.3).font(.system(size: 17 * AppFontScale.factor, weight: .bold)).foregroundStyle(palette.purple).frame(width: 28)
+                    Image(systemName: row.3).font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .bold)).foregroundStyle(palette.purple).frame(width: 28)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(row.0).font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
-                        Text(row.1 >= 5 ? "Попыток: \(row.1) · верных: \(row.2)" : "Пока мало данных: \(row.1) попыток. Нужны дополнительные занятия.").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        Text(row.0).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text(row.1 >= 5 ? "Попыток: \(row.1) · верных: \(row.2)" : "Пока мало данных: \(row.1) попыток. Нужны дополнительные занятия.").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     }
                     Spacer()
-                    if row.1 >= 5 { Text("\(Int(Double(row.2) * 100 / Double(max(1, row.1))))%").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple) }
-                    else { Text("Недостаточно").font(.system(size: 10 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted) }
+                    if row.1 >= 5 { Text("\(Int(Double(row.2) * 100 / Double(max(1, row.1))))%").font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple) }
+                    else { Text("Недостаточно").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted) }
                 }.padding(10).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
             }
             HStack {
                 Label("Повторяющиеся ошибки: \(repeatedErrors)", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
                 Spacer()
                 Label("Ошибок для разбора: \(decodedMistakes.count + decodedLifeSkillsReview.count)", systemImage: "text.book.closed")
-            }.font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+            }.font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
             if subjectRows.reduce(0, { $0 + $1.1.total }) < 5 && detectiveTotalAttempts < 5 && lifeSkillsTotalAttempts < 5 && memoryTotal < 5 {
-                Text("Пока недостаточно данных для надёжных выводов. Проведи несколько коротких занятий в разных режимах. Наставник не будет объявлять предмет слабым только из-за пары ошибок.").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).padding(12).background(palette.palePink.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+                Text("Пока недостаточно данных для надёжных выводов. Проведи несколько коротких занятий в разных режимах. Наставник не будет объявлять предмет слабым только из-за пары ошибок.").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).padding(12).background(palette.palePink.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
             }
             let trendDays = store.stats.days.filter { $0.total > 0 }.sorted { $0.date > $1.date }
             if trendDays.count >= 4 {
@@ -5514,16 +5514,16 @@ struct ContentView: View {
                     let previousCorrect = previous.reduce(0) { $0 + $1.correct }
                     let recentRate = Int(Double(recentCorrect) * 100 / Double(max(1, recentTotal)))
                     let previousRate = Int(Double(previousCorrect) * 100 / Double(max(1, previousTotal)))
-                    Label("Изменение результатов", systemImage: "chart.line.uptrend.xyaxis").font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("По сохранённой дневной статистике основного тренажёра: в последних \(recent.count) активных днях точность \(recentRate)%, в предыдущих \(previous.count) активных днях — \(previousRate)%. \(recentRate > previousRate ? "Результат растёт." : (recentRate < previousRate ? "Есть смысл повторить темы и посмотреть на результат позже." : "Показатель примерно не изменился.") )").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                    Label("Изменение результатов", systemImage: "chart.line.uptrend.xyaxis").font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("По сохранённой дневной статистике основного тренажёра: в последних \(recent.count) активных днях точность \(recentRate)%, в предыдущих \(previous.count) активных днях — \(previousRate)%. \(recentRate > previousRate ? "Результат растёт." : (recentRate < previousRate ? "Есть смысл повторить темы и посмотреть на результат позже." : "Показатель примерно не изменился.") )").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                 } else {
-                    Text("Для сравнения результатов во времени пока мало дневных записей. Продолжай заниматься — наставник сможет сравнить периоды, когда накопится история.").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("Для сравнения результатов во времени пока мало дневных записей. Продолжай заниматься — наставник сможет сравнить периоды, когда накопится история.").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 }
             } else {
-                Text("Для анализа изменений во времени пока мало дневных записей. Наставник не будет делать вывод о прогрессе по одной тренировке.").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                Text("Для анализа изменений во времени пока мало дневных записей. Наставник не будет делать вывод о прогрессе по одной тренировке.").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             }
-            Label("Умная сложность", systemImage: "slider.horizontal.3").font(.system(size: 16 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text("Не меняй сложность по одному ответу. Если несколько занятий подряд проходят уверенно и ошибки редки, можно поднять уровень на один шаг. Если ошибки повторяются или ребёнок часто затрудняется — вернись к более простым заданиям, разбей решение на шаги и снова проверь результат. Сейчас это рекомендации; автоматическое изменение уровня применяется только там, где режим поддерживает управление сложностью.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+            Label("Умная сложность", systemImage: "slider.horizontal.3").font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text("Не меняй сложность по одному ответу. Если несколько занятий подряд проходят уверенно и ошибки редки, можно поднять уровень на один шаг. Если ошибки повторяются или ребёнок часто затрудняется — вернись к более простым заданиям, разбей решение на шаги и снова проверь результат. Сейчас это рекомендации; автоматическое изменение уровня применяется только там, где режим поддерживает управление сложностью.").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
         }.padding(17).cardStyle(palette)
     }
 
@@ -5534,19 +5534,19 @@ struct ContentView: View {
         let firstWeekday = (calendar.component(.weekday, from: monthStart) + 5) % 7
         let activityDates = mentorActivityDates.union(Set(store.stats.days.filter { $0.total > 0 }.map(\.date))).union(Set(decodedActiveSeconds.filter { $0.value > 0 }.map(\.key)))
         return VStack(alignment: .leading, spacing: 12) {
-            Label("Календарь занятий", systemImage: "calendar").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Label("Календарь занятий", systemImage: "calendar").font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             HStack {
                 Button { mentorCalendarMonth = calendar.date(byAdding: .month, value: -1, to: monthStart) ?? monthStart } label: {
-                    Image(systemName: "chevron.left").font(.system(size: 13 * AppFontScale.factor, weight: .heavy)).foregroundStyle(palette.purple).frame(width: 32, height: 30)
+                    Image(systemName: "chevron.left").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(palette.purple).frame(width: 32, height: 30)
                 }.buttonStyle(.plain)
                 Spacer()
-                Text(monthStart.formatted(.dateTime.month(.wide).year())).font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                Text(monthStart.formatted(.dateTime.month(.wide).year())).font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 Spacer()
                 Button { mentorCalendarMonth = calendar.date(byAdding: .month, value: 1, to: monthStart) ?? monthStart } label: {
-                    Image(systemName: "chevron.right").font(.system(size: 13 * AppFontScale.factor, weight: .heavy)).foregroundStyle(palette.purple).frame(width: 32, height: 30)
+                    Image(systemName: "chevron.right").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(palette.purple).frame(width: 32, height: 30)
                 }.buttonStyle(.plain)
             }
-            HStack { ForEach(["Пн","Вт","Ср","Чт","Пт","Сб","Вс"], id: \.self) { day in Text(day).font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted).frame(maxWidth: .infinity) } }
+            HStack { ForEach(["Пн","Вт","Ср","Чт","Пт","Сб","Вс"], id: \.self) { day in Text(day).font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted).frame(maxWidth: .infinity) } }
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 5), count: 7), spacing: 7) {
                 ForEach(0..<42, id: \.self) { index in
                     let day = index - firstWeekday + 1
@@ -5554,15 +5554,15 @@ struct ContentView: View {
                         let key = StatsStore.dateKey(date)
                         let isFuture = calendar.startOfDay(for: date) > calendar.startOfDay(for: Date())
                         let active = activityDates.contains(key)
-                        Text("\(day)").font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(active ? .white : palette.ink).frame(maxWidth: .infinity).frame(height: 32).background(active ? palette.green : (isFuture ? palette.cardSurface.opacity(0.35) : palette.red.opacity(0.13)), in: Circle()).overlay(Circle().stroke(active ? palette.green : palette.line.opacity(0.5), lineWidth: 1))
+                        Text("\(day)").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(active ? .white : palette.ink).frame(maxWidth: .infinity).frame(height: 32).background(active ? palette.green : (isFuture ? palette.cardSurface.opacity(0.35) : palette.red.opacity(0.13)), in: Circle()).overlay(Circle().stroke(active ? palette.green : palette.line.opacity(0.5), lineWidth: 1))
                     } else { Color.clear.frame(height: 32) }
                 }
             }
             HStack(spacing: 15) {
                 Label("Было занятие", systemImage: "circle.fill").foregroundStyle(palette.green)
                 Label("Пропуск", systemImage: "circle.fill").foregroundStyle(palette.red)
-            }.font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
-            Text("Зелёный — приложение зафиксировало занятие в одном из режимов. Красный — прошедший день без записанной активности. Дни до установки версии с календарём могут быть отмечены только по сохранившейся статистике.").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+            }.font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
+            Text("Зелёный — приложение зафиксировало занятие в одном из режимов. Красный — прошедший день без записанной активности. Дни до установки версии с календарём могут быть отмечены только по сохранившейся статистике.").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
         }.padding(17).frame(maxWidth: 500, alignment: .leading).cardStyle(palette)
     }
 
@@ -5587,7 +5587,7 @@ struct ContentView: View {
                         miniStat("Всего", value: formattedTime(lifetimeActiveSeconds), icon: "hourglass", color: palette.purple)
                     }
                     Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                 }.padding(18).cardStyle(palette)
                 dailyHistorySection
                 VStack(alignment: .leading, spacing: 12) {
@@ -5598,9 +5598,9 @@ struct ContentView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 8) {
                                 Image(systemName: subject.icon).foregroundStyle(palette.purple).frame(width: 23)
-                                Text(subject.rawValue).font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                                Text(subject.rawValue).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                                 Spacer()
-                                Text("\(result.accuracy)%").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(result.total == 0 ? palette.muted : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple)))
+                                Text("\(result.accuracy)%").font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(result.total == 0 ? palette.muted : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple)))
                             }
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
@@ -5609,7 +5609,7 @@ struct ContentView: View {
                                 }
                             }.frame(height: 8)
                             Text("Верно: \(result.correct) · Ошибок: \(result.incorrect) · Всего: \(result.total)")
-                                .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
 
                             Button {
                                 expandedMistakeSubject = expandedMistakeSubject == subject.rawValue ? nil : subject.rawValue
@@ -5620,7 +5620,7 @@ struct ContentView: View {
                                     Spacer()
                                     Image(systemName: expandedMistakeSubject == subject.rawValue ? "chevron.up" : "chevron.down")
                                 }
-                                .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                                 .foregroundStyle(subjectMistakes.isEmpty ? palette.muted : palette.red)
                                 .padding(10)
                                 .background((subjectMistakes.isEmpty ? palette.line : palette.red).opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
@@ -5628,7 +5628,7 @@ struct ContentView: View {
                             if expandedMistakeSubject == subject.rawValue {
                                 if subjectMistakes.isEmpty {
                                     Text("Пока нет ошибок для повторения по этому предмету. Ошибочные ответы будут сохраняться здесь автоматически.")
-                                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded))
                                         .foregroundStyle(palette.muted)
                                         .fixedSize(horizontal: false, vertical: true)
                                         .padding(10)
@@ -5636,20 +5636,20 @@ struct ContentView: View {
                                     ForEach(subjectMistakes) { mistake in
                                         VStack(alignment: .leading, spacing: 7) {
                                             Text(mistake.question.isEmpty ? "Задание по иллюстрации" : mistake.question)
-                                                .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                                .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                                                 .fixedSize(horizontal: false, vertical: true)
                                             Text("Твой ответ: \(mistake.selectedAnswer)")
-                                                .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
+                                                .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
                                             Text("Правильный ответ: \(mistake.correctAnswer)")
-                                                .font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
+                                                .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
                                             Text("Как решить: \(mistake.explanation)")
-                                                .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                                .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                                                 .fixedSize(horizontal: false, vertical: true)
                                             Button {
                                                 startMistakeReview(mistake)
                                             } label: {
                                                 Label("Повторить задание с вариантами", systemImage: "arrow.clockwise.circle.fill")
-                                                    .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                                    .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                                                     .foregroundStyle(.white)
                                                     .frame(maxWidth: .infinity)
                                                     .padding(.vertical, 10)
@@ -5665,14 +5665,14 @@ struct ContentView: View {
                         }.padding(11).background(palette.cardSurface.opacity(0.72), in: RoundedRectangle(cornerRadius: 12))
                     }
                     Text("Ориентир: меньше 60% — предмет стоит повторить, 60–79% — нужна практика, 80% и выше — хороший уровень.")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Твой прогресс", icon: "chart.bar.fill")
                     HStack {
-                        Text("Правильные ответы").font(.system(size: 14 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Правильные ответы").font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
                         Spacer()
-                        Text("\(store.stats.accuracy)%").font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
+                        Text("\(store.stats.accuracy)%").font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
                     }
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
@@ -5684,24 +5684,24 @@ struct ContentView: View {
                     }
                     .frame(height: 16)
                     Text("За каждый верный ответ ты получаешь один алмаз. Ошибки тоже записываются, поэтому видно, как становится лучше точность.")
-                        .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 }
                 .padding(22)
                 .cardStyle(palette)
                 Button("Посмотреть статистику по дням →") { selected = .days }
-                    .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                    .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                     .foregroundStyle(palette.purple).buttonStyle(.plain)
 
                 VStack(alignment: .leading, spacing: 10) {
                     sectionTitle("Статистика текущего месяца", icon: "arrow.counterclockwise")
                     Text("В начале нового месяца счётчики обнуляются автоматически. История по месяцам, достижения, коллекция и алмазы сохраняются.")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
+                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded))
                         .foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                     Button {
                         showResetStatsConfirmation = true
                     } label: {
                         Label("Сбросить статистику текущего месяца", systemImage: "trash")
-                            .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                            .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                             .foregroundStyle(palette.red)
                             .padding(.horizontal, 14).padding(.vertical, 11)
                             .background(palette.red.opacity(0.10), in: Capsule())
@@ -5734,25 +5734,25 @@ struct ContentView: View {
                             .font(.system(size: olympiadWon ? 132 : 100))
                             .shadow(color: (olympiadWon ? palette.purple : palette.muted).opacity(0.22), radius: 18, y: 7)
                         Text(olympiadWon ? "ОЛИМПИАДА ПРОЙДЕНА!" : "В ЭТОТ РАЗ НЕ ПОЛУЧИЛОСЬ")
-                            .font(.system(size: 27 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                            .font(.system(size: 27 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                             .foregroundStyle(olympiadWon ? palette.green : palette.ink)
                             .multilineTextAlignment(.center)
                         if olympiadWon {
                             Text("💎 +100 алмазов 💎")
-                                .font(.system(size: 30 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                .font(.system(size: 30 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                                 .foregroundStyle(palette.purple)
                             Text("Ты решил все \(olympiadTargetCount) заданий за отведённое время. Большая награда уже добавлена в магазин!")
-                                .font(.system(size: 15 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                                 .foregroundStyle(palette.muted).multilineTextAlignment(.center)
                         } else {
                             Text("Не расстраивайся! Сложные задания помогают становиться сильнее. Отдохни и попробуй пройти олимпиаду попозже 💜")
-                                .font(.system(size: 16 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                                .font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                                 .foregroundStyle(palette.muted).multilineTextAlignment(.center)
                         }
                         Text("Выполнено заданий: \(olympiadCompleted) из \(olympiadTargetCount)")
-                            .font(.system(size: 15 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                            .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                         Button("Попробовать ещё раз") { resetOlympiad() }
-                            .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                            .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                             .padding(.horizontal, 24).padding(.vertical, 14)
                             .background(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .leading, endPoint: .trailing), in: Capsule())
                             .buttonStyle(.plain)
@@ -5761,13 +5761,13 @@ struct ContentView: View {
                 } else if !olympiadStarted {
                     VStack(alignment: .leading, spacing: 18) {
                         HStack(spacing: 18) {
-                            Text("🏆").font(.system(size: 70)).frame(width: 110, height: 110)
+                            Text("🏆").font(.system(size: 70 * AppFontScale.factor)).frame(width: 110, height: 110)
                                 .background(LinearGradient(colors: [palette.pink, palette.lilac], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 28))
                             VStack(alignment: .leading, spacing: 7) {
-                                Text("Большое испытание").font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                Text("\(olympiadTargetCount) заданий · \(olympiadDurationMinutes) минут").font(.system(size: 17 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                                Text("Большое испытание").font(.system(size: 22 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                Text("\(olympiadTargetCount) заданий · \(olympiadDurationMinutes) минут").font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
                                 Text("Вопросы выбираются случайно из всех учебных предметов. Нужно правильно ответить на каждый вопрос до окончания таймера.")
-                                    .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                    .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             }
                         }
                         HStack(alignment: .top, spacing: 12) {
@@ -5775,22 +5775,22 @@ struct ContentView: View {
                             Label("Языки", systemImage: "text.book.closed")
                             Label("Наука и мир", systemImage: "globe")
                             Label("Информатика", systemImage: "desktopcomputer")
-                        }.font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        }.font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                         HStack(spacing: 10) {
                             Button { olympiadDurationMinutes = 10; olympiadTargetCount = 20 } label: {
-                                VStack(spacing: 4) { Text("10 минут").font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)); Text("20 заданий").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)) }
+                                VStack(spacing: 4) { Text("10 минут").font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)); Text("20 заданий").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)) }
                                     .frame(maxWidth: .infinity).padding(.vertical, 13).foregroundStyle(olympiadDurationMinutes == 10 ? .white : palette.ink)
                                     .background(olympiadDurationMinutes == 10 ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
                                     .overlay(RoundedRectangle(cornerRadius: 13).stroke(olympiadDurationMinutes == 10 ? palette.purple : palette.line, lineWidth: 1))
                             }.buttonStyle(.plain)
                             Button { olympiadDurationMinutes = 20; olympiadTargetCount = 40 } label: {
-                                VStack(spacing: 4) { Text("20 минут").font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)); Text("40 заданий").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)) }
+                                VStack(spacing: 4) { Text("20 минут").font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)); Text("40 заданий").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)) }
                                     .frame(maxWidth: .infinity).padding(.vertical, 13).foregroundStyle(olympiadDurationMinutes == 20 ? .white : palette.ink)
                                     .background(olympiadDurationMinutes == 20 ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
                                     .overlay(RoundedRectangle(cornerRadius: 13).stroke(olympiadDurationMinutes == 20 ? palette.purple : palette.line, lineWidth: 1))
                             }.buttonStyle(.plain)
                             Button { olympiadDurationMinutes = 30; olympiadTargetCount = 60 } label: {
-                                VStack(spacing: 4) { Text("30 минут").font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)); Text("60 заданий").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)) }
+                                VStack(spacing: 4) { Text("30 минут").font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)); Text("60 заданий").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)) }
                                     .frame(maxWidth: .infinity).padding(.vertical, 13).foregroundStyle(olympiadDurationMinutes == 30 ? .white : palette.ink)
                                     .background(olympiadDurationMinutes == 30 ? palette.purple : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
                                     .overlay(RoundedRectangle(cornerRadius: 13).stroke(olympiadDurationMinutes == 30 ? palette.purple : palette.line, lineWidth: 1))
@@ -5798,7 +5798,7 @@ struct ContentView: View {
                         }
                         Button { startOlympiad() } label: {
                             Label("Начать олимпиаду", systemImage: "play.fill")
-                                .font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                                .font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                                 .padding(.horizontal, 25).padding(.vertical, 15)
                                 .background(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .leading, endPoint: .trailing), in: Capsule())
                         }.buttonStyle(.plain)
@@ -5806,17 +5806,17 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         sectionTitle("Правила", icon: "checkmark.seal.fill")
                         Text("• На выбор: 10 минут / 20 заданий, 20 минут / 40 заданий или 30 минут / 60 заданий.\n• При неправильном ответе можно попробовать ещё раз, пока идёт время.\n• За прохождение всех заданий вовремя начисляется 100 алмазов.\n• Если время закончится, награда не начисляется — можно пройти олимпиаду позже.")
-                            .font(.system(size: 14 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink)
+                            .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink)
                             .fixedSize(horizontal: false, vertical: true)
                     }.padding(20).cardStyle(palette)
                 } else {
                     VStack(alignment: .leading, spacing: 18) {
                         HStack {
                             Label("Задание \(olympiadCompleted + 1) из \(olympiadTargetCount)", systemImage: "flag.checkered")
-                                .font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                .font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             Spacer()
                             Text(String(format: "%02d:%02d", olympiadSecondsRemaining / 60, olympiadSecondsRemaining % 60))
-                                .font(.system(size: 24 * AppFontScale.factor, weight: .heavy, design: .monospaced))
+                                .font(.system(size: 24 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .monospaced))
                                 .foregroundStyle(olympiadSecondsRemaining <= 300 ? palette.red : palette.purple)
                                 .padding(.horizontal, 13).padding(.vertical, 9)
                                 .background((olympiadSecondsRemaining <= 300 ? palette.red : palette.purple).opacity(0.12), in: Capsule())
@@ -5826,12 +5826,12 @@ struct ContentView: View {
                                 olympiadPaused.toggle()
                             } label: {
                                 Label(olympiadPaused ? "Продолжить олимпиаду" : "Пауза", systemImage: olympiadPaused ? "play.fill" : "pause.fill")
-                                    .font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                    .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                     .foregroundStyle(.white)
                                     .padding(.horizontal, 16).padding(.vertical, 10)
                                     .background(olympiadPaused ? palette.green : palette.purple, in: Capsule())
                             }.buttonStyle(.plain)
-                            if olympiadPaused { Text("Таймер остановлен").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted) }
+                            if olympiadPaused { Text("Таймер остановлен").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted) }
                             Spacer()
                         }
                         GeometryReader { geo in
@@ -5841,12 +5841,12 @@ struct ContentView: View {
                             }
                         }.frame(height: 12)
                         HStack(spacing: 8) {
-                            Image(systemName: olympiadSubject.icon).font(.system(size: 20 * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white)
+                            Image(systemName: olympiadSubject.icon).font(.system(size: 20 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(.white)
                                 .frame(width: 45, height: 45).background(palette.purple, in: RoundedRectangle(cornerRadius: 12))
-                            Text(olympiadSubject.rawValue.uppercased()).font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                            Text(olympiadSubject.rawValue.uppercased()).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
                         }
                         Text(olympiadProblem.text)
-                            .font(.system(size: 31 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            .font(.system(size: 31 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 100).padding(15)
                             .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
                         if olympiadSubject == .pdd && shouldShowPDDIllustration(for: olympiadProblem.text) {
@@ -5858,7 +5858,7 @@ struct ContentView: View {
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                                 ForEach(olympiadProblem.isComparison ? ["<", "=", ">"] : olympiadProblem.tatarChoices, id: \.self) { choice in
                                     Button { submitOlympiadAnswer(choice) } label: {
-                                        Text(choice).font(.system(size: 15 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                        Text(choice).font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                             .foregroundStyle(palette.ink).multilineTextAlignment(.center)
                                             .frame(maxWidth: .infinity, minHeight: 58)
                                             .padding(8).background(palette.cardSurface.opacity(0.88), in: RoundedRectangle(cornerRadius: 15))
@@ -5869,24 +5869,24 @@ struct ContentView: View {
                         } else {
                             HStack(spacing: 10) {
                                 TextField("Твой ответ", text: $olympiadAnswer)
-                                    .font(.system(size: 21 * AppFontScale.factor, weight: .bold, design: .rounded)).textFieldStyle(.plain)
+                                    .font(.system(size: 21 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).textFieldStyle(.plain)
                                     .multilineTextAlignment(.center).foregroundStyle(palette.ink)
                                     .frame(height: 60).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
                                     .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 1.5))
                                     .onSubmit { submitOlympiadAnswer(olympiadAnswer) }
                                 Button { submitOlympiadAnswer(olympiadAnswer) } label: {
-                                    Image(systemName: "arrow.right.circle.fill").font(.system(size: 34)).foregroundStyle(palette.green)
+                                    Image(systemName: "arrow.right.circle.fill").font(.system(size: 34 * AppFontScale.factor)).foregroundStyle(palette.green)
                                 }.buttonStyle(.plain).disabled(olympiadAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                             }
                         }
                         if !olympiadFeedback.isEmpty {
-                            Text(olympiadFeedback).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                            Text(olympiadFeedback).font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                 .foregroundStyle(olympiadFeedback.hasPrefix("Верно") ? palette.green : palette.red)
                                 .frame(maxWidth: .infinity, alignment: .center).padding(10)
                                 .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 12))
                         }
                         Text("Каждый ответ записывается в статистику предмета. Алмазы за олимпиаду начисляются только после победы.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     }.padding(24).cardStyle(palette)
                 }
             }.padding(25)
@@ -5994,7 +5994,7 @@ struct ContentView: View {
                                 Text("\(day.total)").foregroundStyle(palette.ink).frame(width: 120, alignment: .trailing)
                                 Text("\(day.accuracy)%").foregroundStyle(palette.purple).frame(width: 80, alignment: .trailing)
                             }
-                            .font(.system(size: 14 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                            .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                             .padding(12)
                             .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 11))
                         }
@@ -6012,11 +6012,11 @@ struct ContentView: View {
                             VStack(alignment: .leading, spacing: 7) {
                                 HStack(alignment: .firstTextBaseline) {
                                     Text(StatsStore.displayMonth(month.monthKey))
-                                        .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                        .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                                         .foregroundStyle(palette.ink)
                                     Spacer()
                                     Text("\(month.accuracy)%")
-                                        .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                        .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                                         .foregroundStyle(palette.purple)
                                 }
                                 HStack(spacing: 12) {
@@ -6028,13 +6028,13 @@ struct ContentView: View {
                                     Text("Всего: \(month.total)")
                                         .foregroundStyle(palette.ink)
                                 }
-                                .font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                                .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                                 HStack {
                                     Text("Лучшая серия: \(month.bestStreak)")
                                     Spacer()
                                     Text("Дней с занятиями: \(month.days.filter { $0.total > 0 }.count)")
                                 }
-                                .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                .font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded))
                                 .foregroundStyle(palette.muted)
                             }
                             .padding(13)
@@ -6056,16 +6056,16 @@ struct ContentView: View {
                 pageHeading("Награды и достижения", subtitle: "Собирай алмазы, повышай уровень и открывай коллекцию ✨")
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 13) {
-                        Text("⭐️").font(.system(size: 38))
+                        Text("⭐️").font(.system(size: 38 * AppFontScale.factor))
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Уровень \(levelNumber)").font(.system(size: 21 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text("Всего решено примеров: \(store.stats.total)").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            Text("Уровень \(levelNumber)").font(.system(size: 21 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("Всего решено примеров: \(store.stats.total)").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         }
                         Spacer()
-                        Text("💎 \(store.stats.diamonds)").font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                        Text("💎 \(store.stats.diamonds)").font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
                     }
                     ProgressView(value: Double(levelProgress), total: 25).tint(palette.purple)
-                    Text("До уровня \(levelNumber + 1): ещё \(25 - levelProgress) ответов").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("До уровня \(levelNumber + 1): ещё \(25 - levelProgress) ответов").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Коллекция достижений", icon: "rosette")
@@ -6086,14 +6086,14 @@ struct ContentView: View {
                 }
                 Button { openShop() } label: {
                     Label("Открыть магазин коллекционных игрушек", systemImage: "storefront.fill")
-                        .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                        .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                         .padding(.horizontal, 19).padding(.vertical, 13)
                         .background(LinearGradient(colors: [palette.purple, palette.pink], startPoint: .leading, endPoint: .trailing), in: Capsule())
                 }.buttonStyle(.plain)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Медали за правильные ответы", icon: "medal.fill")
                     Text("Правильные ответы накапливаются за всё время, даже после смены месяца. Каждая следующая медаль становится доступна после предыдущей.")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         .fixedSize(horizontal: false, vertical: true)
                     let answerGoals: [(Int, String, String, Color)] = [
                         (200, "🥉", "Первые 200", Color(red: 0.72, green: 0.43, blue: 0.25)),
@@ -6120,13 +6120,13 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Коллекционные игрушки", icon: "sparkles")
                     Text("\(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }.count) из \(Collectible.all.count) игрушек открыто")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 12) {
                         ForEach(Collectible.all.filter { allOwnedCollectibleIDs.contains($0.id) }) { item in collectibleCard(item) }
                     }
                     if !Collectible.all.contains(where: { allOwnedCollectibleIDs.contains($0.id) }) {
                         Text("Пока нет открытых игрушек. Решай задания или загляни в магазин за секретным призом.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             .fixedSize(horizontal: false, vertical: true).padding(.vertical, 5)
                     }
                 }.padding(18).cardStyle(palette)
@@ -6150,13 +6150,13 @@ struct ContentView: View {
                 .overlay(RoundedRectangle(cornerRadius: 17).stroke(earned ? color : Color.gray.opacity(0.35), lineWidth: earned ? 2 : 1))
                 .opacity(active || earned ? 1 : 0.58)
             Text(title)
-                .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                 .foregroundStyle(earned ? color : palette.ink)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .frame(minHeight: 30, alignment: .center)
             Text("\(goal) правильных ответов")
-                .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded))
+                .font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded))
                 .foregroundStyle(palette.muted)
                 .multilineTextAlignment(.center)
             ProgressView(value: Double(shownProgress), total: Double(goal))
@@ -6175,10 +6175,10 @@ struct ContentView: View {
                 .frame(width: 117, height: 94, alignment: .center)
                 .background(LinearGradient(colors: earned ? [color.opacity(0.18), palette.pink.opacity(0.10)] : [palette.line, palette.canvasMiddle], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(earned ? color : palette.line, lineWidth: 1.5))
-            Text(title).font(.system(size: 16 * AppFontScale.factor * fontScaleH3, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text(detail).font(.system(size: 12 * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Text(title).font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor * fontScaleH3, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(detail).font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             ProgressView(value: Double(progress), total: Double(goal)).tint(earned ? color : palette.purple)
-            Text(earned ? "Медаль получена!" : "\(progress) из \(goal)").font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(earned ? palette.green : palette.purple)
+            Text(earned ? "Медаль получена!" : "\(progress) из \(goal)").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(earned ? palette.green : palette.purple)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(17).cardStyle(palette)
     }
     private var shopPage: some View {
@@ -6188,23 +6188,23 @@ struct ContentView: View {
 
                 HStack(spacing: 14) {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("Твой баланс").font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("Твой баланс").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
                         HStack(spacing: 7) {
-                            Text("💎").font(.system(size: 25))
-                            Text("\(store.stats.diamonds)").font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text("алмазов").font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                            Text("💎").font(.system(size: 25 * AppFontScale.factor))
+                            Text("\(store.stats.diamonds)").font(.system(size: 22 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("алмазов").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                         }
                         HStack(spacing: 7) {
                             goldCoinIcon(size: 24)
-                            Text("\(goldBalance)").font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text("золота").font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                            Text("\(goldBalance)").font(.system(size: 22 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("золота").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                         }
                     }
                     Spacer(minLength: 4)
                     VStack(alignment: .trailing, spacing: 4) {
                         Text("\(Collectible.all.filter { !allOwnedCollectibleIDs.contains($0.id) }.count)")
-                            .font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
-                        Text("призов осталось").font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 22 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                        Text("призов осталось").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
                     }
                 }.padding(17).cardStyle(palette)
 
@@ -6212,11 +6212,11 @@ struct ContentView: View {
                     HStack(spacing: 10) {
                         goldCoinIcon(size: 32)
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Золото за алмазы").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text("Баланс: \(goldBalance) золотых монет").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                            Text("Золото за алмазы").font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("Баланс: \(goldBalance) золотых монет").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                         }
                         Spacer()
-                        Text("💎 \(store.stats.diamonds)").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                        Text("💎 \(store.stats.diamonds)").font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
                     }
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                         goldPackCard(gold: 100, cost: 50)
@@ -6229,15 +6229,15 @@ struct ContentView: View {
                 if Collectible.all.contains(where: { $0.isRare }) {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack(spacing: 8) {
-                            Image(systemName: "sparkles").font(.system(size: 20 * AppFontScale.factor, weight: .black))
+                            Image(systemName: "sparkles").font(.system(size: 20 * AppFontScale.factor * AppFontScale.factor, weight: .black))
                                 .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.78, blue: 0.25) : Color(red: 0.72, green: 0.43, blue: 0.06))
-                            Text("Редкие коллекционные").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("Редкие коллекционные").font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             Spacer(minLength: 0)
-                            Text("500 💎").font(.system(size: 15 * AppFontScale.factor, weight: .black, design: .rounded))
+                            Text("500 💎").font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                                 .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.78, blue: 0.25) : Color(red: 0.60, green: 0.34, blue: 0.02))
                         }
                         Text("Редкие подарки — вверху страницы. Купленные и уже открытые игрушки остаются видимыми в коллекции.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             .fixedSize(horizontal: false, vertical: true)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 13) {
                             ForEach(Collectible.all.filter { $0.isRare }) { item in
@@ -6260,7 +6260,7 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         sectionTitle("Коллекционные игрушки", icon: "gift")
                         Text("Купленные игрушки остаются в списке с отметкой «Открыта!». Их можно рассмотреть, даже если алмазы уже потрачены.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 13) {
                             ForEach(Collectible.all.filter { !$0.isRare }) { item in
                                 shopItemCard(item)
@@ -6271,11 +6271,11 @@ struct ContentView: View {
 
                 if Collectible.all.allSatisfy({ allOwnedCollectibleIDs.contains($0.id) }) {
                     Text("Поздравляем! Все игрушки собраны 🎉")
-                        .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
+                        .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
                         .frame(maxWidth: .infinity).padding(22)
                 }
                 Text("Золотые монеты можно обменять из алмазов выше. Редкие 3D-игрушки стоят 500 алмазов. Обычные цены идут по порядку: 25, 26, 27, 28 и далее.")
-                    .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }.padding(25)
         }.scrollIndicators(.hidden)
@@ -6293,15 +6293,15 @@ struct ContentView: View {
         let canBuy = store.stats.diamonds >= cost
         return VStack(spacing: 8) {
             goldCoinIcon(size: 35)
-            Text("\(gold)").font(.system(size: 22 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
-            Text("золотых монет").font(.system(size: 10 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+            Text("\(gold)").font(.system(size: 22 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+            Text("золотых монет").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
             Button {
                 guard store.spendDiamonds(cost) else { return }
                 goldBalance += gold
             } label: {
                 VStack(spacing: 3) {
-                    Text("💎 \(cost)").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                    Text(canBuy ? "Купить сейчас" : "Не хватает алмазов").font(.system(size: 10 * AppFontScale.factor, weight: .bold, design: .rounded))
+                    Text("💎 \(cost)").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
+                    Text(canBuy ? "Купить сейчас" : "Не хватает алмазов").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                 }
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity).padding(.vertical, 8)
@@ -6345,7 +6345,7 @@ struct ContentView: View {
                             .opacity(0.16)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 31.5 * AppFontScale.factor, weight: .black))
+                            .font(.system(size: 31.5 * AppFontScale.factor * AppFontScale.factor, weight: .black))
                             .foregroundStyle(.white)
                             .padding(5.5)
                             .background(palette.purple.opacity(0.98), in: Circle())
@@ -6356,7 +6356,7 @@ struct ContentView: View {
                 }
                 if item.isRare {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 18 * AppFontScale.factor, weight: .black))
+                        .font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .black))
                         .foregroundStyle(gold)
                         .padding(7)
                 }
@@ -6366,23 +6366,23 @@ struct ContentView: View {
 
             if item.isRare {
                 Label("РЕДКИЙ КОЛЛЕКЦИОННЫЙ", systemImage: "sparkles")
-                    .font(.system(size: 9 * AppFontScale.factor, weight: .black, design: .rounded))
+                    .font(.system(size: 9 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                     .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.80, blue: 0.30) : Color(red: 0.52, green: 0.31, blue: 0.02))
                     .lineLimit(1).minimumScaleFactor(0.7)
             }
             Text(owned ? item.title : (item.isRare ? "Редкий коллекционный приз" : "Секретный приз"))
-                .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
+                .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
             Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "3D-коллекционный приз за 500 алмазов" : "Открой коробочку, чтобы узнать игрушку"))
-                .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
+                .font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
 
             if owned {
-                Label("Открыта!", systemImage: "checkmark.seal.fill").font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
+                Label("Открыта!", systemImage: "checkmark.seal.fill").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
             } else {
                 Button { buyCollectible(item) } label: {
                     HStack(spacing: 5) {
-                        Text(item.isRare ? "🌟" : "💎").font(.system(size: 12))
-                        Text("\(price)").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                        Text(item.isRare ? "Открыть" : "Купить").font(.system(size: 10 * AppFontScale.factor, weight: .bold, design: .rounded))
+                        Text(item.isRare ? "🌟" : "💎").font(.system(size: 12 * AppFontScale.factor))
+                        Text("\(price)").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
+                        Text(item.isRare ? "Открыть" : "Купить").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                     }
                     .frame(maxWidth: .infinity).padding(.vertical, 8)
                     .foregroundStyle(store.stats.diamonds >= price ? (item.isRare ? Color(red: 0.36, green: 0.23, blue: 0.04) : .white) : palette.muted)
@@ -6446,9 +6446,9 @@ struct ContentView: View {
                     LinearGradient(colors: [Color(red: 0.83, green: 0.91, blue: 1.0), Color(red: 0.96, green: 0.84, blue: 0.93)], startPoint: .topLeading, endPoint: .bottomTrailing)
                     VStack(spacing: 0) {
                         HStack {
-                            Image(systemName: "cloud.fill").font(.system(size: 26)).foregroundStyle(.white.opacity(0.9))
+                            Image(systemName: "cloud.fill").font(.system(size: 26 * AppFontScale.factor)).foregroundStyle(.white.opacity(0.9))
                             Spacer()
-                            Image(systemName: "sun.max.fill").font(.system(size: 29)).foregroundStyle(Color(red: 1, green: 0.75, blue: 0.25))
+                            Image(systemName: "sun.max.fill").font(.system(size: 29 * AppFontScale.factor)).foregroundStyle(Color(red: 1, green: 0.75, blue: 0.25))
                         }.padding(.horizontal, 24).padding(.top, 18)
                         Spacer(minLength: 12)
                         HStack(alignment: .bottom, spacing: 12) {
@@ -6456,8 +6456,8 @@ struct ContentView: View {
                                 .overlay(VStack(spacing: 4) { RoundedRectangle(cornerRadius: 4).fill(Color(red: 0.93, green: 0.72, blue: 0.53)).frame(height: 8); Spacer(); RoundedRectangle(cornerRadius: 4).fill(Color(red: 0.93, green: 0.72, blue: 0.53)).frame(height: 8) }.padding(8))
                             Spacer()
                             VStack(spacing: 4) {
-                                Text("МОЯ КОЛЛЕКЦИЯ").font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded)).tracking(1).foregroundStyle(Color(red: 0.32, green: 0.25, blue: 0.45))
-                                Text("\(roomPlacedIDs.count) украшений").font(.system(size: 16 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(Color(red: 0.32, green: 0.25, blue: 0.45))
+                                Text("МОЯ КОЛЛЕКЦИЯ").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).tracking(1).foregroundStyle(Color(red: 0.32, green: 0.25, blue: 0.45))
+                                Text("\(roomPlacedIDs.count) украшений").font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(Color(red: 0.32, green: 0.25, blue: 0.45))
                             }.padding(12).background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 14))
                             Spacer()
                             RoundedRectangle(cornerRadius: 9).fill(Color(red: 0.54, green: 0.70, blue: 0.90)).frame(width: 70, height: 64)
@@ -6470,18 +6470,18 @@ struct ContentView: View {
                 .overlay(RoundedRectangle(cornerRadius: 22).stroke(palette.line, lineWidth: 1))
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Расставь любимые игрушки").font(.system(size: 18 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                        Text("Нажми «Поставить в комнату», чтобы украсить комнату.").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        Text("Расставь любимые игрушки").font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Нажми «Поставить в комнату», чтобы украсить комнату.").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     }
                     Spacer()
-                    Button { openShop() } label: { Label("В магазин", systemImage: "storefront.fill").font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)) }
+                    Button { openShop() } label: { Label("В магазин", systemImage: "storefront.fill").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)) }
                         .buttonStyle(.borderedProminent).tint(palette.purple)
                 }
                 if roomItems.isEmpty {
                     VStack(spacing: 10) {
-                        Text("🧸").font(.system(size: 48))
-                        Text("Комната пока пустая").font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                        Text("Заработай алмазы и открой первую игрушку в магазине — она появится здесь.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).multilineTextAlignment(.center)
+                        Text("🧸").font(.system(size: 48 * AppFontScale.factor))
+                        Text("Комната пока пустая").font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Заработай алмазы и открой первую игрушку в магазине — она появится здесь.").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).multilineTextAlignment(.center)
                     }.frame(maxWidth: .infinity).padding(28).cardStyle(palette)
                 } else {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6), spacing: 8) {
@@ -6491,14 +6491,14 @@ struct ContentView: View {
                                     RoundedRectangle(cornerRadius: 17).fill(roomPlacedIDs.contains(item.id) ? Color(red: 0.87, green: 0.94, blue: 1) : palette.cardSurface)
                                     Collectible3DView(id: item.id, title: item.title, size: 86, animated: false).padding(8)
                                     if roomPlacedIDs.contains(item.id) {
-                                        Image(systemName: "checkmark.seal.fill").font(.system(size: 19 * AppFontScale.factor, weight: .bold)).foregroundStyle(.green).padding(6).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                                        Image(systemName: "checkmark.seal.fill").font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .bold)).foregroundStyle(.green).padding(6).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                                     }
                                 }.frame(height: 118)
-                                Text(item.title).font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).multilineTextAlignment(.center).frame(height: 30)
+                                Text(item.title).font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).multilineTextAlignment(.center).frame(height: 30)
                                 Button { toggleRoomItem(item.id) } label: {
                                     Label(roomPlacedIDs.contains(item.id) ? "Убрать" : "Поставить в комнату",
                                           systemImage: roomPlacedIDs.contains(item.id) ? "minus.circle" : "plus.circle")
-                                        .font(.system(size: 10 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                        .font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                                         .frame(maxWidth: .infinity)
                                 }.buttonStyle(.bordered).tint(palette.purple)
                             }.padding(10).cardStyle(palette)
@@ -6514,8 +6514,8 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 10) {
                 pageHeading("Настройки", subtitle: "Настрой своё учебное пространство")
                 VStack(alignment: .leading, spacing: 7) {
-                    Label("РАЗМЕР ШРИФТОВ", systemImage: "textformat.size").font(.system(size: 17 * AppFontScale.factor * fontScaleH2, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Общий масштаб действует на всё приложение; ниже — тонкая настройка отдельных типов текста.").font(.system(size: 10 * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Label("РАЗМЕР ШРИФТОВ", systemImage: "textformat.size").font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor * fontScaleH2, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Общий масштаб действует на всё приложение; ниже — тонкая настройка отдельных типов текста.").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     fontScaleControl("Все страницы приложения", scale: $fontScaleGlobal, example: "Пример общего текста во всех разделах", baseSize: 14)
                     fontScaleControl("H1 · Главные заголовки страниц", scale: $fontScaleH1, example: "Пример главного заголовка", baseSize: 25)
                     fontScaleControl("H2 · Заголовки разделов", scale: $fontScaleH2, example: "Пример заголовка раздела", baseSize: 21)
@@ -6529,15 +6529,15 @@ struct ContentView: View {
                     Button("Сбросить все размеры шрифта") {
                         fontScaleH1 = 1; fontScaleH2 = 1; fontScaleH3 = 1; fontScaleH4 = 1
                         fontScaleGlobal = 1; fontScaleH5 = 1; fontScaleH6 = 1; fontScaleH7 = 1; fontScaleBody = 1; fontScaleHints = 1
-                    }.font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
+                    }.font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
                 }
                 .padding(8)
                 .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.purple, lineWidth: 1))
                 VStack(alignment: .leading, spacing: 15) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 17 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
-                        Text("Настрой яркость интерфейса. Значение сохраняется между запусками.").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Настрой яркость интерфейса. Значение сохраняется между запусками.").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         Slider(value: $themeBrightness, in: -0.25...0.15, step: 0.01)
                             .tint(.black)
                             .controlSize(.large).frame(minHeight: 44).padding(.horizontal, 8)
@@ -6557,15 +6557,15 @@ struct ContentView: View {
                             }
                             .background(Color.white, in: Capsule())
                             .overlay(Capsule().stroke(Color.black, lineWidth: 2))
-                        HStack { Text("Темнее").foregroundStyle(palette.ink); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 16 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.30, green: 0.08, blue: 0.78)); Spacer(); Text("Светлее").foregroundStyle(palette.ink) }.font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded))
+                        HStack { Text("Темнее").foregroundStyle(palette.ink); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 16 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.30, green: 0.08, blue: 0.78)); Spacer(); Text("Светлее").foregroundStyle(palette.ink) }.font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                     }.padding(16)
                     .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 17))
                     .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.purple, lineWidth: 2))
                     VStack(alignment: .leading, spacing: 10) {
                         Label("КОНТРАСТ ЦВЕТОВ", systemImage: "circle.lefthalf.filled")
-                            .font(.system(size: 17 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                            .font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Передвинь ползунок — внешний вид изменится сразу.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         Slider(value: $screenContrast, in: 0.75...1.55, step: 0.05)
                             .tint(.black)
                             .controlSize(.large).frame(minHeight: 42)
@@ -6590,27 +6590,27 @@ struct ContentView: View {
                             Text("75% · мягче").foregroundStyle(palette.muted)
                             Spacer()
                             Text("\(Int((screenContrast * 100).rounded()))%")
-                                .font(.system(size: 15 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
+                                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
                             Spacer()
                             Text("155% · ярче").foregroundStyle(palette.muted)
-                        }.font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded))
+                        }.font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded))
                     }
                     .padding(16)
                     .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 17))
                     .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.purple, lineWidth: 2))
-                    Label("Тема оформления", systemImage: "paintpalette.fill").font(.system(size: 18 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Выбери одну из двадцати тем. Пять новых тем — тёмные и контрастные.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Label("Тема оформления", systemImage: "paintpalette.fill").font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Выбери одну из двадцати тем. Пять новых тем — тёмные и контрастные.").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 10) {
                         ForEach(AppTheme.allCases) { theme in themeSwatch(theme) }
                     }
                     Divider().overlay(palette.line)
-                    Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     Text("Выбери предмет в левом меню. В рисовании — вопросы о цветах, художественных жанрах, материалах и техниках.")
-                        .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     ForEach(StudySubject.allCases) { subject in
                         HStack(spacing: 9) {
                             Image(systemName: subject.icon).foregroundStyle(palette.purple).frame(width: 22)
-                            Text(subject.rawValue).font(.system(size: 13 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
+                            Text(subject.rawValue).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
                             Spacer()
                             if subject == selectedSubject { Image(systemName: "checkmark.circle.fill").foregroundStyle(palette.green) }
                         }
@@ -6619,17 +6619,17 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 9) {
                         Image(systemName: "app.badge.checkmark").foregroundStyle(palette.purple)
-                        Text("Версия \(appVersion)").font(.system(size: 18 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Версия \(appVersion)").font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     }
-                    Text("Дата выпуска: \(appReleaseDate)").font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
-                    Button("Открыть историю версий →") { selected = .versionHistory }.font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
+                    Text("Дата выпуска: \(appReleaseDate)").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                    Button("Открыть историю версий →") { selected = .versionHistory }.font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
                     Text("Журнал выпусков и описания изменений сохраняются в программе. Статистика по месяцам, алмазы и коллекции сохраняются на этом Mac.")
-                        .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     Divider().overlay(palette.line)
                     Text("© 2026 Муллагалиев Рустам. Все права защищены.")
-                        .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     Text("Разработчик: Муллагалиев Рустам")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(22).cardStyle(palette)
             }.padding(25)
         }.scrollIndicators(.hidden)
@@ -6643,11 +6643,11 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity).frame(height: 31)
                     .overlay {
                         if themeName == theme.rawValue {
-                            Image(systemName: "checkmark").font(.system(size: 12 * AppFontScale.factor, weight: .heavy)).foregroundStyle(theme.isDark || theme == .night || theme == .galaxy ? .white : p.ink)
+                            Image(systemName: "checkmark").font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(theme.isDark || theme == .night || theme == .galaxy ? .white : p.ink)
                         }
                     }
                     .overlay(RoundedRectangle(cornerRadius: 9).stroke(p.line, lineWidth: 1))
-                Text(theme.rawValue).font(.system(size: 9 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted).lineLimit(1)
+                Text(theme.rawValue).font(.system(size: 9 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted).lineLimit(1)
             }.frame(maxWidth: .infinity)
         }.buttonStyle(.plain)
     }
@@ -6658,21 +6658,21 @@ struct ContentView: View {
                 ForEach(releaseNotes) { note in
                     VStack(alignment: .leading, spacing: 11) {
                         HStack(alignment: .top, spacing: 10) {
-                            Image(systemName: "app.badge.checkmark").font(.system(size: 23 * AppFontScale.factor, weight: .bold)).foregroundStyle(palette.purple)
+                            Image(systemName: "app.badge.checkmark").font(.system(size: 23 * AppFontScale.factor * AppFontScale.factor, weight: .bold)).foregroundStyle(palette.purple)
                                 .frame(width: 42, height: 42).background(palette.palePink, in: RoundedRectangle(cornerRadius: 13))
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(note.version == appVersion ? "Версия \(note.version) (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"))" : "Версия \(note.version)").textSelection(.enabled).font(.system(size: 24 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                Text(note.title).textSelection(.enabled).font(.system(size: 13 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                                Text(note.version == appVersion ? "Версия \(note.version) (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"))" : "Версия \(note.version)").textSelection(.enabled).font(.system(size: 24 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                Text(note.title).textSelection(.enabled).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                             }
                             Spacer()
-                            Text(note.date).font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                            Text(note.date).font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
                                 .padding(.horizontal, 9).padding(.vertical, 6).background(palette.lilac.opacity(0.28), in: Capsule())
                         }
                         Divider().overlay(palette.line)
                         ForEach(note.changes, id: \.self) { change in
                             HStack(alignment: .top, spacing: 9) {
-                                Image(systemName: "checkmark.circle.fill").font(.system(size: 13 * AppFontScale.factor, weight: .semibold)).foregroundStyle(palette.green).padding(.top, 2)
-                                Text(change).textSelection(.enabled).font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                Image(systemName: "checkmark.circle.fill").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .semibold)).foregroundStyle(palette.green).padding(.top, 2)
+                                Text(change).textSelection(.enabled).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                             }
                         }
                         Button {
@@ -6681,7 +6681,7 @@ struct ContentView: View {
                             NSPasteboard.general.setString(entry, forType: .string)
                         } label: {
                             Label("Копировать изменения", systemImage: "doc.on.doc")
-                                .font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                                .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                                 .foregroundStyle(palette.purple)
                         }.buttonStyle(.plain)
                     }.padding(20).cardStyle(palette)
@@ -6701,10 +6701,10 @@ struct ContentView: View {
     private func sectionTitle(_ text: String, icon: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 15 * AppFontScale.factor, weight: .heavy))
+                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .heavy))
                 .foregroundStyle(palette.purple)
             Text(text)
-                .font(.system(size: 15 * AppFontScale.factor * fontScaleH2, weight: .heavy, design: .rounded))
+                .font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor * fontScaleH2, weight: .heavy, design: .rounded))
                 .foregroundStyle(palette.ink)
         }
     }
@@ -6712,10 +6712,10 @@ struct ContentView: View {
     private func miniStat(_ title: String, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 4) {
-                Image(systemName: icon).font(.system(size: 11 * AppFontScale.factor, weight: .heavy)).foregroundStyle(color)
-                Text(title).font(.system(size: 9 * AppFontScale.factor * fontScaleH7, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted).lineLimit(1).minimumScaleFactor(0.68)
+                Image(systemName: icon).font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .heavy)).foregroundStyle(color)
+                Text(title).font(.system(size: 9 * AppFontScale.factor * AppFontScale.factor * fontScaleH7, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted).lineLimit(1).minimumScaleFactor(0.68)
             }
-            Text(value).font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7)
+            Text(value).font(.system(size: 19 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity, minHeight: 49, alignment: .leading)
         .padding(7).background(palette.cardSurface.opacity(0.75), in: RoundedRectangle(cornerRadius: 12))
@@ -6724,10 +6724,10 @@ struct ContentView: View {
 
     private func todayStat(_ title: String, value: Int, icon: String, color: Color) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: icon).font(.system(size: 15 * AppFontScale.factor, weight: .bold)).foregroundStyle(color)
-            Text(title).font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Image(systemName: icon).font(.system(size: 15 * AppFontScale.factor * AppFontScale.factor, weight: .bold)).foregroundStyle(color)
+            Text(title).font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
             Spacer(minLength: 2)
-            Text("\(value)").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(color)
+            Text("\(value)").font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(color)
         }
         .padding(.vertical, 5)
         .overlay(alignment: .bottom) { Rectangle().fill(palette.line.opacity(0.55)).frame(height: 1) }
@@ -6735,14 +6735,14 @@ struct ContentView: View {
 
     private func tableHead(_ text: String, align: Alignment) -> some View {
         Text(text)
-            .font(.system(size: 10 * AppFontScale.factor * fontScaleH7, weight: .bold, design: .rounded))
+            .font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor * fontScaleH7, weight: .bold, design: .rounded))
             .foregroundStyle(palette.muted)
             .frame(maxWidth: align == .leading ? .infinity : nil, alignment: align)
     }
 
     private func emptyHint(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 11 * AppFontScale.factor * fontScaleH7, weight: .medium, design: .rounded))
+            .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor * fontScaleH7, weight: .medium, design: .rounded))
             .foregroundStyle(palette.muted)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
@@ -6751,12 +6751,12 @@ struct ContentView: View {
 
     private func rewardPreview(emoji: String, title: String, subtitle: String, progress: Int, goal: Int) -> some View {
         HStack(spacing: 9) {
-            Text(emoji).font(.system(size: 40))
+            Text(emoji).font(.system(size: 40 * AppFontScale.factor))
                 .frame(width: 63, height: 68)
                 .background(palette.palePink, in: RoundedRectangle(cornerRadius: 12))
             VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.system(size: 12 * AppFontScale.factor * fontScaleH5, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                Text(subtitle).font(.system(size: 10 * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                Text(title).font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor * fontScaleH5, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                Text(subtitle).font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 ProgressView(value: Double(progress), total: Double(goal)).tint(palette.purple).scaleEffect(x: 1, y: 0.72, anchor: .center)
             }
             Spacer(minLength: 0)
@@ -6767,10 +6767,10 @@ struct ContentView: View {
 
     private func largeStat(_ title: String, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Image(systemName: icon).font(.system(size: 23 * AppFontScale.factor, weight: .semibold)).foregroundStyle(color)
-            Text(value).font(.system(size: 29 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Image(systemName: icon).font(.system(size: 23 * AppFontScale.factor * AppFontScale.factor, weight: .semibold)).foregroundStyle(color)
+            Text(value).font(.system(size: 29 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                 .minimumScaleFactor(0.7).lineLimit(1)
-            Text(title).font(.system(size: 13 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+            Text(title).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
         }
         .frame(maxWidth: .infinity, minHeight: 113, alignment: .leading)
         .padding(17)
@@ -6830,15 +6830,15 @@ struct ContentView: View {
                 RoundedRectangle(cornerRadius: 19)
                     .fill(LinearGradient(colors: unlocked ? [rewardTint(for: item.id).opacity(0.19), rewardTint(for: item.id).opacity(0.05)] : [Color.gray.opacity(0.06), palette.canvasMiddle.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
                 Text(item.emoji)
-                    .font(.system(size: 43))
+                    .font(.system(size: 43 * AppFontScale.factor))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
             .frame(width: 82, height: 82)
             .overlay(RoundedRectangle(cornerRadius: 19).stroke(unlocked ? rewardTint(for: item.id) : Color.gray.opacity(0.35), lineWidth: unlocked ? 2.2 : 1.2))
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.title).font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                Text(item.detail).font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-                Text(unlocked ? "Получено!" : "Ещё впереди").font(.system(size: 10 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(unlocked ? palette.green : palette.muted)
+                Text(item.title).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                Text(item.detail).font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                Text(unlocked ? "Получено!" : "Ещё впереди").font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(unlocked ? palette.green : palette.muted)
             }
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity, minHeight: 92, alignment: .leading).padding(12)
@@ -6864,7 +6864,7 @@ struct ContentView: View {
                     .onTapGesture { if item.isRare { triggerCelebration("rare:\(item.id)") } }
                 if item.isRare {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 18 * AppFontScale.factor, weight: .black))
+                        .font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .black))
                         .foregroundStyle(gold)
                         .padding(7)
                 }
@@ -6874,17 +6874,17 @@ struct ContentView: View {
 
             if item.isRare {
                 Label("РЕДКИЙ КОЛЛЕКЦИОННЫЙ", systemImage: "sparkles")
-                    .font(.system(size: 9 * AppFontScale.factor, weight: .black, design: .rounded))
+                    .font(.system(size: 9 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded))
                     .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.80, blue: 0.30) : Color(red: 0.52, green: 0.31, blue: 0.02))
                     .lineLimit(1).minimumScaleFactor(0.7)
             }
             Text(item.title)
-                .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
+                .font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
             Text(item.detail)
-                .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
+                .font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
 
             Label("Открыта!", systemImage: "checkmark.seal.fill")
-                .font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                .font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                 .foregroundStyle(palette.green).frame(maxWidth: .infinity).padding(.vertical, 8)
         }
         .padding(11)
@@ -7142,15 +7142,15 @@ struct ContentView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 20).fill(color.opacity(0.14))
                 RoundedRectangle(cornerRadius: 20).stroke(color.opacity(0.58), lineWidth: 1.5)
-                Text(emoji).font(.system(size: 63)).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                Text(emoji).font(.system(size: 63 * AppFontScale.factor)).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
             .frame(width: 102, height: 102, alignment: .center)
-            Text(title).font(.system(size: 20 * AppFontScale.factor * fontScaleH3, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text(detail).font(.system(size: 13 * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Text(title).font(.system(size: 20 * AppFontScale.factor * AppFontScale.factor * fontScaleH3, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(detail).font(.system(size: 13 * AppFontScale.factor * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                 .fixedSize(horizontal: false, vertical: true)
             ProgressView(value: Double(progress), total: Double(goal)).tint(palette.purple)
             Text("\(progress) из \(goal)")
-                .font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                .font(.system(size: 12 * AppFontScale.factor * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
@@ -7160,9 +7160,9 @@ struct ContentView: View {
     private func fontScaleControl(_ title: String, scale: Binding<Double>, example: String, baseSize: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(title).font(.system(size: 10 * AppFontScale.factor * fontScaleBody, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                Text(title).font(.system(size: 10 * AppFontScale.factor * AppFontScale.factor * fontScaleBody, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                 Spacer(minLength: 4)
-                Text("\(Int((scale.wrappedValue * 100).rounded()))%").font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple).monospacedDigit()
+                Text("\(Int((scale.wrappedValue * 100).rounded()))%").font(.system(size: 11 * AppFontScale.factor * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple).monospacedDigit()
             }
             Slider(value: scale, in: 0.8...2.0, step: 0.1)
                 .tint(.black)
@@ -7189,8 +7189,8 @@ struct ContentView: View {
 
     private func pageHeading(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(title).font(.system(size: 29 * AppFontScale.factor * fontScaleH1, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text(subtitle).font(.system(size: 14 * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Text(title).font(.system(size: 29 * AppFontScale.factor * AppFontScale.factor * fontScaleH1, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(subtitle).font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
         }
     }
 
@@ -7411,13 +7411,13 @@ struct ContentView: View {
                         Reward3DBadge(symbol: "sparkles", tint: palette.purple, size: 104).frame(height: 112)
                     }
                     Text(celebrationTitle)
-                        .font(.system(size: 34 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                        .font(.system(size: 34 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                         .multilineTextAlignment(.center)
                     Text(celebrationSubtitle)
-                        .font(.system(size: 18 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                        .font(.system(size: 18 * AppFontScale.factor * AppFontScale.factor, weight: .semibold, design: .rounded))
                         .multilineTextAlignment(.center)
                     Button("Ура!") { withAnimation { showCelebration = false } }
-                        .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                        .font(.system(size: 14 * AppFontScale.factor * AppFontScale.factor, weight: .heavy, design: .rounded))
                         .buttonStyle(.borderedProminent)
                         .tint(palette.purple)
                         .padding(.top, 6)
