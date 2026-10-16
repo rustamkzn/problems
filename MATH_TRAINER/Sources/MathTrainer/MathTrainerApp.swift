@@ -5314,6 +5314,80 @@ struct ContentView: View {
                     .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(.white)
                     .padding(.horizontal, 17).padding(.vertical, 11).background(palette.purple, in: Capsule())
             }.buttonStyle(.plain)
+            Divider().overlay(palette.line)
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Личный план обучения", systemImage: "calendar.badge.clock")
+                    .font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                Text("План на 10–15 минут, который подстраивается под твои результаты.")
+                    .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                let planSubject = weakest?.0 ?? selectedSubject
+                HStack(alignment: .top, spacing: 9) {
+                    Text("1").font(.system(size: 13, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("5 минут — \(planSubject.rawValue)").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        if let weakest {
+                            Text("Начни с темы, где точность ниже всего: \(weakest.1.accuracy)% верных ответов.")
+                                .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        } else {
+                            Text("Потренируй выбранный предмет и собери первые результаты.")
+                                .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        }
+                    }
+                }
+                HStack(alignment: .top, spacing: 9) {
+                    Text("2").font(.system(size: 13, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("3–5 минут — закрепление").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Реши несколько заданий и перечитай объяснения ошибок.")
+                            .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                }
+                HStack(alignment: .top, spacing: 9) {
+                    Text("3").font(.system(size: 13, weight: .heavy)).foregroundStyle(.white).frame(width: 25, height: 25).background(palette.purple, in: Circle())
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("2 минуты — проверка результата").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Посмотри, стало ли больше правильных ответов. Если устал — сделай перерыв.")
+                            .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                }
+                Button {
+                    selectedSubjectName = planSubject.rawValue
+                    selected = .task
+                    answer = ""; answerState = .neutral
+                    problem = makeUniqueProblem(for: selectedSubject)
+                    currentTip = ProblemGenerator.tip(for: selectedSubject, problem: problem)
+                } label: {
+                    Label("Начать личный план", systemImage: "play.fill")
+                        .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(.white)
+                        .padding(.horizontal, 15).padding(.vertical, 10).background(palette.purple, in: Capsule())
+                }.buttonStyle(.plain)
+            }
+            Divider().overlay(palette.line)
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Поиск слабых мест", systemImage: "scope")
+                    .font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                Text("Результаты сравниваются по предметам. Для вывода нужно минимум 3 ответа по каждому предмету.")
+                    .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                let rankedSubjects = StudySubject.allCases
+                    .map { subject in (subject, decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()) }
+                    .filter { $0.1.total >= 3 }
+                    .sorted { $0.1.accuracy < $1.1.accuracy }
+                if rankedSubjects.isEmpty {
+                    Text("Пока мало данных. Реши хотя бы по 3 задания в нескольких предметах — наставник найдёт темы для повторения.")
+                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                } else {
+                    ForEach(Array(rankedSubjects.prefix(5).enumerated()), id: \.offset) { _, entry in
+                        HStack(spacing: 8) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(entry.0.rawValue).font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                                Text("\(entry.1.correct) верно из \(entry.1.total) ответов").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            }
+                            Spacer()
+                            Text("\(entry.1.accuracy)%").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(entry.1.accuracy < 70 ? palette.red : (entry.1.accuracy < 85 ? Color.orange : palette.green))
+                        }.padding(.vertical, 3)
+                    }
+                }
+            }
         }.padding(18).cardStyle(palette)
     }
 
