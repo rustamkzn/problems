@@ -5237,6 +5237,36 @@ struct ContentView: View {
                             .background(palette.red.opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
                     }
                 }.padding(22).cardStyle(palette)
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Label("Разобрать ошибки", systemImage: "arrow.uturn.backward.circle.fill")
+                            .font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Spacer()
+                        Text("\(decodedLifeSkillsReview.count)").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                    }
+                    Text("Вернись к ситуации, вспомни правильное решение и закрепи тему.")
+                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    if decodedLifeSkillsReview.isEmpty {
+                        Text("Ошибок для разбора пока нет. Если ответ окажется неверным, ситуация появится здесь.")
+                            .font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).padding(.vertical, 8)
+                    } else {
+                        ForEach(decodedLifeSkillsReview) { record in
+                            HStack(alignment: .top, spacing: 10) {
+                                Text(record.symbol).font(.system(size: 27))
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text(record.prompt).font(.system(size: 14, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text("Твой ответ: \(record.selectedAnswer)").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
+                                    Text("Правильный ответ: \(record.answer)").font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
+                                    Text("Почему: \(record.explanation)").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                }
+                                Spacer(minLength: 0)
+                                Button { removeLifeSkillsReview(record.id) } label: {
+                                    Image(systemName: "checkmark.circle.fill").font(.system(size: 18)).foregroundStyle(palette.green)
+                                }.buttonStyle(.plain).help("Убрать из списка после повторения")
+                            }.padding(12).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                }.padding(16).cardStyle(palette)
             }.padding(24)
         }
     }
