@@ -1963,7 +1963,8 @@ struct ProblemGenerator {
                 let correct = Int(question.1) ?? 0
                 russianChoices = [String(correct), String(max(0, correct - 1)), String(correct + 1), String(correct + 2)]
             } else if question.0.contains("наоборот") {
-                russianChoices = uniqueChoices([question.1, String(item.0), String(item.0.reversed()), String(item.0.uppercased())]).prefix(4).map { $0 }
+                let reversedDistractors = ["молоко", "машина", "собака", "берёза", "карандаш", "тетрадь"].map { String($0.reversed()) }
+                russianChoices = Array(uniqueChoices([question.1] + reversedDistractors.filter { $0 != question.1 }).prefix(4))
             } else if question.0.contains("первый звук") {
                 let soundPool = ["а", "о", "м", "с", "к", "т", "р", "п", "л", "н"]
                 russianChoices = uniqueChoices([question.1] + soundPool.filter { $0 != question.1 }.shuffled()).prefix(4).map { $0 }
