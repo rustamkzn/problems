@@ -3446,7 +3446,13 @@ struct ContentView: View {
     @AppStorage("MathTrainer.ReleaseNotes.v1") private var releaseNotesStorage = ""
     @AppStorage("MathTrainer.ScreenContrast.v1") private var screenContrast = 1.15
     @AppStorage("MathTrainer.ThemeBrightness.v1") private var themeBrightness = 0.0
-    @AppStorage("MathTrainer.FontScale.Headings.v1") private var fontScaleHeadings = 1.0
+    @AppStorage("MathTrainer.FontScale.Headings.v1") private var fontScaleH1 = 1.0
+    @AppStorage("MathTrainer.FontScale.H2.v1") private var fontScaleH2 = 1.0
+    @AppStorage("MathTrainer.FontScale.H3.v1") private var fontScaleH3 = 1.0
+    @AppStorage("MathTrainer.FontScale.H4.v1") private var fontScaleH4 = 1.0
+    @AppStorage("MathTrainer.FontScale.H5.v1") private var fontScaleH5 = 1.0
+    @AppStorage("MathTrainer.FontScale.H6.v1") private var fontScaleH6 = 1.0
+    @AppStorage("MathTrainer.FontScale.H7.v1") private var fontScaleH7 = 1.0
     @AppStorage("MathTrainer.FontScale.Body.v1") private var fontScaleBody = 1.0
     @AppStorage("MathTrainer.FontScale.Hints.v1") private var fontScaleHints = 1.0
     @AppStorage("MathTrainer.Difficulty.v1") private var difficultyLevel = 1
@@ -3580,6 +3586,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.15", date: "16.10.2026", title: "Точная настройка размеров шрифта", changes: ["Пункт «Версии и изменения» убран из нижней части левого меню: история открывается кликом по версии вверху слева.", "Настройки шрифтов оформлены в том же градиентном стиле, что яркость и контраст; ползунки с чёрной дорожкой и заметным бегунком видны на светлых темах.", "Добавлены независимые настройки H1–H7, основного текста и подсказок с сохранением каждого значения.", "Размеры подключены к заголовкам страниц, основному вопросу задания, полю ответа и подсказкам."]),
             ReleaseNote(version: "1.2.14", date: "16.10.2026", title: "Удобнее меню и настройка шрифтов", changes: ["Календарь занятий в «Моём наставнике» ограничен по ширине, чтобы не растягиваться на всю страницу.", "Версия в верхней части левого блока стала кликабельной и открывает «Версии и изменения».", "«Мой наставник» перемещён в меню между «Задание» и «Ежедневный детектив». Раздел «Моя комната» убран из главного меню.", "В настройках появились отдельные регуляторы размера заголовков, основного текста и подсказок с сохранением значений. Размер заголовков страниц и пунктов меню связан с настройками."]),
             ReleaseNote(version: "1.2.13", date: "16.10.2026", title: "Единый наставник и календарь занятий", changes: ["«Мой наставник» вынесен в отдельный раздел левого меню и объединяет анализ школьных предметов, логики, памяти, детектива, навыков жизни и олимпиады.", "Добавлены единая статистика, календарь занятий, план на день, повторяющиеся ошибки и рекомендации по сложности. При недостатке данных наставник прямо сообщает об этом.", "В «Навыках жизни» разбор ошибки расширен: добавлены пошаговый анализ, оценка последствий и рекомендации для похожих ситуаций.", "Шрифт заголовков в «Версиях и изменениях» увеличен в 1,4 раза. Прежняя история выпусков и сохранённые достижения оставлены."]),
             ReleaseNote(version: "1.2.12", date: "16.10.2026", title: "Личный план обучения и разбор ошибок", changes: ["В «Навыках жизни» появился сохраняемый раздел «Разобрать ошибки»: можно повторно прочитать ситуацию, свой ответ, правильный ответ и объяснение; разобранные записи убираются из списка.", "В «Моём наставнике» добавлен личный план занятия на 10–15 минут с быстрым переходом к предмету для повторения.", "Добавлен поиск слабых мест по точности в предметах; учитываются только направления минимум с тремя ответами, а список показывает до пяти тем с наименьшей точностью.", "Сохранены прежняя история выпусков, статистика, достижения и накопленные награды."]),
@@ -3974,7 +3981,7 @@ struct ContentView: View {
 
             ScrollView(.vertical) {
             VStack(spacing: 8) {
-                ForEach(AppSection.allCases.filter { $0 != .days }) { section in
+                ForEach(AppSection.allCases.filter { $0 != .days && $0 != .versionHistory }) { section in
                     Button {
                         selected = section
                         if section == .task {
@@ -4207,7 +4214,7 @@ struct ContentView: View {
             if !(selectedSubject == .geometry && problem.showIllustration) {
                 Text(problem.text)
                     .textSelection(.enabled)
-                    .font(.system(size: selectedSubject == .math ? 62 : 38, weight: .heavy, design: .rounded))
+                    .font(.system(size: (selectedSubject == .math ? 62 : 38) * fontScaleH4, weight: .heavy, design: .rounded))
                     .foregroundStyle(palette.ink)
                     .multilineTextAlignment(.center)
                     .contentTransition(.numericText())
@@ -4232,7 +4239,7 @@ struct ContentView: View {
             } else {
                 HStack(spacing: 11) {
                     TextField(problem.isComparison ? "Выбери знак ниже" : "Введи ответ...", text: $answer)
-                        .font(.system(size: 23, weight: .bold, design: .rounded))
+                        .font(.system(size: 23 * fontScaleH5, weight: .bold, design: .rounded))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(answerColor)
                         .textFieldStyle(.plain)
@@ -4610,10 +4617,10 @@ struct ContentView: View {
             Text("💡").font(.system(size: 29))
             VStack(alignment: .leading, spacing: 3) {
                 Text("Маленькая подсказка")
-                    .font(.system(size: 13, weight: .heavy, design: .rounded))
+                    .font(.system(size: 13 * fontScaleH6, weight: .heavy, design: .rounded))
                     .foregroundStyle(palette.ink)
                 Text(currentTip)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12 * fontScaleHints, weight: .medium, design: .rounded))
                     .foregroundStyle(palette.muted)
             }
             Spacer(minLength: 4)
@@ -6498,27 +6505,25 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Настройки", subtitle: "Настрой своё учебное пространство")
                 VStack(alignment: .leading, spacing: 14) {
-                    Label("РАЗМЕР ШРИФТОВ", systemImage: "textformat.size").font(.system(size: 17 * fontScaleHeadings, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Настрой отдельно заголовки, основной текст и подсказки. Значения сохраняются на этом Mac.").font(.system(size: 12 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack { Text("Заголовки и названия разделов"); Spacer(); Text("\(Int(fontScaleHeadings * 100))%") }.font(.system(size: 13 * fontScaleBody, weight: .semibold, design: .rounded))
-                        Slider(value: $fontScaleHeadings, in: 0.8...1.6, step: 0.1).tint(palette.purple)
-                        Text("Пример заголовка").font(.system(size: 22 * fontScaleHeadings, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    }
-                    Divider().overlay(palette.line)
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack { Text("Основной текст и пункты меню"); Spacer(); Text("\(Int(fontScaleBody * 100))%") }.font(.system(size: 13 * fontScaleBody, weight: .semibold, design: .rounded))
-                        Slider(value: $fontScaleBody, in: 0.8...1.6, step: 0.1).tint(palette.purple)
-                        Text("Пример основного текста для чтения").font(.system(size: 14 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.ink)
-                    }
-                    Divider().overlay(palette.line)
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack { Text("Подсказки и пояснения"); Spacer(); Text("\(Int(fontScaleHints * 100))%") }.font(.system(size: 13 * fontScaleBody, weight: .semibold, design: .rounded))
-                        Slider(value: $fontScaleHints, in: 0.8...1.8, step: 0.1).tint(palette.purple)
-                        Text("Пример подсказки: не спеши, прочитай вопрос ещё раз.").font(.system(size: 12 * fontScaleHints, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                    }
-                    Button("Сбросить размеры шрифта") { fontScaleHeadings = 1; fontScaleBody = 1; fontScaleHints = 1 }.font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
-                }.padding(18).cardStyle(palette)
+                    Label("РАЗМЕР ШРИФТОВ", systemImage: "textformat.size").font(.system(size: 17 * fontScaleH2, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Каждый уровень регулируется отдельно. Ползунки и значения сохраняются на этом Mac.").font(.system(size: 12 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    fontScaleControl("H1 · Главные заголовки страниц", scale: $fontScaleH1, example: "Пример главного заголовка", baseSize: 25)
+                    fontScaleControl("H2 · Заголовки разделов", scale: $fontScaleH2, example: "Пример заголовка раздела", baseSize: 21)
+                    fontScaleControl("H3 · Заголовки карточек и блоков", scale: $fontScaleH3, example: "Пример заголовка карточки", baseSize: 18)
+                    fontScaleControl("H4 · Вопросы и крупный текст задания", scale: $fontScaleH4, example: "Сколько будет 7 × 8?", baseSize: 24)
+                    fontScaleControl("H5 · Названия ответов и кнопок", scale: $fontScaleH5, example: "Пример варианта ответа", baseSize: 15)
+                    fontScaleControl("H6 · Подзаголовки и подписи", scale: $fontScaleH6, example: "Пример подписи под заголовком", baseSize: 13)
+                    fontScaleControl("H7 · Мелкий служебный текст", scale: $fontScaleH7, example: "Пример небольшого пояснения", baseSize: 11)
+                    fontScaleControl("Основной текст", scale: $fontScaleBody, example: "Обычный текст в разделах и меню", baseSize: 14)
+                    fontScaleControl("Подсказки и пояснения", scale: $fontScaleHints, example: "Не спеши, внимательно прочитай вопрос ещё раз.", baseSize: 12)
+                    Button("Сбросить все размеры шрифта") {
+                        fontScaleH1 = 1; fontScaleH2 = 1; fontScaleH3 = 1; fontScaleH4 = 1
+                        fontScaleH5 = 1; fontScaleH6 = 1; fontScaleH7 = 1; fontScaleBody = 1; fontScaleHints = 1
+                    }.font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
+                }
+                .padding(16)
+                .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 17))
+                .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.purple, lineWidth: 2))
                 VStack(alignment: .leading, spacing: 15) {
                     VStack(alignment: .leading, spacing: 10) {
                         Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 17, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
@@ -7142,9 +7147,39 @@ struct ContentView: View {
         .cardStyle(palette)
     }
 
+    private func fontScaleControl(_ title: String, scale: Binding<Double>, example: String, baseSize: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(title).font(.system(size: 12 * fontScaleBody, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                Spacer(minLength: 4)
+                Text("\(Int((scale.wrappedValue * 100).rounded()))%").font(.system(size: 14, weight: .black, design: .rounded)).foregroundStyle(palette.purple).monospacedDigit()
+            }
+            Slider(value: scale, in: 0.8...2.0, step: 0.1)
+                .tint(.black)
+                .controlSize(.large).frame(minHeight: 42).padding(.horizontal, 5)
+                .overlay {
+                    GeometryReader { proxy in
+                        let normalized = max(0.0, min(1.0, (scale.wrappedValue - 0.8) / 1.2))
+                        let knobPosition = 12.0 + normalized * max(0.0, proxy.size.width - 24.0)
+                        Circle().fill(Color.black).frame(width: 24, height: 24)
+                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                            .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
+                            .position(x: knobPosition, y: proxy.size.height / 2)
+                    }.allowsHitTesting(false)
+                }
+                .background(Color.white, in: Capsule())
+                .overlay(Capsule().stroke(Color.black, lineWidth: 2))
+            Text(example).font(.system(size: baseSize * scale.wrappedValue, weight: .semibold, design: .rounded))
+                .foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.purple, lineWidth: 1.5))
+    }
+
     private func pageHeading(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(title).font(.system(size: 29 * fontScaleHeadings, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(title).font(.system(size: 29 * fontScaleH1, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
             Text(subtitle).font(.system(size: 14 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
         }
     }
