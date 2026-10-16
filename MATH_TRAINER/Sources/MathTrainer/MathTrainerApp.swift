@@ -2841,16 +2841,15 @@ struct MathTrainerApp: App {
 
 private enum AppSection: String, CaseIterable, Identifiable {
     case task = "Задание"
+    case mentor = "Мой наставник"
     case detective = "Ежедневный детектив"
     case memory = "Тренировка памяти"
     case lifeSkills = "Навыки жизни"
     case olympiad = "Олимпиада"
     case statistics = "Статистика"
-    case mentor = "Мой наставник"
     case days = "По дням"
     case rewards = "Награды"
     case shop = "Магазин"
-    case room = "Моя комната"
     case settings = "Настройки"
     case versionHistory = "Версии и изменения"
 
@@ -2867,7 +2866,6 @@ private enum AppSection: String, CaseIterable, Identifiable {
         case .days: return "calendar"
         case .rewards: return "trophy.fill"
         case .shop: return "storefront.fill"
-        case .room: return "house.fill"
         case .settings: return "gearshape.fill"
         case .versionHistory: return "doc.text.magnifyingglass"
         }
@@ -3448,6 +3446,9 @@ struct ContentView: View {
     @AppStorage("MathTrainer.ReleaseNotes.v1") private var releaseNotesStorage = ""
     @AppStorage("MathTrainer.ScreenContrast.v1") private var screenContrast = 1.15
     @AppStorage("MathTrainer.ThemeBrightness.v1") private var themeBrightness = 0.0
+    @AppStorage("MathTrainer.FontScale.Headings.v1") private var fontScaleHeadings = 1.0
+    @AppStorage("MathTrainer.FontScale.Body.v1") private var fontScaleBody = 1.0
+    @AppStorage("MathTrainer.FontScale.Hints.v1") private var fontScaleHints = 1.0
     @AppStorage("MathTrainer.Difficulty.v1") private var difficultyLevel = 1
     @AppStorage("MathTrainer.SubjectPerformance.v1") private var subjectPerformanceStorage = ""
     @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
@@ -3856,7 +3857,7 @@ struct ContentView: View {
                 }.frame(width: 48, height: 48)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Тренировка мозга").font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2).minimumScaleFactor(0.78)
-                    Text("ВЕРСИЯ \(appVersion)").font(.system(size: 10, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                    Button { selected = .versionHistory } label: { Text("Версия \(appVersion)").font(.system(size: 10, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple).underline() }.buttonStyle(.plain).help("Открыть «Версии и изменения»")
                         .padding(.horizontal, 8).padding(.vertical, 4).background(palette.cardSurface.opacity(0.75), in: Capsule())
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -4030,12 +4031,12 @@ struct ContentView: View {
         switch selected {
         case .task:
             taskDashboard
+        case .mentor: mentorPage
         case .detective: detectivePage
         case .memory: memoryPage
         case .lifeSkills: lifeSkillsPage
         case .olympiad: olympiadPage
         case .statistics: statisticsPage
-        case .mentor: mentorPage
         case .days: daysPage
         case .rewards: rewardsPage
         case .shop: shopPage
@@ -5546,7 +5547,7 @@ struct ContentView: View {
                 Label("Пропуск", systemImage: "circle.fill").foregroundStyle(palette.red)
             }.font(.system(size: 11, weight: .semibold, design: .rounded))
             Text("Зелёный — приложение зафиксировало занятие в одном из режимов. Красный — прошедший день без записанной активности. Дни до установки версии с календарём могут быть отмечены только по сохранившейся статистике.").font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-        }.padding(17).cardStyle(palette)
+        }.padding(17).frame(maxWidth: 500, alignment: .leading).cardStyle(palette)
     }
 
     private var statisticsPage: some View {
@@ -6496,6 +6497,28 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Настройки", subtitle: "Настрой своё учебное пространство")
+                VStack(alignment: .leading, spacing: 14) {
+                    Label("РАЗМЕР ШРИФТОВ", systemImage: "textformat.size").font(.system(size: 17 * fontScaleHeadings, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                    Text("Настрой отдельно заголовки, основной текст и подсказки. Значения сохраняются на этом Mac.").font(.system(size: 12 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack { Text("Заголовки и названия разделов"); Spacer(); Text("\(Int(fontScaleHeadings * 100))%") }.font(.system(size: 13 * fontScaleBody, weight: .semibold, design: .rounded))
+                        Slider(value: $fontScaleHeadings, in: 0.8...1.6, step: 0.1).tint(palette.purple)
+                        Text("Пример заголовка").font(.system(size: 22 * fontScaleHeadings, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                    }
+                    Divider().overlay(palette.line)
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack { Text("Основной текст и пункты меню"); Spacer(); Text("\(Int(fontScaleBody * 100))%") }.font(.system(size: 13 * fontScaleBody, weight: .semibold, design: .rounded))
+                        Slider(value: $fontScaleBody, in: 0.8...1.6, step: 0.1).tint(palette.purple)
+                        Text("Пример основного текста для чтения").font(.system(size: 14 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.ink)
+                    }
+                    Divider().overlay(palette.line)
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack { Text("Подсказки и пояснения"); Spacer(); Text("\(Int(fontScaleHints * 100))%") }.font(.system(size: 13 * fontScaleBody, weight: .semibold, design: .rounded))
+                        Slider(value: $fontScaleHints, in: 0.8...1.8, step: 0.1).tint(palette.purple)
+                        Text("Пример подсказки: не спеши, прочитай вопрос ещё раз.").font(.system(size: 12 * fontScaleHints, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    }
+                    Button("Сбросить размеры шрифта") { fontScaleHeadings = 1; fontScaleBody = 1; fontScaleHints = 1 }.font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(palette.purple).buttonStyle(.plain)
+                }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 15) {
                     VStack(alignment: .leading, spacing: 10) {
                         Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 17, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
