@@ -3985,7 +3985,7 @@ struct ContentView: View {
                                 .font(.system(size: 18, weight: .bold))
                                 .frame(width: 24)
                             Text(section.rawValue)
-                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .font(.system(size: 15 * fontScaleBody, weight: .semibold, design: .rounded))
                             Spacer(minLength: 0)
                         }
                         .foregroundStyle(selected == section ? .white : palette.purple)
@@ -4037,10 +4037,10 @@ struct ContentView: View {
         case .lifeSkills: lifeSkillsPage
         case .olympiad: olympiadPage
         case .statistics: statisticsPage
+        case .mentor: mentorPage
         case .days: daysPage
         case .rewards: rewardsPage
         case .shop: shopPage
-        case .room: roomPage
         case .settings: settingsPage
         case .versionHistory: versionHistoryPage
         }
@@ -7144,8 +7144,8 @@ struct ContentView: View {
 
     private func pageHeading(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(title).font(.system(size: 29, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-            Text(subtitle).font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+            Text(title).font(.system(size: 29 * fontScaleHeadings, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+            Text(subtitle).font(.system(size: 14 * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
         }
     }
 
