@@ -6542,7 +6542,8 @@ struct ContentView: View {
                         Text("Настрой яркость интерфейса. Значение сохраняется между запусками.").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         Slider(value: $themeBrightness, in: -0.25...0.15, step: 0.01)
                             .tint(.black)
-                            .controlSize(.large).frame(minHeight: 44).padding(.horizontal, 8)
+                            .controlSize(.small).frame(minHeight: 20).padding(.horizontal, 3)
+                            .opacity(0.01)
                             .overlay {
                                 GeometryReader { proxy in
                                     let normalizedBrightness = max(0.0, min(1.0, (themeBrightness + 0.25) / 0.40))
@@ -6552,7 +6553,6 @@ struct ContentView: View {
                                         .fill(Color.black)
                                         .frame(width: 24, height: 24)
                                         
-                                        .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
                                         .position(x: knobPosition, y: proxy.size.height / 2)
                                 }
                                 .allowsHitTesting(false)
@@ -6570,7 +6570,8 @@ struct ContentView: View {
                             .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         Slider(value: $screenContrast, in: 0.75...1.55, step: 0.05)
                             .tint(.black)
-                            .controlSize(.large).frame(minHeight: 42)
+                            .controlSize(.small).frame(minHeight: 20)
+                            .opacity(0.01)
                             .padding(.horizontal, 5)
                             .overlay {
                                 GeometryReader { proxy in
@@ -6581,7 +6582,6 @@ struct ContentView: View {
                                         .fill(Color.black)
                                         .frame(width: 24, height: 24)
                                         
-                                        .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
                                         .position(x: knobPosition, y: proxy.size.height / 2)
                                 }
                                 .allowsHitTesting(false)
@@ -7170,6 +7170,7 @@ struct ContentView: View {
                 Slider(value: scale, in: 0.8...2.0, step: 0.1)
                     .tint(.black)
                     .controlSize(.small).frame(maxWidth: 320, minHeight: 20).padding(.horizontal, 3)
+                    .opacity(0.01)
                     .overlay {
                         GeometryReader { proxy in
                             let normalized = max(0.0, min(1.0, (scale.wrappedValue - 0.8) / 1.2))
