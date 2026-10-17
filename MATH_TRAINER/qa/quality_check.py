@@ -112,6 +112,9 @@ coverage = {
     "memory round generation": "private func startMemoryRound()",
     "Olympiad flow": "private func nextOlympiadProblem()",
     "mistake review": "private func mistakeChoices(for item: Problem, selectedAnswer: String)",
+    "unified review queue": "private var unifiedReviewItems: [UnifiedReviewItem]",
+    "unified review page": "private var unifiedMistakeReviewPage: some View",
+    "persistent review history": "private func recordUnifiedReviewAttempt(_ item: UnifiedReviewItem, selected: String)",
 }
 for area, token in coverage.items():
     if token not in source:
