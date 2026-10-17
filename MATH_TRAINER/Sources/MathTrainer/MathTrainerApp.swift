@@ -2192,6 +2192,27 @@ private struct LifeSkillsReviewRecord: Codable, Identifiable {
     let explanation: String
     let symbol: String
     let selectedAnswer: String
+    let choices: [String]?
+}
+
+private struct ReviewAttemptRecord: Codable, Identifiable {
+    let id: String
+    let itemID: String
+    let prompt: String
+    let selectedAnswer: String
+    let correctAnswer: String
+    let isCorrect: Bool
+    let date: String
+}
+
+private struct UnifiedReviewItem: Identifiable {
+    let id: String
+    let section: String
+    let prompt: String
+    let answer: String
+    let choices: [String]
+    let explanation: String
+    let symbol: String
 }
 
 private struct ActivityQuestion: Identifiable {
@@ -2859,6 +2880,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
     case detective = "Ежедневный детектив"
     case memory = "Тренировка памяти"
     case lifeSkills = "Навыки жизни"
+    case mistakeReview = "Повторить ошибки"
     case olympiad = "Олимпиада"
     case statistics = "Статистика"
     case days = "По дням"
@@ -2874,6 +2896,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
         case .detective: return "magnifyingglass"
         case .memory: return "brain.head.profile"
         case .lifeSkills: return "lightbulb.max.fill"
+        case .mistakeReview: return "arrow.uturn.backward.circle.fill"
         case .olympiad: return "trophy.circle.fill"
         case .statistics: return "chart.bar.fill"
         case .mentor: return "graduationcap.fill"
@@ -3476,6 +3499,8 @@ struct ContentView: View {
     @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
     @AppStorage("MathTrainer.OlympiadWins.v1") private var olympiadWins = 0
     @AppStorage("MathTrainer.Mistakes.v1") private var mistakesStorage = ""
+    @AppStorage("MathTrainer.ReviewAttempts.v1") private var reviewAttemptsStorage = "[]"
+    @AppStorage("MathTrainer.ReviewMastery.v1") private var reviewMasteryStorage = "{}"
     @AppStorage("MathTrainer.DetectiveRewardDate.v1") private var detectiveRewardDate = ""
     @AppStorage("MathTrainer.DetectiveBestScore.v1") private var detectiveBestScore = 0
     @AppStorage("MathTrainer.MemoryBestLevel.v1") private var memoryBestLevel = 0
@@ -3528,6 +3553,8 @@ struct ContentView: View {
     @State private var expandedAnalyticsSubject: String? = nil
     @State private var expandedAnalyticsTopic: String? = nil
     @State private var reviewingMistakeID: String? = nil
+    @State private var activeUnifiedReviewID: String? = nil
+    @State private var unifiedReviewSelectedAnswer: String? = nil
     @State private var olympiadAnswer = ""
     @State private var olympiadFeedback = ""
     @State private var detectiveQuestions = Array(ActivityQuestionBank.detective.shuffled().prefix(5))
@@ -3646,6 +3673,8 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.31", date: "17.10.2026", title: "Единый режим «Повторить ошибки»", changes: ["В левое меню добавлен отдельный раздел, объединяющий ошибки школьных предметов, ежедневного детектива и навыков жизни.", "Ребёнок отвечает на сохранённое задание заново, видит правильный ответ и понятное объяснение.", "Попытки записываются в отдельную историю. Ошибка не удаляется после первого правильного ответа: освоение отмечается после трёх верных ответов подряд.", "Все прежние ошибки, статистика и история версий сохранены."]),
+
             ReleaseNote(version: "1.2.30", date: "17.10.2026", title: "Автоматическая проверка качества заданий", changes: ["Перед каждой сборкой запускается аудит банка заданий: проверяются четыре варианта ответа, наличие правильного ответа и повторяющиеся варианты в статических заданиях.", "Проверяется наличие маршрутов генерации для школьных предметов, олимпиады, ежедневного детектива, навыков жизни, тренировки памяти и повторения ошибок.", "Подозрительные формулировки выводятся в отчёт как предупреждения; критические структурные ошибки останавливают упаковку приложения.", "Проверка не заменяет полноценную смысловую проверку языка и автоматически генерируемых примеров; результаты аудита выводятся в GitHub Actions."]),
             ReleaseNote(version: "1.2.29", date: "17.10.2026", title: "Подробная статистика по предметам без раскрытия", changes: ["Вернул подробную статистику по всем предметам: точность, попытки, правильные и ошибочные ответы, а также результаты по темам.", "Карточки предметов всегда показывают детали и размещены в два столбца; раскрывать карточки не нужно.", "В активное время добавлены показатели «За месяц» и «Среднее за день»; все шесть показателей расположены в два столбца.", "Сохранённые результаты, ошибки и история предыдущих версий не удалены."]),
             ReleaseNote(version: "1.2.28", date: "17.10.2026", title: "Компактный календарь и два столбца времени", changes: ["Ширина календаря дополнительно уменьшена на 20%: с 440 до 352 пунктов.", "Четыре показателя активного времени теперь размещены в два столбца.", "Удаление подробной статистики по предметам и показатель времени за неделю сохранены. История предыдущих версий не удалена."]),
@@ -4116,6 +4145,7 @@ struct ContentView: View {
         case .detective: detectivePage
         case .memory: memoryPage
         case .lifeSkills: lifeSkillsPage
+        case .mistakeReview: unifiedMistakeReviewPage
         case .olympiad: olympiadPage
         case .statistics: statisticsPage
         case .days: daysPage
@@ -4937,6 +4967,7 @@ struct ContentView: View {
                                     } else {
                                         detectiveTotalWrong += 1
                                         detectiveCurrentStreak = 0
+                                        recordActivityMistake(source: "Ежедневный детектив", prompt: item.prompt, selectedAnswer: choice, correctAnswer: item.answer, choices: item.choices, explanation: item.explanation)
                                     }
                                 } label: {
                                     Text(choice).font(.system(size: 15 * AppFontScale.factor, weight: .bold, design: .rounded))
@@ -5007,12 +5038,73 @@ struct ContentView: View {
               let decoded = try? JSONDecoder().decode([LifeSkillsReviewRecord].self, from: data) else { return [] }
         return decoded
     }
+    private var decodedReviewAttempts: [ReviewAttemptRecord] {
+        guard let data = reviewAttemptsStorage.data(using: .utf8),
+              let decoded = try? JSONDecoder().decode([ReviewAttemptRecord].self, from: data) else { return [] }
+        return decoded
+    }
+    private var decodedReviewMastery: [String: Int] {
+        guard let data = reviewMasteryStorage.data(using: .utf8),
+              let decoded = try? JSONDecoder().decode([String: Int].self, from: data) else { return [:] }
+        return decoded
+    }
+    private var unifiedReviewItems: [UnifiedReviewItem] {
+        let studyAndDetective = decodedMistakes.map { record in
+            UnifiedReviewItem(id: "mistake:\(record.id)", section: record.subject, prompt: record.question, answer: record.correctAnswer,
+                choices: reviewChoices(record.choices, answer: record.correctAnswer, extra: record.selectedAnswer),
+                explanation: record.explanation, symbol: record.subject == "Ежедневный детектив" ? "🕵️" : "📘")
+        }
+        let lifeSkills = decodedLifeSkillsReview.map { record in
+            UnifiedReviewItem(id: "life:\(record.id)", section: "Навыки жизни", prompt: record.prompt, answer: record.answer,
+                choices: reviewChoices(record.choices ?? [], answer: record.answer, extra: record.selectedAnswer),
+                explanation: record.explanation, symbol: record.symbol)
+        }
+        return (studyAndDetective + lifeSkills).sorted { $0.section < $1.section }
+    }
+    private var pendingUnifiedReviewItems: [UnifiedReviewItem] {
+        unifiedReviewItems.filter { (decodedReviewMastery[$0.id] ?? 0) < 3 }
+    }
+    private func reviewChoices(_ original: [String], answer: String, extra: String) -> [String] {
+        var values: [String] = []
+        for value in [answer] + original + [extra, "Нужно подумать ещё раз", "Другой вариант", "Попробуй ещё раз", "Верный ответ другой"] {
+            if !value.isEmpty && !values.contains(value) { values.append(value) }
+            if values.count == 4 { break }
+        }
+        return Array(values.prefix(4))
+    }
     private func saveLifeSkillsReview(_ item: ActivityQuestion, selected: String) {
         var records = decodedLifeSkillsReview
         guard !records.contains(where: { $0.prompt == item.prompt && $0.answer == item.answer }) else { return }
-        records.insert(LifeSkillsReviewRecord(id: UUID().uuidString, prompt: item.prompt, answer: item.answer, explanation: item.explanation, symbol: item.symbol, selectedAnswer: selected), at: 0)
+        records.insert(LifeSkillsReviewRecord(id: UUID().uuidString, prompt: item.prompt, answer: item.answer, explanation: item.explanation, symbol: item.symbol, selectedAnswer: selected, choices: item.choices), at: 0)
         if records.count > 100 { records = Array(records.prefix(100)) }
         if let data = try? JSONEncoder().encode(records) { lifeSkillsReviewStorage = String(decoding: data, as: UTF8.self) }
+    }
+    private func recordUnifiedReviewAttempt(_ item: UnifiedReviewItem, selected: String) {
+        let correct = selected == item.answer
+        var attempts = decodedReviewAttempts
+        attempts.append(ReviewAttemptRecord(id: UUID().uuidString, itemID: item.id, prompt: item.prompt, selectedAnswer: selected, correctAnswer: item.answer, isCorrect: correct, date: StatsStore.dateKey(Date())))
+        if let data = try? JSONEncoder().encode(attempts) { reviewAttemptsStorage = String(decoding: data, as: UTF8.self) }
+        var mastery = decodedReviewMastery
+        mastery[item.id] = correct ? min(3, (mastery[item.id] ?? 0) + 1) : 0
+        if let data = try? JSONEncoder().encode(mastery) { reviewMasteryStorage = String(decoding: data, as: UTF8.self) }
+    }
+    private func startUnifiedReview(_ item: UnifiedReviewItem) {
+        activeUnifiedReviewID = item.id
+        unifiedReviewSelectedAnswer = nil
+        selected = .mistakeReview
+    }
+    private func startNextUnifiedReview(after currentID: String? = nil) {
+        let candidates = pendingUnifiedReviewItems
+        let next = candidates.first(where: { $0.id != currentID }) ?? candidates.first
+        activeUnifiedReviewID = next?.id
+        unifiedReviewSelectedAnswer = nil
+    }
+    private func recordActivityMistake(source: String, prompt: String, selectedAnswer: String, correctAnswer: String, choices: [String], explanation: String) {
+        var items = decodedMistakes
+        guard !items.contains(where: { $0.subject == source && $0.question == prompt }) else { return }
+        items.insert(MistakeRecord(id: UUID().uuidString, subject: source, question: prompt, selectedAnswer: selectedAnswer, correctAnswer: correctAnswer,
+            choices: reviewChoices(choices, answer: correctAnswer, extra: selectedAnswer), explanation: explanation, date: StatsStore.dateKey(Date())), at: 0)
+        if let data = try? JSONEncoder().encode(items) { mistakesStorage = String(decoding: data, as: UTF8.self) }
     }
     private func removeLifeSkillsReview(_ id: String) {
         let records = decodedLifeSkillsReview.filter { $0.id != id }
@@ -5372,6 +5464,122 @@ struct ContentView: View {
                         }
                     }
                 }.padding(16).cardStyle(palette)
+            }.padding(24)
+        }
+    }
+
+    private var unifiedMistakeReviewPage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                pageHeading("Повторить ошибки", subtitle: "Тренируйся, пока не получится три раза подряд 💜")
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    miniStat("Всего заданий", value: "\(unifiedReviewItems.count)", icon: "text.book.closed", color: palette.purple)
+                    miniStat("К повторению", value: "\(pendingUnifiedReviewItems.count)", icon: "arrow.uturn.backward.circle.fill", color: palette.red)
+                    miniStat("Попыток сохранено", value: "\(decodedReviewAttempts.count)", icon: "clock.arrow.circlepath", color: palette.green)
+                }
+                if let active = unifiedReviewItems.first(where: { $0.id == activeUnifiedReviewID }) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        HStack {
+                            Label(active.section, systemImage: "book.closed.fill").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                            Spacer()
+                            Text("Верно подряд: \(decodedReviewMastery[active.id] ?? 0)/3").font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
+                        }
+                        HStack(alignment: .top, spacing: 12) {
+                            Text(active.symbol).font(.system(size: 34 * AppFontScale.factor))
+                            Text(active.prompt).font(.system(size: 20 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                        }
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
+                            ForEach(active.choices, id: \.self) { choice in
+                                Button {
+                                    guard unifiedReviewSelectedAnswer == nil else { return }
+                                    unifiedReviewSelectedAnswer = choice
+                                    recordUnifiedReviewAttempt(active, selected: choice)
+                                } label: {
+                                    Text(choice).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                        .foregroundStyle(unifiedReviewSelectedAnswer == choice ? .white : palette.ink)
+                                        .frame(maxWidth: .infinity, minHeight: 58).padding(.horizontal, 8)
+                                        .background(unifiedReviewSelectedAnswer == choice ? (choice == active.answer ? palette.green : palette.red) : palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                        .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
+                                }.buttonStyle(.plain).disabled(unifiedReviewSelectedAnswer != nil)
+                            }
+                        }
+                        if let picked = unifiedReviewSelectedAnswer {
+                            let correct = picked == active.answer
+                            let streak = decodedReviewMastery[active.id] ?? 0
+                            VStack(alignment: .leading, spacing: 7) {
+                                Text(correct ? (streak >= 3 ? "Отлично! Тема освоена 🎉" : "Верно! Ещё немного практики.") : "Ничего страшного — разберём вместе.")
+                                    .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(correct ? palette.green : palette.red)
+                                Text("Правильный ответ: \(active.answer)").font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
+                                Text(active.explanation).font(.system(size: 14 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                Text("История: \(decodedReviewAttempts.filter { $0.itemID == active.id }.count) попыток. Ошибка остаётся в истории.")
+                                    .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            }.padding(12).frame(maxWidth: .infinity, alignment: .leading).background((correct ? palette.green : palette.red).opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+                            HStack {
+                                Button { unifiedReviewSelectedAnswer = nil } label: {
+                                    Label("Попробовать ещё", systemImage: "arrow.clockwise").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                        .foregroundStyle(palette.purple).padding(.horizontal, 14).padding(.vertical, 10).background(palette.cardSurface, in: Capsule())
+                                }.buttonStyle(.plain)
+                                Spacer()
+                                Button { startNextUnifiedReview(after: active.id) } label: {
+                                    Label("Следующее", systemImage: "arrow.right").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                        .foregroundStyle(.white).padding(.horizontal, 16).padding(.vertical, 10).background(palette.purple, in: Capsule())
+                                }.buttonStyle(.plain)
+                            }
+                        }
+                    }.padding(18).cardStyle(palette)
+                } else {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(unifiedReviewItems.isEmpty ? "Пока ошибок нет" : "Все задания освоены! 🌟").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text(unifiedReviewItems.isEmpty ? "Когда ребёнок ошибётся в школьном предмете, ежедневном детективе или навыках жизни, задание появится здесь." : "Все сохранённые ошибки остаются в истории. Можно открыть любое задание ниже и потренироваться ещё раз.")
+                            .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        if let first = unifiedReviewItems.first {
+                            Button { startUnifiedReview(first) } label: {
+                                Label("Повторить задание", systemImage: "play.fill").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                    .foregroundStyle(.white).padding(.horizontal, 16).padding(.vertical, 11).background(palette.purple, in: Capsule())
+                            }.buttonStyle(.plain)
+                        }
+                    }.padding(18).cardStyle(palette)
+                }
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("Сохранённые ошибки", icon: "books.vertical.fill")
+                    Text("Три верных ответа подряд отмечают тему как освоенную, но не удаляют ошибку или историю попыток.")
+                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    if unifiedReviewItems.isEmpty {
+                        emptyHint("Ошибки появятся здесь автоматически после неверного ответа.")
+                    } else {
+                        ForEach(unifiedReviewItems) { item in
+                            HStack(alignment: .top, spacing: 10) {
+                                Text(item.symbol).font(.system(size: 25 * AppFontScale.factor))
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.prompt).font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                    Text(item.section).font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                                    Text("Попыток: \(decodedReviewAttempts.filter { $0.itemID == item.id }.count) · Верно подряд: \(decodedReviewMastery[item.id] ?? 0)/3")
+                                        .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle((decodedReviewMastery[item.id] ?? 0) >= 3 ? palette.green : palette.red)
+                                }
+                                Spacer(minLength: 0)
+                                Button { startUnifiedReview(item) } label: {
+                                    Image(systemName: "play.circle.fill").font(.system(size: 22 * AppFontScale.factor)).foregroundStyle(palette.purple)
+                                }.buttonStyle(.plain).help("Повторить это задание")
+                            }.padding(11).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                }.padding(16).cardStyle(palette)
+                if !decodedReviewAttempts.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        sectionTitle("История попыток", icon: "clock.arrow.circlepath")
+                        ForEach(Array(decodedReviewAttempts.reversed().prefix(30))) { attempt in
+                            HStack(alignment: .top, spacing: 9) {
+                                Image(systemName: attempt.isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill").foregroundStyle(attempt.isCorrect ? palette.green : palette.red)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(attempt.prompt).font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
+                                    Text("Ответ: \(attempt.selectedAnswer) · Правильно: \(attempt.correctAnswer)").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                }
+                                Spacer()
+                                Text(StatsStore.displayDate(attempt.date)).font(.system(size: 10 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                            }.padding(.vertical, 4)
+                        }
+                    }.padding(16).cardStyle(palette)
+                }
             }.padding(24)
         }
     }
