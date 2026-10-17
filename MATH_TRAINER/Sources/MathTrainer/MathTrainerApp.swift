@@ -7168,7 +7168,7 @@ struct ContentView: View {
     private func interactiveSlider(value: Binding<Double>, range: ClosedRange<Double>, step: Double, knobSize: CGFloat = 16) -> some View {
         GeometryReader { proxy in
             let usableWidth = max(1, proxy.size.width - knobSize)
-            let fraction = max(0, min(1, (value.wrappedValue - range.lowerBound) / (range.upperBound - range.lowerBound)))
+            let fraction = CGFloat(max(0, min(1, (value.wrappedValue - range.lowerBound) / (range.upperBound - range.lowerBound))))
             ZStack {
                 Capsule()
                     .fill(Color.black.opacity(0.9))
@@ -7185,7 +7185,8 @@ struct ContentView: View {
                 DragGesture(minimumDistance: 0)
                     .onChanged { drag in
                         let position = max(0, min(usableWidth, drag.location.x - knobSize / 2))
-                        let rawValue = range.lowerBound + (position / usableWidth) * (range.upperBound - range.lowerBound)
+                        let dragFraction = Double(position / usableWidth)
+                        let rawValue = range.lowerBound + dragFraction * (range.upperBound - range.lowerBound)
                         let steppedValue = (rawValue / step).rounded() * step
                         value.wrappedValue = max(range.lowerBound, min(range.upperBound, steppedValue))
                     }
