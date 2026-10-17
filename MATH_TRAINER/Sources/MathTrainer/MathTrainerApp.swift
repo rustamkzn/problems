@@ -2167,6 +2167,13 @@ private struct SubjectPerformance: Codable {
     var accuracy: Int { total == 0 ? 0 : Int((Double(correct) / Double(total) * 100).rounded()) }
 }
 
+private struct TopicPerformance: Codable {
+    var correct = 0
+    var incorrect = 0
+    var total: Int { correct + incorrect }
+    var accuracy: Int { total == 0 ? 0 : Int((Double(correct) / Double(total) * 100).rounded()) }
+}
+
 private struct MistakeRecord: Codable, Identifiable {
     let id: String
     let subject: String
@@ -3465,6 +3472,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.FontScale.Hints.v1") private var fontScaleHints = 1.0
     @AppStorage("MathTrainer.Difficulty.v1") private var difficultyLevel = 1
     @AppStorage("MathTrainer.SubjectPerformance.v1") private var subjectPerformanceStorage = ""
+    @AppStorage("MathTrainer.TopicPerformance.v1") private var topicPerformanceStorage = "{}"
     @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
     @AppStorage("MathTrainer.OlympiadWins.v1") private var olympiadWins = 0
     @AppStorage("MathTrainer.Mistakes.v1") private var mistakesStorage = ""
@@ -3517,6 +3525,8 @@ struct ContentView: View {
     @State private var olympiadSubject = StudySubject.math
     @State private var olympiadSubjectOrder: [StudySubject] = []
     @State private var expandedMistakeSubject: String? = nil
+    @State private var expandedAnalyticsSubject: String? = nil
+    @State private var expandedAnalyticsTopic: String? = nil
     @State private var reviewingMistakeID: String? = nil
     @State private var olympiadAnswer = ""
     @State private var olympiadFeedback = ""
@@ -3559,6 +3569,11 @@ struct ContentView: View {
         guard let data = subjectPerformanceStorage.data(using: .utf8), let value = try? JSONDecoder().decode([String: SubjectPerformance].self, from: data) else { return [:] }
         return value
     }
+    private var decodedTopicPerformance: [String: TopicPerformance] {
+        guard let data = topicPerformanceStorage.data(using: .utf8),
+              let value = try? JSONDecoder().decode([String: TopicPerformance].self, from: data) else { return [:] }
+        return value
+    }
     private var decodedActiveSeconds: [String: Int] {
         guard let data = activeSecondsStorage.data(using: .utf8), let value = try? JSONDecoder().decode([String: Int].self, from: data) else { return [:] }
         return value
@@ -3595,6 +3610,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.23", date: "17.10.2026", title: "Подробная аналитика знаний по предметам", changes: ["Экран успеваемости стал компактнее: подробности открываются только при выборе предмета.", "Добавлена сохраняемая статистика по темам: попытки, правильные и неправильные ответы, точность и короткие рекомендации.", "Для математики добавлена классификация основных тем; для остальных предметов — темы по распознаваемым типам заданий.", "Существующая статистика и ошибки для повторения сохранены; история версий дополнена новым выпуском."]),
             ReleaseNote(version: "1.2.22", date: "17.10.2026", title: "Исправлена работа всех ползунков", changes: ["Системные ползунки заменены на интерактивные регуляторы с прямым перетаскиванием, чтобы исключить перехват нажатий прозрачным элементом.", "Размер текста, яркость темы и контраст цветов обновляются сразу при перемещении бегунка.", "Сохранён компактный вид с чёрным бегунком и тонкой шкалой.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.21", date: "17.10.2026", title: "Выбор внешности наставника", changes: ["В настройках добавлен выбор из 20 вариантов персонажа для карточки «Мой наставник».", "Выбранный персонаж сразу отображается в карточке наставника и сохраняется после перезапуска приложения.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.20", date: "17.10.2026", title: "Исправлена работа ползунков размера текста", changes: ["Исправлено взаимодействие с ползунками размера текста: убран дополнительный контур поверх интерактивного элемента, который мог перехватывать нажатия.", "Сохранён единый чёрный дизайн ползунков без белого бегунка и его тени.", "Компактные настройки яркости темы и контраста сохранены.", "История предыдущих версий сохранена."]),
@@ -5596,79 +5612,160 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
-                    ForEach(StudySubject.allCases) { subject in
-                        let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
-                        let subjectMistakes = decodedMistakes.filter { $0.subject == subject.rawValue }
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 8) {
-                                Image(systemName: subject.icon).foregroundStyle(palette.purple).frame(width: 23)
-                                Text(subject.rawValue).font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
-                                Spacer()
-                                Text("\(result.accuracy)%").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(result.total == 0 ? palette.muted : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple)))
-                            }
-                            GeometryReader { geo in
-                                ZStack(alignment: .leading) {
-                                    Capsule().fill(palette.line.opacity(0.65))
-                                    Capsule().fill(result.total == 0 ? palette.line : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple))).frame(width: geo.size.width * CGFloat(result.accuracy) / 100)
+                        ForEach(StudySubject.allCases) { subject in
+                            let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
+                            let isExpanded = expandedAnalyticsSubject == subject.rawValue
+                            let topicRows = decodedTopicPerformance
+                                .filter { $0.key.hasPrefix(subject.rawValue + "::") }
+                                .map { (String($0.key.dropFirst(subject.rawValue.count + 2)), $0.value) }
+                                .sorted { lhs, rhs in
+                                    if lhs.1.accuracy != rhs.1.accuracy { return lhs.1.accuracy < rhs.1.accuracy }
+                                    return lhs.1.total > rhs.1.total
                                 }
-                            }.frame(height: 8)
-                            Text("Верно: \(result.correct) · Ошибок: \(result.incorrect) · Всего: \(result.total)")
-                                .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-
                             Button {
-                                expandedMistakeSubject = expandedMistakeSubject == subject.rawValue ? nil : subject.rawValue
-                            } label: {
-                                HStack(spacing: 7) {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                    Text("Ошибки для повторения: \(subjectMistakes.count)")
-                                    Spacer()
-                                    Image(systemName: expandedMistakeSubject == subject.rawValue ? "chevron.up" : "chevron.down")
+                                withAnimation(.easeInOut(duration: 0.18)) {
+                                    expandedAnalyticsSubject = isExpanded ? nil : subject.rawValue
+                                    expandedAnalyticsTopic = nil
+                                    expandedMistakeSubject = nil
                                 }
-                                .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                                .foregroundStyle(subjectMistakes.isEmpty ? palette.muted : palette.red)
-                                .padding(10)
-                                .background((subjectMistakes.isEmpty ? palette.line : palette.red).opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
-                            }.buttonStyle(.plain)
-                            if expandedMistakeSubject == subject.rawValue {
-                                if subjectMistakes.isEmpty {
-                                    Text("Пока нет ошибок для повторения по этому предмету. Ошибочные ответы будут сохраняться здесь автоматически.")
-                                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
-                                        .foregroundStyle(palette.muted)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                        .padding(10)
-                                } else {
-                                    ForEach(subjectMistakes) { mistake in
-                                        VStack(alignment: .leading, spacing: 7) {
-                                            Text(mistake.question.isEmpty ? "Задание по иллюстрации" : mistake.question)
-                                                .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                                .fixedSize(horizontal: false, vertical: true)
-                                            Text("Твой ответ: \(mistake.selectedAnswer)")
-                                                .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
-                                            Text("Правильный ответ: \(mistake.correctAnswer)")
-                                                .font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
-                                            Text("Как решить: \(mistake.explanation)")
-                                                .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                                                .fixedSize(horizontal: false, vertical: true)
-                                            Button {
-                                                startMistakeReview(mistake)
-                                            } label: {
-                                                Label("Повторить задание с вариантами", systemImage: "arrow.clockwise.circle.fill")
-                                                    .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                                                    .foregroundStyle(.white)
-                                                    .frame(maxWidth: .infinity)
-                                                    .padding(.vertical, 10)
-                                                    .background(palette.purple, in: Capsule())
-                                            }.buttonStyle(.plain)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 7) {
+                                        Image(systemName: subject.icon).foregroundStyle(palette.purple).frame(width: 20)
+                                        Text(subject.rawValue)
+                                            .font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                            .foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.8)
+                                        Spacer(minLength: 2)
+                                        if result.total > 0 {
+                                            Text("\(result.accuracy)%")
+                                                .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                                .foregroundStyle(result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple))
+                                        } else {
+                                            Text("—").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.muted)
                                         }
-                                        .padding(12)
-                                        .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
-                                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.red.opacity(0.4), lineWidth: 1))
+                                    }
+                                    GeometryReader { geo in
+                                        ZStack(alignment: .leading) {
+                                            Capsule().fill(palette.line.opacity(0.65))
+                                            Capsule().fill(result.total == 0 ? palette.line : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple)))
+                                                .frame(width: geo.size.width * CGFloat(result.accuracy) / 100)
+                                        }
+                                    }.frame(height: 5)
+                                    HStack {
+                                        Text(result.total == 0 ? "Пока нет данных" : "\(result.total) попыток")
+                                            .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                        Spacer()
+                                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                            .font(.system(size: 10, weight: .bold)).foregroundStyle(palette.muted)
                                     }
                                 }
+                                .padding(10)
+                                .background(palette.cardSurface.opacity(0.78), in: RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(isExpanded ? palette.purple.opacity(0.55) : palette.line.opacity(0.55), lineWidth: 1))
+                                .contentShape(RoundedRectangle(cornerRadius: 12))
+                            }.buttonStyle(.plain)
+
+                            if isExpanded {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    HStack(spacing: 8) {
+                                        Label("\(result.correct) верно", systemImage: "checkmark.circle.fill").foregroundStyle(palette.green)
+                                        Spacer()
+                                        Label("\(result.incorrect) ошибок", systemImage: "xmark.circle.fill").foregroundStyle(palette.red)
+                                    }.font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                                    Divider().overlay(palette.line)
+                                    Text("Темы").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                    if topicRows.isEmpty {
+                                        Text("Пока недостаточно данных по отдельным темам. Продолжай решать задания — аналитика появится автоматически.")
+                                            .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                            .foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                                    } else {
+                                        ForEach(topicRows, id: \.0) { row in
+                                            let topic = row.0
+                                            let stats = row.1
+                                            let topicID = subject.rawValue + "::" + topic
+                                            Button {
+                                                withAnimation(.easeInOut(duration: 0.16)) {
+                                                    expandedAnalyticsTopic = expandedAnalyticsTopic == topicID ? nil : topicID
+                                                }
+                                            } label: {
+                                                VStack(alignment: .leading, spacing: 5) {
+                                                    HStack(spacing: 6) {
+                                                        Image(systemName: stats.accuracy < 60 ? "exclamationmark.circle.fill" : (stats.accuracy < 80 ? "arrow.up.right.circle.fill" : "checkmark.circle.fill"))
+                                                            .foregroundStyle(stats.accuracy < 60 ? palette.red : (stats.accuracy < 80 ? Color.orange : palette.green))
+                                                        Text(topic).font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
+                                                        Spacer(minLength: 4)
+                                                        Text("\(stats.accuracy)%").font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                                        Image(systemName: expandedAnalyticsTopic == topicID ? "chevron.up" : "chevron.down")
+                                                            .font(.system(size: 9, weight: .bold)).foregroundStyle(palette.muted)
+                                                    }
+                                                    if expandedAnalyticsTopic == topicID {
+                                                        Text("\(stats.correct) верно из \(stats.total) попыток · ошибок: \(stats.incorrect)")
+                                                            .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                                        Text(stats.accuracy < 60 ? "Рекомендация: повтори эту тему небольшими подходами." : (stats.accuracy < 80 ? "Рекомендация: ещё немного практики поможет закрепить тему." : "Хороший результат — продолжай повторять тему время от времени."))
+                                                            .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                                            .fixedSize(horizontal: false, vertical: true)
+                                                    }
+                                                }
+                                                .padding(8)
+                                                .background(palette.canvasMiddle.opacity(0.45), in: RoundedRectangle(cornerRadius: 9))
+                                            }.buttonStyle(.plain)
+                                        }
+                                    }
+                                    let subjectMistakes = decodedMistakes.filter { $0.subject == subject.rawValue }
+                                    Button {
+                                        expandedMistakeSubject = expandedMistakeSubject == subject.rawValue ? nil : subject.rawValue
+                                    } label: {
+                                        HStack(spacing: 7) {
+                                            Image(systemName: "exclamationmark.triangle.fill")
+                                            Text("Ошибки для повторения: \(subjectMistakes.count)")
+                                            Spacer()
+                                            Image(systemName: expandedMistakeSubject == subject.rawValue ? "chevron.up" : "chevron.down")
+                                        }
+                                        .font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                        .foregroundStyle(subjectMistakes.isEmpty ? palette.muted : palette.red)
+                                        .padding(9)
+                                        .background((subjectMistakes.isEmpty ? palette.line : palette.red).opacity(0.10), in: RoundedRectangle(cornerRadius: 9))
+                                    }.buttonStyle(.plain)
+                                    if expandedMistakeSubject == subject.rawValue {
+                                        if subjectMistakes.isEmpty {
+                                            Text("Пока нет ошибок для повторения. Ошибочные ответы будут сохраняться здесь автоматически.")
+                                                .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                                .foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                                        } else {
+                                            ForEach(subjectMistakes) { mistake in
+                                                VStack(alignment: .leading, spacing: 6) {
+                                                    Text(mistake.question.isEmpty ? "Задание по иллюстрации" : mistake.question)
+                                                        .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                                        .fixedSize(horizontal: false, vertical: true)
+                                                    Text("Твой ответ: \(mistake.selectedAnswer)")
+                                                        .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
+                                                    Text("Правильный ответ: \(mistake.correctAnswer)")
+                                                        .font(.system(size: 10 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
+                                                    Text("Как решить: \(mistake.explanation)")
+                                                        .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                                                        .fixedSize(horizontal: false, vertical: true)
+                                                    Button { startMistakeReview(mistake) } label: {
+                                                        Label("Повторить задание", systemImage: "arrow.clockwise.circle.fill")
+                                                            .font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                                            .foregroundStyle(.white).frame(maxWidth: .infinity).padding(.vertical, 9)
+                                                            .background(palette.purple, in: Capsule())
+                                                    }.buttonStyle(.plain)
+                                                }
+                                                .padding(10)
+                                                .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11))
+                                                .overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.red.opacity(0.35), lineWidth: 1))
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(11)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(palette.canvasMiddle.opacity(0.30), in: RoundedRectangle(cornerRadius: 12))
                             }
-                        }.padding(7).background(palette.cardSurface.opacity(0.72), in: RoundedRectangle(cornerRadius: 12))
+                        }
                     }
-                    }
+                    Text("Точность рассчитывается по сохранённым ответам. Темы появляются по мере накопления данных; если задание нельзя надёжно отнести к теме, оно учитывается в разделе «Другие задания».")
+                        .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                     Text("Ориентир: меньше 60% — предмет стоит повторить, 60–79% — нужна практика, 80% и выше — хороший уровень.")
                         .font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                 }.padding(18).cardStyle(palette)
@@ -5937,7 +6034,7 @@ struct ContentView: View {
         let correct = normalized == correctAnswer
         _ = store.record(correct: correct, grantDiamond: false)
         markMentorActivity()
-        recordSubjectAnswer(subject: olympiadSubject, correct: correct)
+        recordSubjectAnswer(subject: olympiadSubject, correct: correct, question: olympiadProblem.text)
         _ = unlockEligibleAchievements()
         let salute = correct ? countCorrectTowardMilestone() : false
         if correct {
@@ -6939,12 +7036,101 @@ struct ContentView: View {
         return false
     }
 
-    private func recordSubjectAnswer(subject: StudySubject, correct: Bool) {
+    private func topicName(for subject: StudySubject, question: String) -> String {
+        let text = question.lowercased()
+        func has(_ terms: [String]) -> Bool { terms.contains { text.contains($0) } }
+        switch subject {
+        case .math:
+            if has(["таблица умножения", "×", "умнож"]) { return "Умножение" }
+            if has(["делен", "÷", "остаток от деления"]) { return "Деление" }
+            if has(["вычитан", "−", "минус", "убрали", "осталось"]) { return "Вычитание" }
+            if has(["сравни", "больше", "меньше", ">, <", "на сколько больше", "на сколько меньше"]) { return "Сравнение чисел" }
+            if has(["час", "минут", "время", "который час", "длится"]) { return "Время и часы" }
+            if has(["рубл", "копе", "скидк", "покуп", "стоим", "цен", "деньг", "сдач"]) { return "Деньги и покупки" }
+            if has(["км", "метр", "сантиметр", "килограмм", "грамм", "литр", "сантиметр", "длина", "масса", "объём"]) { return "Величины и измерения" }
+            if has(["задач", "всего", "вместе", "кажд", "поезд", "пицц", "путь", "расстояни"]) { return "Текстовые задачи" }
+            if has([" + ", "прибав", "сложен", "плюс"]) { return "Сложение" }
+            if has(["по частям", "десятки", "единицы"]) { return "Вычитание по частям" }
+            return "Другие задания"
+        case .russian, .orthography:
+            if has(["глагол", "что делать", "что сделать"]) { return "Глаголы" }
+            if has(["существительн", "кто? что?", "род", "падеж", "склонен"]) { return "Имя существительное и падежи" }
+            if has(["прилагательн", "какой?", "какая?", "какое?", "какие?"]) { return "Имена прилагательные" }
+            if has(["ударен", "безударн", "проверочн", "орфограмм", "правописан", "букв"]) { return "Правописание" }
+            if has(["слог", "перенос", "звук", "гласн", "согласн"]) { return "Звуки и слоги" }
+            if has(["предложен", "подлежа", "сказуем", "текст"]) { return "Предложения и текст" }
+            return "Другие задания"
+        case .english:
+            if has(["to be", "am ", " is ", " are ", "was ", "were "]) { return "Глагол to be" }
+            if has(["переведи", "как переводится", "значит", "слово", "перевод"]) { return "Слова и перевод" }
+            if has(["букв", "гласн", "согласн", "звук"]) { return "Буквы и звуки" }
+            if has(["множествен", "предложен", "местоимен", "вопрос"]) { return "Грамматика" }
+            return "Другие задания"
+        case .tatar:
+            if has(["әни", "әти", "апа", "абый", "эне", "сеңел", "гаилә"]) { return "Семья и близкие" }
+            if has(["исәнме", "рәхмәт", "зинһар", "сау бул"]) { return "Приветствия и вежливость" }
+            if has(["ничек", "нәрсә", "кем", "кайда", "күпме"]) { return "Вопросительные слова" }
+            if has(["перев", "как читается", "значит"]) { return "Перевод слов" }
+            return "Другие задания"
+        case .geometry:
+            if has(["треуголь", "квадрат", "прямоуголь", "круг", "трапец", "фигур"]) { return "Плоские фигуры" }
+            if has(["куб", "шар", "цилиндр", "конус", "гран", "ребр", "вершин"]) { return "Объёмные фигуры" }
+            if has(["отрез", "луч", "прям", "угол", "параллел", "перпендикуляр"]) { return "Линии и углы" }
+            if has(["длин", "линейк", "сантиметр", "периметр"]) { return "Измерение длины" }
+            return "Другие задания"
+        case .chemistry:
+            if has(["fe", "au", "na", "o₂", "h₂", "символ", "обозначается", "элемент"]) { return "Химические элементы и символы" }
+            if has(["колб", "мензур", "пипет", "чашк петри", "сосуд", "лаборатор"]) { return "Лабораторная посуда" }
+            if has(["формул", "атом", "молекул"]) { return "Формулы и вещества" }
+            return "Другие задания"
+        case .pdd:
+            if has(["светофор", "сигнал", "регулировщик"]) { return "Светофор и сигналы" }
+            if has(["знак", "переход", "пешеход", "тротуар"]) { return "Дорожные знаки и пешеходы" }
+            if has(["велосипед", "автобус", "машин", "дорог"]) { return "Безопасность на дороге" }
+            return "Другие задания"
+        case .informatics:
+            if has(["клавиатур", "мыш", "монитор", "принтер", "устройств"]) { return "Устройства компьютера" }
+            if has(["парол", "личн", "интернет", "безопас"]) { return "Безопасность в интернете" }
+            if has(["алгоритм", "команд", "последователь"]) { return "Алгоритмы" }
+            return "Другие задания"
+        case .world, .biology:
+            if has(["растен", "лист", "корен", "цвет", "фотосинтез"]) { return "Растения" }
+            if has(["животн", "птиц", "рыб", "насеком", "звер"]) { return "Животные" }
+            if has(["человек", "орган", "здоров", "питан"]) { return "Человек и здоровье" }
+            if has(["вода", "воздух", "почв", "природ", "планет"]) { return "Природа вокруг нас" }
+            return "Другие задания"
+        case .geography:
+            if has(["материк", "океан", "море", "река", "озер"]) { return "Воды и материки" }
+            if has(["столиц", "стран", "город", "росси", "татарстан"]) { return "Страны и города" }
+            if has(["карт", "компас", "сторон света", "север", "юг", "восток", "запад"]) { return "Карта и стороны света" }
+            return "Другие задания"
+        case .logic:
+            if has(["последователь", "продолжи ряд", "закономер", "числовой ряд"]) { return "Закономерности" }
+            if has(["лишн", "не подходит", "найди пару"]) { return "Поиск закономерностей" }
+            if has(["если", "услови", "логическ"]) { return "Логические задачи" }
+            return "Другие задания"
+        case .art:
+            if has(["цвет", "основн", "тёпл", "холодн", "палитр"]) { return "Цвета и палитра" }
+            if has(["композиц", "рисунк", "материал", "карандаш", "краск"]) { return "Техники рисования" }
+            return "Другие задания"
+        }
+    }
+
+    private func recordSubjectAnswer(subject: StudySubject, correct: Bool, question: String? = nil) {
         var all = decodedSubjectPerformance
         var item = all[subject.rawValue] ?? SubjectPerformance()
         if correct { item.correct += 1 } else { item.incorrect += 1 }
         all[subject.rawValue] = item
         if let data = try? JSONEncoder().encode(all) { subjectPerformanceStorage = String(decoding: data, as: UTF8.self) }
+        if let question {
+            let topic = topicName(for: subject, question: question)
+            let key = subject.rawValue + "::" + topic
+            var topics = decodedTopicPerformance
+            var topicItem = topics[key] ?? TopicPerformance()
+            if correct { topicItem.correct += 1 } else { topicItem.incorrect += 1 }
+            topics[key] = topicItem
+            if let data = try? JSONEncoder().encode(topics) { topicPerformanceStorage = String(decoding: data, as: UTF8.self) }
+        }
         guard selected == .task && subject == selectedSubject else { return }
         var history = (try? JSONDecoder().decode([String: [Bool]].self, from: Data(adaptiveDifficultyHistoryStorage.utf8))) ?? [:]
         var outcomes = history[subject.rawValue] ?? []
@@ -7229,7 +7415,7 @@ struct ContentView: View {
         let normalizedAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let isCorrect = normalizedAnswer == problem.answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let rewards = store.record(correct: isCorrect)
-        recordSubjectAnswer(subject: selectedSubject, correct: isCorrect)
+        recordSubjectAnswer(subject: selectedSubject, correct: isCorrect, question: problem.text)
         let newAchievements = unlockEligibleAchievements()
         let salute = isCorrect ? countCorrectTowardMilestone() : false
 
