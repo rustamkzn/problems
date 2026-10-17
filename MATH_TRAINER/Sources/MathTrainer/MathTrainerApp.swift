@@ -3595,6 +3595,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.22", date: "17.10.2026", title: "Исправлена работа всех ползунков", changes: ["Системные ползунки заменены на интерактивные регуляторы с прямым перетаскиванием, чтобы исключить перехват нажатий прозрачным элементом.", "Размер текста, яркость темы и контраст цветов обновляются сразу при перемещении бегунка.", "Сохранён компактный вид с чёрным бегунком и тонкой шкалой.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.21", date: "17.10.2026", title: "Выбор внешности наставника", changes: ["В настройках добавлен выбор из 20 вариантов персонажа для карточки «Мой наставник».", "Выбранный персонаж сразу отображается в карточке наставника и сохраняется после перезапуска приложения.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.20", date: "17.10.2026", title: "Исправлена работа ползунков размера текста", changes: ["Исправлено взаимодействие с ползунками размера текста: убран дополнительный контур поверх интерактивного элемента, который мог перехватывать нажатия.", "Сохранён единый чёрный дизайн ползунков без белого бегунка и его тени.", "Компактные настройки яркости темы и контраста сохранены.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.17", date: "17.10.2026", title: "Компактные настройки, наставник и статистика", changes: ["Настройки шрифта компактнее: ползунок занимает примерно половину строки, пример текста расположен рядом.", "Размеры текста в «Версиях и изменениях» реагируют на общий масштаб и настройки основного текста; заголовки и подписи используют соответствующие регуляторы.", "Сова в карточке «Мой наставник» увеличена в 1,5 раза.", "В «Статистике» удалены повторяющаяся карточка наставника и дневная история, доступные в отдельном разделе наставника; подробная статистика по предметам и ошибки для повторения сохранены.", "История предыдущих версий сохранена."]),
@@ -6580,26 +6581,8 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Настрой яркость интерфейса. Значение сохраняется между запусками.").font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2).foregroundStyle(palette.muted)
-                        Slider(value: $themeBrightness, in: -0.25...0.15, step: 0.01)
-                            .tint(.black)
-                            .controlSize(.small).frame(minHeight: 20).padding(.horizontal, 3)
-                            .opacity(0.01)
-                            .overlay {
-                                GeometryReader { proxy in
-                                    let normalizedBrightness = max(0.0, min(1.0, (themeBrightness + 0.25) / 0.40))
-                                    let availableWidth = max(0.0, proxy.size.width - 24.0)
-                                    let knobPosition = 12.0 + normalizedBrightness * availableWidth
-                                    Capsule().fill(Color.black.opacity(0.9)).frame(height: 3).frame(maxHeight: .infinity)
-                                    Circle()
-                                        .fill(Color.black)
-                                        .frame(width: 24, height: 24)
-                                        
-                                        .position(x: knobPosition, y: proxy.size.height / 2)
-                                }
-                                .allowsHitTesting(false)
-                            }
-                            
-                            .overlay(Capsule().stroke(Color.black, lineWidth: 2))
+                        interactiveSlider(value: $themeBrightness, range: -0.25...0.15, step: 0.01, knobSize: 18)
+                            .padding(.horizontal, 3)
                         HStack { Text("Темнее").foregroundStyle(palette.ink); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.30, green: 0.08, blue: 0.78)); Spacer(); Text("Светлее").foregroundStyle(palette.ink) }.font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded))
                     }.padding(5)
                     .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 10))
@@ -6609,27 +6592,8 @@ struct ContentView: View {
                             .font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Передвинь ползунок — внешний вид изменится сразу.")
                             .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                        Slider(value: $screenContrast, in: 0.75...1.55, step: 0.05)
-                            .tint(.black)
-                            .controlSize(.small).frame(minHeight: 20)
-                            .opacity(0.01)
+                        interactiveSlider(value: $screenContrast, range: 0.75...1.55, step: 0.05, knobSize: 18)
                             .padding(.horizontal, 5)
-                            .overlay {
-                                GeometryReader { proxy in
-                                    let normalizedContrast = max(0.0, min(1.0, (screenContrast - 0.75) / 0.80))
-                                    let availableWidth = max(0.0, proxy.size.width - 24.0)
-                                    let knobPosition = 12.0 + normalizedContrast * availableWidth
-                                    Capsule().fill(Color.black.opacity(0.9)).frame(height: 3).frame(maxHeight: .infinity)
-                                    Circle()
-                                        .fill(Color.black)
-                                        .frame(width: 24, height: 24)
-                                        
-                                        .position(x: knobPosition, y: proxy.size.height / 2)
-                                }
-                                .allowsHitTesting(false)
-                            }
-                            
-                            .overlay(Capsule().stroke(Color.black, lineWidth: 2))
                         HStack {
                             Text("75% · мягче").foregroundStyle(palette.muted)
                             Spacer()
@@ -7201,6 +7165,38 @@ struct ContentView: View {
         .cardStyle(palette)
     }
 
+    private func interactiveSlider(value: Binding<Double>, range: ClosedRange<Double>, step: Double, knobSize: CGFloat = 16) -> some View {
+        GeometryReader { proxy in
+            let usableWidth = max(1, proxy.size.width - knobSize)
+            let fraction = max(0, min(1, (value.wrappedValue - range.lowerBound) / (range.upperBound - range.lowerBound)))
+            ZStack {
+                Capsule()
+                    .fill(Color.black.opacity(0.9))
+                    .frame(height: 3)
+                Circle()
+                    .fill(Color.black)
+                    .frame(width: knobSize, height: knobSize)
+                    .overlay(Circle().stroke(Color.white.opacity(0.95), lineWidth: 1))
+                    .position(x: knobSize / 2 + fraction * usableWidth, y: proxy.size.height / 2)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { drag in
+                        let position = max(0, min(usableWidth, drag.location.x - knobSize / 2))
+                        let rawValue = range.lowerBound + (position / usableWidth) * (range.upperBound - range.lowerBound)
+                        let steppedValue = (rawValue / step).rounded() * step
+                        value.wrappedValue = max(range.lowerBound, min(range.upperBound, steppedValue))
+                    }
+            )
+        }
+        .frame(height: knobSize + 8)
+        .accessibilityElement()
+        .accessibilityLabel("Регулятор")
+        .accessibilityValue("\(Int((value.wrappedValue * 100).rounded())) процентов")
+    }
+
     private func fontScaleControl(_ title: String, scale: Binding<Double>, example: String, baseSize: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -7209,22 +7205,8 @@ struct ContentView: View {
                 Text("\(Int((scale.wrappedValue * 100).rounded()))%").font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple).monospacedDigit()
             }
             HStack(spacing: 10) {
-                Slider(value: scale, in: 0.8...2.0, step: 0.1)
-                    .tint(.black)
-                    .controlSize(.small).frame(maxWidth: 320, minHeight: 20).padding(.horizontal, 3)
-                    .opacity(0.01)
-                    .overlay {
-                        GeometryReader { proxy in
-                            let normalized = max(0.0, min(1.0, (scale.wrappedValue - 0.8) / 1.2))
-                            let knobPosition = 6.0 + normalized * max(0.0, proxy.size.width - 12.0)
-                            Capsule().fill(Color.black.opacity(0.9)).frame(height: 3).frame(maxHeight: .infinity)
-                            Circle().fill(Color.black).frame(width: 12, height: 12)
-                                
-                                .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
-                                .position(x: knobPosition, y: proxy.size.height / 2)
-                        }.allowsHitTesting(false)
-                    }
-                    
+                interactiveSlider(value: scale, range: 0.8...2.0, step: 0.1, knobSize: 14)
+                    .frame(width: 220, height: 22)
                 Text(example).font(.system(size: baseSize * scale.wrappedValue * AppFontScale.factor * fontScaleBody, weight: .semibold, design: .rounded))
                     .foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7).frame(maxWidth: .infinity, alignment: .leading)
             }
