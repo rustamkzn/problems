@@ -3610,6 +3610,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.26", date: "17.10.2026", title: "Исправлена компоновка статистики", changes: ["Календарь занятий размещён слева, а активное время — справа, в одном общем блоке.", "Карточки успеваемости отображаются в два столбца; при раскрытии подробностей сетка временно перестраивается в один столбец, чтобы детали находились ниже карточки и не ломали соседние элементы.", "Все сохранённые показатели и история версий сохранены."]),
             ReleaseNote(version: "1.2.25", date: "17.10.2026", title: "Два столбца успеваемости и общий блок занятий", changes: ["Карточки успеваемости по предметам расположены в два столбца; подробная аналитика и сохранённые ошибки доступны при раскрытии карточки.", "Активное время занятий и календарь объединены в один визуальный блок статистики.", "Накопленные показатели и полная история предыдущих версий сохранены."]),
             ReleaseNote(version: "1.2.24", date: "17.10.2026", title: "Исправлена подробная статистика и перенесён календарь", changes: ["Карточки предметов переведены в вертикальный список, поэтому раскрытая аналитика занимает всю ширину и видна сразу под выбранным предметом.", "В подробностях предмета отображаются попытки, точность, темы и рекомендации; сохранённые ошибки дополнительно группируются по темам.", "Календарь занятий перенесён из «Моего наставника» в раздел «Статистика». История версий и ранее накопленные показатели сохранены."]),
             ReleaseNote(version: "1.2.23", date: "17.10.2026", title: "Подробная аналитика знаний по предметам", changes: ["Экран успеваемости стал компактнее: подробности открываются только при выборе предмета.", "Добавлена сохраняемая статистика по темам: попытки, правильные и неправильные ответы, точность и короткие рекомендации.", "Для математики добавлена классификация основных тем; для остальных предметов — темы по распознаваемым типам заданий.", "Существующая статистика и ошибки для повторения сохранены; история версий дополнена новым выпуском."]),
@@ -5600,20 +5601,27 @@ struct ContentView: View {
                     largeStat("Алмазы", value: "💎 \(store.stats.diamonds)", icon: "sparkles", color: palette.purple)
                     largeStat("Лучшая серия", value: "\(store.stats.bestStreak)", icon: "flame.fill", color: Color(red: 0.94, green: 0.52, blue: 0.24))
                 }
-                VStack(alignment: .leading, spacing: 12) {
-                    sectionTitle("Активное время занятий", icon: "clock.fill")
-                    HStack(spacing: 12) {
+                HStack(alignment: .top, spacing: 18) {
+                    mentorCalendar
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 12) {
+                        sectionTitle("Активное время занятий", icon: "clock.fill")
                         miniStat("Сегодня", value: formattedTime(todayActiveSeconds), icon: "calendar", color: palette.purple)
                         miniStat("Текущая сессия", value: formattedTime(sessionSeconds), icon: "timer", color: palette.green)
                         miniStat("Всего", value: formattedTime(lifetimeActiveSeconds), icon: "hourglass", color: palette.purple)
+                        Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
+                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
+                            .foregroundStyle(palette.muted)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-                    mentorCalendar
-                }.padding(18).cardStyle(palette)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
+                    LazyVGrid(columns: expandedAnalyticsSubject == nil ? [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)] : [GridItem(.flexible())], alignment: .leading, spacing: 10) {
                         ForEach(StudySubject.allCases) { subject in
                             let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
                             let isExpanded = expandedAnalyticsSubject == subject.rawValue
