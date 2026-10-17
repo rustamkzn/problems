@@ -3610,6 +3610,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.25", date: "17.10.2026", title: "Два столбца успеваемости и общий блок занятий", changes: ["Карточки успеваемости по предметам расположены в два столбца; подробная аналитика и сохранённые ошибки доступны при раскрытии карточки.", "Активное время занятий и календарь объединены в один визуальный блок статистики.", "Накопленные показатели и полная история предыдущих версий сохранены."]),
             ReleaseNote(version: "1.2.24", date: "17.10.2026", title: "Исправлена подробная статистика и перенесён календарь", changes: ["Карточки предметов переведены в вертикальный список, поэтому раскрытая аналитика занимает всю ширину и видна сразу под выбранным предметом.", "В подробностях предмета отображаются попытки, точность, темы и рекомендации; сохранённые ошибки дополнительно группируются по темам.", "Календарь занятий перенесён из «Моего наставника» в раздел «Статистика». История версий и ранее накопленные показатели сохранены."]),
             ReleaseNote(version: "1.2.23", date: "17.10.2026", title: "Подробная аналитика знаний по предметам", changes: ["Экран успеваемости стал компактнее: подробности открываются только при выборе предмета.", "Добавлена сохраняемая статистика по темам: попытки, правильные и неправильные ответы, точность и короткие рекомендации.", "Для математики добавлена классификация основных тем; для остальных предметов — темы по распознаваемым типам заданий.", "Существующая статистика и ошибки для повторения сохранены; история версий дополнена новым выпуском."]),
             ReleaseNote(version: "1.2.22", date: "17.10.2026", title: "Исправлена работа всех ползунков", changes: ["Системные ползунки заменены на интерактивные регуляторы с прямым перетаскиванием, чтобы исключить перехват нажатий прозрачным элементом.", "Размер текста, яркость темы и контраст цветов обновляются сразу при перемещении бегунка.", "Сохранён компактный вид с чёрным бегунком и тонкой шкалой.", "История предыдущих версий сохранена."]),
@@ -5584,7 +5585,7 @@ struct ContentView: View {
                 Label("Пропуск", systemImage: "circle.fill").foregroundStyle(palette.red)
             }.font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
             Text("Зелёный — приложение зафиксировало занятие в одном из режимов. Красный — прошедший день без записанной активности. Дни до установки версии с календарём могут быть отмечены только по сохранившейся статистике.").font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-        }.padding(17).frame(maxWidth: 500, alignment: .leading).cardStyle(palette)
+        }.padding(.top, 4).frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var statisticsPage: some View {
@@ -5608,11 +5609,11 @@ struct ContentView: View {
                     }
                     Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
                         .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
+                    mentorCalendar
                 }.padding(18).cardStyle(palette)
-                mentorCalendar
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
-                    LazyVStack(alignment: .leading, spacing: 10) {
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
                         ForEach(StudySubject.allCases) { subject in
                             let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
                             let isExpanded = expandedAnalyticsSubject == subject.rawValue
