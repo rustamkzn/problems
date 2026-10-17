@@ -6532,7 +6532,7 @@ struct ContentView: View {
                         ("🦸", "Супергерой"), ("🌳", "Дух природы"), ("⭐", "Звёздочка"), ("☁️", "Облачко")
                     ]
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: 5), spacing: 8) {
-                        ForEach(mentorOptions, id: \\.0) { option in
+                        ForEach(mentorOptions, id: \.0) { option in
                             Button { mentorAvatarEmoji = option.0 } label: {
                                 VStack(spacing: 4) {
                                     Text(option.0).font(.system(size: 27 * AppFontScale.factor))
