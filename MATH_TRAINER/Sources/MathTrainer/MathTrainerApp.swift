@@ -3594,6 +3594,31 @@ struct ContentView: View {
         }
         return total
     }
+    private var monthActiveSeconds: Int {
+        let calendar = Calendar.current
+        guard let interval = calendar.dateInterval(of: .month, for: Date()) else { return todayActiveSeconds }
+        var total = 0
+        var day = interval.start
+        while day < interval.end {
+            total += decodedActiveSeconds[StatsStore.dateKey(day)] ?? 0
+            day = calendar.date(byAdding: .day, value: 1, to: day) ?? interval.end
+        }
+        return total
+    }
+    private var averageActiveSecondsPerDay: Int {
+        let calendar = Calendar.current
+        guard let interval = calendar.dateInterval(of: .month, for: Date()) else { return todayActiveSeconds }
+        var total = 0
+        var activeDays = 0
+        var day = interval.start
+        while day < min(interval.end, calendar.startOfDay(for: Date()).addingTimeInterval(86400)) {
+            let seconds = decodedActiveSeconds[StatsStore.dateKey(day)] ?? 0
+            total += seconds
+            if seconds > 0 { activeDays += 1 }
+            day = calendar.date(byAdding: .day, value: 1, to: day) ?? interval.end
+        }
+        return activeDays == 0 ? 0 : total / activeDays
+    }
     private var lifetimeActiveSeconds: Int { decodedActiveSeconds.values.reduce(0, +) }
     private var unlockedAchievementIDs: Set<String> { Set(unlockedAchievementStorage.split(separator: ",").map(String.init)) }
     private var unlockedCollectibleIDs: Set<String> { Set(randomCollectiblesStorage.split(separator: ",").map(String.init)) }
@@ -3621,6 +3646,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.29", date: "17.10.2026", title: "Подробная статистика по предметам без раскрытия", changes: ["Вернул подробную статистику по всем предметам: точность, попытки, правильные и ошибочные ответы, а также результаты по темам.", "Карточки предметов всегда показывают детали и размещены в два столбца; раскрывать карточки не нужно.", "В активное время добавлены показатели «За месяц» и «Среднее за день»; все шесть показателей расположены в два столбца.", "Сохранённые результаты, ошибки и история предыдущих версий не удалены."]),
             ReleaseNote(version: "1.2.28", date: "17.10.2026", title: "Компактный календарь и два столбца времени", changes: ["Ширина календаря дополнительно уменьшена на 20%: с 440 до 352 пунктов.", "Четыре показателя активного времени теперь размещены в два столбца.", "Удаление подробной статистики по предметам и показатель времени за неделю сохранены. История предыдущих версий не удалена."]),
             ReleaseNote(version: "1.2.27", date: "17.10.2026", title: "Упрощена статистика и добавлено время за неделю", changes: ["Полностью удалён блок подробной статистики по предметам, который нарушал расположение элементов; общие показатели и сохранённые данные не затронуты.", "Ширина календаря уменьшена примерно на 20% относительно прежней равной компоновки, активное время занимает больше места справа.", "В блок активного времени добавлен показатель «За неделю». История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.26", date: "17.10.2026", title: "Исправлена компоновка статистики", changes: ["Календарь занятий размещён слева, а активное время — справа, в одном общем блоке.", "Карточки успеваемости отображаются в два столбца; при раскрытии подробностей сетка временно перестраивается в один столбец, чтобы детали находились ниже карточки и не ломали соседние элементы.", "Все сохранённые показатели и история версий сохранены."]),
@@ -5622,6 +5648,8 @@ struct ContentView: View {
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
                             miniStat("Сегодня", value: formattedTime(todayActiveSeconds), icon: "calendar", color: palette.purple)
                             miniStat("За неделю", value: formattedTime(weekActiveSeconds), icon: "calendar.badge.clock", color: palette.green)
+                            miniStat("За месяц", value: formattedTime(monthActiveSeconds), icon: "calendar", color: palette.purple)
+                            miniStat("Среднее за день", value: formattedTime(averageActiveSecondsPerDay), icon: "chart.bar.fill", color: palette.green)
                             miniStat("Текущая сессия", value: formattedTime(sessionSeconds), icon: "timer", color: palette.green)
                             miniStat("Всего", value: formattedTime(lifetimeActiveSeconds), icon: "hourglass", color: palette.purple)
                         }
@@ -5656,6 +5684,87 @@ struct ContentView: View {
                 }
                 .padding(22)
                 .cardStyle(palette)
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("Подробная статистика по предметам", icon: "chart.xyaxis.line")
+                    Text("По каждому предмету видны общие результаты и темы, которые уже встречались в заданиях. Карточки не нужно раскрывать.")
+                        .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
+                        .foregroundStyle(palette.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
+                        ForEach(StudySubject.allCases) { subject in
+                            let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
+                            let topicRows = decodedTopicPerformance
+                                .filter { $0.key.hasPrefix(subject.rawValue + "::") }
+                                .map { (String($0.key.dropFirst(subject.rawValue.count + 2)), $0.value) }
+                                .sorted { lhs, rhs in
+                                    if lhs.1.accuracy != rhs.1.accuracy { return lhs.1.accuracy < rhs.1.accuracy }
+                                    return lhs.1.total > rhs.1.total
+                                }
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: subject.icon)
+                                        .foregroundStyle(palette.purple)
+                                        .frame(width: 18)
+                                    Text(subject.rawValue)
+                                        .font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                        .foregroundStyle(palette.ink)
+                                        .lineLimit(2)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    Spacer(minLength: 2)
+                                    Text(result.total > 0 ? "\(result.accuracy)%" : "—")
+                                        .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                        .foregroundStyle(result.total == 0 ? palette.muted : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple)))
+                                }
+                                GeometryReader { geo in
+                                    ZStack(alignment: .leading) {
+                                        Capsule().fill(palette.line.opacity(0.65))
+                                        Capsule()
+                                            .fill(result.total == 0 ? palette.line : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple)))
+                                            .frame(width: geo.size.width * CGFloat(result.accuracy) / 100)
+                                    }
+                                }
+                                .frame(height: 5)
+                                HStack(spacing: 5) {
+                                    Label("\(result.total)", systemImage: "list.number")
+                                    Spacer(minLength: 2)
+                                    Label("\(result.correct)", systemImage: "checkmark.circle.fill").foregroundStyle(palette.green)
+                                    Label("\(result.incorrect)", systemImage: "xmark.circle.fill").foregroundStyle(palette.red)
+                                }
+                                .font(.system(size: 10 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                                .foregroundStyle(palette.muted)
+                                if topicRows.isEmpty {
+                                    Text(result.total == 0 ? "Пока нет результатов" : "Подробности по темам появятся после накопления данных")
+                                        .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                        .foregroundStyle(palette.muted)
+                                        .lineLimit(2)
+                                } else {
+                                    ForEach(Array(topicRows.prefix(2).enumerated()), id: \.offset) { entry in
+                                        let topic = entry.element.0
+                                        let stats = entry.element.1
+                                        HStack(alignment: .top, spacing: 5) {
+                                            Image(systemName: stats.accuracy < 60 ? "exclamationmark.circle.fill" : (stats.accuracy >= 80 ? "checkmark.circle.fill" : "arrow.up.right.circle.fill"))
+                                                .foregroundStyle(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
+                                            Text(topic)
+                                                .lineLimit(2)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                            Text("\(stats.accuracy)% · \(stats.total)")
+                                                .fontWeight(.bold)
+                                                .foregroundStyle(palette.ink)
+                                        }
+                                        .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                    }
+                                }
+                            }
+                            .padding(10)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(palette.cardSurface.opacity(0.78), in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.line.opacity(0.55), lineWidth: 1))
+                        }
+                    }
+                }
+                .padding(17)
+                .cardStyle(palette)
+
                 Button("Посмотреть статистику по дням →") { selected = .days }
                     .font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
                     .foregroundStyle(palette.purple).buttonStyle(.plain)
