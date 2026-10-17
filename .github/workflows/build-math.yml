@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Automatic question quality audit
+        working-directory: MATH_TRAINER
+        run: python3 qa/quality_check.py
       - name: Build Swift app
         working-directory: MATH_TRAINER
         run: swift build -c release
@@ -19,7 +22,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="1.2.29"
+          VERSION="1.2.30"
           BUILD_DATE="$(date -u +'%d.%m.%Y')"
           APP_BUNDLE="Тренировка мозга.app"
           rm -rf "$APP_BUNDLE" "BrainTraining.dmg" "BrainTraining.iconset" "icon-1024.png"
