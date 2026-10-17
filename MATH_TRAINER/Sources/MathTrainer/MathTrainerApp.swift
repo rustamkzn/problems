@@ -5623,6 +5623,10 @@ struct ContentView: View {
                                     if lhs.1.accuracy != rhs.1.accuracy { return lhs.1.accuracy < rhs.1.accuracy }
                                     return lhs.1.total > rhs.1.total
                                 }
+                            let subjectMistakes = decodedMistakes.filter { $0.subject == subject.rawValue }
+                            let errorTopicRows = Dictionary(grouping: subjectMistakes, by: { topicName(for: subject, question: $0.question) })
+                                .map { (topic: $0.key, count: $0.value.count) }
+                                .sorted { $0.count > $1.count }
                             Button {
                                 withAnimation(.easeInOut(duration: 0.18)) {
                                     expandedAnalyticsSubject = isExpanded ? nil : subject.rawValue
@@ -5712,7 +5716,19 @@ struct ContentView: View {
                                             }.buttonStyle(.plain)
                                         }
                                     }
-                                    let subjectMistakes = decodedMistakes.filter { $0.subject == subject.rawValue }
+                                    if !errorTopicRows.isEmpty {
+                                        Text("Темы с сохранёнными ошибками")
+                                            .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                            .foregroundStyle(palette.ink)
+                                        ForEach(errorTopicRows, id: \.topic) { row in
+                                            HStack(spacing: 8) {
+                                                Image(systemName: "exclamationmark.circle.fill").foregroundStyle(palette.red)
+                                                Text(row.topic).font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
+                                                Spacer()
+                                                Text("\(row.count) ошибок").font(.system(size: 10 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.red)
+                                            }.padding(8).background(palette.red.opacity(0.07), in: RoundedRectangle(cornerRadius: 8))
+                                        }
+                                    }
                                     Button {
                                         expandedMistakeSubject = expandedMistakeSubject == subject.rawValue ? nil : subject.rawValue
                                     } label: {
