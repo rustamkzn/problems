@@ -3485,6 +3485,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.LifeSkillsBestStreak.v1") private var lifeSkillsBestStreak = 0
     @AppStorage("MathTrainer.LifeSkillsReview.v1") private var lifeSkillsReviewStorage = "[]"
     @AppStorage("MathTrainer.MentorActivityDates.v1") private var mentorActivityDatesStorage = "[]"
+    @AppStorage("MathTrainer.MentorAvatar.v1") private var mentorAvatarEmoji = "🦉"
     @AppStorage("MathTrainer.AdaptiveDifficultyHistory.v1") private var adaptiveDifficultyHistoryStorage = "{}"
     @State private var mentorCalendarMonth = Date()
     @AppStorage("MathTrainer.CorrectAnswersLifetime.v1") private var lifetimeCorrectAnswers = 0
@@ -3594,6 +3595,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.21", date: "17.10.2026", title: "Выбор внешности наставника", changes: ["В настройках добавлен выбор из 20 вариантов персонажа для карточки «Мой наставник».", "Выбранный персонаж сразу отображается в карточке наставника и сохраняется после перезапуска приложения.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.20", date: "17.10.2026", title: "Исправлена работа ползунков размера текста", changes: ["Исправлено взаимодействие с ползунками размера текста: убран дополнительный контур поверх интерактивного элемента, который мог перехватывать нажатия.", "Сохранён единый чёрный дизайн ползунков без белого бегунка и его тени.", "Компактные настройки яркости темы и контраста сохранены.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.17", date: "17.10.2026", title: "Компактные настройки, наставник и статистика", changes: ["Настройки шрифта компактнее: ползунок занимает примерно половину строки, пример текста расположен рядом.", "Размеры текста в «Версиях и изменениях» реагируют на общий масштаб и настройки основного текста; заголовки и подписи используют соответствующие регуляторы.", "Сова в карточке «Мой наставник» увеличена в 1,5 раза.", "В «Статистике» удалены повторяющаяся карточка наставника и дневная история, доступные в отдельном разделе наставника; подробная статистика по предметам и ошибки для повторения сохранены.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.16", date: "16.10.2026", title: "Общий размер текста и исправления русского языка", changes: ["В вопросе о глаголе все четыре варианта теперь являются глаголами в начальной форме: читать, писать, играть, говорить.", "Настройки размеров шрифта стали примерно вдвое компактнее по высоте.", "Добавлен общий масштаб текста для всего приложения; он применяется к фиксированным размерам шрифта на разных страницах. Индивидуальные H1–H7, основной текст и подсказки сохранены.", "Пункт «Магазин» убран из левого меню: открыть магазин по-прежнему можно нажатием на блок баланса вверху слева.", "История предыдущих версий сохранена."]),
@@ -5333,7 +5335,7 @@ struct ContentView: View {
         }
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                Text("🦉").font(.system(size: 63 * AppFontScale.factor)).frame(width: 93, height: 93).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 16))
+                Text(mentorAvatarEmoji).font(.system(size: 63 * AppFontScale.factor)).frame(width: 93, height: 93).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 16))
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Мой наставник").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     Text("Совет на основе твоих результатов").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
@@ -6515,6 +6517,44 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
                 pageHeading("Настройки", subtitle: "Настрой своё учебное пространство")
+                VStack(alignment: .leading, spacing: 9) {
+                    Label("ВНЕШНОСТЬ НАСТАВНИКА", systemImage: "person.crop.square.fill")
+                        .font(.system(size: 15 * AppFontScale.factor * fontScaleH2, weight: .black, design: .rounded))
+                        .foregroundStyle(palette.ink)
+                    Text("Выбери персонажа для карточки «Мой наставник». Выбор сохранится автоматически.")
+                        .font(.system(size: 11 * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded))
+                        .foregroundStyle(palette.muted)
+                    let mentorOptions: [(String, String)] = [
+                        ("🦉", "Совёнок"), ("🐻", "Медвежонок"), ("🦊", "Лисёнок"), ("🐧", "Пингвин"),
+                        ("🤖", "Робот"), ("🐉", "Дракончик"), ("🚀", "Космонавт"), ("🧙", "Волшебник"),
+                        ("🦁", "Львёнок"), ("🐰", "Зайчик"), ("🐼", "Панда"), ("🐱", "Кот-учёный"),
+                        ("🦋", "Бабочка"), ("👻", "Привидение"), ("🦖", "Динозаврик"), ("🧑‍🔬", "Учёный"),
+                        ("🦸", "Супергерой"), ("🌳", "Дух природы"), ("⭐", "Звёздочка"), ("☁️", "Облачко")
+                    ]
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: 5), spacing: 8) {
+                        ForEach(mentorOptions, id: \\.0) { option in
+                            Button { mentorAvatarEmoji = option.0 } label: {
+                                VStack(spacing: 4) {
+                                    Text(option.0).font(.system(size: 27 * AppFontScale.factor))
+                                        .frame(maxWidth: .infinity).frame(height: 42)
+                                    Text(option.1).font(.system(size: 9 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                                        .foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.75)
+                                    if mentorAvatarEmoji == option.0 {
+                                        Image(systemName: "checkmark.circle.fill").font(.system(size: 12)).foregroundStyle(palette.green)
+                                    } else {
+                                        Image(systemName: "circle").font(.system(size: 12)).foregroundStyle(palette.muted.opacity(0.5))
+                                    }
+                                }
+                                .padding(5)
+                                .background(mentorAvatarEmoji == option.0 ? palette.purple.opacity(0.16) : palette.cardSurface, in: RoundedRectangle(cornerRadius: 10))
+                                .overlay(RoundedRectangle(cornerRadius: 10).stroke(mentorAvatarEmoji == option.0 ? palette.purple : palette.line, lineWidth: mentorAvatarEmoji == option.0 ? 2 : 1))
+                            }.buttonStyle(.plain)
+                        }
+                    }
+                }
+                .padding(10)
+                .background(LinearGradient(colors: [palette.purple.opacity(0.18), palette.pink.opacity(0.14)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.purple.opacity(0.7), lineWidth: 1))
                 VStack(alignment: .leading, spacing: 7) {
                     Label("РАЗМЕР ШРИФТОВ", systemImage: "textformat.size").font(.system(size: 17 * AppFontScale.factor * fontScaleH2, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
                     Text("Общий масштаб действует на всё приложение; ниже — тонкая настройка отдельных типов текста.").font(.system(size: 10 * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
