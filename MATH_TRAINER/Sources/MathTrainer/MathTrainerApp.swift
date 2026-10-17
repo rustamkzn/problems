@@ -6551,13 +6551,13 @@ struct ContentView: View {
                                     Circle()
                                         .fill(Color.black)
                                         .frame(width: 24, height: 24)
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                        
                                         .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
                                         .position(x: knobPosition, y: proxy.size.height / 2)
                                 }
                                 .allowsHitTesting(false)
                             }
-                            .background(Color.white, in: Capsule())
+                            
                             .overlay(Capsule().stroke(Color.black, lineWidth: 2))
                         HStack { Text("Темнее").foregroundStyle(palette.ink); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 16 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.30, green: 0.08, blue: 0.78)); Spacer(); Text("Светлее").foregroundStyle(palette.ink) }.font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded))
                     }.padding(16)
@@ -6580,13 +6580,13 @@ struct ContentView: View {
                                     Circle()
                                         .fill(Color.black)
                                         .frame(width: 24, height: 24)
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                        
                                         .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
                                         .position(x: knobPosition, y: proxy.size.height / 2)
                                 }
                                 .allowsHitTesting(false)
                             }
-                            .background(Color.white, in: Capsule())
+                            
                             .overlay(Capsule().stroke(Color.black, lineWidth: 2))
                         HStack {
                             Text("75% · мягче").foregroundStyle(palette.muted)
@@ -7175,12 +7175,12 @@ struct ContentView: View {
                             let normalized = max(0.0, min(1.0, (scale.wrappedValue - 0.8) / 1.2))
                             let knobPosition = 6.0 + normalized * max(0.0, proxy.size.width - 12.0)
                             Circle().fill(Color.black).frame(width: 12, height: 12)
-                                .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                
                                 .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
                                 .position(x: knobPosition, y: proxy.size.height / 2)
                         }.allowsHitTesting(false)
                     }
-                    .background(Color.white, in: Capsule())
+                    
                     .overlay(Capsule().stroke(Color.black, lineWidth: 2))
                 Text(example).font(.system(size: baseSize * scale.wrappedValue * AppFontScale.factor * fontScaleBody, weight: .semibold, design: .rounded))
                     .foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7).frame(maxWidth: .infinity, alignment: .leading)
