@@ -3621,6 +3621,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.28", date: "17.10.2026", title: "Компактный календарь и два столбца времени", changes: ["Ширина календаря дополнительно уменьшена на 20%: с 440 до 352 пунктов.", "Четыре показателя активного времени теперь размещены в два столбца.", "Удаление подробной статистики по предметам и показатель времени за неделю сохранены. История предыдущих версий не удалена."]),
             ReleaseNote(version: "1.2.27", date: "17.10.2026", title: "Упрощена статистика и добавлено время за неделю", changes: ["Полностью удалён блок подробной статистики по предметам, который нарушал расположение элементов; общие показатели и сохранённые данные не затронуты.", "Ширина календаря уменьшена примерно на 20% относительно прежней равной компоновки, активное время занимает больше места справа.", "В блок активного времени добавлен показатель «За неделю». История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.26", date: "17.10.2026", title: "Исправлена компоновка статистики", changes: ["Календарь занятий размещён слева, а активное время — справа, в одном общем блоке.", "Карточки успеваемости отображаются в два столбца; при раскрытии подробностей сетка временно перестраивается в один столбец, чтобы детали находились ниже карточки и не ломали соседние элементы.", "Все сохранённые показатели и история версий сохранены."]),
             ReleaseNote(version: "1.2.25", date: "17.10.2026", title: "Два столбца успеваемости и общий блок занятий", changes: ["Карточки успеваемости по предметам расположены в два столбца; подробная аналитика и сохранённые ошибки доступны при раскрытии карточки.", "Активное время занятий и календарь объединены в один визуальный блок статистики.", "Накопленные показатели и полная история предыдущих версий сохранены."]),
@@ -5615,13 +5616,15 @@ struct ContentView: View {
                 }
                 HStack(alignment: .top, spacing: 18) {
                     mentorCalendar
-                        .frame(maxWidth: 440, alignment: .leading)
+                        .frame(maxWidth: 352, alignment: .leading)
                     VStack(alignment: .leading, spacing: 12) {
                         sectionTitle("Активное время занятий", icon: "clock.fill")
-                        miniStat("Сегодня", value: formattedTime(todayActiveSeconds), icon: "calendar", color: palette.purple)
-                        miniStat("За неделю", value: formattedTime(weekActiveSeconds), icon: "calendar.badge.clock", color: palette.green)
-                        miniStat("Текущая сессия", value: formattedTime(sessionSeconds), icon: "timer", color: palette.green)
-                        miniStat("Всего", value: formattedTime(lifetimeActiveSeconds), icon: "hourglass", color: palette.purple)
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
+                            miniStat("Сегодня", value: formattedTime(todayActiveSeconds), icon: "calendar", color: palette.purple)
+                            miniStat("За неделю", value: formattedTime(weekActiveSeconds), icon: "calendar.badge.clock", color: palette.green)
+                            miniStat("Текущая сессия", value: formattedTime(sessionSeconds), icon: "timer", color: palette.green)
+                            miniStat("Всего", value: formattedTime(lifetimeActiveSeconds), icon: "hourglass", color: palette.purple)
+                        }
                         Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
                             .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
                             .foregroundStyle(palette.muted)
