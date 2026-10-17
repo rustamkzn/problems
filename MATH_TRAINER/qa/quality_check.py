@@ -108,6 +108,8 @@ coverage = {
     "informatics bank": "private static let informaticsQuestionBank: [Problem] = makeInformaticsQuestionBank()",
     "daily detective": "static let detective: [ActivityQuestion]",
     "life skills": "static let lifeSkills: [ActivityQuestion]",
+    "memory training": "private func makeMemoryChoices(for sequence: [String])",
+    "memory round generation": "private func startMemoryRound()",
     "Olympiad flow": "private func nextOlympiadProblem()",
     "mistake review": "private func mistakeChoices(for item: Problem, selectedAnswer: String)",
 }
