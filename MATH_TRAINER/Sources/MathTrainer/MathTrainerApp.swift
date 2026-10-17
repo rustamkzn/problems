@@ -6549,6 +6549,7 @@ struct ContentView: View {
                                     let normalizedBrightness = max(0.0, min(1.0, (themeBrightness + 0.25) / 0.40))
                                     let availableWidth = max(0.0, proxy.size.width - 24.0)
                                     let knobPosition = 12.0 + normalizedBrightness * availableWidth
+                                    Capsule().fill(Color.black.opacity(0.9)).frame(height: 3).frame(maxHeight: .infinity)
                                     Circle()
                                         .fill(Color.black)
                                         .frame(width: 24, height: 24)
@@ -6578,6 +6579,7 @@ struct ContentView: View {
                                     let normalizedContrast = max(0.0, min(1.0, (screenContrast - 0.75) / 0.80))
                                     let availableWidth = max(0.0, proxy.size.width - 24.0)
                                     let knobPosition = 12.0 + normalizedContrast * availableWidth
+                                    Capsule().fill(Color.black.opacity(0.9)).frame(height: 3).frame(maxHeight: .infinity)
                                     Circle()
                                         .fill(Color.black)
                                         .frame(width: 24, height: 24)
@@ -7175,6 +7177,7 @@ struct ContentView: View {
                         GeometryReader { proxy in
                             let normalized = max(0.0, min(1.0, (scale.wrappedValue - 0.8) / 1.2))
                             let knobPosition = 6.0 + normalized * max(0.0, proxy.size.width - 12.0)
+                            Capsule().fill(Color.black.opacity(0.9)).frame(height: 3).frame(maxHeight: .infinity)
                             Circle().fill(Color.black).frame(width: 12, height: 12)
                                 
                                 .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
