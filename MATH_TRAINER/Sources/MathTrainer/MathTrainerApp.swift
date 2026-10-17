@@ -6536,10 +6536,10 @@ struct ContentView: View {
                 .padding(8)
                 .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.purple, lineWidth: 1))
-                VStack(alignment: .leading, spacing: 15) {
+                VStack(alignment: .leading, spacing: 5) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 17 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
-                        Text("Настрой яркость интерфейса. Значение сохраняется между запусками.").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                        Label("ЯРКОСТЬ ТЕМЫ", systemImage: "sun.max.fill").font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                        Text("Настрой яркость интерфейса. Значение сохраняется между запусками.").font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2).foregroundStyle(palette.muted)
                         Slider(value: $themeBrightness, in: -0.25...0.15, step: 0.01)
                             .tint(.black)
                             .controlSize(.small).frame(minHeight: 20).padding(.horizontal, 3)
@@ -6559,15 +6559,15 @@ struct ContentView: View {
                             }
                             
                             .overlay(Capsule().stroke(Color.black, lineWidth: 2))
-                        HStack { Text("Темнее").foregroundStyle(palette.ink); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 16 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.30, green: 0.08, blue: 0.78)); Spacer(); Text("Светлее").foregroundStyle(palette.ink) }.font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded))
-                    }.padding(16)
-                    .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 17))
-                    .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.purple, lineWidth: 2))
+                        HStack { Text("Темнее").foregroundStyle(palette.ink); Spacer(); Text("\(Int((100 + themeBrightness * 100).rounded()))%").font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.30, green: 0.08, blue: 0.78)); Spacer(); Text("Светлее").foregroundStyle(palette.ink) }.font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded))
+                    }.padding(5)
+                    .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 10))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(palette.purple, lineWidth: 1))
                     VStack(alignment: .leading, spacing: 10) {
                         Label("КОНТРАСТ ЦВЕТОВ", systemImage: "circle.lefthalf.filled")
-                            .font(.system(size: 17 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                            .font(.system(size: 10 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
                         Text("Передвинь ползунок — внешний вид изменится сразу.")
-                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                            .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                         Slider(value: $screenContrast, in: 0.75...1.55, step: 0.05)
                             .tint(.black)
                             .controlSize(.small).frame(minHeight: 20)
@@ -6592,10 +6592,10 @@ struct ContentView: View {
                             Text("75% · мягче").foregroundStyle(palette.muted)
                             Spacer()
                             Text("\(Int((screenContrast * 100).rounded()))%")
-                                .font(.system(size: 15 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
+                                .font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
                             Spacer()
                             Text("155% · ярче").foregroundStyle(palette.muted)
-                        }.font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded))
+                        }.font(.system(size: 10 * AppFontScale.factor, weight: .bold, design: .rounded))
                     }
                     .padding(16)
                     .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 17))
