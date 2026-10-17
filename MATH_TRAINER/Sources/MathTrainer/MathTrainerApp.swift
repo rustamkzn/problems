@@ -3583,6 +3583,17 @@ struct ContentView: View {
         return value
     }
     private var todayActiveSeconds: Int { decodedActiveSeconds[StatsStore.dateKey(Date())] ?? 0 }
+    private var weekActiveSeconds: Int {
+        let calendar = Calendar.current
+        guard let interval = calendar.dateInterval(of: .weekOfYear, for: Date()) else { return todayActiveSeconds }
+        var total = 0
+        var day = interval.start
+        while day < interval.end {
+            total += decodedActiveSeconds[StatsStore.dateKey(day)] ?? 0
+            day = calendar.date(byAdding: .day, value: 1, to: day) ?? interval.end
+        }
+        return total
+    }
     private var lifetimeActiveSeconds: Int { decodedActiveSeconds.values.reduce(0, +) }
     private var unlockedAchievementIDs: Set<String> { Set(unlockedAchievementStorage.split(separator: ",").map(String.init)) }
     private var unlockedCollectibleIDs: Set<String> { Set(randomCollectiblesStorage.split(separator: ",").map(String.init)) }
@@ -3610,6 +3621,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.27", date: "17.10.2026", title: "Упрощена статистика и добавлено время за неделю", changes: ["Полностью удалён блок подробной статистики по предметам, который нарушал расположение элементов; общие показатели и сохранённые данные не затронуты.", "Ширина календаря уменьшена примерно на 20% относительно прежней равной компоновки, активное время занимает больше места справа.", "В блок активного времени добавлен показатель «За неделю». История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.26", date: "17.10.2026", title: "Исправлена компоновка статистики", changes: ["Календарь занятий размещён слева, а активное время — справа, в одном общем блоке.", "Карточки успеваемости отображаются в два столбца; при раскрытии подробностей сетка временно перестраивается в один столбец, чтобы детали находились ниже карточки и не ломали соседние элементы.", "Все сохранённые показатели и история версий сохранены."]),
             ReleaseNote(version: "1.2.25", date: "17.10.2026", title: "Два столбца успеваемости и общий блок занятий", changes: ["Карточки успеваемости по предметам расположены в два столбца; подробная аналитика и сохранённые ошибки доступны при раскрытии карточки.", "Активное время занятий и календарь объединены в один визуальный блок статистики.", "Накопленные показатели и полная история предыдущих версий сохранены."]),
             ReleaseNote(version: "1.2.24", date: "17.10.2026", title: "Исправлена подробная статистика и перенесён календарь", changes: ["Карточки предметов переведены в вертикальный список, поэтому раскрытая аналитика занимает всю ширину и видна сразу под выбранным предметом.", "В подробностях предмета отображаются попытки, точность, темы и рекомендации; сохранённые ошибки дополнительно группируются по темам.", "Календарь занятий перенесён из «Моего наставника» в раздел «Статистика». История версий и ранее накопленные показатели сохранены."]),
@@ -5603,10 +5615,11 @@ struct ContentView: View {
                 }
                 HStack(alignment: .top, spacing: 18) {
                     mentorCalendar
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: 440, alignment: .leading)
                     VStack(alignment: .leading, spacing: 12) {
                         sectionTitle("Активное время занятий", icon: "clock.fill")
                         miniStat("Сегодня", value: formattedTime(todayActiveSeconds), icon: "calendar", color: palette.purple)
+                        miniStat("За неделю", value: formattedTime(weekActiveSeconds), icon: "calendar.badge.clock", color: palette.green)
                         miniStat("Текущая сессия", value: formattedTime(sessionSeconds), icon: "timer", color: palette.green)
                         miniStat("Всего", value: formattedTime(lifetimeActiveSeconds), icon: "hourglass", color: palette.purple)
                         Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
@@ -5619,183 +5632,6 @@ struct ContentView: View {
                 .padding(18)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .cardStyle(palette)
-                VStack(alignment: .leading, spacing: 12) {
-                    sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
-                    LazyVGrid(columns: expandedAnalyticsSubject == nil ? [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)] : [GridItem(.flexible())], alignment: .leading, spacing: 10) {
-                        ForEach(StudySubject.allCases) { subject in
-                            let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
-                            let isExpanded = expandedAnalyticsSubject == subject.rawValue
-                            let topicRows = decodedTopicPerformance
-                                .filter { $0.key.hasPrefix(subject.rawValue + "::") }
-                                .map { (String($0.key.dropFirst(subject.rawValue.count + 2)), $0.value) }
-                                .sorted { lhs, rhs in
-                                    if lhs.1.accuracy != rhs.1.accuracy { return lhs.1.accuracy < rhs.1.accuracy }
-                                    return lhs.1.total > rhs.1.total
-                                }
-                            let subjectMistakes = decodedMistakes.filter { $0.subject == subject.rawValue }
-                            let errorTopicRows = Dictionary(grouping: subjectMistakes, by: { topicName(for: subject, question: $0.question) })
-                                .map { (topic: $0.key, count: $0.value.count) }
-                                .sorted { $0.count > $1.count }
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.18)) {
-                                    expandedAnalyticsSubject = isExpanded ? nil : subject.rawValue
-                                    expandedAnalyticsTopic = nil
-                                    expandedMistakeSubject = nil
-                                }
-                            } label: {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack(spacing: 7) {
-                                        Image(systemName: subject.icon).foregroundStyle(palette.purple).frame(width: 20)
-                                        Text(subject.rawValue)
-                                            .font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded))
-                                            .foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.8)
-                                        Spacer(minLength: 2)
-                                        if result.total > 0 {
-                                            Text("\(result.accuracy)%")
-                                                .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                                                .foregroundStyle(result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple))
-                                        } else {
-                                            Text("—").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.muted)
-                                        }
-                                    }
-                                    GeometryReader { geo in
-                                        ZStack(alignment: .leading) {
-                                            Capsule().fill(palette.line.opacity(0.65))
-                                            Capsule().fill(result.total == 0 ? palette.line : (result.accuracy < 60 ? palette.red : (result.accuracy >= 80 ? palette.green : palette.purple)))
-                                                .frame(width: geo.size.width * CGFloat(result.accuracy) / 100)
-                                        }
-                                    }.frame(height: 5)
-                                    HStack {
-                                        Text(result.total == 0 ? "Пока нет данных" : "\(result.total) попыток")
-                                            .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                                        Spacer()
-                                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                                            .font(.system(size: 10, weight: .bold)).foregroundStyle(palette.muted)
-                                    }
-                                }
-                                .padding(10)
-                                .background(palette.cardSurface.opacity(0.78), in: RoundedRectangle(cornerRadius: 12))
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(isExpanded ? palette.purple.opacity(0.55) : palette.line.opacity(0.55), lineWidth: 1))
-                                .contentShape(RoundedRectangle(cornerRadius: 12))
-                            }.buttonStyle(.plain)
-
-                            if isExpanded {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    HStack(spacing: 8) {
-                                        Label("\(result.correct) верно", systemImage: "checkmark.circle.fill").foregroundStyle(palette.green)
-                                        Spacer()
-                                        Label("\(result.incorrect) ошибок", systemImage: "xmark.circle.fill").foregroundStyle(palette.red)
-                                    }.font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded))
-                                    Divider().overlay(palette.line)
-                                    Text("Темы").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                    if topicRows.isEmpty {
-                                        Text("Пока недостаточно данных по отдельным темам. Продолжай решать задания — аналитика появится автоматически.")
-                                            .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded))
-                                            .foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-                                    } else {
-                                        ForEach(topicRows.indices, id: \.self) { topicIndex in
-                                            let topic = topicRows[topicIndex].0
-                                            let stats = topicRows[topicIndex].1
-                                            let topicID = subject.rawValue + "::" + topic
-                                            Button {
-                                                withAnimation(.easeInOut(duration: 0.16)) {
-                                                    expandedAnalyticsTopic = expandedAnalyticsTopic == topicID ? nil : topicID
-                                                }
-                                            } label: {
-                                                VStack(alignment: .leading, spacing: 5) {
-                                                    HStack(spacing: 6) {
-                                                        Image(systemName: stats.accuracy < 60 ? "exclamationmark.circle.fill" : (stats.accuracy < 80 ? "arrow.up.right.circle.fill" : "checkmark.circle.fill"))
-                                                            .foregroundStyle(stats.accuracy < 60 ? palette.red : (stats.accuracy < 80 ? Color.orange : palette.green))
-                                                        Text(topic).font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
-                                                        Spacer(minLength: 4)
-                                                        Text("\(stats.accuracy)%").font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                                        Image(systemName: expandedAnalyticsTopic == topicID ? "chevron.up" : "chevron.down")
-                                                            .font(.system(size: 9, weight: .bold)).foregroundStyle(palette.muted)
-                                                    }
-                                                    if expandedAnalyticsTopic == topicID {
-                                                        Text("\(stats.correct) верно из \(stats.total) попыток · ошибок: \(stats.incorrect)")
-                                                            .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                                                        Text(stats.accuracy < 60 ? "Рекомендация: повтори эту тему небольшими подходами." : (stats.accuracy < 80 ? "Рекомендация: ещё немного практики поможет закрепить тему." : "Хороший результат — продолжай повторять тему время от времени."))
-                                                            .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                                                            .fixedSize(horizontal: false, vertical: true)
-                                                    }
-                                                }
-                                                .padding(8)
-                                                .background(palette.canvasMiddle.opacity(0.45), in: RoundedRectangle(cornerRadius: 9))
-                                            }.buttonStyle(.plain)
-                                        }
-                                    }
-                                    if !errorTopicRows.isEmpty {
-                                        Text("Темы с сохранёнными ошибками")
-                                            .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                                            .foregroundStyle(palette.ink)
-                                        ForEach(errorTopicRows.indices, id: \.self) { errorTopicIndex in
-                                            let row = errorTopicRows[errorTopicIndex]
-                                            HStack(spacing: 8) {
-                                                Image(systemName: "exclamationmark.circle.fill").foregroundStyle(palette.red)
-                                                Text(row.topic).font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
-                                                Spacer()
-                                                Text("\(row.count) ошибок").font(.system(size: 10 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.red)
-                                            }.padding(8).background(palette.red.opacity(0.07), in: RoundedRectangle(cornerRadius: 8))
-                                        }
-                                    }
-                                    Button {
-                                        expandedMistakeSubject = expandedMistakeSubject == subject.rawValue ? nil : subject.rawValue
-                                    } label: {
-                                        HStack(spacing: 7) {
-                                            Image(systemName: "exclamationmark.triangle.fill")
-                                            Text("Ошибки для повторения: \(subjectMistakes.count)")
-                                            Spacer()
-                                            Image(systemName: expandedMistakeSubject == subject.rawValue ? "chevron.up" : "chevron.down")
-                                        }
-                                        .font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                                        .foregroundStyle(subjectMistakes.isEmpty ? palette.muted : palette.red)
-                                        .padding(9)
-                                        .background((subjectMistakes.isEmpty ? palette.line : palette.red).opacity(0.10), in: RoundedRectangle(cornerRadius: 9))
-                                    }.buttonStyle(.plain)
-                                    if expandedMistakeSubject == subject.rawValue {
-                                        if subjectMistakes.isEmpty {
-                                            Text("Пока нет ошибок для повторения. Ошибочные ответы будут сохраняться здесь автоматически.")
-                                                .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded))
-                                                .foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-                                        } else {
-                                            ForEach(subjectMistakes) { mistake in
-                                                VStack(alignment: .leading, spacing: 6) {
-                                                    Text(mistake.question.isEmpty ? "Задание по иллюстрации" : mistake.question)
-                                                        .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                                        .fixedSize(horizontal: false, vertical: true)
-                                                    Text("Твой ответ: \(mistake.selectedAnswer)")
-                                                        .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.red)
-                                                    Text("Правильный ответ: \(mistake.correctAnswer)")
-                                                        .font(.system(size: 10 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
-                                                    Text("Как решить: \(mistake.explanation)")
-                                                        .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                                                        .fixedSize(horizontal: false, vertical: true)
-                                                    Button { startMistakeReview(mistake) } label: {
-                                                        Label("Повторить задание", systemImage: "arrow.clockwise.circle.fill")
-                                                            .font(.system(size: 11 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                                                            .foregroundStyle(.white).frame(maxWidth: .infinity).padding(.vertical, 9)
-                                                            .background(palette.purple, in: Capsule())
-                                                    }.buttonStyle(.plain)
-                                                }
-                                                .padding(10)
-                                                .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11))
-                                                .overlay(RoundedRectangle(cornerRadius: 11).stroke(palette.red.opacity(0.35), lineWidth: 1))
-                                            }
-                                        }
-                                    }
-                                }
-                                .padding(11)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(palette.canvasMiddle.opacity(0.30), in: RoundedRectangle(cornerRadius: 12))
-                            }
-                        }
-                    }
-                    Text("Точность рассчитывается по сохранённым ответам. Темы появляются по мере накопления данных; если задание нельзя надёжно отнести к теме, оно учитывается в разделе «Другие задания».")
-                        .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
-                    Text("Ориентир: меньше 60% — предмет стоит повторить, 60–79% — нужна практика, 80% и выше — хороший уровень.")
-                        .font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
-                }.padding(18).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Твой прогресс", icon: "chart.bar.fill")
                     HStack {
