@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="1.2.25"
+          VERSION="1.2.26"
           BUILD_DATE="$(date -u +'%d.%m.%Y')"
           APP_BUNDLE="Тренировка мозга.app"
           rm -rf "$APP_BUNDLE" "BrainTraining.dmg" "BrainTraining.iconset" "icon-1024.png"
