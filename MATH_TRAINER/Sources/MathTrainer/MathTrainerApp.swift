@@ -5720,7 +5720,8 @@ struct ContentView: View {
                                         Text("Темы с сохранёнными ошибками")
                                             .font(.system(size: 12 * AppFontScale.factor, weight: .heavy, design: .rounded))
                                             .foregroundStyle(palette.ink)
-                                        ForEach(errorTopicRows, id: \.topic) { row in
+                                        ForEach(errorTopicRows.indices, id: \.self) { errorTopicIndex in
+                                            let row = errorTopicRows[errorTopicIndex]
                                             HStack(spacing: 8) {
                                                 Image(systemName: "exclamationmark.circle.fill").foregroundStyle(palette.red)
                                                 Text(row.topic).font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
