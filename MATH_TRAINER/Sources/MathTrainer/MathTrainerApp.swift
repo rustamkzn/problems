@@ -5679,9 +5679,9 @@ struct ContentView: View {
                                             .font(.system(size: 11 * AppFontScale.factor, weight: .medium, design: .rounded))
                                             .foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                                     } else {
-                                        ForEach(topicRows, id: \.0) { row in
-                                            let topic = row.0
-                                            let stats = row.1
+                                        ForEach(topicRows.indices, id: \.self) { topicIndex in
+                                            let topic = topicRows[topicIndex].0
+                                            let stats = topicRows[topicIndex].1
                                             let topicID = subject.rawValue + "::" + topic
                                             Button {
                                                 withAnimation(.easeInOut(duration: 0.16)) {
