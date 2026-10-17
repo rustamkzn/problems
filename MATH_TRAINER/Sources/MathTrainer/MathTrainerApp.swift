@@ -5529,10 +5529,11 @@ struct ContentView: View {
                     }.padding(18).cardStyle(palette)
                 } else {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(unifiedReviewItems.isEmpty ? "Пока ошибок нет" : "Все задания освоены! 🌟").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                        Text(unifiedReviewItems.isEmpty ? "Когда ребёнок ошибётся в школьном предмете, ежедневном детективе или навыках жизни, задание появится здесь." : "Все сохранённые ошибки остаются в истории. Можно открыть любое задание ниже и потренироваться ещё раз.")
+                        Text(unifiedReviewItems.isEmpty ? "Пока ошибок нет" : (pendingUnifiedReviewItems.isEmpty ? "Все задания освоены! 🌟" : "Начнём повторение?"))
+                            .font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                        Text(unifiedReviewItems.isEmpty ? "Когда ребёнок ошибётся в школьном предмете, ежедневном детективе или навыках жизни, задание появится здесь." : (pendingUnifiedReviewItems.isEmpty ? "Все сохранённые ошибки остаются в истории. Можно открыть любое задание ниже и потренироваться ещё раз." : "Есть задания, которые стоит повторить. Ответь правильно три раза подряд, чтобы закрепить тему."))
                             .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                        if let first = unifiedReviewItems.first {
+                        if let first = (pendingUnifiedReviewItems.first ?? unifiedReviewItems.first) {
                             Button { startUnifiedReview(first) } label: {
                                 Label("Повторить задание", systemImage: "play.fill").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
                                     .foregroundStyle(.white).padding(.horizontal, 16).padding(.vertical, 11).background(palette.purple, in: Capsule())
