@@ -3610,6 +3610,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.24", date: "17.10.2026", title: "Исправлена подробная статистика и перенесён календарь", changes: ["Карточки предметов переведены в вертикальный список, поэтому раскрытая аналитика занимает всю ширину и видна сразу под выбранным предметом.", "В подробностях предмета отображаются попытки, точность, темы и рекомендации; сохранённые ошибки дополнительно группируются по темам.", "Календарь занятий перенесён из «Моего наставника» в раздел «Статистика». История версий и ранее накопленные показатели сохранены."]),
             ReleaseNote(version: "1.2.23", date: "17.10.2026", title: "Подробная аналитика знаний по предметам", changes: ["Экран успеваемости стал компактнее: подробности открываются только при выборе предмета.", "Добавлена сохраняемая статистика по темам: попытки, правильные и неправильные ответы, точность и короткие рекомендации.", "Для математики добавлена классификация основных тем; для остальных предметов — темы по распознаваемым типам заданий.", "Существующая статистика и ошибки для повторения сохранены; история версий дополнена новым выпуском."]),
             ReleaseNote(version: "1.2.22", date: "17.10.2026", title: "Исправлена работа всех ползунков", changes: ["Системные ползунки заменены на интерактивные регуляторы с прямым перетаскиванием, чтобы исключить перехват нажатий прозрачным элементом.", "Размер текста, яркость темы и контраст цветов обновляются сразу при перемещении бегунка.", "Сохранён компактный вид с чёрным бегунком и тонкой шкалой.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.21", date: "17.10.2026", title: "Выбор внешности наставника", changes: ["В настройках добавлен выбор из 20 вариантов персонажа для карточки «Мой наставник».", "Выбранный персонаж сразу отображается в карточке наставника и сохраняется после перезапуска приложения.", "История предыдущих версий сохранена."]),
@@ -5460,7 +5461,6 @@ struct ContentView: View {
                 mentorCard
                 mentorDailyPlan
                 mentorUnifiedAnalysis
-                mentorCalendar
             }.padding(24)
         }.scrollIndicators(.hidden)
     }
@@ -5609,9 +5609,10 @@ struct ContentView: View {
                     Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
                         .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                 }.padding(18).cardStyle(palette)
+                mentorCalendar
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
+                    LazyVStack(alignment: .leading, spacing: 10) {
                         ForEach(StudySubject.allCases) { subject in
                             let result = decodedSubjectPerformance[subject.rawValue] ?? SubjectPerformance()
                             let isExpanded = expandedAnalyticsSubject == subject.rawValue
