@@ -3594,6 +3594,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.17", date: "17.10.2026", title: "Компактные настройки, наставник и статистика", changes: ["Настройки шрифта компактнее: ползунок занимает примерно половину строки, пример текста расположен рядом.", "Размеры текста в «Версиях и изменениях» реагируют на общий масштаб и настройки основного текста; заголовки и подписи используют соответствующие регуляторы.", "Сова в карточке «Мой наставник» увеличена в 1,5 раза.", "В «Статистике» удалены повторяющаяся карточка наставника и дневная история, доступные в отдельном разделе наставника; подробная статистика по предметам и ошибки для повторения сохранены.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.16", date: "16.10.2026", title: "Общий размер текста и исправления русского языка", changes: ["В вопросе о глаголе все четыре варианта теперь являются глаголами в начальной форме: читать, писать, играть, говорить.", "Настройки размеров шрифта стали примерно вдвое компактнее по высоте.", "Добавлен общий масштаб текста для всего приложения; он применяется к фиксированным размерам шрифта на разных страницах. Индивидуальные H1–H7, основной текст и подсказки сохранены.", "Пункт «Магазин» убран из левого меню: открыть магазин по-прежнему можно нажатием на блок баланса вверху слева.", "История предыдущих версий сохранена."]),
             ReleaseNote(version: "1.2.15", date: "16.10.2026", title: "Точная настройка размеров шрифта", changes: ["Пункт «Версии и изменения» убран из нижней части левого меню: история открывается кликом по версии вверху слева.", "Настройки шрифтов оформлены в том же градиентном стиле, что яркость и контраст; ползунки с чёрной дорожкой и заметным бегунком видны на светлых темах.", "Добавлены независимые настройки H1–H7, основного текста и подсказок с сохранением каждого значения.", "Размеры подключены к заголовкам страниц, основному вопросу задания, полю ответа и подсказкам."]),
             ReleaseNote(version: "1.2.14", date: "16.10.2026", title: "Удобнее меню и настройка шрифтов", changes: ["Календарь занятий в «Моём наставнике» ограничен по ширине, чтобы не растягиваться на всю страницу.", "Версия в верхней части левого блока стала кликабельной и открывает «Версии и изменения».", "«Мой наставник» перемещён в меню между «Задание» и «Ежедневный детектив». Раздел «Моя комната» убран из главного меню.", "В настройках появились отдельные регуляторы размера заголовков, основного текста и подсказок с сохранением значений. Размер заголовков страниц и пунктов меню связан с настройками."]),
@@ -5331,7 +5332,7 @@ struct ContentView: View {
         }
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                Text("🦉").font(.system(size: 42 * AppFontScale.factor)).frame(width: 62, height: 62).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 16))
+                Text("🦉").font(.system(size: 63 * AppFontScale.factor)).frame(width: 93, height: 93).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 16))
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Мой наставник").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                     Text("Совет на основе твоих результатов").font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
@@ -5570,7 +5571,6 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 pageHeading("Твои успехи", subtitle: "Каждый пример помогает стать увереннее 💜")
-                mentorCard
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
                     largeStat("Всего ответов", value: "\(store.stats.total)", icon: "list.number", color: palette.purple)
                     largeStat("Правильных ответов", value: "\(store.stats.correct)", icon: "checkmark.circle.fill", color: palette.green)
@@ -5589,7 +5589,6 @@ struct ContentView: View {
                     Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
                         .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).fixedSize(horizontal: false, vertical: true)
                 }.padding(18).cardStyle(palette)
-                dailyHistorySection
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Успеваемость по предметам", icon: "chart.xyaxis.line")
                     ForEach(StudySubject.allCases) { subject in
@@ -6661,18 +6660,18 @@ struct ContentView: View {
                             Image(systemName: "app.badge.checkmark").font(.system(size: 23 * AppFontScale.factor, weight: .bold)).foregroundStyle(palette.purple)
                                 .frame(width: 42, height: 42).background(palette.palePink, in: RoundedRectangle(cornerRadius: 13))
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(note.version == appVersion ? "Версия \(note.version) (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"))" : "Версия \(note.version)").textSelection(.enabled).font(.system(size: 24 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                                Text(note.title).textSelection(.enabled).font(.system(size: 13 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                                Text(note.version == appVersion ? "Версия \(note.version) (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"))" : "Версия \(note.version)").textSelection(.enabled).font(.system(size: 24 * AppFontScale.factor * fontScaleH2, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                                Text(note.title).textSelection(.enabled).font(.system(size: 13 * AppFontScale.factor * fontScaleH3, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                             }
                             Spacer()
-                            Text(note.date).font(.system(size: 11 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
+                            Text(note.date).font(.system(size: 11 * AppFontScale.factor * fontScaleHints, weight: .bold, design: .rounded)).foregroundStyle(palette.purple)
                                 .padding(.horizontal, 9).padding(.vertical, 6).background(palette.lilac.opacity(0.28), in: Capsule())
                         }
                         Divider().overlay(palette.line)
                         ForEach(note.changes, id: \.self) { change in
                             HStack(alignment: .top, spacing: 9) {
                                 Image(systemName: "checkmark.circle.fill").font(.system(size: 13 * AppFontScale.factor, weight: .semibold)).foregroundStyle(palette.green).padding(.top, 2)
-                                Text(change).textSelection(.enabled).font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                                Text(change).textSelection(.enabled).font(.system(size: 13 * AppFontScale.factor * fontScaleBody, weight: .medium, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                             }
                         }
                         Button {
@@ -7164,25 +7163,27 @@ struct ContentView: View {
                 Spacer(minLength: 4)
                 Text("\(Int((scale.wrappedValue * 100).rounded()))%").font(.system(size: 11 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple).monospacedDigit()
             }
-            Slider(value: scale, in: 0.8...2.0, step: 0.1)
-                .tint(.black)
-                .controlSize(.small).frame(minHeight: 22).padding(.horizontal, 3)
-                .overlay {
-                    GeometryReader { proxy in
-                        let normalized = max(0.0, min(1.0, (scale.wrappedValue - 0.8) / 1.2))
-                        let knobPosition = 6.0 + normalized * max(0.0, proxy.size.width - 12.0)
-                        Circle().fill(Color.black).frame(width: 12, height: 12)
-                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                            .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
-                            .position(x: knobPosition, y: proxy.size.height / 2)
-                    }.allowsHitTesting(false)
-                }
-                .background(Color.white, in: Capsule())
-                .overlay(Capsule().stroke(Color.black, lineWidth: 2))
-            Text(example).font(.system(size: baseSize * scale.wrappedValue * AppFontScale.factor, weight: .semibold, design: .rounded))
-                .foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 10) {
+                Slider(value: scale, in: 0.8...2.0, step: 0.1)
+                    .tint(.black)
+                    .controlSize(.small).frame(maxWidth: 320, minHeight: 20).padding(.horizontal, 3)
+                    .overlay {
+                        GeometryReader { proxy in
+                            let normalized = max(0.0, min(1.0, (scale.wrappedValue - 0.8) / 1.2))
+                            let knobPosition = 6.0 + normalized * max(0.0, proxy.size.width - 12.0)
+                            Circle().fill(Color.black).frame(width: 12, height: 12)
+                                .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                .shadow(color: Color.black.opacity(0.35), radius: 2, y: 1)
+                                .position(x: knobPosition, y: proxy.size.height / 2)
+                        }.allowsHitTesting(false)
+                    }
+                    .background(Color.white, in: Capsule())
+                    .overlay(Capsule().stroke(Color.black, lineWidth: 2))
+                Text(example).font(.system(size: baseSize * scale.wrappedValue * AppFontScale.factor * fontScaleBody, weight: .semibold, design: .rounded))
+                    .foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7).frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
-        .padding(6)
+        .padding(5)
         .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 10))
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(palette.purple, lineWidth: 1))
     }
