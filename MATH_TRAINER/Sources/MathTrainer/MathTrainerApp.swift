@@ -3641,6 +3641,15 @@ struct ContentView: View {
         guard let data = activeSecondsStorage.data(using: .utf8), let value = try? JSONDecoder().decode([String: Int].self, from: data) else { return [:] }
         return value
     }
+    private var decodedActiveSecondsBySubject: [String: Int] {
+        guard let data = activeSecondsBySubjectStorage.data(using: .utf8), let value = try? JSONDecoder().decode([String: Int].self, from: data) else { return [:] }
+        return value
+    }
+    private var subjectActiveTimeLeaders: [(String, Int)] {
+        StudySubject.allCases.map { ($0.rawValue, decodedActiveSecondsBySubject[$0.rawValue] ?? 0) }
+            .sorted { left, right in left.1 == right.1 ? left.0 < right.0 : left.1 > right.1 }
+            .prefix(4).map { $0 }
+    }
     private var decodedMistakes: [MistakeRecord] {
         guard let data = mistakesStorage.data(using: .utf8), let value = try? JSONDecoder().decode([MistakeRecord].self, from: data) else { return [] }
         return value
@@ -3709,7 +3718,8 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Все коллекционные игрушки, включая редкие, покупаются за золотые монеты; алмазы можно получить через обмен."]),
+            ReleaseNote(version: "1.2.34", date: "18.10.2026", title: "Компактная статистика и время по предметам", changes: ["Шесть общих показателей в статистике стали компактнее: значок и подпись находятся в первой строке, число — во второй; сетка остаётся в три колонки и два ряда.", "В активное время добавлены четыре динамических лидера по времени занятий с предметами. Учёт времени по предметам начинается с этой версии и ведётся, когда открыт основной тренажёр и есть активность мыши.", "Для редких коллекционных игрушек восстановлена оплата 500 алмазами и исправлена иконка валюты на алмаз; обычные коллекционные игрушки по-прежнему покупаются за золото.", "Все накопленные данные и история предыдущих выпусков сохранены."]),
+             ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Обычные коллекционные игрушки покупаются за золото; редкие — за 500 алмазов."])
             ReleaseNote(version: "1.2.31", date: "17.10.2026", title: "Единый режим «Повторить ошибки»", changes: ["В левое меню добавлен отдельный раздел, объединяющий ошибки школьных предметов, ежедневного детектива и навыков жизни.", "Ребёнок отвечает на сохранённое задание заново, видит правильный ответ и понятное объяснение.", "Попытки записываются в отдельную историю. Ошибка не удаляется после первого правильного ответа: освоение отмечается после трёх верных ответов подряд.", "Все прежние ошибки, статистика и история версий сохранены."]),
 
             ReleaseNote(version: "1.2.30", date: "17.10.2026", title: "Автоматическая проверка качества заданий", changes: ["Перед каждой сборкой запускается аудит банка заданий: проверяются четыре варианта ответа, наличие правильного ответа и повторяющиеся варианты в статических заданиях.", "Проверяется наличие маршрутов генерации для школьных предметов, олимпиады, ежедневного детектива, навыков жизни, тренировки памяти и повторения ошибок.", "Подозрительные формулировки выводятся в отчёт как предупреждения; критические структурные ошибки останавливают упаковку приложения.", "Проверка не заменяет полноценную смысловую проверку языка и автоматически генерируемых примеров; результаты аудита выводятся в GitHub Actions."]),
@@ -5939,8 +5949,11 @@ struct ContentView: View {
                             miniStat("Среднее за день", value: formattedTime(averageActiveSecondsPerDay), icon: "chart.bar.fill", color: palette.green)
                             miniStat("Текущая сессия", value: formattedTime(sessionSeconds), icon: "timer", color: palette.green)
                             miniStat("Всего", value: formattedTime(lifetimeActiveSeconds), icon: "hourglass", color: palette.purple)
+                            ForEach(Array(subjectActiveTimeLeaders.enumerated()), id: \.offset) { index, leader in
+                                miniStat("\(["1-е", "2-е", "3-е", "4-е"][index]) место · \(leader.0)", value: formattedTime(leader.1), icon: index == 0 ? "trophy.fill" : "clock.fill", color: index == 0 ? Color(red: 0.94, green: 0.62, blue: 0.12) : palette.purple)
+                            }
                         }
-                        Text("Время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается и продолжает работу после движения.")
+                        Text("Общее время считается по активности мыши. Если мышь не двигается более 5 минут, счётчик останавливается. Лидеры учитывают время только в основном тренажёре и начинают накапливаться с версии 1.2.34.")
                             .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
                             .foregroundStyle(palette.muted)
                             .fixedSize(horizontal: false, vertical: true)
@@ -6601,7 +6614,7 @@ struct ContentView: View {
                             Text("500 💎").font(.system(size: 15 * AppFontScale.factor, weight: .black, design: .rounded))
                                 .foregroundStyle(palette.isDark ? Color(red: 1, green: 0.78, blue: 0.25) : Color(red: 0.60, green: 0.34, blue: 0.02))
                         }
-                        Text("Редкие подарки — вверху страницы. Купленные и уже открытые игрушки остаются видимыми в коллекции.")
+                        Text("Редкие подарки — вверху страницы. Редкая игрушка стоит 500 алмазов; купленные и уже открытые игрушки остаются видимыми в коллекции.")
                             .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                             .fixedSize(horizontal: false, vertical: true)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 6), spacing: 13) {
@@ -6639,7 +6652,7 @@ struct ContentView: View {
                         .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
                         .frame(maxWidth: .infinity).padding(22)
                 }
-                Text("За правильный ответ начисляется 1 золотая монета. Обычные коллекционные игрушки покупаются за золото; редкие — за 500 алмазов. Обмен: 100 золотых монет на 50 алмазов.")
+                Text("За правильный ответ начисляется 1 золотая монета. Обычные коллекционные игрушки покупаются за золото, редкие — за 500 алмазов. Обмен: 100 золотых монет на 50 алмазов.")
                     .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }.padding(25)
@@ -6737,7 +6750,7 @@ struct ContentView: View {
             }
             Text(owned ? item.title : (item.isRare ? "Редкий коллекционный приз" : "Секретный приз"))
                 .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
-            Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "Редкая коллекционная игрушка за 500 золотых монет" : "Коллекционная игрушка за золотые монеты"))
+            Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "Редкая коллекционная игрушка за 500 алмазов" : "Коллекционная игрушка за золотые монеты"))
                 .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
 
             if owned {
@@ -6745,14 +6758,15 @@ struct ContentView: View {
             } else {
                 Button { buyCollectible(item) } label: {
                     HStack(spacing: 5) {
-                        goldCoinIcon(size: 14)
+                        if item.isRare { Text("💎").font(.system(size: 14 * AppFontScale.factor)) }
+                        else { goldCoinIcon(size: 14) }
                         Text("\(price)").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
                         Text(item.isRare ? "Открыть" : "Купить").font(.system(size: 10 * AppFontScale.factor, weight: .bold, design: .rounded))
                     }
                     .frame(maxWidth: .infinity).padding(.vertical, 8)
-                    .foregroundStyle(goldBalance >= price ? .white : palette.muted)
-                    .background(goldBalance >= price ? palette.purple : palette.line, in: Capsule())
-                }.buttonStyle(.plain).disabled(goldBalance < price)
+                    .foregroundStyle((item.isRare ? store.stats.diamonds >= price : goldBalance >= price) ? .white : palette.muted)
+                    .background((item.isRare ? store.stats.diamonds >= price : goldBalance >= price) ? palette.purple : palette.line, in: Capsule())
+                }.buttonStyle(.plain).disabled(item.isRare ? store.stats.diamonds < price : goldBalance < price)
             }
         }
         .padding(11)
@@ -6824,8 +6838,12 @@ struct ContentView: View {
         // Не выдаём и не продаём коллекционную игрушку второй раз.
         guard !allOwnedCollectibleIDs.contains(item.id) else { return }
         let price = shopPrices[item.id] ?? (item.isRare ? 500 : 25)
-        guard goldBalance >= price else { return }
-        goldBalance -= price
+        if item.isRare {
+            guard store.spendDiamonds(price) else { return }
+        } else {
+            guard goldBalance >= price else { return }
+            goldBalance -= price
+        }
         shopPurchasesStorage = shopOwnedIDs.union([item.id]).sorted().joined(separator: ",")
         triggerCelebration(item.isRare ? "rare:\(item.id)" : "bonus:\(item.id)")
     }
@@ -7161,14 +7179,17 @@ struct ContentView: View {
     }
 
     private func largeStat(_ title: String, value: String, icon: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Image(systemName: icon).font(.system(size: 23 * AppFontScale.factor, weight: .semibold)).foregroundStyle(color)
-            Text(value).font(.system(size: 29 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                .minimumScaleFactor(0.7).lineLimit(1)
-            Text(title).font(.system(size: 13 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 7) {
+                Image(systemName: icon).font(.system(size: 15 * AppFontScale.factor, weight: .bold)).foregroundStyle(color)
+                Text(title).font(.system(size: 10 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                    .lineLimit(1).minimumScaleFactor(0.65)
+            }
+            Text(value).font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                .minimumScaleFactor(0.65).lineLimit(1)
         }
-        .frame(maxWidth: .infinity, minHeight: 113, alignment: .leading)
-        .padding(17)
+        .frame(maxWidth: .infinity, minHeight: 67, alignment: .leading)
+        .padding(.horizontal, 11).padding(.vertical, 9)
         .cardStyle(palette)
     }
 
