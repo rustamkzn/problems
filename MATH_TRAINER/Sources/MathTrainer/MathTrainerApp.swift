@@ -2573,13 +2573,21 @@ private enum ActivityQuestionBank {
     static let lifeSkills: [ActivityQuestion] = focusedLifeSkills + trickyLifeSkills + practicalLifeSkills + additionalEverydayLifeSkills + generatedLifeSkills + baseLifeSkills
 
     static func balancedLifeSkillsChoice(_ choice: String, among choices: [String]) -> String {
-        let targetLength = (choices.map(\.count).max() ?? choice.count) + 55
-        let neutralPadding = " Это решение стоит оценить спокойно, учитывая обстоятельства, безопасность и возможные последствия."
-        var result = choice
-        while result.count < targetLength {
-            result += neutralPadding
+        let cleanChoice = choice.trimmingCharacters(in: .whitespacesAndNewlines)
+        let punctuatedChoice: String
+        if let last = cleanChoice.last, ".!?…".contains(last) {
+            punctuatedChoice = cleanChoice
+        } else {
+            punctuatedChoice = cleanChoice + "."
         }
-        return result
+        let longestLength = choices.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).count }.max() ?? punctuatedChoice.count
+        // Keep answers comparable without appending a full extra paragraph.
+        let targetLength = longestLength + min(24, max(12, longestLength / 8))
+        guard punctuatedChoice.count < targetLength else { return punctuatedChoice }
+        let padding = " Это спокойный и безопасный вариант действий."
+        let needed = targetLength - punctuatedChoice.count
+        let repeated = String(repeating: padding, count: (needed / max(1, padding.count)) + 2)
+        return punctuatedChoice + String(repeated.prefix(needed))
     }
 
     static func lifeSkillsIndices(for difficulty: Int) -> [Int] {
@@ -3757,6 +3765,7 @@ struct ContentView: View {
     private var builtInReleaseNotes: [ReleaseNote] {
         [
             ReleaseNote(version: "1.2.35", date: "18.10.2026", title: "Адаптивная сложность навыков жизни", changes: ["В «Навыках жизни» после каждых пяти правильных ответов подряд уровень повышается на одну ступень, максимум — 5; после ошибки серия сбрасывается.", "После повышения уровня меняется набор вопросов на более сложный. Текущий уровень сохраняется между запусками.", "Карточки ответов теперь одинаковой высоты; длинный текст автоматически уменьшается, чтобы длина варианта меньше выдавала правильный ответ.", "История статистики и накопленные данные сохранены."]),
+            ReleaseNote(version: "1.2.37", date: "18.10.2026", title: "Укорочены ответы и добавлен видимый индикатор сложности", changes: ["Укорочен нейтральный текст в вариантах «Навыков жизни»; карточки автоматически растут по высоте и показывают текст целиком.", "В конце каждого варианта ответа теперь есть знак препинания, если его не было в исходном тексте.", "Добавлен заметный блок уровня сложности с прогрессом 0–5 правильных ответов подряд; после пятого ответа уровень повышается, а ошибка сбрасывает серию. История и данные сохранены."]),
             ReleaseNote(version: "1.2.36", date: "18.10.2026", title: "Сбалансированы ответы в «Навыках жизни» и исправлено повышение сложности", changes: ["Все четыре варианта ответа в «Навыках жизни» автоматически дополнены нейтральным текстом примерно одинакового объёма, чтобы длина исходного ответа не выдавала правильный вариант.", "Исправлена логика повышения уровня после каждых пяти правильных ответов подряд; серия сбрасывается при ошибке, уровень повышается до максимума 5.", "Для уровня и текущей серии использованы новые ключи сохранения, чтобы некорректное прежнее состояние не блокировало повышение сложности. Статистика, награды и история выпусков сохранены."]),
             ReleaseNote(version: "1.2.34", date: "18.10.2026", title: "Компактная статистика и время по предметам", changes: ["Шесть общих показателей в статистике стали компактнее: значок и подпись находятся в первой строке, число — во второй; сетка остаётся в три колонки и два ряда.", "В активное время добавлены четыре динамических лидера по времени занятий с предметами. Учёт времени по предметам начинается с этой версии и ведётся, когда открыт основной тренажёр и есть активность мыши.", "Для редких коллекционных игрушек восстановлена оплата 500 алмазами и исправлена иконка валюты на алмаз; обычные коллекционные игрушки по-прежнему покупаются за золото.", "Все накопленные данные и история предыдущих выпусков сохранены."]),
              ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Обычные коллекционные игрушки покупаются за золото; редкие — за 500 алмазов."]),
@@ -5468,7 +5477,30 @@ struct ContentView: View {
         let item = ActivityQuestionBank.lifeSkills[lifeSkillsOrder[lifeSkillsIndex % lifeSkillsOrder.count]]
         return ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                pageHeading("Навыки жизни", subtitle: "Уровень сложности: \(lifeSkillsDifficultyLevel) из 5 · пять верных ответов подряд повышают уровень 🌟")
+                pageHeading("Навыки жизни", subtitle: "Сложность: уровень \\(lifeSkillsDifficultyLevel) из 5")
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Label("Повышение сложности", systemImage: "arrow.up.circle.fill")
+                            .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                        Spacer()
+                        Text(lifeSkillsDifficultyLevel >= 5 ? "Максимум · 5/5" : "Уровень \\(lifeSkillsDifficultyLevel)/5")
+                            .font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded))
+                    }
+                    if lifeSkillsDifficultyLevel < 5 {
+                        let progress = Double(lifeSkillsCurrentStreak % 5) / 5.0
+                        ProgressView(value: progress).tint(palette.purple)
+                        Text("Правильных подряд: \\(lifeSkillsCurrentStreak % 5) из 5. После пятого правильного ответа подряд уровень повысится автоматически.")
+                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
+                            .foregroundStyle(palette.muted)
+                    } else {
+                        Text("Ты достиг максимального уровня сложности!")
+                            .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
+                            .foregroundStyle(palette.muted)
+                    }
+                }
+                .foregroundStyle(palette.ink)
+                .padding(14)
+                .cardStyle(palette)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     miniStat("Решено", value: "\(lifeSkillsIndex)", icon: "checkmark.circle.fill", color: palette.purple)
                     miniStat("Верно в этой сессии", value: "\(lifeSkillsScore)", icon: "target", color: palette.green)
@@ -5523,10 +5555,14 @@ struct ContentView: View {
                                     lifeSkillsSelectedAnswer = choice
                                 }
                             } label: {
-                                Text(ActivityQuestionBank.balancedLifeSkillsChoice(choice, among: item.choices)).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
-                                    .multilineTextAlignment(.center).lineLimit(3).minimumScaleFactor(0.72)
+                                Text(ActivityQuestionBank.balancedLifeSkillsChoice(choice, among: item.choices))
+                                    .font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(nil)
+                                    .fixedSize(horizontal: false, vertical: true)
                                     .foregroundStyle((lifeSkillsSelectedAnswer == choice || lifeSkillsFirstWrongAnswer == choice) ? .white : palette.ink)
-                                    .frame(maxWidth: .infinity, minHeight: 78, maxHeight: 78).padding(.horizontal, 8)
+                                    .frame(maxWidth: .infinity, minHeight: 78)
+                                    .padding(.horizontal, 8).padding(.vertical, 10)
                                     .background(
                                         lifeSkillsSelectedAnswer == choice
                                             ? (choice == item.answer ? palette.green : palette.red)
