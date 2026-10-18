@@ -7813,7 +7813,7 @@ struct ContentView: View {
         let previewScale = title == "Все страницы приложения"
             ? CGFloat(scale.wrappedValue)
             : CGFloat(scale.wrappedValue) * AppFontScale.factor
-        VStack(alignment: .leading, spacing: 3) {
+        return VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(title).font(.system(size: 10 * AppFontScale.factor * fontScaleBody, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
                 Spacer(minLength: 4)
