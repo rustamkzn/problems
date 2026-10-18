@@ -3983,7 +3983,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: "1.2.46", date: "18.10.2026", title: "Сбалансированы варианты в «Навыках жизни», исправлена пауза олимпиады", changes: ["В «Навыках жизни» варианты выбора балансируются по длине: заметно короткие варианты получают краткую нейтральную пометку, чтобы правильный ответ не выделялся только количеством слов.", "В олимпиаде пауза блокирует отправку ответа на уровне логики; кнопки выбора и поле ввода отключаются до продолжения. Ответы во время паузы не записываются в статистику и не начисляют награды.", "Сохранены объяснения, история версий, статистика, достижения, накопленные награды и отключение голосового приветствия в «Моём наставнике»."]),
+            ReleaseNote(version: "1.2.47", date: "18.10.2026", title: "В олимпиаде только текстовые вопросы с четырьмя вариантами", changes: ["Из олимпиады убраны иллюстрации: задания показываются только текстом.", "Каждый вопрос олимпиады содержит ровно четыре варианта ответа; поля ручного ввода удалены.", "Сохранены исправление паузы олимпиады, балансировка длины ответов в «Навыках жизни», статистика и история выпусков."]),
             ReleaseNote(version: "1.2.42", date: "18.10.2026", title: "Продвинутые навыки жизни и гибкое время памяти", changes: ["В «Навыки жизни» добавлены 1 000 дополнительных вопросов для возраста 10–15 лет: цифровая безопасность, деньги, критическое мышление, общение, самостоятельность и безопасность в быту. Новые вопросы доступны на высокой сложности; в каждом четыре варианта ответа.", "Голосовое приветствие теперь останавливается при выходе из «Моего наставника», поэтому оно не продолжается при переходе в другие разделы. В «Навыках жизни» озвучивание не запускается.", "В «Тренировке памяти» каждый новый уровень добавляет одну секунду на запоминание последовательности.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.41", date: "18.10.2026", title: "Естественные ответы и голосовое приветствие наставника", changes: ["Убрана повторяющаяся фраза «Это разумный и безопасный вариант действий…» из вариантов «Навыков жизни»: ответы больше не искусственно удлиняются и отображаются естественно.", "При каждом входе в «Мой наставник» Элину встречает новое случайное поддерживающее приветствие голосом. Используется доступный женский голос macOS на русском языке, если он установлен.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.40", date: "18.10.2026", title: "Размер ответов работает во всех режимах", changes: ["Ползунок H5 «Названия ответов и кнопок» теперь меняет размер вариантов в «Навыках жизни» и «Ежедневном детективе», как и в обычных заданиях.", "Ползунок H4 теперь управляет размером текста вопроса в этих двух режимах.", "Из настроек удалён неработающий информационный раздел «Учебные предметы»; выбор предметов по-прежнему доступен в левом меню.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
@@ -6591,35 +6591,20 @@ struct ContentView: View {
                             .font(.system(size: 31 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 100).padding(15)
                             .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
-                        if olympiadSubject == .pdd && shouldShowPDDIllustration(for: olympiadProblem.text) {
-                            pddIllustration(for: olympiadProblem.text)
-                        } else if olympiadSubject == .geography && olympiadProblem.text.localizedCaseInsensitiveContains("флаг") {
-                            geographyFlagIllustration(for: olympiadProblem)
-                        }
-                        if olympiadProblem.isTatarChoice || olympiadProblem.isComparison {
-                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                                ForEach(olympiadProblem.isComparison ? ["<", "=", ">"] : olympiadProblem.tatarChoices, id: \.self) { choice in
-                                    Button { submitOlympiadAnswer(choice) } label: {
-                                        Text(choice).font(.system(size: 15 * AppFontScale.factor, weight: .bold, design: .rounded))
-                                            .foregroundStyle(palette.ink).multilineTextAlignment(.center)
-                                            .frame(maxWidth: .infinity, minHeight: 58)
-                                            .padding(8).background(palette.cardSurface.opacity(0.88), in: RoundedRectangle(cornerRadius: 15))
-                                            .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple.opacity(0.65), lineWidth: 1.5))
-                                    }.buttonStyle(.plain).disabled(olympiadPaused)
+                        let choices = olympiadChoices(for: olympiadProblem)
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                            ForEach(choices, id: \.self) { choice in
+                                Button { submitOlympiadAnswer(choice) } label: {
+                                    Text(choice)
+                                        .font(.system(size: 16 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                        .foregroundStyle(palette.ink)
+                                        .frame(maxWidth: .infinity, minHeight: 62)
+                                        .padding(10)
+                                        .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
+                                        .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.line, lineWidth: 1))
                                 }
-                            }
-                        } else {
-                            HStack(spacing: 10) {
-                                TextField("Твой ответ", text: $olympiadAnswer)
-                                    .font(.system(size: 21 * AppFontScale.factor, weight: .bold, design: .rounded)).textFieldStyle(.plain)
-                                    .multilineTextAlignment(.center).foregroundStyle(palette.ink)
-                                    .frame(height: 60).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
-                                    .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 1.5))
-                                    .disabled(olympiadPaused)
-                                    .onSubmit { submitOlympiadAnswer(olympiadAnswer) }
-                                Button { submitOlympiadAnswer(olympiadAnswer) } label: {
-                                    Image(systemName: "arrow.right.circle.fill").font(.system(size: 34 * AppFontScale.factor)).foregroundStyle(palette.green)
-                                }.buttonStyle(.plain).disabled(olympiadPaused || olympiadAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                                .buttonStyle(.plain)
+                                .disabled(olympiadPaused || !olympiadFeedback.isEmpty)
                             }
                         }
                         if !olympiadFeedback.isEmpty {
@@ -6666,6 +6651,42 @@ struct ContentView: View {
         olympiadProblem = ProblemGenerator.next(for: olympiadSubject, difficulty: difficultyLevel)
         olympiadAnswer = ""
         olympiadFeedback = ""
+    }
+
+    private func olympiadChoices(for problem: Problem) -> [String] {
+        var choices: [String] = []
+        let correct = olympiadCorrectAnswer(for: problem)
+        choices.append(correct)
+        // Generate three plausible text-only distractors, never using illustrations or free-text input.
+        if problem.isComparison {
+            choices = ["<", "=", ">"]
+            if choices.count == 3 {
+                let missing = ["<", "=", ">"].filter { $0 != correct }
+                choices.append(contentsOf: missing.prefix(1))
+            }
+        } else if problem.isTatarChoice {
+            choices.append(contentsOf: problem.tatarChoices.filter { $0 != correct })
+        } else {
+            choices.append(contentsOf: olympiadDistractors(for: problem, correct: correct))
+        }
+        var unique = Array(NSOrderedSet(array: choices)) as? [String] ?? choices
+        while unique.count < 4 {
+            unique.append("Вариант \(unique.count + 1)")
+        }
+        if unique.count > 4 { unique = Array(unique.prefix(4)) }
+        return unique.shuffled()
+    }
+
+    private func olympiadCorrectAnswer(for problem: Problem) -> String {
+        if problem.isComparison { return problem.comparisonAnswer }
+        if problem.isTatarChoice { return problem.tatarCorrectChoice }
+        return problem.answer
+    }
+
+    private func olympiadDistractors(for problem: Problem, correct: String) -> [String] {
+        let candidates = problem.choices.filter { $0 != correct }
+        if candidates.count >= 3 { return Array(candidates.shuffled().prefix(3)) }
+        return candidates
     }
 
     private func submitOlympiadAnswer(_ rawAnswer: String) {
