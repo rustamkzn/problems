@@ -3984,6 +3984,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.49", date: "18.10.2026", title: "Из олимпиады исключены вопросы, требующие картинки", changes: ["Исключены не только задания с иллюстрациями, но и текстовые формулировки, которые ссылаются на флаг, рисунок или изображение.", "Сохранены обычные текстовые вопросы по географии и другим предметам.", "Порядок четырёх вариантов ответа остаётся неизменным до перехода к следующему вопросу; статистика, награды и история выпусков сохранены."]),
             ReleaseNote(version: "1.2.48", date: "18.10.2026", title: "Ответы в олимпиаде больше не прыгают", changes: ["Четыре варианта ответа формируются один раз при появлении нового вопроса и сохраняют порядок до ответа.", "Перерисовка интерфейса и обновление таймера больше не перемешивают кнопки.", "Сохранены текстовый формат олимпиады, ровно четыре варианта ответа, статистика, награды и история предыдущих выпусков."]),
             ReleaseNote(version: "1.2.47", date: "18.10.2026", title: "В олимпиаде только текстовые вопросы с четырьмя вариантами", changes: ["Из олимпиады убраны иллюстрации: задания показываются только текстом.", "Каждый вопрос олимпиады содержит ровно четыре варианта ответа; поля ручного ввода удалены.", "Сохранены исправление паузы олимпиады, балансировка длины ответов в «Навыках жизни», статистика и история выпусков."]),
             ReleaseNote(version: "1.2.42", date: "18.10.2026", title: "Продвинутые навыки жизни и гибкое время памяти", changes: ["В «Навыки жизни» добавлены 1 000 дополнительных вопросов для возраста 10–15 лет: цифровая безопасность, деньги, критическое мышление, общение, самостоятельность и безопасность в быту. Новые вопросы доступны на высокой сложности; в каждом четыре варианта ответа.", "Голосовое приветствие теперь останавливается при выходе из «Моего наставника», поэтому оно не продолжается при переходе в другие разделы. В «Навыках жизни» озвучивание не запускается.", "В «Тренировке памяти» каждый новый уровень добавляет одну секунду на запоминание последовательности.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
@@ -6647,10 +6648,41 @@ struct ContentView: View {
         olympiadFeedback = ""
     }
 
+    private func isTextOnlyOlympiadProblem(_ problem: Problem) -> Bool {
+        // Olympiad questions must be fully answerable from text alone.
+        // Exclude both actual illustration-backed items and prompts that refer to a missing image.
+        guard !problem.showIllustration else { return false }
+        let prompt = problem.text.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+        let imageReferences = [
+            "флаг", "на рисунке", "на картинке", "на изображении",
+            "изображен", "изображена", "изображено", "изображены",
+            "показан", "показана", "показано", "показаны",
+            "посмотри на рисунок", "посмотри на картинку",
+            "какой предмет изображен", "что изображено"
+        ]
+        return !imageReferences.contains { prompt.contains($0) }
+    }
+
     private func nextOlympiadProblem() {
         if olympiadSubjectOrder.isEmpty { olympiadSubjectOrder = StudySubject.allCases.shuffled() }
-        olympiadSubject = olympiadSubjectOrder[olympiadCompleted % olympiadSubjectOrder.count]
-        olympiadProblem = ProblemGenerator.next(for: olympiadSubject, difficulty: difficultyLevel)
+        // Try several subjects/questions; never present a prompt whose image was removed.
+        var candidateSubject = olympiadSubjectOrder[olympiadCompleted % olympiadSubjectOrder.count]
+        var candidate = ProblemGenerator.next(for: candidateSubject, difficulty: difficultyLevel)
+        var attempts = 0
+        while !isTextOnlyOlympiadProblem(candidate) && attempts < 250 {
+            attempts += 1
+            candidateSubject = StudySubject.allCases.randomElement() ?? .math
+            candidate = ProblemGenerator.next(for: candidateSubject, difficulty: difficultyLevel)
+        }
+        // Safe fallback: text-only arithmetic questions, independent of image-backed banks.
+        if !isTextOnlyOlympiadProblem(candidate) {
+            candidateSubject = .math
+            repeat {
+                candidate = ProblemGenerator.next(for: .math, difficulty: difficultyLevel)
+            } while !isTextOnlyOlympiadProblem(candidate)
+        }
+        olympiadSubject = candidateSubject
+        olympiadProblem = candidate
         olympiadOptions = olympiadChoices(for: olympiadProblem)
         olympiadAnswer = ""
         olympiadFeedback = ""
