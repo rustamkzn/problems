@@ -3839,6 +3839,7 @@ struct ContentView: View {
     @State private var olympiadTargetCount = 60
     @State private var olympiadCompleted = 0
     @State private var olympiadProblem = ProblemGenerator.next()
+    @State private var olympiadOptions: [String] = []
     @State private var olympiadSubject = StudySubject.math
     @State private var olympiadSubjectOrder: [StudySubject] = []
     @State private var expandedMistakeSubject: String? = nil
@@ -3983,6 +3984,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.48", date: "18.10.2026", title: "Ответы в олимпиаде больше не прыгают", changes: ["Четыре варианта ответа формируются один раз при появлении нового вопроса и сохраняют порядок до ответа.", "Перерисовка интерфейса и обновление таймера больше не перемешивают кнопки.", "Сохранены текстовый формат олимпиады, ровно четыре варианта ответа, статистика, награды и история предыдущих выпусков."]),
             ReleaseNote(version: "1.2.47", date: "18.10.2026", title: "В олимпиаде только текстовые вопросы с четырьмя вариантами", changes: ["Из олимпиады убраны иллюстрации: задания показываются только текстом.", "Каждый вопрос олимпиады содержит ровно четыре варианта ответа; поля ручного ввода удалены.", "Сохранены исправление паузы олимпиады, балансировка длины ответов в «Навыках жизни», статистика и история выпусков."]),
             ReleaseNote(version: "1.2.42", date: "18.10.2026", title: "Продвинутые навыки жизни и гибкое время памяти", changes: ["В «Навыки жизни» добавлены 1 000 дополнительных вопросов для возраста 10–15 лет: цифровая безопасность, деньги, критическое мышление, общение, самостоятельность и безопасность в быту. Новые вопросы доступны на высокой сложности; в каждом четыре варианта ответа.", "Голосовое приветствие теперь останавливается при выходе из «Моего наставника», поэтому оно не продолжается при переходе в другие разделы. В «Навыках жизни» озвучивание не запускается.", "В «Тренировке памяти» каждый новый уровень добавляет одну секунду на запоминание последовательности.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.41", date: "18.10.2026", title: "Естественные ответы и голосовое приветствие наставника", changes: ["Убрана повторяющаяся фраза «Это разумный и безопасный вариант действий…» из вариантов «Навыков жизни»: ответы больше не искусственно удлиняются и отображаются естественно.", "При каждом входе в «Мой наставник» Элину встречает новое случайное поддерживающее приветствие голосом. Используется доступный женский голос macOS на русском языке, если он установлен.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
@@ -6591,7 +6593,7 @@ struct ContentView: View {
                             .font(.system(size: 31 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             .multilineTextAlignment(.center).frame(maxWidth: .infinity, minHeight: 100).padding(15)
                             .background(palette.cardSurface.opacity(0.65), in: RoundedRectangle(cornerRadius: 18))
-                        let choices = olympiadChoices(for: olympiadProblem)
+                        let choices = olympiadOptions
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             ForEach(choices, id: \.self) { choice in
                                 Button { submitOlympiadAnswer(choice) } label: {
@@ -6649,6 +6651,7 @@ struct ContentView: View {
         if olympiadSubjectOrder.isEmpty { olympiadSubjectOrder = StudySubject.allCases.shuffled() }
         olympiadSubject = olympiadSubjectOrder[olympiadCompleted % olympiadSubjectOrder.count]
         olympiadProblem = ProblemGenerator.next(for: olympiadSubject, difficulty: difficultyLevel)
+        olympiadOptions = olympiadChoices(for: olympiadProblem)
         olympiadAnswer = ""
         olympiadFeedback = ""
     }
