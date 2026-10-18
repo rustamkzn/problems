@@ -7598,6 +7598,13 @@ struct ContentView: View {
             let key = StatsStore.dateKey(Date())
             daySeconds[key, default: 0] += 1
             if let data = try? JSONEncoder().encode(daySeconds) { activeSecondsStorage = String(decoding: data, as: UTF8.self) }
+            if selected == .task {
+                var subjectSeconds = decodedActiveSecondsBySubject
+                subjectSeconds[selectedSubjectName, default: 0] += 1
+                if let data = try? JSONEncoder().encode(subjectSeconds) {
+                    activeSecondsBySubjectStorage = String(decoding: data, as: UTF8.self)
+                }
+            }
         }
         if olympiadStarted && !olympiadPaused && !olympiadFinished {
             if olympiadSecondsRemaining <= 1 { finishOlympiad(won: false) }
