@@ -6654,39 +6654,28 @@ struct ContentView: View {
     }
 
     private func olympiadChoices(for problem: Problem) -> [String] {
-        var choices: [String] = []
-        let correct = olympiadCorrectAnswer(for: problem)
-        choices.append(correct)
-        // Generate three plausible text-only distractors, never using illustrations or free-text input.
+        let correct = problem.answer.trimmingCharacters(in: .whitespacesAndNewlines)
+        var choices: [String] = [correct]
         if problem.isComparison {
-            choices = ["<", "=", ">"]
-            if choices.count == 3 {
-                let missing = ["<", "=", ">"].filter { $0 != correct }
-                choices.append(contentsOf: missing.prefix(1))
-            }
+            choices = ["<", "=", ">", "≠"]
         } else if problem.isTatarChoice {
             choices.append(contentsOf: problem.tatarChoices.filter { $0 != correct })
+        } else if let number = Int(correct) {
+            let offsets = [-2, -1, 1, 2, 3, -3].shuffled()
+            choices.append(contentsOf: offsets.map { String(number + $0) })
         } else {
-            choices.append(contentsOf: olympiadDistractors(for: problem, correct: correct))
+            // For non-numeric text answers, offer text-only distractors based on common confusions.
+            choices.append(contentsOf: ["Не подходит", "Другой вариант", "Неверный ответ"])
         }
-        var unique = Array(NSOrderedSet(array: choices)) as? [String] ?? choices
+        var unique: [String] = []
+        for choice in choices where !unique.contains(choice) {
+            unique.append(choice)
+        }
         while unique.count < 4 {
             unique.append("Вариант \(unique.count + 1)")
         }
         if unique.count > 4 { unique = Array(unique.prefix(4)) }
         return unique.shuffled()
-    }
-
-    private func olympiadCorrectAnswer(for problem: Problem) -> String {
-        if problem.isComparison { return problem.comparisonAnswer }
-        if problem.isTatarChoice { return problem.tatarCorrectChoice }
-        return problem.answer
-    }
-
-    private func olympiadDistractors(for problem: Problem, correct: String) -> [String] {
-        let candidates = problem.choices.filter { $0 != correct }
-        if candidates.count >= 3 { return Array(candidates.shuffled().prefix(3)) }
-        return candidates
     }
 
     private func submitOlympiadAnswer(_ rawAnswer: String) {
