@@ -3609,6 +3609,7 @@ struct ContentView: View {
     @State private var memorySelectedAnswer: String? = nil
     @State private var lifeSkillsIndex = 0
     @State private var lifeSkillsOrder = ActivityQuestionBank.lifeSkills.indices.shuffled()
+    @State private var lifeSkillsLevelUpPending = false
     @State private var memoryCountdown = 4
     @State private var lifeSkillsScore = 0
     @State private var lifeSkillsSelectedAnswer: String? = nil
@@ -5437,7 +5438,7 @@ struct ContentView: View {
         let item = ActivityQuestionBank.lifeSkills[lifeSkillsOrder[lifeSkillsIndex % lifeSkillsOrder.count]]
         return ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                pageHeading("Навыки жизни", subtitle: "Учимся применять знания в обычных ситуациях 🌟")
+                pageHeading("Навыки жизни", subtitle: "Уровень сложности: \(lifeSkillsDifficultyLevel) из 5 · пять верных ответов подряд повышают уровень 🌟")
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     miniStat("Решено", value: "\(lifeSkillsIndex)", icon: "checkmark.circle.fill", color: palette.purple)
                     miniStat("Верно в этой сессии", value: "\(lifeSkillsScore)", icon: "target", color: palette.green)
@@ -5474,6 +5475,10 @@ struct ContentView: View {
                                     lifeSkillsTotalCorrect += 1
                                     lifeSkillsCurrentStreak += 1
                                     lifeSkillsBestStreak = max(lifeSkillsBestStreak, lifeSkillsCurrentStreak)
+                                    if lifeSkillsCurrentStreak.isMultiple(of: 5), lifeSkillsDifficultyLevel < 5 {
+                                        lifeSkillsDifficultyLevel += 1
+                                        lifeSkillsLevelUpPending = true
+                                    }
                                     lifeSkillsScore += 1
                                     lifeSkillsBestScore = max(lifeSkillsBestScore, lifeSkillsScore)
                                     goldBalance += 1
@@ -5489,8 +5494,9 @@ struct ContentView: View {
                                 }
                             } label: {
                                 Text(choice).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                    .multilineTextAlignment(.center).lineLimit(3).minimumScaleFactor(0.72)
                                     .foregroundStyle((lifeSkillsSelectedAnswer == choice || lifeSkillsFirstWrongAnswer == choice) ? .white : palette.ink)
-                                    .frame(maxWidth: .infinity, minHeight: 60).padding(.horizontal, 8)
+                                    .frame(maxWidth: .infinity, minHeight: 78, maxHeight: 78).padding(.horizontal, 8)
                                     .background(
                                         lifeSkillsSelectedAnswer == choice
                                             ? (choice == item.answer ? palette.green : palette.red)
@@ -5502,7 +5508,7 @@ struct ContentView: View {
                         }
                     }
                     if let picked = lifeSkillsSelectedAnswer {
-                        Text(picked == item.answer ? "Верно! \(item.explanation)" : "Вторая попытка использована. Правильный ответ: \(item.answer). \(item.explanation)")
+                        Text(picked == item.answer ? (lifeSkillsLevelUpPending ? "Верно! Пять правильных ответов подряд — уровень повышен до \(lifeSkillsDifficultyLevel). \(item.explanation)" : "Верно! \(item.explanation)") : "Вторая попытка использована. Правильный ответ: \(item.answer). \(item.explanation)")
                             .font(.system(size: 14 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(picked == item.answer ? palette.green : palette.red)
                             .fixedSize(horizontal: false, vertical: true).padding(12)
                             .background((picked == item.answer ? palette.green : palette.red).opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
