@@ -4964,7 +4964,7 @@ struct ContentView: View {
                                         detectiveTotalCorrect += 1
                                         detectiveCurrentStreak += 1
                                         detectiveBestStreak = max(detectiveBestStreak, detectiveCurrentStreak)
-                                        store.addDiamonds(1)
+                                        goldBalance += 1
                                     } else {
                                         detectiveTotalWrong += 1
                                         detectiveCurrentStreak = 0
@@ -5381,7 +5381,7 @@ struct ContentView: View {
                                     lifeSkillsBestStreak = max(lifeSkillsBestStreak, lifeSkillsCurrentStreak)
                                     lifeSkillsScore += 1
                                     lifeSkillsBestScore = max(lifeSkillsBestScore, lifeSkillsScore)
-                                    store.addDiamonds(1)
+                                    goldBalance += 1
                                 } else if lifeSkillsFirstWrongAnswer == nil {
                                     lifeSkillsTotalWrong += 1
                                     lifeSkillsCurrentStreak = 0
@@ -6501,15 +6501,29 @@ struct ContentView: View {
                         goldCoinIcon(size: 32)
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Алмазы за золото").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text("Баланс: \(goldBalance) золотых монет").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                            Text("Обмен: 100 золотых монет → 50 алмазов").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                         }
                         Spacer()
-                        Text("💎 \(store.stats.diamonds)").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
+                        Text("Золото: \(goldBalance)").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
                     }
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                        goldPackCard(gold: 100, cost: 50)
-                        goldPackCard(gold: 200, cost: 95)
-                        goldPackCard(gold: 500, cost: 250)
+                    HStack {
+                        Spacer()
+                        Button {
+                            guard goldBalance >= 100 else { return }
+                            goldBalance -= 100
+                            store.addDiamonds(50)
+                        } label: {
+                            HStack(spacing: 8) {
+                                goldCoinIcon(size: 22)
+                                Text("100").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                Image(systemName: "arrow.right").font(.system(size: 12, weight: .black))
+                                Text("💎 50").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                            }
+                            .foregroundStyle(.white).padding(.horizontal, 18).padding(.vertical, 11)
+                            .background(Color(red: 0.24, green: 0.08, blue: 0.55), in: Capsule())
+                        }
+                        .buttonStyle(.plain).disabled(goldBalance < 100).opacity(goldBalance >= 100 ? 1 : 0.55)
+                        Spacer()
                     }
                 }.padding(16).cardStyle(palette)
 
@@ -6562,7 +6576,7 @@ struct ContentView: View {
                         .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.green)
                         .frame(maxWidth: .infinity).padding(22)
                 }
-                Text("Золотые монеты можно обменять из алмазов выше. Редкие 3D-игрушки стоят 500 алмазов. Обычные цены идут по порядку: 25, 26, 27, 28 и далее.")
+                Text("За правильный ответ начисляется 1 золотая монета. Обычные коллекционные игрушки покупаются за золото; редкие — за 500 алмазов. Обмен: 100 золотых монет на 50 алмазов.")
                     .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }.padding(25)
@@ -6660,7 +6674,7 @@ struct ContentView: View {
             }
             Text(owned ? item.title : (item.isRare ? "Редкий коллекционный приз" : "Секретный приз"))
                 .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
-            Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "3D-коллекционный приз за 500 алмазов" : "Открой коробочку, чтобы узнать игрушку"))
+            Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "3D-коллекционный приз за 500 алмазов" : "Коллекционная игрушка за золотые монеты"))
                 .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
 
             if owned {
@@ -6668,16 +6682,20 @@ struct ContentView: View {
             } else {
                 Button { buyCollectible(item) } label: {
                     HStack(spacing: 5) {
-                        Text(item.isRare ? "🌟" : "💎").font(.system(size: 12 * AppFontScale.factor))
+                        if item.isRare {
+                            Text("💎").font(.system(size: 12 * AppFontScale.factor))
+                        } else {
+                            goldCoinIcon(size: 14)
+                        }
                         Text("\(price)").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
                         Text(item.isRare ? "Открыть" : "Купить").font(.system(size: 10 * AppFontScale.factor, weight: .bold, design: .rounded))
                     }
                     .frame(maxWidth: .infinity).padding(.vertical, 8)
-                    .foregroundStyle(store.stats.diamonds >= price ? (item.isRare ? Color(red: 0.36, green: 0.23, blue: 0.04) : .white) : palette.muted)
-                    .background(store.stats.diamonds >= price
+                    .foregroundStyle((item.isRare ? store.stats.diamonds >= price : goldBalance >= price) ? (item.isRare ? Color(red: 0.36, green: 0.23, blue: 0.04) : .white) : palette.muted)
+                    .background((item.isRare ? store.stats.diamonds >= price : goldBalance >= price)
                         ? (item.isRare ? gold.opacity(0.85) : palette.purple)
                         : palette.line, in: Capsule())
-                }.buttonStyle(.plain).disabled(store.stats.diamonds < price)
+                }.buttonStyle(.plain).disabled(item.isRare ? store.stats.diamonds < price : goldBalance < price)
             }
         }
         .padding(11)
@@ -6720,8 +6738,13 @@ struct ContentView: View {
     private func buyCollectible(_ item: Collectible) {
         // Не выдаём и не продаём коллекционную игрушку второй раз.
         guard !allOwnedCollectibleIDs.contains(item.id) else { return }
-        let price = shopPrices[item.id] ?? 25
-        guard store.spendDiamonds(price) else { return }
+        let price = shopPrices[item.id] ?? (item.isRare ? 500 : 25)
+        if item.isRare {
+            guard store.spendDiamonds(price) else { return }
+        } else {
+            guard goldBalance >= price else { return }
+            goldBalance -= price
+        }
         shopPurchasesStorage = shopOwnedIDs.union([item.id]).sorted().joined(separator: ",")
         triggerCelebration(item.isRare ? "rare:\(item.id)" : "bonus:\(item.id)")
     }
