@@ -3626,7 +3626,7 @@ struct ContentView: View {
     @State private var memoryShowing = true
     @State private var memorySelectedAnswer: String? = nil
     @State private var lifeSkillsIndex = 0
-    @State private var lifeSkillsOrder = ActivityQuestionBank.lifeSkills.indices.shuffled()
+    @State private var lifeSkillsOrder = ActivityQuestionBank.lifeSkillsIndices(for: 1).shuffled()
     @State private var lifeSkillsLevelUpPending = false
     @State private var memoryCountdown = 4
     @State private var lifeSkillsScore = 0
@@ -5533,8 +5533,17 @@ struct ContentView: View {
                         HStack {
                             Spacer()
                             Button {
-                                lifeSkillsIndex += 1
-                                if lifeSkillsIndex >= lifeSkillsOrder.count { lifeSkillsIndex = 0; lifeSkillsOrder = ActivityQuestionBank.lifeSkills.indices.shuffled() }
+                                if lifeSkillsLevelUpPending {
+                                    lifeSkillsOrder = ActivityQuestionBank.lifeSkillsIndices(for: lifeSkillsDifficultyLevel).shuffled()
+                                    lifeSkillsIndex = 0
+                                    lifeSkillsLevelUpPending = false
+                                } else {
+                                    lifeSkillsIndex += 1
+                                    if lifeSkillsIndex >= lifeSkillsOrder.count {
+                                        lifeSkillsIndex = 0
+                                        lifeSkillsOrder = ActivityQuestionBank.lifeSkillsIndices(for: lifeSkillsDifficultyLevel).shuffled()
+                                    }
+                                }
                                 lifeSkillsSelectedAnswer = nil
                                 lifeSkillsFirstWrongAnswer = nil
                             } label: {
