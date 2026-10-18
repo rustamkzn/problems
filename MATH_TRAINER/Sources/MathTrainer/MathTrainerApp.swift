@@ -3015,6 +3015,14 @@ private enum AppTheme: String, CaseIterable, Identifiable {
     case lightOcean = "Светлая с тёмными блоками — океан"
     case lightBerry = "Светлая с тёмными блоками — ягода"
     case lightGraphite = "Светлая с тёмными блоками — графит"
+
+    // Legacy cases remain valid for saved preferences, but only distinct themes
+    // are offered in Settings.
+    static var selectableThemes: [AppTheme] {
+        [.lilac, .ocean, .mint, .peach, .night, .rose, .forest, .sky, .sunshine, .galaxy,
+         .coral, .teal, .denim, .amber, .berry, .darkRuby, .darkForest, .darkOcean, .darkGraphite, .darkAmber]
+    }
+
     var paletteBase: AppTheme {
         switch self {
         case .gradientLavender, .lightMidnight: .lilac
@@ -3768,6 +3776,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.39", date: "18.10.2026", title: "Исправлен предпросмотр шрифтов и убраны дубли тем", changes: ["Пример варианта ответа теперь связан с настройкой H5 и меняется сразу; каждый пример размера шрифта использует собственный регулятор, а общий масштаб применяется один раз.", "Настройка H5 применяется к тексту вариантов ответа в сетке выбора перевода.", "В настройках оставлены 20 тем без повторяющихся вариантов: 15 самостоятельных светлых палитр и 5 контрастных тёмных тем. Старые сохранённые настройки темы не сбрасываются.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.35", date: "18.10.2026", title: "Адаптивная сложность навыков жизни", changes: ["В «Навыках жизни» после каждых пяти правильных ответов подряд уровень повышается на одну ступень, максимум — 5; после ошибки серия сбрасывается.", "После повышения уровня меняется набор вопросов на более сложный. Текущий уровень сохраняется между запусками.", "Карточки ответов теперь одинаковой высоты; длинный текст автоматически уменьшается, чтобы длина варианта меньше выдавала правильный ответ.", "История статистики и накопленные данные сохранены."]),
             ReleaseNote(version: "1.2.37", date: "18.10.2026", title: "Укорочены ответы и добавлен видимый индикатор сложности", changes: ["Укорочен нейтральный текст в вариантах «Навыков жизни»; карточки автоматически растут по высоте и показывают текст целиком.", "В конце каждого варианта ответа теперь есть знак препинания, если его не было в исходном тексте.", "Добавлен заметный блок уровня сложности с прогрессом 0–5 правильных ответов подряд; после пятого ответа уровень повышается, а ошибка сбрасывает серию. История и данные сохранены."]),
             ReleaseNote(version: "1.2.38", date: "18.10.2026", title: "Исправлены надписи прогресса и компактность ответов", changes: ["Исправлена интерполяция текста уровня и серии: приложение показывает реальные числа вместо технических названий переменных.", "Нейтральное дополнение ответов сокращено; текст вариантов заканчивается корректным знаком препинания, а карточки растут по высоте, чтобы не обрезать ответы.", "Индикатор показывает прогресс правильных ответов подряд и текущий уровень 1–5. После пятого верного ответа подряд уровень повышается, после ошибки серия сбрасывается. История и накопленные данные сохранены."]),            ReleaseNote(version: "1.2.36", date: "18.10.2026", title: "Сбалансированы ответы в «Навыках жизни» и исправлено повышение сложности", changes: ["Все четыре варианта ответа в «Навыках жизни» автоматически дополнены нейтральным текстом примерно одинакового объёма, чтобы длина исходного ответа не выдавала правильный вариант.", "Исправлена логика повышения уровня после каждых пяти правильных ответов подряд; серия сбрасывается при ошибке, уровень повышается до максимума 5.", "Для уровня и текущей серии использованы новые ключи сохранения, чтобы некорректное прежнее состояние не блокировало повышение сложности. Статистика, награды и история выпусков сохранены."]),
@@ -4780,7 +4789,7 @@ struct ContentView: View {
                                 .frame(width: 27, height: 27)
                                 .background(answer == choice ? Color.white.opacity(0.22) : palette.palePink, in: Circle())
                             Text(choice)
-                                .font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                .font(.system(size: 14 * AppFontScale.factor * fontScaleH5, weight: .bold, design: .rounded))
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(2)
                             Spacer(minLength: 0)
@@ -7106,9 +7115,9 @@ struct ContentView: View {
                     .background(LinearGradient(colors: [palette.purple.opacity(0.22), palette.pink.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 17))
                     .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.purple, lineWidth: 2))
                     Label("Тема оформления", systemImage: "paintpalette.fill").font(.system(size: 18 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Выбери одну из двадцати тем. Пять новых тем — тёмные и контрастные.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
+                    Text("Выбери одну из 20 неповторяющихся тем: 15 светлых цветовых палитр и 5 контрастных тёмных тем.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 10) {
-                        ForEach(AppTheme.allCases) { theme in themeSwatch(theme) }
+                        ForEach(AppTheme.selectableThemes) { theme in themeSwatch(theme) }
                     }
                     Divider().overlay(palette.line)
                     Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
@@ -7798,6 +7807,12 @@ struct ContentView: View {
     }
 
     private func fontScaleControl(_ title: String, scale: Binding<Double>, example: String, baseSize: CGFloat) -> some View {
+        // The global scale is already represented by AppFontScale.factor. Avoid
+        // multiplying every preview by the body-text setting: each preview follows
+        // its own slider, and the global preview applies the global value only once.
+        let previewScale = title == "Все страницы приложения"
+            ? CGFloat(scale.wrappedValue)
+            : CGFloat(scale.wrappedValue) * AppFontScale.factor
         VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(title).font(.system(size: 10 * AppFontScale.factor * fontScaleBody, weight: .bold, design: .rounded)).foregroundStyle(palette.ink)
@@ -7807,7 +7822,7 @@ struct ContentView: View {
             HStack(spacing: 10) {
                 interactiveSlider(value: scale, range: 0.8...2.0, step: 0.1, knobSize: 14)
                     .frame(width: 220, height: 22)
-                Text(example).font(.system(size: baseSize * scale.wrappedValue * AppFontScale.factor * fontScaleBody, weight: .semibold, design: .rounded))
+                Text(example).font(.system(size: baseSize * previewScale, weight: .semibold, design: .rounded))
                     .foregroundStyle(palette.ink).lineLimit(1).minimumScaleFactor(0.7).frame(maxWidth: .infinity, alignment: .leading)
             }
         }
