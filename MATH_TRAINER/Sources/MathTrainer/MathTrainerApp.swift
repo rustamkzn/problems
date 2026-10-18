@@ -3552,6 +3552,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.LifeSkillsWrong.v1") private var lifeSkillsTotalWrong = 0
     @AppStorage("MathTrainer.LifeSkillsStreak.v1") private var lifeSkillsCurrentStreak = 0
     @AppStorage("MathTrainer.LifeSkillsBestStreak.v1") private var lifeSkillsBestStreak = 0
+    @AppStorage("MathTrainer.LifeSkillsDifficulty.v1") private var lifeSkillsDifficultyLevel = 1
     @AppStorage("MathTrainer.LifeSkillsReview.v1") private var lifeSkillsReviewStorage = "[]"
     @AppStorage("MathTrainer.MentorActivityDates.v1") private var mentorActivityDatesStorage = "[]"
     @AppStorage("MathTrainer.MentorAvatar.v1") private var mentorAvatarEmoji = "🦉"
