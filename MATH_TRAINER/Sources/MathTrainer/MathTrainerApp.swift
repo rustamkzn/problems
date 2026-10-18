@@ -3532,6 +3532,7 @@ struct ContentView: View {
     @AppStorage("MathTrainer.SubjectPerformance.v1") private var subjectPerformanceStorage = ""
     @AppStorage("MathTrainer.TopicPerformance.v1") private var topicPerformanceStorage = "{}"
     @AppStorage("MathTrainer.ActiveSecondsByDay.v1") private var activeSecondsStorage = ""
+    @AppStorage("MathTrainer.ActiveSecondsBySubject.v1") private var activeSecondsBySubjectStorage = "{}"
     @AppStorage("MathTrainer.OlympiadWins.v1") private var olympiadWins = 0
     @AppStorage("MathTrainer.Mistakes.v1") private var mistakesStorage = ""
     @AppStorage("MathTrainer.ReviewAttempts.v1") private var reviewAttemptsStorage = "[]"
@@ -3646,9 +3647,16 @@ struct ContentView: View {
         return value
     }
     private var subjectActiveTimeLeaders: [(String, Int)] {
-        StudySubject.allCases.map { ($0.rawValue, decodedActiveSecondsBySubject[$0.rawValue] ?? 0) }
-            .sorted { left, right in left.1 == right.1 ? left.0 < right.0 : left.1 > right.1 }
-            .prefix(4).map { $0 }
+        var rows: [(String, Int)] = []
+        for subject in StudySubject.allCases {
+            let seconds = decodedActiveSecondsBySubject[subject.rawValue] ?? 0
+            rows.append((subject.rawValue, seconds))
+        }
+        rows.sort { left, right in
+            if left.1 == right.1 { return left.0 < right.0 }
+            return left.1 > right.1
+        }
+        return Array(rows.prefix(4))
     }
     private var decodedMistakes: [MistakeRecord] {
         guard let data = mistakesStorage.data(using: .utf8), let value = try? JSONDecoder().decode([MistakeRecord].self, from: data) else { return [] }
@@ -3719,7 +3727,7 @@ struct ContentView: View {
     private var builtInReleaseNotes: [ReleaseNote] {
         [
             ReleaseNote(version: "1.2.34", date: "18.10.2026", title: "Компактная статистика и время по предметам", changes: ["Шесть общих показателей в статистике стали компактнее: значок и подпись находятся в первой строке, число — во второй; сетка остаётся в три колонки и два ряда.", "В активное время добавлены четыре динамических лидера по времени занятий с предметами. Учёт времени по предметам начинается с этой версии и ведётся, когда открыт основной тренажёр и есть активность мыши.", "Для редких коллекционных игрушек восстановлена оплата 500 алмазами и исправлена иконка валюты на алмаз; обычные коллекционные игрушки по-прежнему покупаются за золото.", "Все накопленные данные и история предыдущих выпусков сохранены."]),
-             ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Обычные коллекционные игрушки покупаются за золото; редкие — за 500 алмазов."])
+             ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Обычные коллекционные игрушки покупаются за золото; редкие — за 500 алмазов."]),
             ReleaseNote(version: "1.2.31", date: "17.10.2026", title: "Единый режим «Повторить ошибки»", changes: ["В левое меню добавлен отдельный раздел, объединяющий ошибки школьных предметов, ежедневного детектива и навыков жизни.", "Ребёнок отвечает на сохранённое задание заново, видит правильный ответ и понятное объяснение.", "Попытки записываются в отдельную историю. Ошибка не удаляется после первого правильного ответа: освоение отмечается после трёх верных ответов подряд.", "Все прежние ошибки, статистика и история версий сохранены."]),
 
             ReleaseNote(version: "1.2.30", date: "17.10.2026", title: "Автоматическая проверка качества заданий", changes: ["Перед каждой сборкой запускается аудит банка заданий: проверяются четыре варианта ответа, наличие правильного ответа и повторяющиеся варианты в статических заданиях.", "Проверяется наличие маршрутов генерации для школьных предметов, олимпиады, ежедневного детектива, навыков жизни, тренировки памяти и повторения ошибок.", "Подозрительные формулировки выводятся в отчёт как предупреждения; критические структурные ошибки останавливают упаковку приложения.", "Проверка не заменяет полноценную смысловую проверку языка и автоматически генерируемых примеров; результаты аудита выводятся в GitHub Actions."]),
