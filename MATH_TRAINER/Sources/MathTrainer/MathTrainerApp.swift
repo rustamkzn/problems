@@ -3776,6 +3776,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.40", date: "18.10.2026", title: "Размер ответов работает во всех режимах", changes: ["Ползунок H5 «Названия ответов и кнопок» теперь меняет размер вариантов в «Навыках жизни» и «Ежедневном детективе», как и в обычных заданиях.", "Ползунок H4 теперь управляет размером текста вопроса в этих двух режимах.", "Из настроек удалён неработающий информационный раздел «Учебные предметы»; выбор предметов по-прежнему доступен в левом меню.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.39", date: "18.10.2026", title: "Исправлен предпросмотр шрифтов и убраны дубли тем", changes: ["Пример варианта ответа теперь связан с настройкой H5 и меняется сразу; каждый пример размера шрифта использует собственный регулятор, а общий масштаб применяется один раз.", "Настройка H5 применяется к тексту вариантов ответа в сетке выбора перевода.", "В настройках оставлены 20 тем без повторяющихся вариантов: 15 самостоятельных светлых палитр и 5 контрастных тёмных тем. Старые сохранённые настройки темы не сбрасываются.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.35", date: "18.10.2026", title: "Адаптивная сложность навыков жизни", changes: ["В «Навыках жизни» после каждых пяти правильных ответов подряд уровень повышается на одну ступень, максимум — 5; после ошибки серия сбрасывается.", "После повышения уровня меняется набор вопросов на более сложный. Текущий уровень сохраняется между запусками.", "Карточки ответов теперь одинаковой высоты; длинный текст автоматически уменьшается, чтобы длина варианта меньше выдавала правильный ответ.", "История статистики и накопленные данные сохранены."]),
             ReleaseNote(version: "1.2.37", date: "18.10.2026", title: "Укорочены ответы и добавлен видимый индикатор сложности", changes: ["Укорочен нейтральный текст в вариантах «Навыков жизни»; карточки автоматически растут по высоте и показывают текст целиком.", "В конце каждого варианта ответа теперь есть знак препинания, если его не было в исходном тексте.", "Добавлен заметный блок уровня сложности с прогрессом 0–5 правильных ответов подряд; после пятого ответа уровень повышается, а ошибка сбрасывает серию. История и данные сохранены."]),
@@ -5058,7 +5059,7 @@ struct ContentView: View {
                         }
                         HStack(alignment: .center, spacing: 14) {
                             Text(item.symbol).font(.system(size: 52 * AppFontScale.factor)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
-                            Text(item.prompt).font(.system(size: 20 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                            Text(item.prompt).font(.system(size: 20 * AppFontScale.factor * fontScaleH4, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                         }
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                             ForEach(item.choices, id: \.self) { choice in
@@ -5079,7 +5080,7 @@ struct ContentView: View {
                                         recordActivityMistake(source: "Ежедневный детектив", prompt: item.prompt, selectedAnswer: choice, correctAnswer: item.answer, choices: item.choices, explanation: item.explanation)
                                     }
                                 } label: {
-                                    Text(choice).font(.system(size: 15 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                    Text(choice).font(.system(size: 15 * AppFontScale.factor * fontScaleH5, weight: .bold, design: .rounded))
                                         .foregroundStyle(detectiveSelectedAnswer == choice ? .white : palette.ink)
                                         .frame(maxWidth: .infinity, minHeight: 54)
                                         .padding(.horizontal, 8)
@@ -5536,7 +5537,7 @@ struct ContentView: View {
                         Text(item.symbol).font(.system(size: 52 * AppFontScale.factor)).frame(width: 72, height: 72).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 18))
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Ситуация из жизни").font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.purple)
-                            Text(item.prompt).font(.system(size: 20 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
+                            Text(item.prompt).font(.system(size: 20 * AppFontScale.factor * fontScaleH4, weight: .bold, design: .rounded)).foregroundStyle(palette.ink).fixedSize(horizontal: false, vertical: true)
                         }
                     }
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
@@ -5569,7 +5570,7 @@ struct ContentView: View {
                                 }
                             } label: {
                                 Text(ActivityQuestionBank.balancedLifeSkillsChoice(choice, among: item.choices))
-                                    .font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                    .font(.system(size: 14 * AppFontScale.factor * fontScaleH5, weight: .bold, design: .rounded))
                                     .multilineTextAlignment(.center)
                                     .lineLimit(nil)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -7118,18 +7119,6 @@ struct ContentView: View {
                     Text("Выбери одну из 20 неповторяющихся тем: 15 светлых цветовых палитр и 5 контрастных тёмных тем.").font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 10) {
                         ForEach(AppTheme.selectableThemes) { theme in themeSwatch(theme) }
-                    }
-                    Divider().overlay(palette.line)
-                    Label("Учебные предметы", systemImage: "books.vertical.fill").font(.system(size: 17 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                    Text("Выбери предмет в левом меню. В рисовании — вопросы о цветах, художественных жанрах, материалах и техниках.")
-                        .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted)
-                    ForEach(StudySubject.allCases) { subject in
-                        HStack(spacing: 9) {
-                            Image(systemName: subject.icon).foregroundStyle(palette.purple).frame(width: 22)
-                            Text(subject.rawValue).font(.system(size: 13 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.ink)
-                            Spacer()
-                            if subject == selectedSubject { Image(systemName: "checkmark.circle.fill").foregroundStyle(palette.green) }
-                        }
                     }
                 }.padding(22).cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
