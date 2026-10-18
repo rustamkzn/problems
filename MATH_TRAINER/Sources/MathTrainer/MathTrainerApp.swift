@@ -2585,9 +2585,14 @@ private enum ActivityQuestionBank {
         let targetLength = longestLength + min(24, max(12, longestLength / 8))
         guard punctuatedChoice.count < targetLength else { return punctuatedChoice }
         let padding = " Это спокойный и безопасный вариант действий."
-        let needed = targetLength - punctuatedChoice.count
-        let repeated = String(repeating: padding, count: (needed / max(1, padding.count)) + 2)
-        return punctuatedChoice + String(repeated.prefix(needed))
+        var result = punctuatedChoice
+        while result.count + padding.count <= targetLength {
+            result += padding
+        }
+        if let last = result.last, !".!?…".contains(last) {
+            result += "."
+        }
+        return result
     }
 
     static func lifeSkillsIndices(for difficulty: Int) -> [Int] {
