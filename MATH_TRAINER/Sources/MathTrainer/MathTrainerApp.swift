@@ -3596,6 +3596,7 @@ struct ContentView: View {
     @State private var detectiveIndex = 0
     @State private var detectiveScore = 0
     @State private var detectiveSelectedAnswer: String? = nil
+    @State private var detectiveShowDetailedError = false
     @State private var detectiveFinished = false
     @State private var memoryLevel = 1
     @State private var memoryRound = 0
@@ -3708,7 +3709,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: "1.2.32", date: "18.10.2026", title: "1 000 новых ситуаций и обновление экономики", changes: ["Добавлены 1 000 новых ситуаций о школе, общении, травле, эмоциях, лифте, гостях, даче, помощи близким, учебных материалах, уборке, покупках, приготовлении еды и использовании телефона.", "За правильный ответ начисляется 1 золотая монета; обычные коллекционные игрушки покупаются за золото, редкие — за алмазы.", "Старый обмен алмазов на золото заменён на 100 золотых монет за 50 алмазов.", "Вопрос о знаке движения прямо больше не подсказывает ответ названием. История версий и накопленные данные сохранены."]),
+            ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Цены коллекционных игрушек в магазине используют золотые монеты; редкие коллекционные по-прежнему покупаются за алмазы."]),
             ReleaseNote(version: "1.2.31", date: "17.10.2026", title: "Единый режим «Повторить ошибки»", changes: ["В левое меню добавлен отдельный раздел, объединяющий ошибки школьных предметов, ежедневного детектива и навыков жизни.", "Ребёнок отвечает на сохранённое задание заново, видит правильный ответ и понятное объяснение.", "Попытки записываются в отдельную историю. Ошибка не удаляется после первого правильного ответа: освоение отмечается после трёх верных ответов подряд.", "Все прежние ошибки, статистика и история версий сохранены."]),
 
             ReleaseNote(version: "1.2.30", date: "17.10.2026", title: "Автоматическая проверка качества заданий", changes: ["Перед каждой сборкой запускается аудит банка заданий: проверяются четыре варианта ответа, наличие правильного ответа и повторяющиеся варианты в статических заданиях.", "Проверяется наличие маршрутов генерации для школьных предметов, олимпиады, ежедневного детектива, навыков жизни, тренировки памяти и повторения ошибок.", "Подозрительные формулировки выводятся в отчёт как предупреждения; критические структурные ошибки останавливают упаковку приложения.", "Проверка не заменяет полноценную смысловую проверку языка и автоматически генерируемых примеров; результаты аудита выводятся в GitHub Actions."]),
@@ -4014,13 +4015,13 @@ struct ContentView: View {
                 Button { openShop() } label: {
                     HStack(spacing: 7) {
                         HStack(spacing: 4) {
-                            Text("💎").font(.system(size: 18 * AppFontScale.factor))
-                            Text("\(store.stats.diamonds)").font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
+                            goldCoinIcon(size: 18)
+                            Text("\(goldBalance)").font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.83, green: 0.55, blue: 0.02))
                         }.frame(maxWidth: .infinity)
                         Rectangle().fill(palette.line).frame(width: 1, height: 22)
                         HStack(spacing: 4) {
-                            goldCoinIcon(size: 18)
-                            Text("\(goldBalance)").font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(Color(red: 0.83, green: 0.55, blue: 0.02))
+                            Text("💎").font(.system(size: 18 * AppFontScale.factor))
+                            Text("\(store.stats.diamonds)").font(.system(size: 12 * AppFontScale.factor, weight: .black, design: .rounded)).foregroundStyle(palette.ink)
                         }.frame(maxWidth: .infinity)
                     }.padding(.horizontal, 8).padding(.vertical, 9)
                      .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 11))
@@ -4967,7 +4968,7 @@ struct ContentView: View {
                         }
                         Button {
                             detectiveQuestions = Array(ActivityQuestionBank.detective.shuffled().prefix(5))
-                            detectiveIndex = 0; detectiveScore = 0; detectiveSelectedAnswer = nil; detectiveFinished = false
+                            detectiveIndex = 0; detectiveScore = 0; detectiveSelectedAnswer = nil; detectiveShowDetailedError = false; detectiveFinished = false
                         } label: {
                             Label("Новое расследование", systemImage: "arrow.clockwise")
                                 .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(.white)
@@ -5022,12 +5023,52 @@ struct ContentView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(12).frame(maxWidth: .infinity, alignment: .leading)
                                 .background((picked == item.answer ? palette.green : palette.red).opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
+                            if picked != item.answer {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Button {
+                                        withAnimation(.easeInOut(duration: 0.2)) { detectiveShowDetailedError.toggle() }
+                                    } label: {
+                                        Label(detectiveShowDetailedError ? "Скрыть подробный разбор" : "Разобрать ошибку подробно",
+                                              systemImage: detectiveShowDetailedError ? "chevron.up.circle.fill" : "lightbulb.max.fill")
+                                            .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                            .foregroundStyle(palette.purple)
+                                    }.buttonStyle(.plain)
+                                    if detectiveShowDetailedError {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Label("Разбор ошибки", systemImage: "magnifyingglass")
+                                                .font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                                                .foregroundStyle(palette.ink)
+                                            Text("Твой ответ: \(picked)")
+                                                .font(.system(size: 13 * AppFontScale.factor, weight: .semibold, design: .rounded))
+                                                .foregroundStyle(palette.red)
+                                            Text("Правильный ответ: \(item.answer)")
+                                                .font(.system(size: 13 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                                .foregroundStyle(palette.green)
+                                            Text(item.explanation)
+                                                .font(.system(size: 13 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                                .foregroundStyle(palette.ink)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                            Text("Запомни: сначала внимательно прочитай условие, затем сравни свой вариант с объяснением и попробуй применить это правило в следующей загадке.")
+                                                .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                                .foregroundStyle(palette.muted)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                        }
+                                        .padding(14)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 13))
+                                        .overlay(RoundedRectangle(cornerRadius: 13).stroke(palette.line, lineWidth: 1))
+                                    }
+                                }
+                                .padding(12)
+                                .background(palette.red.opacity(0.06), in: RoundedRectangle(cornerRadius: 13))
+                            }
                             HStack {
                                 Spacer()
                                 Button {
                                     if detectiveIndex + 1 < detectiveQuestions.count {
                                         detectiveIndex += 1
                                         detectiveSelectedAnswer = nil
+                                        detectiveShowDetailedError = false
                                     } else {
                                         detectiveFinished = true
                                         detectiveBestScore = max(detectiveBestScore, detectiveScore)
@@ -6514,14 +6555,14 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Твой баланс").font(.system(size: 12 * AppFontScale.factor, weight: .bold, design: .rounded)).foregroundStyle(palette.muted)
                         HStack(spacing: 7) {
-                            Text("💎").font(.system(size: 25 * AppFontScale.factor))
-                            Text("\(store.stats.diamonds)").font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text("алмазов").font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
-                        }
-                        HStack(spacing: 7) {
                             goldCoinIcon(size: 24)
                             Text("\(goldBalance)").font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
                             Text("золота").font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                        }
+                        HStack(spacing: 7) {
+                            Text("💎").font(.system(size: 25 * AppFontScale.factor))
+                            Text("\(store.stats.diamonds)").font(.system(size: 22 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
+                            Text("алмазов").font(.system(size: 11 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                         }
                     }
                     Spacer(minLength: 4)
@@ -6537,29 +6578,15 @@ struct ContentView: View {
                         goldCoinIcon(size: 32)
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Алмазы за золото").font(.system(size: 19 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink)
-                            Text("Обмен: 100 золотых монет → 50 алмазов").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
+                            Text("Обменяй золото на алмазы: 100 → 50, 200 → 110, 300 → 170").font(.system(size: 12 * AppFontScale.factor, weight: .semibold, design: .rounded)).foregroundStyle(palette.muted)
                         }
                         Spacer()
                         Text("Золото: \(goldBalance)").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.purple)
                     }
-                    HStack {
-                        Spacer()
-                        Button {
-                            guard goldBalance >= 100 else { return }
-                            goldBalance -= 100
-                            store.addDiamonds(50)
-                        } label: {
-                            HStack(spacing: 8) {
-                                goldCoinIcon(size: 22)
-                                Text("100").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                                Image(systemName: "arrow.right").font(.system(size: 12, weight: .black))
-                                Text("💎 50").font(.system(size: 14 * AppFontScale.factor, weight: .heavy, design: .rounded))
-                            }
-                            .foregroundStyle(.white).padding(.horizontal, 18).padding(.vertical, 11)
-                            .background(Color(red: 0.24, green: 0.08, blue: 0.55), in: Capsule())
-                        }
-                        .buttonStyle(.plain).disabled(goldBalance < 100).opacity(goldBalance >= 100 ? 1 : 0.55)
-                        Spacer()
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        goldDiamondExchangeCard(gold: 100, diamonds: 50)
+                        goldDiamondExchangeCard(gold: 200, diamonds: 110)
+                        goldDiamondExchangeCard(gold: 300, diamonds: 170)
                     }
                 }.padding(16).cardStyle(palette)
 
@@ -6769,6 +6796,34 @@ struct ContentView: View {
     private func openShop() {
         prepareShopPrices()
         selected = .shop
+    }
+
+    private func goldDiamondExchangeCard(gold amount: Int, diamonds: Int) -> some View {
+        let affordable = goldBalance >= amount
+        return Button {
+            guard goldBalance >= amount else { return }
+            goldBalance -= amount
+            store.addDiamonds(diamonds)
+        } label: {
+            VStack(spacing: 7) {
+                HStack(spacing: 5) {
+                    goldCoinIcon(size: 19)
+                    Text("\(amount)").font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                }
+                Image(systemName: "arrow.down").font(.system(size: 11, weight: .black))
+                HStack(spacing: 4) {
+                    Text("💎").font(.system(size: 17 * AppFontScale.factor))
+                    Text("\(diamonds)").font(.system(size: 15 * AppFontScale.factor, weight: .heavy, design: .rounded))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .foregroundStyle(affordable ? .white : palette.muted)
+            .background(affordable ? Color(red: 0.24, green: 0.08, blue: 0.55) : palette.line, in: RoundedRectangle(cornerRadius: 13))
+        }
+        .buttonStyle(.plain)
+        .disabled(!affordable)
+        .help("Обменять \(amount) золотых монет на \(diamonds) алмазов")
     }
 
     private func buyCollectible(_ item: Collectible) {
