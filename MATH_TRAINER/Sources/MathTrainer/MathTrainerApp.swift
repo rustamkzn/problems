@@ -2571,6 +2571,24 @@ private enum ActivityQuestionBank {
     }()
 
     static let lifeSkills: [ActivityQuestion] = focusedLifeSkills + trickyLifeSkills + practicalLifeSkills + additionalEverydayLifeSkills + generatedLifeSkills + baseLifeSkills
+
+    static func lifeSkillsIndices(for difficulty: Int) -> [Int] {
+        let a = focusedLifeSkills.count
+        let b = a + trickyLifeSkills.count
+        let c = b + practicalLifeSkills.count
+        let d = c + additionalEverydayLifeSkills.count
+        let e = d + generatedLifeSkills.count
+        let f = e + baseLifeSkills.count
+        let tier = min(3, max(1, difficulty))
+        let generated = (d..<e).filter { ($0 - d) % 3 + 1 == tier }
+        if tier == 1 {
+            return Array(0..<a) + Array(b..<c) + generated + Array(e..<f)
+        }
+        if tier == 2 {
+            return Array(a..<b) + Array(c..<d) + generated + Array(e..<f)
+        }
+        return Array(a..<b) + Array(c..<d) + generated + Array(e..<f)
+    }
 }
 
 struct MonthlyStats: Codable, Identifiable {
