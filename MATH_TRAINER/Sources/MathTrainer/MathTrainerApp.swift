@@ -3709,7 +3709,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Цены коллекционных игрушек в магазине используют золотые монеты; редкие коллекционные по-прежнему покупаются за алмазы."]),
+            ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Все коллекционные игрушки, включая редкие, покупаются за золотые монеты; алмазы можно получить через обмен."]),
             ReleaseNote(version: "1.2.31", date: "17.10.2026", title: "Единый режим «Повторить ошибки»", changes: ["В левое меню добавлен отдельный раздел, объединяющий ошибки школьных предметов, ежедневного детектива и навыков жизни.", "Ребёнок отвечает на сохранённое задание заново, видит правильный ответ и понятное объяснение.", "Попытки записываются в отдельную историю. Ошибка не удаляется после первого правильного ответа: освоение отмечается после трёх верных ответов подряд.", "Все прежние ошибки, статистика и история версий сохранены."]),
 
             ReleaseNote(version: "1.2.30", date: "17.10.2026", title: "Автоматическая проверка качества заданий", changes: ["Перед каждой сборкой запускается аудит банка заданий: проверяются четыре варианта ответа, наличие правильного ответа и повторяющиеся варианты в статических заданиях.", "Проверяется наличие маршрутов генерации для школьных предметов, олимпиады, ежедневного детектива, навыков жизни, тренировки памяти и повторения ошибок.", "Подозрительные формулировки выводятся в отчёт как предупреждения; критические структурные ошибки останавливают упаковку приложения.", "Проверка не заменяет полноценную смысловую проверку языка и автоматически генерируемых примеров; результаты аудита выводятся в GitHub Actions."]),
@@ -6737,7 +6737,7 @@ struct ContentView: View {
             }
             Text(owned ? item.title : (item.isRare ? "Редкий коллекционный приз" : "Секретный приз"))
                 .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded)).foregroundStyle(palette.ink).lineLimit(2)
-            Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "3D-коллекционный приз за 500 алмазов" : "Коллекционная игрушка за золотые монеты"))
+            Text(owned ? "Открыта · \(item.detail)" : (item.isRare ? "Редкая коллекционная игрушка за 500 золотых монет" : "Коллекционная игрушка за золотые монеты"))
                 .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded)).foregroundStyle(palette.muted).lineLimit(2)
 
             if owned {
@@ -6745,20 +6745,14 @@ struct ContentView: View {
             } else {
                 Button { buyCollectible(item) } label: {
                     HStack(spacing: 5) {
-                        if item.isRare {
-                            Text("💎").font(.system(size: 12 * AppFontScale.factor))
-                        } else {
-                            goldCoinIcon(size: 14)
-                        }
+                        goldCoinIcon(size: 14)
                         Text("\(price)").font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
                         Text(item.isRare ? "Открыть" : "Купить").font(.system(size: 10 * AppFontScale.factor, weight: .bold, design: .rounded))
                     }
                     .frame(maxWidth: .infinity).padding(.vertical, 8)
-                    .foregroundStyle((item.isRare ? store.stats.diamonds >= price : goldBalance >= price) ? (item.isRare ? Color(red: 0.36, green: 0.23, blue: 0.04) : .white) : palette.muted)
-                    .background((item.isRare ? store.stats.diamonds >= price : goldBalance >= price)
-                        ? (item.isRare ? gold.opacity(0.85) : palette.purple)
-                        : palette.line, in: Capsule())
-                }.buttonStyle(.plain).disabled(item.isRare ? store.stats.diamonds < price : goldBalance < price)
+                    .foregroundStyle(goldBalance >= price ? .white : palette.muted)
+                    .background(goldBalance >= price ? palette.purple : palette.line, in: Capsule())
+                }.buttonStyle(.plain).disabled(goldBalance < price)
             }
         }
         .padding(11)
@@ -6830,12 +6824,8 @@ struct ContentView: View {
         // Не выдаём и не продаём коллекционную игрушку второй раз.
         guard !allOwnedCollectibleIDs.contains(item.id) else { return }
         let price = shopPrices[item.id] ?? (item.isRare ? 500 : 25)
-        if item.isRare {
-            guard store.spendDiamonds(price) else { return }
-        } else {
-            guard goldBalance >= price else { return }
-            goldBalance -= price
-        }
+        guard goldBalance >= price else { return }
+        goldBalance -= price
         shopPurchasesStorage = shopOwnedIDs.union([item.id]).sorted().joined(separator: ",")
         triggerCelebration(item.isRare ? "rare:\(item.id)" : "bonus:\(item.id)")
     }
