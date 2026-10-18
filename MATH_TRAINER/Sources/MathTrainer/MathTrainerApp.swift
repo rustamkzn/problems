@@ -4446,23 +4446,36 @@ struct ContentView: View {
         ))
     }
 
-    @ViewBuilder
     private var mainContent: some View {
-        switch selected {
-        case .task:
-            taskDashboard
-        case .mentor: mentorPage
-        case .detective: detectivePage
-        case .memory: memoryPage
-        case .lifeSkills: lifeSkillsPage
-        case .mistakeReview: unifiedMistakeReviewPage
-        case .olympiad: olympiadPage
-        case .statistics: statisticsPage
-        case .days: daysPage
-        case .rewards: rewardsPage
-        case .shop: shopPage
-        case .settings: settingsPage
-        case .versionHistory: versionHistoryPage
+        Group {
+            switch selected {
+            case .task:
+                taskDashboard
+            case .mentor:
+                mentorPage
+            case .detective:
+                detectivePage
+            case .memory:
+                memoryPage
+            case .lifeSkills:
+                lifeSkillsPage
+            case .mistakeReview:
+                unifiedMistakeReviewPage
+            case .olympiad:
+                olympiadPage
+            case .statistics:
+                statisticsPage
+            case .days:
+                daysPage
+            case .rewards:
+                rewardsPage
+            case .shop:
+                shopPage
+            case .settings:
+                settingsPage
+            case .versionHistory:
+                versionHistoryPage
+            }
         }
         .onChange(of: selected) { _, newValue in
             if newValue != .mentor {
