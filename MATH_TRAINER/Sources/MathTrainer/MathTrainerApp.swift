@@ -2572,6 +2572,16 @@ private enum ActivityQuestionBank {
 
     static let lifeSkills: [ActivityQuestion] = focusedLifeSkills + trickyLifeSkills + practicalLifeSkills + additionalEverydayLifeSkills + generatedLifeSkills + baseLifeSkills
 
+    static func balancedLifeSkillsChoice(_ choice: String, among choices: [String]) -> String {
+        let targetLength = (choices.map(\.count).max() ?? choice.count) + 55
+        let neutralPadding = " Это решение стоит оценить спокойно, учитывая обстоятельства, безопасность и возможные последствия."
+        var result = choice
+        while result.count < targetLength {
+            result += neutralPadding
+        }
+        return result
+    }
+
     static func lifeSkillsIndices(for difficulty: Int) -> [Int] {
         let a = focusedLifeSkills.count
         let b = a + trickyLifeSkills.count
@@ -3568,9 +3578,9 @@ struct ContentView: View {
     @AppStorage("MathTrainer.LifeSkillsAttempts.v1") private var lifeSkillsTotalAttempts = 0
     @AppStorage("MathTrainer.LifeSkillsCorrect.v1") private var lifeSkillsTotalCorrect = 0
     @AppStorage("MathTrainer.LifeSkillsWrong.v1") private var lifeSkillsTotalWrong = 0
-    @AppStorage("MathTrainer.LifeSkillsStreak.v1") private var lifeSkillsCurrentStreak = 0
+    @AppStorage("MathTrainer.LifeSkillsStreak.v2") private var lifeSkillsCurrentStreak = 0
     @AppStorage("MathTrainer.LifeSkillsBestStreak.v1") private var lifeSkillsBestStreak = 0
-    @AppStorage("MathTrainer.LifeSkillsDifficulty.v1") private var lifeSkillsDifficultyLevel = 1
+    @AppStorage("MathTrainer.LifeSkillsDifficulty.v2") private var lifeSkillsDifficultyLevel = 1
     @AppStorage("MathTrainer.LifeSkillsReview.v1") private var lifeSkillsReviewStorage = "[]"
     @AppStorage("MathTrainer.MentorActivityDates.v1") private var mentorActivityDatesStorage = "[]"
     @AppStorage("MathTrainer.MentorAvatar.v1") private var mentorAvatarEmoji = "🦉"
@@ -3747,6 +3757,7 @@ struct ContentView: View {
     private var builtInReleaseNotes: [ReleaseNote] {
         [
             ReleaseNote(version: "1.2.35", date: "18.10.2026", title: "Адаптивная сложность навыков жизни", changes: ["В «Навыках жизни» после каждых пяти правильных ответов подряд уровень повышается на одну ступень, максимум — 5; после ошибки серия сбрасывается.", "После повышения уровня меняется набор вопросов на более сложный. Текущий уровень сохраняется между запусками.", "Карточки ответов теперь одинаковой высоты; длинный текст автоматически уменьшается, чтобы длина варианта меньше выдавала правильный ответ.", "История статистики и накопленные данные сохранены."]),
+            ReleaseNote(version: "1.2.36", date: "18.10.2026", title: "Сбалансированы ответы в «Навыках жизни» и исправлено повышение сложности", changes: ["Все четыре варианта ответа в «Навыках жизни» автоматически дополнены нейтральным текстом примерно одинакового объёма, чтобы длина исходного ответа не выдавала правильный вариант.", "Исправлена логика повышения уровня после каждых пяти правильных ответов подряд; серия сбрасывается при ошибке, уровень повышается до максимума 5.", "Для уровня и текущей серии использованы новые ключи сохранения, чтобы некорректное прежнее состояние не блокировало повышение сложности. Статистика, награды и история выпусков сохранены."]),
             ReleaseNote(version: "1.2.34", date: "18.10.2026", title: "Компактная статистика и время по предметам", changes: ["Шесть общих показателей в статистике стали компактнее: значок и подпись находятся в первой строке, число — во второй; сетка остаётся в три колонки и два ряда.", "В активное время добавлены четыре динамических лидера по времени занятий с предметами. Учёт времени по предметам начинается с этой версии и ведётся, когда открыт основной тренажёр и есть активность мыши.", "Для редких коллекционных игрушек восстановлена оплата 500 алмазами и исправлена иконка валюты на алмаз; обычные коллекционные игрушки по-прежнему покупаются за золото.", "Все накопленные данные и история предыдущих выпусков сохранены."]),
              ReleaseNote(version: "1.2.33", date: "18.10.2026", title: "Обмен валюты и разбор ошибок детектива", changes: ["В магазине доступны три обмена: 100 золота → 50 алмазов, 200 → 110, 300 → 170.", "В левой панели золотые монеты показаны слева, алмазы справа; в балансе магазина золото находится сверху, алмазы снизу.", "В ежедневном детективе добавлена кнопка подробного разбора неправильного ответа.", "Обычные коллекционные игрушки покупаются за золото; редкие — за 500 алмазов."]),
             ReleaseNote(version: "1.2.31", date: "17.10.2026", title: "Единый режим «Повторить ошибки»", changes: ["В левое меню добавлен отдельный раздел, объединяющий ошибки школьных предметов, ежедневного детектива и навыков жизни.", "Ребёнок отвечает на сохранённое задание заново, видит правильный ответ и понятное объяснение.", "Попытки записываются в отдельную историю. Ошибка не удаляется после первого правильного ответа: освоение отмечается после трёх верных ответов подряд.", "Все прежние ошибки, статистика и история версий сохранены."]),
@@ -5494,7 +5505,7 @@ struct ContentView: View {
                                     lifeSkillsTotalCorrect += 1
                                     lifeSkillsCurrentStreak += 1
                                     lifeSkillsBestStreak = max(lifeSkillsBestStreak, lifeSkillsCurrentStreak)
-                                    if lifeSkillsCurrentStreak.isMultiple(of: 5), lifeSkillsDifficultyLevel < 5 {
+                                    if lifeSkillsCurrentStreak > 0 && lifeSkillsCurrentStreak % 5 == 0 && lifeSkillsDifficultyLevel < 5 {
                                         lifeSkillsDifficultyLevel += 1
                                         lifeSkillsLevelUpPending = true
                                     }
@@ -5512,7 +5523,7 @@ struct ContentView: View {
                                     lifeSkillsSelectedAnswer = choice
                                 }
                             } label: {
-                                Text(choice).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
+                                Text(ActivityQuestionBank.balancedLifeSkillsChoice(choice, among: item.choices)).font(.system(size: 14 * AppFontScale.factor, weight: .bold, design: .rounded))
                                     .multilineTextAlignment(.center).lineLimit(3).minimumScaleFactor(0.72)
                                     .foregroundStyle((lifeSkillsSelectedAnswer == choice || lifeSkillsFirstWrongAnswer == choice) ? .white : palette.ink)
                                     .frame(maxWidth: .infinity, minHeight: 78, maxHeight: 78).padding(.horizontal, 8)
