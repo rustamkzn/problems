@@ -6254,6 +6254,7 @@ struct ContentView: View {
         let correctAnswer = olympiadProblem.answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let correct = normalized == correctAnswer
         _ = store.record(correct: correct, grantDiamond: false)
+        if correct { goldBalance += 1 }
         markMentorActivity()
         recordSubjectAnswer(subject: olympiadSubject, correct: correct, question: olympiadProblem.text)
         _ = unlockEligibleAchievements()
