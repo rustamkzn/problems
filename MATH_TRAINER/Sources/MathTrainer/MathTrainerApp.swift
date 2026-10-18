@@ -2573,25 +2573,10 @@ private enum ActivityQuestionBank {
     static let lifeSkills: [ActivityQuestion] = focusedLifeSkills + trickyLifeSkills + practicalLifeSkills + additionalEverydayLifeSkills + generatedLifeSkills + baseLifeSkills
 
     static func balancedLifeSkillsChoice(_ choice: String, among choices: [String]) -> String {
+        // Do not add generic filler to choices: keep each answer natural, short and distinct.
         let cleanChoice = choice.trimmingCharacters(in: .whitespacesAndNewlines)
-        let punctuatedChoice: String
-        if let last = cleanChoice.last, ".!?…".contains(last) {
-            punctuatedChoice = cleanChoice
-        } else {
-            punctuatedChoice = cleanChoice + "."
-        }
-        let longestLength = choices.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).count }.max() ?? punctuatedChoice.count
-        // Keep all choices close in length, but avoid the oversized paragraphs from the previous version.
-        let targetLength = longestLength + max(18, longestLength / 3)
-        guard punctuatedChoice.count < targetLength else { return punctuatedChoice }
-        let padding = " Это разумный и безопасный вариант действий."
-        let needed = targetLength - punctuatedChoice.count
-        let repeated = String(repeating: padding, count: needed / max(1, padding.count) + 2)
-        var result = punctuatedChoice + String(repeated.prefix(needed))
-        if let last = result.last, !".!?…".contains(last) {
-            result += "."
-        }
-        return result
+        guard let last = cleanChoice.last, !".!?…".contains(last) else { return cleanChoice }
+        return cleanChoice + "."
     }
 
     static func lifeSkillsIndices(for difficulty: Int) -> [Int] {
@@ -3611,6 +3596,8 @@ struct ContentView: View {
     @State private var problem = ProblemGenerator.next()
     @State private var answer = ""
     @State private var selected: AppSection = .task
+    @State private var mentorSpeechSynthesizer = AVSpeechSynthesizer()
+    @State private var lastMentorGreeting = ""
     @State private var answerState: AnswerState = .neutral
     @State private var currentTip = "Внимательно прочитай условие и проверь ответ."
     @State private var showSubjectPicker = false
@@ -3776,6 +3763,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
+            ReleaseNote(version: "1.2.41", date: "18.10.2026", title: "Естественные ответы и голосовое приветствие наставника", changes: ["Убрана повторяющаяся фраза «Это разумный и безопасный вариант действий…» из вариантов «Навыков жизни»: ответы больше не искусственно удлиняются и отображаются естественно.", "При каждом входе в «Мой наставник» Элину встречает новое случайное поддерживающее приветствие голосом. Используется доступный женский голос macOS на русском языке, если он установлен.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.40", date: "18.10.2026", title: "Размер ответов работает во всех режимах", changes: ["Ползунок H5 «Названия ответов и кнопок» теперь меняет размер вариантов в «Навыках жизни» и «Ежедневном детективе», как и в обычных заданиях.", "Ползунок H4 теперь управляет размером текста вопроса в этих двух режимах.", "Из настроек удалён неработающий информационный раздел «Учебные предметы»; выбор предметов по-прежнему доступен в левом меню.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.39", date: "18.10.2026", title: "Исправлен предпросмотр шрифтов и убраны дубли тем", changes: ["Пример варианта ответа теперь связан с настройкой H5 и меняется сразу; каждый пример размера шрифта использует собственный регулятор, а общий масштаб применяется один раз.", "Настройка H5 применяется к тексту вариантов ответа в сетке выбора перевода.", "В настройках оставлены 20 тем без повторяющихся вариантов: 15 самостоятельных светлых палитр и 5 контрастных тёмных тем. Старые сохранённые настройки темы не сбрасываются.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.35", date: "18.10.2026", title: "Адаптивная сложность навыков жизни", changes: ["В «Навыках жизни» после каждых пяти правильных ответов подряд уровень повышается на одну ступень, максимум — 5; после ошибки серия сбрасывается.", "После повышения уровня меняется набор вопросов на более сложный. Текущий уровень сохраняется между запусками.", "Карточки ответов теперь одинаковой высоты; длинный текст автоматически уменьшается, чтобы длина варианта меньше выдавала правильный ответ.", "История статистики и накопленные данные сохранены."]),
@@ -5904,7 +5892,39 @@ struct ContentView: View {
                 mentorDailyPlan
                 mentorUnifiedAnalysis
             }.padding(24)
-        }.scrollIndicators(.hidden)
+        }
+        .scrollIndicators(.hidden)
+        .onAppear { speakRandomMentorGreeting() }
+    }
+
+    private func speakRandomMentorGreeting() {
+        let greetings = [
+            "Привет, Элина! Давай приступим к занятиям. Ты молодец, у тебя хорошо получается!",
+            "Здравствуй, Элина! Я рада тебя видеть. Сегодня у нас всё получится — ты большая умница!",
+            "Привет, Элина! Готова к новым открытиям? Ты стараешься, и у тебя становится всё лучше!",
+            "Элина, привет! Как здорово, что ты снова здесь. Давай учиться вместе — у тебя отлично получается!",
+            "Привет, Элина! Вперёд к новым знаниям. Я верю в тебя, ты справишься!",
+            "Здравствуй, Элина! Ты уже многому научилась. Давай сделаем ещё один маленький шаг к большой победе!",
+            "Привет, Элина! Рада нашей встрече. Улыбнись — сегодня тебя ждут интересные задания!",
+            "Элина, привет! Ты умная, старательная и любознательная. Давай посмотрим, что у тебя получится сегодня!",
+            "Привет, Элина! Каждое занятие делает тебя сильнее. Я рядом, и мы со всем справимся!",
+            "Здравствуй, Элина! Ты такая молодец, что продолжаешь заниматься. Начнём с хорошим настроением!",
+            "Привет, Элина! Готова потренировать свой ум? У тебя уже многое получается, и дальше будет ещё лучше!",
+            "Элина, привет! Я тобой горжусь. Давай спокойно и уверенно начнём наше занятие!"
+        ]
+        let options = greetings.filter { $0 != lastMentorGreeting }
+        let greeting = options.randomElement() ?? greetings[0]
+        lastMentorGreeting = greeting
+        mentorSpeechSynthesizer.stopSpeaking(at: .immediate)
+        let utterance = AVSpeechUtterance(string: greeting)
+        utterance.rate = 0.47
+        utterance.pitchMultiplier = 1.08
+        utterance.volume = 0.9
+        let russianVoices = AVSpeechSynthesisVoice.speechVoices().filter {
+            $0.language.hasPrefix("ru") && $0.gender == .female
+        }
+        utterance.voice = russianVoices.first ?? AVSpeechSynthesisVoice(language: "ru-RU")
+        mentorSpeechSynthesizer.speak(utterance)
     }
 
     private var mentorDailyPlan: some View {
