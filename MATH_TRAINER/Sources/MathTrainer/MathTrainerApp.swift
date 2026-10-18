@@ -2781,10 +2781,20 @@ private enum ActivityQuestionBank {
     static let lifeSkills: [ActivityQuestion] = focusedLifeSkills + trickyLifeSkills + practicalLifeSkills + additionalEverydayLifeSkills + generatedLifeSkills + baseLifeSkills + teenLifeSkills
 
     static func balancedLifeSkillsChoice(_ choice: String, among choices: [String]) -> String {
-        // Do not add generic filler to choices: keep each answer natural, short and distinct.
         let cleanChoice = choice.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let last = cleanChoice.last, !".!?…".contains(last) else { return cleanChoice }
-        return cleanChoice + "."
+        let wordCount: (String) -> Int = { value in
+            value.split { $0.isWhitespace || $0.isPunctuation }.count
+        }
+        let longest = choices.map(wordCount).max() ?? wordCount(cleanChoice)
+        var result = cleanChoice
+        // Reduce the obvious word-count clue without changing the answer's core meaning.
+        if longest - wordCount(cleanChoice) >= 3 {
+            result += " — вариант для этой ситуации"
+        }
+        if let last = result.last, !" .!?…".contains(last) {
+            result += "."
+        }
+        return result
     }
 
     static func lifeSkillsIndices(for difficulty: Int) -> [Int] {
@@ -3973,7 +3983,7 @@ struct ContentView: View {
     private var levelProgress: Int { store.stats.total % 25 }
     private var builtInReleaseNotes: [ReleaseNote] {
         [
-            ReleaseNote(version: "1.2.45", date: "18.10.2026", title: "В «Навыках жизни» ответы больше не выдают правильный вариант длиной", changes: ["Сокращены чрезмерно длинные правильные варианты в 1 000 вопросах для возраста 10–15 лет: ответ теперь формулируется кратко и естественно.", "Сохранены смысл правильного ответа, подробные объяснения после ответа и четыре варианта выбора; длина больше не должна служить простой подсказкой.", "Голосовое приветствие в «Моём наставнике» отключено; предыдущие исправления, история, статистика, достижения и накопленные награды сохранены."]),
+            ReleaseNote(version: "1.2.46", date: "18.10.2026", title: "Сбалансированы варианты в «Навыках жизни», исправлена пауза олимпиады", changes: ["В «Навыках жизни» варианты выбора балансируются по длине: заметно короткие варианты получают краткую нейтральную пометку, чтобы правильный ответ не выделялся только количеством слов.", "В олимпиаде пауза блокирует отправку ответа на уровне логики; кнопки выбора и поле ввода отключаются до продолжения. Ответы во время паузы не записываются в статистику и не начисляют награды.", "Сохранены объяснения, история версий, статистика, достижения, накопленные награды и отключение голосового приветствия в «Моём наставнике».]),
             ReleaseNote(version: "1.2.42", date: "18.10.2026", title: "Продвинутые навыки жизни и гибкое время памяти", changes: ["В «Навыки жизни» добавлены 1 000 дополнительных вопросов для возраста 10–15 лет: цифровая безопасность, деньги, критическое мышление, общение, самостоятельность и безопасность в быту. Новые вопросы доступны на высокой сложности; в каждом четыре варианта ответа.", "Голосовое приветствие теперь останавливается при выходе из «Моего наставника», поэтому оно не продолжается при переходе в другие разделы. В «Навыках жизни» озвучивание не запускается.", "В «Тренировке памяти» каждый новый уровень добавляет одну секунду на запоминание последовательности.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.41", date: "18.10.2026", title: "Естественные ответы и голосовое приветствие наставника", changes: ["Убрана повторяющаяся фраза «Это разумный и безопасный вариант действий…» из вариантов «Навыков жизни»: ответы больше не искусственно удлиняются и отображаются естественно.", "При каждом входе в «Мой наставник» Элину встречает новое случайное поддерживающее приветствие голосом. Используется доступный женский голос macOS на русском языке, если он установлен.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
             ReleaseNote(version: "1.2.40", date: "18.10.2026", title: "Размер ответов работает во всех режимах", changes: ["Ползунок H5 «Названия ответов и кнопок» теперь меняет размер вариантов в «Навыках жизни» и «Ежедневном детективе», как и в обычных заданиях.", "Ползунок H4 теперь управляет размером текста вопроса в этих двух режимах.", "Из настроек удалён неработающий информационный раздел «Учебные предметы»; выбор предметов по-прежнему доступен в левом меню.", "История выпусков, статистика, достижения и накопленные награды сохранены."]),
@@ -6595,7 +6605,7 @@ struct ContentView: View {
                                             .frame(maxWidth: .infinity, minHeight: 58)
                                             .padding(8).background(palette.cardSurface.opacity(0.88), in: RoundedRectangle(cornerRadius: 15))
                                             .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple.opacity(0.65), lineWidth: 1.5))
-                                    }.buttonStyle(.plain)
+                                    }.buttonStyle(.plain).disabled(olympiadPaused)
                                 }
                             }
                         } else {
@@ -6605,10 +6615,11 @@ struct ContentView: View {
                                     .multilineTextAlignment(.center).foregroundStyle(palette.ink)
                                     .frame(height: 60).background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 15))
                                     .overlay(RoundedRectangle(cornerRadius: 15).stroke(palette.purple, lineWidth: 1.5))
+                                    .disabled(olympiadPaused)
                                     .onSubmit { submitOlympiadAnswer(olympiadAnswer) }
                                 Button { submitOlympiadAnswer(olympiadAnswer) } label: {
                                     Image(systemName: "arrow.right.circle.fill").font(.system(size: 34 * AppFontScale.factor)).foregroundStyle(palette.green)
-                                }.buttonStyle(.plain).disabled(olympiadAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                                }.buttonStyle(.plain).disabled(olympiadPaused || olympiadAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                             }
                         }
                         if !olympiadFeedback.isEmpty {
@@ -6658,7 +6669,7 @@ struct ContentView: View {
     }
 
     private func submitOlympiadAnswer(_ rawAnswer: String) {
-        guard olympiadStarted, !olympiadFinished, !rawAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        guard olympiadStarted, !olympiadPaused, !olympiadFinished, !rawAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         let normalized = rawAnswer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let correctAnswer = olympiadProblem.answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let correct = normalized == correctAnswer
