@@ -160,7 +160,7 @@ if "private static let generatedDetective" in source and "for i in 0..<120" not 
 
 print("=== MathTrainer question quality audit ===")
 
-# Detailed topic results belong only in the subject-card hover overlay, not below the subject label.
+# Detailed topic results belong only in the subject-card hover popover, not below the subject label.
 app_source = SOURCE.read_text(encoding="utf-8")
 for required in (
     "Как читать результаты:",
@@ -168,13 +168,13 @@ for required in (
     'Text("\\(subject.rawValue) — подробная успеваемость")',
     'Общий результат: \\(result.accuracy)% · отставание до 100%: \\(max(0, 100 - result.accuracy)) п.п.',
     'Верно \\(stats.correct) из \\(stats.total) · отставание: \\(max(0, 100 - stats.accuracy)) п.п.',
-    '.overlay(alignment: .center)',
+    '.popover(',
     '.onHover { isHovering in',
 ):
     if required not in app_source:
         errors.append(f"Subject statistics clarity check failed: missing {required!r}")
 if 'Text("Тема: \\(topic)")' in app_source:
-    errors.append("Topic details must not be shown inline below subject names; keep them in the hover overlay only.")
+    errors.append("Topic details must not be shown inline below subject names; keep them in the hover popover only.")
 
 print(f"Literal multiple-choice records inspected: {checked}")
 print(f"Distinct literal prompts seen: {len(literal_prompts)}")
