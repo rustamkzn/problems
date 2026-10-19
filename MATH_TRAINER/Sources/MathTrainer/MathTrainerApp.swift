@@ -6356,7 +6356,7 @@ struct ContentView: View {
                 .cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Подробная статистика по предметам", icon: "chart.xyaxis.line")
-                    Text("В строке предмета: всего попыток, верных ответов и ошибок. Ниже показаны до двух тем: значок означает уровень точности (зелёный — 80–100%, оранжевый — 60–79%, красный — ниже 60%); справа указаны точность и число попыток.")
+                    Text("Процент рядом с названием предмета — доля правильных ответов по предмету в целом. Ниже — до двух отдельных тем этого предмета. В каждой строке показано, сколько ответов верно из общего числа попыток; цвет значка показывает результат: зелёный — 80–100%, оранжевый — 60–79%, красный — ниже 60%.")
                         .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
                         .foregroundStyle(palette.muted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -6417,7 +6417,7 @@ struct ContentView: View {
                                             Text(topic)
                                                 .lineLimit(2)
                                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                            Text("\(stats.accuracy)% точность · \(stats.total) попыток")
+                                            Text("Верно \(stats.correct) из \(stats.total) · \(stats.accuracy)%")
                                                 .fontWeight(.bold)
                                                 .foregroundStyle(palette.ink)
                                         }
