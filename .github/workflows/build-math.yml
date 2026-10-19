@@ -14,11 +14,25 @@ jobs:
       - name: Automatic question quality audit
         working-directory: MATH_TRAINER
         run: python3 qa/quality_check.py
-      - name: Build Swift app
+      - name: Build Intel (x86_64) app
         working-directory: MATH_TRAINER
         env:
           MACOSX_DEPLOYMENT_TARGET: '10.15'
-        run: swift build -c release --arch x86_64
+        run: |
+          swift build -c release --arch x86_64
+          cp .build/release/MathTrainer /tmp/MathTrainer-x86_64
+      - name: Build Apple Silicon (arm64) app
+        working-directory: MATH_TRAINER
+        env:
+          MACOSX_DEPLOYMENT_TARGET: '10.15'
+        run: |
+          swift build -c release --arch arm64
+          cp .build/release/MathTrainer /tmp/MathTrainer-arm64
+      - name: Create universal executable
+        working-directory: MATH_TRAINER
+        run: |
+          lipo -create /tmp/MathTrainer-x86_64 /tmp/MathTrainer-arm64 -output .build/release/MathTrainer
+          lipo -info .build/release/MathTrainer
       - name: Create app icon, bundle and DMG
         working-directory: MATH_TRAINER
         shell: bash
