@@ -6356,7 +6356,7 @@ struct ContentView: View {
                 .cardStyle(palette)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionTitle("Подробная статистика по предметам", icon: "chart.xyaxis.line")
-                    Text("Процент рядом с названием предмета — доля правильных ответов по всем заданиям этого предмета. Ниже перечислены конкретные темы, по которым ребёнок уже решал задания, например в математике это могут быть «Сложение», «Вычитание» или «Умножение». Для каждой темы отдельно указано, сколько ответов верно из общего числа попыток и какой процент ответов был правильным. Показаны до двух тем с самыми низкими результатами — так легче заметить, что стоит повторить. Зелёный значок означает 80–100%, оранжевый — 60–79%, красный — меньше 60%.")
+                    Text("Как читать результаты: процент справа от названия предмета — общий результат по всем заданиям этого предмета. Строки ниже — отдельные темы внутри этого предмета, а не повтор общего результата. Например, в математике это могут быть «Сложение», «Вычитание» и «Умножение»; в русском языке — «Глаголы» или «Правописание»; в английском — «Слова и перевод» или «Грамматика». В других предметах показываются их собственные темы. Для каждой темы написано название и число правильных ответов из всех попыток. Зелёный кружок означает 80–100%, оранжевый — 60–79%, красный — меньше 60%. Показаны до двух тем, которые стоит повторить в первую очередь.")
                         .font(.system(size: 12 * AppFontScale.factor, weight: .medium, design: .rounded))
                         .foregroundStyle(palette.muted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -6411,17 +6411,23 @@ struct ContentView: View {
                                     ForEach(Array(topicRows.prefix(2).enumerated()), id: \.offset) { entry in
                                         let topic = entry.element.0
                                         let stats = entry.element.1
-                                        HStack(alignment: .top, spacing: 5) {
-                                            Image(systemName: stats.accuracy < 60 ? "exclamationmark.circle.fill" : (stats.accuracy >= 80 ? "checkmark.circle.fill" : "arrow.up.right.circle.fill"))
-                                                .foregroundStyle(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
-                                            Text(topic)
-                                                .lineLimit(2)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                            Text("Верно \(stats.correct) из \(stats.total) · \(stats.accuracy)%")
-                                                .fontWeight(.bold)
-                                                .foregroundStyle(palette.ink)
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            HStack(alignment: .top, spacing: 5) {
+                                                Circle()
+                                                    .fill(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
+                                                    .frame(width: 7, height: 7)
+                                                    .padding(.top, 4)
+                                                Text("Тема: \(topic)")
+                                                    .fontWeight(.bold)
+                                                    .foregroundStyle(palette.ink)
+                                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                            }
+                                            Text("Правильных ответов: \(stats.correct) из \(stats.total) (\(stats.accuracy)%)")
+                                                .foregroundStyle(palette.muted)
+                                                .fixedSize(horizontal: false, vertical: true)
                                         }
                                         .font(.system(size: 10 * AppFontScale.factor, weight: .medium, design: .rounded))
+                                        .padding(.vertical, 3)
                                     }
                                 }
                             }
