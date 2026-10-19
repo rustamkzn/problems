@@ -165,8 +165,8 @@ app_source = SOURCE.read_text(encoding="utf-8")
 for required in (
     "Как читать результаты:",
     "Зелёный кружок означает 80–100%, оранжевый — 60–79%, красный — меньше 60%",
-    "Text(\\"Тема: \\(topic)\\")",
-    "Правильных ответов: \\(stats.correct) из \\(stats.total) (\\(stats.accuracy)%)",
+    'Text("Тема: \\(topic)")',
+    'Правильных ответов: \\(stats.correct) из \\(stats.total) (\\(stats.accuracy)%)',
 ):
     if required not in app_source:
         errors.append(f"Subject statistics clarity check failed: missing {required!r}")
