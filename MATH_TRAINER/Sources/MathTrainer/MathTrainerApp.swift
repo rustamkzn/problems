@@ -6474,13 +6474,7 @@ struct ContentView: View {
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.line.opacity(0.55), lineWidth: 1))
                             .contentShape(RoundedRectangle(cornerRadius: 12))
                             .onHover { isHovering in
-                                // Do not close on the card's exit event: when the popover opens,
-                                // AppKit can briefly report the pointer as outside the card,
-                                // causing a visible open/close loop. Let the popover dismiss
-                                // itself on outside interaction or switch when another card is hovered.
-                                if isHovering {
-                                    hoveredStatsSubject = subject.rawValue
-                                }
+                                hoveredStatsSubject = isHovering ? subject.rawValue : nil
                             }
                             .overlay(alignment: .center) {
                                 if hoveredStatsSubject == subject.rawValue {
