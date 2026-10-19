@@ -165,7 +165,7 @@ print("=== MathTrainer question quality audit ===")
 app_source = SOURCE.read_text(encoding="utf-8")
 for required in (
     "зелёный — 80–100%, оранжевый — 60–79%, красный — ниже 60%",
-    "\\(stats.accuracy)% точность · \\(stats.total) попыток",
+    "Верно \\(stats.correct) из \\(stats.total) · \\(stats.accuracy)%",
 ):
     if required not in app_source:
         errors.append(f"Subject statistics clarity check failed: missing {required!r}")
