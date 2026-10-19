@@ -6366,9 +6366,10 @@ struct ContentView: View {
                             let topicRows = decodedTopicPerformance
                                 .filter { $0.key.hasPrefix(subject.rawValue + "::") }
                                 .map { (String($0.key.dropFirst(subject.rawValue.count + 2)), $0.value) }
+                                // Keep topic rows in a fixed order so they do not jump around
+                                // whenever a new answer changes accuracy or attempt totals.
                                 .sorted { lhs, rhs in
-                                    if lhs.1.accuracy != rhs.1.accuracy { return lhs.1.accuracy < rhs.1.accuracy }
-                                    return lhs.1.total > rhs.1.total
+                                    lhs.0.localizedStandardCompare(rhs.0) == .orderedAscending
                                 }
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack(spacing: 6) {
