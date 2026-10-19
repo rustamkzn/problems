@@ -17,14 +17,14 @@ jobs:
       - name: Build Intel (x86_64) app
         working-directory: MATH_TRAINER
         env:
-          MACOSX_DEPLOYMENT_TARGET: '10.15'
+          MACOSX_DEPLOYMENT_TARGET: '14.0'
         run: |
           swift build -c release --arch x86_64
           cp .build/release/MathTrainer /tmp/MathTrainer-x86_64
       - name: Build Apple Silicon (arm64) app
         working-directory: MATH_TRAINER
         env:
-          MACOSX_DEPLOYMENT_TARGET: '10.15'
+          MACOSX_DEPLOYMENT_TARGET: '14.0'
         run: |
           swift build -c release --arch arm64
           cp .build/release/MathTrainer /tmp/MathTrainer-arm64
@@ -131,7 +131,7 @@ jobs:
           <key>CFBundleShortVersionString</key><string>${VERSION}</string>
           <key>CFBundleVersion</key><string>${GITHUB_RUN_NUMBER}</string>
           <key>AppReleaseDate</key><string>${BUILD_DATE}</string>
-          <key>LSMinimumSystemVersion</key><string>10.15</string>
+          <key>LSMinimumSystemVersion</key><string>14.0</string>
           <key>NSHighResolutionCapable</key><true/>
           </dict></plist>
           PLIST
