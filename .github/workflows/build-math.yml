@@ -16,7 +16,9 @@ jobs:
         run: python3 qa/quality_check.py
       - name: Build Swift app
         working-directory: MATH_TRAINER
-        run: swift build -c release
+        env:
+          MACOSX_DEPLOYMENT_TARGET: '10.15'
+        run: swift build -c release --arch x86_64
       - name: Create app icon, bundle and DMG
         working-directory: MATH_TRAINER
         shell: bash
@@ -115,7 +117,7 @@ jobs:
           <key>CFBundleShortVersionString</key><string>${VERSION}</string>
           <key>CFBundleVersion</key><string>${GITHUB_RUN_NUMBER}</string>
           <key>AppReleaseDate</key><string>${BUILD_DATE}</string>
-          <key>LSMinimumSystemVersion</key><string>14.0</string>
+          <key>LSMinimumSystemVersion</key><string>10.15</string>
           <key>NSHighResolutionCapable</key><true/>
           </dict></plist>
           PLIST
