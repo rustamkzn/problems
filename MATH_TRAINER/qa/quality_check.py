@@ -159,6 +159,17 @@ if "private static let generatedDetective" in source and "for i in 0..<120" not 
     errors.append("Daily Detective generator loop signature changed; update its coverage assertion.")
 
 print("=== MathTrainer question quality audit ===")
+
+# Keep the detailed subject statistics understandable: explain topic badge colors
+# and explicitly label accuracy and attempt counts in each topic row.
+app_source = (ROOT / "Sources/MathTrainer/MathTrainerApp.swift").read_text(encoding="utf-8")
+for required in (
+    "зелёный — 80–100%, оранжевый — 60–79%, красный — ниже 60%",
+    "\\(stats.accuracy)% точность · \\(stats.total) попыток",
+):
+    if required not in app_source:
+        errors.append(f"Subject statistics clarity check failed: missing {required!r}")
+
 print(f"Literal multiple-choice records inspected: {checked}")
 print(f"Distinct literal prompts seen: {len(literal_prompts)}")
 print(f"Coverage areas verified: {len(coverage) + 12}")
