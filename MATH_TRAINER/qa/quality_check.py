@@ -168,7 +168,7 @@ for required in (
     'Text("\\(subject.rawValue) — подробная успеваемость")',
     'Общий результат: \\(result.accuracy)% · отставание до 100%: \\(max(0, 100 - result.accuracy)) п.п.',
     'Верно \\(stats.correct) из \\(stats.total) · отставание: \\(max(0, 100 - stats.accuracy)) п.п.',
-    '.popover(',
+    '.overlay(alignment: .center)',
     '.onHover { isHovering in',
 ):
     if required not in app_source:
