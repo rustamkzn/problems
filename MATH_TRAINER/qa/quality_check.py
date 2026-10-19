@@ -164,7 +164,7 @@ print("=== MathTrainer question quality audit ===")
 # and explicitly label accuracy and attempt counts in each topic row.
 app_source = SOURCE.read_text(encoding="utf-8")
 for required in (
-    "Зелёный значок означает 80–100%, оранжевый — 60–79%, красный — меньше 60%",
+    "Зелёный кружок означает 80–100%, оранжевый — 60–79%, красный — меньше 60%",
     "Верно \\(stats.correct) из \\(stats.total) · \\(stats.accuracy)%",
 ):
     if required not in app_source:
