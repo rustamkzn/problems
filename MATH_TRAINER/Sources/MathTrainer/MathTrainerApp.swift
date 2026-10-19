@@ -3820,6 +3820,7 @@ struct ContentView: View {
     @State private var lastMentorGreeting = ""
     @State private var answerState: AnswerState = .neutral
     @State private var currentTip = "Внимательно прочитай условие и проверь ответ."
+    @State private var hoveredStatsSubject: String? = nil
     @State private var showSubjectPicker = false
     @State private var showResetStatsConfirmation = false
     @State private var seenQuestionTexts: [String: Set<String>] = [:]
@@ -6381,6 +6382,62 @@ struct ContentView: View {
                                         .foregroundStyle(palette.ink)
                                         .lineLimit(2)
                                         .fixedSize(horizontal: false, vertical: true)
+                                        .contentShape(Rectangle())
+                                        .onHover { isHovering in
+                                            hoveredStatsSubject = isHovering ? subject.rawValue : nil
+                                        }
+                                        .popover(
+                                            isPresented: Binding(
+                                                get: { hoveredStatsSubject == subject.rawValue },
+                                                set: { if !$0 && hoveredStatsSubject == subject.rawValue { hoveredStatsSubject = nil } }
+                                            ),
+                                            arrowEdge: .top
+                                        ) {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("\(subject.rawValue) — подробная успеваемость")
+                                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                                Text("Общий результат: \(result.accuracy)% · отставание до 100%: \(max(0, 100 - result.accuracy)) п.п.")
+                                                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                                Divider()
+                                                if topicRows.isEmpty {
+                                                    Text("По темам пока недостаточно данных. Выполняй задания по этому предмету — результаты появятся здесь.")
+                                                        .font(.system(size: 11, design: .rounded))
+                                                } else {
+                                                    ForEach(Array(topicRows.enumerated()), id: \.offset) { entry in
+                                                        let topic = entry.element.0
+                                                        let stats = entry.element.1
+                                                        VStack(alignment: .leading, spacing: 3) {
+                                                            HStack(alignment: .firstTextBaseline) {
+                                                                Text(topic)
+                                                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                                                    .lineLimit(2)
+                                                                Spacer(minLength: 8)
+                                                                Text("\(stats.accuracy)%")
+                                                                    .font(.system(size: 11, weight: .heavy, design: .rounded))
+                                                                    .foregroundStyle(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
+                                                            }
+                                                            GeometryReader { bar in
+                                                                ZStack(alignment: .leading) {
+                                                                    Capsule().fill(palette.line.opacity(0.6))
+                                                                    Capsule()
+                                                                        .fill(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
+                                                                        .frame(width: bar.size.width * CGFloat(stats.accuracy) / 100)
+                                                                }
+                                                            }
+                                                            .frame(height: 4)
+                                                            Text("Верно \(stats.correct) из \(stats.total) · отставание: \(max(0, 100 - stats.accuracy)) п.п.")
+                                                                .font(.system(size: 10, design: .rounded))
+                                                                .foregroundStyle(palette.muted)
+                                                        }
+                                                        .padding(.vertical, 2)
+                                                    }
+                                                }
+                                            }
+                                            .padding(12)
+                                            .frame(width: 285, alignment: .leading)
+                                            .foregroundStyle(palette.ink)
+                                            .background(palette.cardSurface)
+                                        }
                                     Spacer(minLength: 2)
                                     Text(result.total > 0 ? "\(result.accuracy)%" : "—")
                                         .font(.system(size: 13 * AppFontScale.factor, weight: .heavy, design: .rounded))
