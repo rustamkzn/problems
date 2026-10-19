@@ -138,6 +138,16 @@ for token, area in [
     if token not in source:
         errors.append(f"Coverage check failed: no explicit subject route for {area} ({token})")
 
+# Guard against the Olympiad progress bar drifting from the configured target.
+if "CGFloat(olympiadCompleted) / CGFloat(max(1, olympiadTargetCount))" not in source:
+    errors.append("Olympiad progress bar must use olympiadTargetCount as its denominator.")
+if "CGFloat(olympiadCompleted) / 50" in source:
+    errors.append("Olympiad progress bar still uses the obsolete fixed target of 50.")
+if "guard olympiadStarted, !olympiadPaused, !olympiadFinished" not in source:
+    errors.append("Olympiad answer submission must be blocked while paused or finished.")
+if ".disabled(olympiadPaused || !olympiadFeedback.isEmpty)" not in source:
+    errors.append("Olympiad answer buttons must be disabled while paused or feedback is displayed.")
+
 # Detect known risky patterns without blocking a build for subjective language guesses.
 if 'fallback = ["Другой вариант", "Нужно подумать ещё раз"' in source:
     warnings.append("ActivityQuestion initializer contains generic fallback answers; verify no malformed bank item relies on them.")
