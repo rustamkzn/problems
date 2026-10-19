@@ -160,12 +160,13 @@ if "private static let generatedDetective" in source and "for i in 0..<120" not 
 
 print("=== MathTrainer question quality audit ===")
 
-# Keep the detailed subject statistics understandable: explain topic badge colors
-# and explicitly label accuracy and attempt counts in each topic row.
+# Keep subject-level and topic-level results clearly distinguished, with explicit topic names.
 app_source = SOURCE.read_text(encoding="utf-8")
 for required in (
+    "Как читать результаты:",
     "Зелёный кружок означает 80–100%, оранжевый — 60–79%, красный — меньше 60%",
-    "Верно \\(stats.correct) из \\(stats.total) · \\(stats.accuracy)%",
+    "Text(\\"Тема: \\(topic)\\")",
+    "Правильных ответов: \\(stats.correct) из \\(stats.total) (\\(stats.accuracy)%)",
 ):
     if required not in app_source:
         errors.append(f"Subject statistics clarity check failed: missing {required!r}")
