@@ -145,8 +145,8 @@ if "CGFloat(olympiadCompleted) / 50" in source:
     errors.append("Olympiad progress bar still uses the obsolete fixed target of 50.")
 if "guard olympiadStarted, !olympiadPaused, !olympiadFinished" not in source:
     errors.append("Olympiad answer submission must be blocked while paused or finished.")
-if ".disabled(olympiadPaused || !olympiadFeedback.isEmpty)" not in source:
-    errors.append("Olympiad answer buttons must be disabled while paused or feedback is displayed.")
+if ".disabled(olympiadPaused || olympiadFeedback.hasPrefix(\"Верно\"))" not in source:
+    errors.append("Olympiad buttons must allow retry after a wrong answer and remain disabled during pause.")
 
 # Detect known risky patterns without blocking a build for subjective language guesses.
 if 'fallback = ["Другой вариант", "Нужно подумать ещё раз"' in source:
