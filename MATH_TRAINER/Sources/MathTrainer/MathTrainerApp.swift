@@ -6424,6 +6424,9 @@ struct ContentView: View {
                             .onHover { isHovering in
                                 hoveredStatsSubject = isHovering ? subject.rawValue : nil
                             }
+                            // Поднимаем всю карточку над соседними ячейками сетки,
+                            // чтобы всплывающая подробная статистика не перекрывалась ими.
+                            .zIndex(hoveredStatsSubject == subject.rawValue ? 100 : 0)
                             .overlay(alignment: .center) {
                                 if hoveredStatsSubject == subject.rawValue {
                                     VStack(alignment: .leading, spacing: 8) {
