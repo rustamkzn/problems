@@ -6424,61 +6424,64 @@ struct ContentView: View {
                             .onHover { isHovering in
                                 hoveredStatsSubject = isHovering ? subject.rawValue : nil
                             }
-                            // Поднимаем всю карточку над соседними ячейками сетки,
-                            // чтобы всплывающая подробная статистика не перекрывалась ими.
-                            .zIndex(hoveredStatsSubject == subject.rawValue ? 100 : 0)
-                            .overlay(alignment: .center) {
-                                if hoveredStatsSubject == subject.rawValue {
+                            .popover(
+                                isPresented: Binding(
+                                    get: { hoveredStatsSubject == subject.rawValue },
+                                    set: { isPresented in
+                                        if !isPresented { hoveredStatsSubject = nil }
+                                    }
+                                ),
+                                arrowEdge: .leading
+                            ) {
+                                ScrollView {
                                     VStack(alignment: .leading, spacing: 8) {
-                                                            Text("\(subject.rawValue) — подробная успеваемость")
-                                                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                                            Text("Общий результат: \(result.accuracy)% · отставание до 100%: \(max(0, 100 - result.accuracy)) п.п.")
-                                                                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                                            Divider()
-                                                            if topicRows.isEmpty {
-                                                                Text("По темам пока недостаточно данных. Выполняй задания по этому предмету — результаты появятся здесь.")
-                                                                    .font(.system(size: 11, design: .rounded))
-                                                            } else {
-                                                                ForEach(Array(topicRows.enumerated()), id: \.offset) { entry in
-                                                                    let topic = entry.element.0
-                                                                    let stats = entry.element.1
-                                                                    VStack(alignment: .leading, spacing: 3) {
-                                                                        HStack(alignment: .firstTextBaseline) {
-                                                                            Text(topic)
-                                                                                .font(.system(size: 11, weight: .bold, design: .rounded))
-                                                                                .lineLimit(2)
-                                                                            Spacer(minLength: 8)
-                                                                            Text("\(stats.accuracy)%")
-                                                                                .font(.system(size: 11, weight: .heavy, design: .rounded))
-                                                                                .foregroundStyle(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
-                                                                        }
-                                                                        GeometryReader { bar in
-                                                                            ZStack(alignment: .leading) {
-                                                                                Capsule().fill(palette.line.opacity(0.6))
-                                                                                Capsule().fill(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
-                                                                                    .frame(width: bar.size.width * CGFloat(stats.accuracy) / 100)
-                                                                            }
-                                                                        }
-                                                                        .frame(height: 4)
-                                                                        Text("Верно \(stats.correct) из \(stats.total) · отставание: \(max(0, 100 - stats.accuracy)) п.п.")
-                                                                            .font(.system(size: 10, design: .rounded))
-                                                                            .foregroundStyle(palette.muted)
-                                                                    }
-                                                                    .padding(.vertical, 2)
-                                                                }
-                                                            }
+                                        Text("\(subject.rawValue) — подробная успеваемость")
+                                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                                        Text("Общий результат: \(result.accuracy)% · отставание до 100%: \(max(0, 100 - result.accuracy)) п.п.")
+                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                        Divider()
+                                        if topicRows.isEmpty {
+                                            Text("По темам пока недостаточно данных. Выполняй задания по этому предмету — результаты появятся здесь.")
+                                                .font(.system(size: 11, design: .rounded))
+                                        } else {
+                                            ForEach(Array(topicRows.enumerated()), id: \.offset) { entry in
+                                                let topic = entry.element.0
+                                                let stats = entry.element.1
+                                                VStack(alignment: .leading, spacing: 3) {
+                                                    HStack(alignment: .firstTextBaseline) {
+                                                        Text(topic)
+                                                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                                                            .lineLimit(2)
+                                                        Spacer(minLength: 8)
+                                                        Text("\(stats.accuracy)%")
+                                                            .font(.system(size: 11, weight: .heavy, design: .rounded))
+                                                            .foregroundStyle(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
+                                                    }
+                                                    GeometryReader { bar in
+                                                        ZStack(alignment: .leading) {
+                                                            Capsule().fill(palette.line.opacity(0.6))
+                                                            Capsule().fill(stats.accuracy < 60 ? palette.red : (stats.accuracy >= 80 ? palette.green : Color.orange))
+                                                                .frame(width: bar.size.width * CGFloat(stats.accuracy) / 100)
                                                         }
-                                                        .padding(12)
-                                                        .frame(width: 285, alignment: .leading)
-                                                        .foregroundStyle(palette.ink)
-                                                        .background(palette.cardSurface)
-                                        .padding(1)
-                                        .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
-                                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.line, lineWidth: 1))
-                                        .shadow(radius: 8)
-                                        .zIndex(100)
-                                        .allowsHitTesting(false)
+                                                    }
+                                                    .frame(height: 4)
+                                                    Text("Верно \(stats.correct) из \(stats.total) · отставание: \(max(0, 100 - stats.accuracy)) п.п.")
+                                                        .font(.system(size: 10, design: .rounded))
+                                                        .foregroundStyle(palette.muted)
+                                                }
+                                                .padding(.vertical, 2)
+                                            }
+                                        }
+                                    }
+                                    .padding(12)
+                                    .frame(width: 285, alignment: .leading)
+                                    .foregroundStyle(palette.ink)
                                 }
+                                .frame(maxHeight: 420)
+                                .padding(1)
+                                .background(palette.cardSurface, in: RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.line, lineWidth: 1))
+                                .shadow(radius: 8)
                             }
                         }
                     }
