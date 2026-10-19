@@ -162,7 +162,7 @@ print("=== MathTrainer question quality audit ===")
 
 # Keep the detailed subject statistics understandable: explain topic badge colors
 # and explicitly label accuracy and attempt counts in each topic row.
-app_source = (ROOT / "Sources/MathTrainer/MathTrainerApp.swift").read_text(encoding="utf-8")
+app_source = SOURCE.read_text(encoding="utf-8")
 for required in (
     "зелёный — 80–100%, оранжевый — 60–79%, красный — ниже 60%",
     "\\(stats.accuracy)% точность · \\(stats.total) попыток",
