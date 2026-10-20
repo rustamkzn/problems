@@ -17,14 +17,14 @@ jobs:
       - name: Build Intel (x86_64) app
         working-directory: MATH_TRAINER
         env:
-          MACOSX_DEPLOYMENT_TARGET: '10.15'
+          MACOSX_DEPLOYMENT_TARGET: '14.0'
         run: |
           swift build -c release --arch x86_64
           cp .build/release/MathTrainer /tmp/MathTrainer-x86_64
       - name: Build Apple Silicon (arm64) app
         working-directory: MATH_TRAINER
         env:
-          MACOSX_DEPLOYMENT_TARGET: '10.15'
+          MACOSX_DEPLOYMENT_TARGET: '14.0'
         run: |
           swift build -c release --arch arm64
           cp .build/release/MathTrainer /tmp/MathTrainer-arm64
@@ -131,25 +131,25 @@ jobs:
           <key>CFBundleShortVersionString</key><string>${VERSION}</string>
           <key>CFBundleVersion</key><string>${GITHUB_RUN_NUMBER}</string>
           <key>AppReleaseDate</key><string>${BUILD_DATE}</string>
-          <key>LSMinimumSystemVersion</key><string>10.15</string>
+          <key>LSMinimumSystemVersion</key><string>14.0</string>
           <key>NSHighResolutionCapable</key><true/>
           </dict></plist>
           PLIST
           codesign --force --deep --sign - "$APP_BUNDLE"
           hdiutil create -volname "Тренировка мозга" -srcfolder "$APP_BUNDLE" -ov -format UDZO "BrainTraining.dmg"
-          # Separate Intel-only package for the 2013 iMac running Catalina.
-          INTEL_BUNDLE="Тренировка мозга Intel.app"
-          rm -rf "$INTEL_BUNDLE" "BrainTraining-iMac27-Catalina.dmg"
+          # Separate Intel-only package for Intel iMacs running macOS 14 or newer.
+          INTEL_BUNDLE="Тренировка мозга Intel macOS 14.app"
+          rm -rf "$INTEL_BUNDLE" "BrainTraining-iMac27-Intel-macOS14.dmg"
           ditto "$APP_BUNDLE" "$INTEL_BUNDLE"
           cp /tmp/MathTrainer-x86_64 "$INTEL_BUNDLE/Contents/MacOS/MathTrainer"
           chmod +x "$INTEL_BUNDLE/Contents/MacOS/MathTrainer"
           codesign --force --deep --sign - "$INTEL_BUNDLE"
-          hdiutil create -volname "Тренировка мозга Intel" -srcfolder "$INTEL_BUNDLE" -ov -format UDZO "BrainTraining-iMac27-Catalina.dmg"
+          hdiutil create -volname "Тренировка мозга Intel macOS 14" -srcfolder "$INTEL_BUNDLE" -ov -format UDZO "BrainTraining-iMac27-Intel-macOS14.dmg"
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:
           name: BrainTraining-macOS
           path: |
             MATH_TRAINER/BrainTraining.dmg
-            MATH_TRAINER/BrainTraining-iMac27-Catalina.dmg
+            MATH_TRAINER/BrainTraining-iMac27-Intel-macOS14.dmg
           if-no-files-found: error
